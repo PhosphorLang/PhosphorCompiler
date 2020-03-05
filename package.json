@@ -6,6 +6,8 @@
     "license": "MIT",
     "dependencies": {},
     "devDependencies": {
+        "typescript": "^3.8.3",
+        "@types/node": "^12.12.29"
     },
     "peerDependencies": {
         "node": "^12.16.1"
@@ -15,6 +17,8 @@
     ],
     "main": "bin/main.js",
     "scripts": {
+        "prestart": "tsc src",
+        "prepack": "rm -r bin && tsc -p tsconfig.release.json"
     },
     "private": true
 }

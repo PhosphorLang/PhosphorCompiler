@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import Lexer from './lexer/lexer';
+import Parser from './parser/parser';
 
 class Main
 {
@@ -42,10 +43,12 @@ class Main
         console.log('run: ' + this.filePath + ' - ' + this.outputPath);
 
         const lexer = new Lexer();
+        const parser = new Parser();
 
         const tokens = lexer.run(this.filePath);
+        const syntaxTree = parser.run(tokens, this.filePath);
 
-        console.log(tokens);
+        console.log(syntaxTree);
     }
 }
 

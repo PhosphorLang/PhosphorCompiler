@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import Lexer from './lexer/lexer';
+
 class Main
 {
     private filePath: string;
@@ -38,6 +40,12 @@ class Main
     public run (): void
     {
         console.log('run: ' + this.filePath + ' - ' + this.outputPath);
+
+        const lexer = new Lexer();
+
+        const tokens = lexer.run(this.filePath);
+
+        console.log(tokens);
     }
 }
 

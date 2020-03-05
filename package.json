@@ -1,0 +1,20 @@
+{
+    "name": "compiler",
+    "version": "0.1.0",
+    "description": "A compiler for my custom language.",
+    "author": "Benedikt Magnus",
+    "license": "MIT",
+    "dependencies": {},
+    "devDependencies": {
+    },
+    "peerDependencies": {
+        "node": "^12.16.1"
+    },
+    "files": [
+        "bin"
+    ],
+    "main": "bin/main.js",
+    "scripts": {
+    },
+    "private": true
+}

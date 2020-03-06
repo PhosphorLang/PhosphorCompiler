@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+import Assembler from './assembler/assembler';
+import AssemblerLinux64 from './assembler/linux/x86_64/assemblerLinux64';
 import Constructor from './constructor_/constructor';
+import fs from 'fs';
 import Lexer from './lexer/lexer';
 import Parser from './parser/parser';
 import Transpiler from './transpiler/transpiler';
@@ -49,13 +52,16 @@ class Main
         const parser = new Parser();
         const constructor = new Constructor();
         const transpiler: Transpiler = new TranspilerLinux64();
+        const assembler: Assembler = new AssemblerLinux64();
 
         const tokens = lexer.run(this.filePath);
         const syntaxTree = parser.run(tokens, this.filePath);
         const actionTree = constructor.run(syntaxTree);
         const assembly = transpiler.run(actionTree);
 
-        console.log(assembly);
+        fs.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
+
+        assembler.run('tmp/test.asm');
     }
 }
 

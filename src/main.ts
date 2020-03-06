@@ -3,6 +3,8 @@
 import Constructor from './constructor_/constructor';
 import Lexer from './lexer/lexer';
 import Parser from './parser/parser';
+import Transpiler from './transpiler/transpiler';
+import TranspilerLinux64 from './transpiler/linux/x86_64/transpilerLinux64';
 
 class Main
 {
@@ -46,12 +48,14 @@ class Main
         const lexer = new Lexer();
         const parser = new Parser();
         const constructor = new Constructor();
+        const transpiler: Transpiler = new TranspilerLinux64();
 
         const tokens = lexer.run(this.filePath);
         const syntaxTree = parser.run(tokens, this.filePath);
         const actionTree = constructor.run(syntaxTree);
+        const assembly = transpiler.run(actionTree);
 
-        console.log(actionTree);
+        console.log(assembly);
     }
 }
 

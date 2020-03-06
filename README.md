@@ -2,6 +2,11 @@
 
 TODO: Present a readme.
 
+## External Dependencies
+
+- NASM >= 2.13
+- GNU ld >= 2.30
+
 ## Formats
 
 1. File string

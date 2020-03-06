@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import Constructor from './constructor_/constructor';
 import Lexer from './lexer/lexer';
 import Parser from './parser/parser';
 
@@ -44,11 +45,13 @@ class Main
 
         const lexer = new Lexer();
         const parser = new Parser();
+        const constructor = new Constructor();
 
         const tokens = lexer.run(this.filePath);
         const syntaxTree = parser.run(tokens, this.filePath);
+        const actionTree = constructor.run(syntaxTree);
 
-        console.log(syntaxTree);
+        console.log(actionTree);
     }
 }
 

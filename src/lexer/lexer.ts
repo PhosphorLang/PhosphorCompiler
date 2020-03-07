@@ -1,18 +1,29 @@
 import LexicalType from './lexicalType';
+import Operator from '../definitions/operator';
 import Token from './token';
 
 export default class Lexer
 {
-    private wordSplitterRegex: RegExp;
+    private tokenSplitterRegex: RegExp;
 
     private numberTestRegex: RegExp;
     private idTestRegex: RegExp;
 
+    private operatorList: Set<string>;
+
     constructor ()
     {
-        this.wordSplitterRegex = /(\S+)/g;
+        this.tokenSplitterRegex = /\d+|[a-zA-Z]+|\(|\)/g;
+
         this.numberTestRegex = /^\d+$/;
         this.idTestRegex = /^[a-zA-Z]+$/;
+
+        this.operatorList = new Set(
+            [
+                Operator.openingBracket,
+                Operator.closingBracket,
+            ]
+        );
     }
 
     public run (fileContent: string): Token[]
@@ -22,24 +33,28 @@ export default class Lexer
         let match: RegExpExecArray | null;
         do
         {
-            match = this.wordSplitterRegex.exec(fileContent);
+            match = this.tokenSplitterRegex.exec(fileContent);
             if (match)
             {
-                const word = match[1];
+                const fullMatch = match[0];
 
                 let token: Token;
 
-                if (this.numberTestRegex.test(word))
+                if (this.numberTestRegex.test(fullMatch))
                 {
-                    token = new Token(LexicalType.number, word);
+                    token = new Token(LexicalType.number, fullMatch);
                 }
-                else if (this.idTestRegex.test(word))
+                else if (this.operatorList.has(fullMatch))
                 {
-                    token = new Token(LexicalType.id, word);
+                    token = new Token(LexicalType.operator, fullMatch);
+                }
+                else if (this.idTestRegex.test(fullMatch))
+                {
+                    token = new Token(LexicalType.id, fullMatch);
                 }
                 else
                 {
-                    throw new Error('Unknown token "' + word + '"');
+                    throw new Error('Unknown token "' + fullMatch + '"');
                 }
 
                 tokens.push(token);

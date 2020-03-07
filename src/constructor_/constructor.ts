@@ -15,38 +15,57 @@ export default class Constructor
 
     public run (syntaxTree: SyntaxTreeNode): ActionTreeNode
     {
-        let currentSyntaxNode = syntaxTree;
-
-        const fileActionToken = new ActionToken(SemanticalType.file, currentSyntaxNode.value.content);
-        const actionTreeNode = new ActionTreeNode(null, fileActionToken);
-
-        currentSyntaxNode = currentSyntaxNode.children[0];
-
-        if (currentSyntaxNode.value.type !== LexicalType.id)
-        {
-            throw new Error('Expected identifier, got "' + currentSyntaxNode.value.content + '".');
-        }
-
-        const functionId = this.functions.indexOf(currentSyntaxNode.value.content);
-
-        if (functionId === -1)
-        {
-            throw new Error('Unknown function "' + currentSyntaxNode.value.content + '"');
-        }
-
-        const functionActionToken = new ActionToken(SemanticalType.function, currentSyntaxNode.value.content);
-        const functionActionNode = new ActionTreeNode(actionTreeNode, functionActionToken);
-
-        currentSyntaxNode = currentSyntaxNode.children[0];
-
-        if (currentSyntaxNode.value.type !== LexicalType.number)
-        {
-            throw new Error('Expected integer literal, got "' + currentSyntaxNode.value.content + '".');
-        }
-
-        const parameterActionToken = new ActionToken(SemanticalType.integerLiteral, currentSyntaxNode.value.content);
-        new ActionTreeNode(functionActionNode, parameterActionToken);
+        const actionTreeNode = this.constructNode(syntaxTree, null);
 
         return actionTreeNode;
+    }
+
+    public constructNode (node: SyntaxTreeNode, parent: ActionTreeNode|null): ActionTreeNode
+    {
+        let result: ActionTreeNode;
+
+        switch (node.value.type)
+        {
+            case LexicalType.file:
+            {
+                const fileActionToken = new ActionToken(SemanticalType.file, node.value.content);
+                result = new ActionTreeNode(parent, fileActionToken);
+
+                break;
+            }
+            case LexicalType.id:
+            {
+                const functionId = this.functions.indexOf(node.value.content);
+
+                if (functionId === -1)
+                {
+                    throw new Error('Unknown function "' + node.value.content + '"');
+                }
+
+                const functionActionToken = new ActionToken(SemanticalType.function, node.value.content);
+                result = new ActionTreeNode(parent, functionActionToken);
+
+                break;
+            }
+            case LexicalType.number:
+            {
+                const numberActionToken = new ActionToken(SemanticalType.integerLiteral, node.value.content);
+                result = new ActionTreeNode(parent, numberActionToken);
+
+                // TODO: Should we check for children here because they are not allowed?
+                //       -> No, the parser should do this. Does he?
+
+                break;
+            }
+            default:
+                throw new Error('Unknown lexical type of symbol "' + node.value.content + '"');
+        }
+
+        for (const child of node.children)
+        {
+            this.constructNode(child, result);
+        }
+
+        return result;
     }
 }

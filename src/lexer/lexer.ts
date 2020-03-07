@@ -18,12 +18,11 @@ export default class Lexer
         this.numberTestRegex = /^\d+$/;
         this.idTestRegex = /^[a-zA-Z]+$/;
 
-        this.operatorList = new Set(
-            [
-                Operator.openingBracket,
-                Operator.closingBracket,
-            ]
-        );
+        this.operatorList = new Set();
+        for (const operator of Object.values(Operator))
+        {
+            this.operatorList.add(operator);
+        }
     }
 
     public run (fileContent: string): Token[]

@@ -57,6 +57,20 @@ export default class Parser
 
                             break;
                         }
+                        case Operator.semicolon:
+                        {
+                            // Semicolon means end the statement, if there is one:
+                            if ((currentNode.parent !== null) && (currentNode.parent.value.type === LexicalType.id))
+                            {
+                                currentNode = currentNode.parent;
+                            }
+                            else
+                            {
+                                throw new Error('Unexpected operator "' + token.content + '"');
+                            }
+
+                            break;
+                        }
                         default:
                             throw new Error('Unknown operator "' + token.content + '"');
                     }

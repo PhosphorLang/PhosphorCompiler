@@ -25,6 +25,8 @@ export default class TranspilerLinux64 implements Transpiler
 
     private transpileNode (node: ActionTreeNode): string[]
     {
+        let result: string[];
+
         switch (node.value.type)
         {
             case SemanticalType.integerLiteral:
@@ -32,25 +34,31 @@ export default class TranspilerLinux64 implements Transpiler
                 // The constant name will never be undefined because we inserted all of them getConstants:
                 const constantName = this.constants.get(node.value.content) as string;
 
-                return [
+                result = [
                     'mov rdi, ' + constantName,
                     'mov rsi, 1'
                 ];
+
+                break;
             }
             case SemanticalType.function:
             {
-                const result = this.transpileNode(node.children[0]);
+                result = this.transpileNode(node.children[0]);
 
                 result.push('call ' + node.value.content);
 
-                return result;
+                break;
             }
             case SemanticalType.file:
             {
-                const result: string[] = [
+                result = [
                     'section .rodata'
                 ];
-                result.push(...this.getConstants(node.children[0]));
+
+                for (const child of node.children)
+                {
+                    result.push(...this.getConstants(child));
+                }
 
                 result.push(
                     'section .text',
@@ -59,7 +67,10 @@ export default class TranspilerLinux64 implements Transpiler
                     '_start:'
                 );
 
-                result.push(...this.transpileNode(node.children[0]));
+                for (const child of node.children)
+                {
+                    result.push(...this.transpileNode(child));
+                }
 
                 result.push(
                     'mov rdi, 0',
@@ -67,11 +78,13 @@ export default class TranspilerLinux64 implements Transpiler
                     'syscall'
                 );
 
-                return result;
+                break;
             }
             default:
                 throw new Error('Unknown semantical type of symbol "' + node.value.content + '"');
         }
+
+        return result;
     }
 
     private getConstants (node: ActionTreeNode): string[]
@@ -80,11 +93,18 @@ export default class TranspilerLinux64 implements Transpiler
         {
             const constantName = 'constant_' + node.value.content;
 
-            this.constants.set(node.value.content, constantName);
+            if (this.constants.has(node.value.content))
+            {
+                return [];
+            }
+            else
+            {
+                this.constants.set(node.value.content, constantName);
 
-            return [
-                constantName + ': db ' + node.value.content
-            ];
+                return [
+                    constantName + ': db ' + node.value.content
+                ];
+            }
         }
         else if (node.children.length > 0)
         {

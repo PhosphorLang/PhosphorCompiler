@@ -54,7 +54,9 @@ class Main
         const assembler: Assembler = new AssemblerLinux64();
         const linker = new Linker();
 
-        const tokens = lexer.run(this.filePath);
+        const fileContent = fs.readFileSync(this.filePath, {encoding: 'utf8'});
+
+        const tokens = lexer.run(fileContent);
         const syntaxTree = parser.run(tokens, this.filePath);
         const actionTree = constructor.run(syntaxTree);
         const assembly = transpiler.run(actionTree);

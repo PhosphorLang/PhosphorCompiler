@@ -1,4 +1,3 @@
-import fs from 'fs';
 import LexicalType from './lexicalType';
 import Token from './token';
 
@@ -16,16 +15,14 @@ export default class Lexer
         this.idTestRegex = /^[a-zA-Z]+$/;
     }
 
-    public run (filePath: string): Token[] // TODO: Change this from filePath to fileString.
+    public run (fileContent: string): Token[]
     {
         const tokens: Token[] = [];
-
-        const file = fs.readFileSync(filePath, {encoding: 'utf8'});
 
         let match: RegExpExecArray | null;
         do
         {
-            match = this.wordSplitterRegex.exec(file);
+            match = this.wordSplitterRegex.exec(fileContent);
             if (match)
             {
                 const word = match[1];

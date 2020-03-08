@@ -1,8 +1,8 @@
 enum SemanticalType
 {
-    file,
-    function,
-    integerLiteral,
+    File,
+    Function,
+    IntegerLiteral,
 }
 
 export default SemanticalType;

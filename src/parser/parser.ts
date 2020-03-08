@@ -13,7 +13,7 @@ export default class Parser
      */
     public run (tokens: Token[], filePath: string): SyntaxTreeNode
     {
-        const fileToken = new Token(LexicalType.file, filePath);
+        const fileToken = new Token(LexicalType.File, filePath);
         const root = new SyntaxTreeNode(null, fileToken);
 
         let currentNode = root;
@@ -23,20 +23,20 @@ export default class Parser
         {
             switch (token.type)
             {
-                case LexicalType.id:
+                case LexicalType.Id:
                 {
                     // The id becomes the new current node, now able to get children:
                     currentNode = new SyntaxTreeNode(currentNode, token);
 
                     break;
                 }
-                case LexicalType.operator:
+                case LexicalType.Operator:
                 {
                     switch (token.content)
                     {
                         case Operator.openingBracket:
                         {
-                            if (currentNode.value.type != LexicalType.id)
+                            if (currentNode.value.type != LexicalType.Id)
                             {
                                 throw new Error('Unexpected operator "' + token.content + '"');
                             }
@@ -60,7 +60,7 @@ export default class Parser
                         case Operator.semicolon:
                         {
                             // Semicolon means end the statement, if there is one:
-                            if ((currentNode.parent !== null) && (currentNode.parent.value.type === LexicalType.id))
+                            if ((currentNode.parent !== null) && (currentNode.parent.value.type === LexicalType.Id))
                             {
                                 currentNode = currentNode.parent;
                             }
@@ -77,9 +77,9 @@ export default class Parser
 
                     break;
                 }
-                case LexicalType.number:
+                case LexicalType.Number:
                 {
-                    if ((currentNode.value.type == LexicalType.id) && (lastToken.content == Operator.openingBracket))
+                    if ((currentNode.value.type == LexicalType.Id) && (lastToken.content == Operator.openingBracket))
                     {
                         // The number is an end point, not being able to get any children.
                         // So we only add it as a child and not set it as the new current node:

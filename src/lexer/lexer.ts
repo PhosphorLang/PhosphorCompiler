@@ -41,15 +41,15 @@ export default class Lexer
 
                 if (this.numberTestRegex.test(fullMatch))
                 {
-                    token = new Token(LexicalType.number, fullMatch);
+                    token = new Token(LexicalType.Number, fullMatch);
                 }
                 else if (this.operatorList.has(fullMatch))
                 {
-                    token = new Token(LexicalType.operator, fullMatch);
+                    token = new Token(LexicalType.Operator, fullMatch);
                 }
                 else if (this.idTestRegex.test(fullMatch))
                 {
-                    token = new Token(LexicalType.id, fullMatch);
+                    token = new Token(LexicalType.Id, fullMatch);
                 }
                 else
                 {

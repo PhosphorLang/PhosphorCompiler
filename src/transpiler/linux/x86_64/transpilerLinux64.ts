@@ -29,7 +29,7 @@ export default class TranspilerLinux64 implements Transpiler
 
         switch (node.value.type)
         {
-            case SemanticalType.integerLiteral:
+            case SemanticalType.IntegerLiteral:
             {
                 // The constant name will never be undefined because we inserted all of them getConstants:
                 const constantName = this.constants.get(node.value.content) as string;
@@ -41,7 +41,7 @@ export default class TranspilerLinux64 implements Transpiler
 
                 break;
             }
-            case SemanticalType.function:
+            case SemanticalType.Function:
             {
                 result = this.transpileNode(node.children[0]);
 
@@ -49,7 +49,7 @@ export default class TranspilerLinux64 implements Transpiler
 
                 break;
             }
-            case SemanticalType.file:
+            case SemanticalType.File:
             {
                 result = [
                     'section .rodata'
@@ -89,7 +89,7 @@ export default class TranspilerLinux64 implements Transpiler
 
     private getConstants (node: ActionTreeNode): string[]
     {
-        if (node.value.type === SemanticalType.integerLiteral)
+        if (node.value.type === SemanticalType.IntegerLiteral)
         {
             const constantName = 'constant_' + node.value.content;
 

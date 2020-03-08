@@ -26,14 +26,14 @@ export default class Constructor
 
         switch (node.value.type)
         {
-            case LexicalType.file:
+            case LexicalType.File:
             {
-                const fileActionToken = new ActionToken(SemanticalType.file, node.value.content);
+                const fileActionToken = new ActionToken(SemanticalType.File, node.value.content);
                 result = new ActionTreeNode(parent, fileActionToken);
 
                 break;
             }
-            case LexicalType.id:
+            case LexicalType.Id:
             {
                 const functionId = this.functions.indexOf(node.value.content);
 
@@ -42,14 +42,14 @@ export default class Constructor
                     throw new Error('Unknown function "' + node.value.content + '"');
                 }
 
-                const functionActionToken = new ActionToken(SemanticalType.function, node.value.content);
+                const functionActionToken = new ActionToken(SemanticalType.Function, node.value.content);
                 result = new ActionTreeNode(parent, functionActionToken);
 
                 break;
             }
-            case LexicalType.number:
+            case LexicalType.Number:
             {
-                const numberActionToken = new ActionToken(SemanticalType.integerLiteral, node.value.content);
+                const numberActionToken = new ActionToken(SemanticalType.IntegerLiteral, node.value.content);
                 result = new ActionTreeNode(parent, numberActionToken);
 
                 // TODO: Should we check for children here because they are not allowed?

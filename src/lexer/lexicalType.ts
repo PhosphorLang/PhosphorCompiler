@@ -1,9 +1,9 @@
 enum LexicalType
 {
-    file,
-    id,
-    number,
-    operator,
+    File,
+    Id,
+    Number,
+    Operator,
 }
 
 export default LexicalType;

@@ -52,8 +52,12 @@ export default class Constructor
                 const numberActionToken = new ActionToken(SemanticalType.IntegerLiteral, node.value.content);
                 result = new ActionTreeNode(parent, numberActionToken);
 
-                // TODO: Should we check for children here because they are not allowed?
-                //       -> No, the parser should do this. Does he?
+                break;
+            }
+            case LexicalType.String:
+            {
+                const stringActionToken = new ActionToken(SemanticalType.StringLiteral, node.value.content);
+                result = new ActionTreeNode(parent, stringActionToken);
 
                 break;
             }

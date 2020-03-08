@@ -7,15 +7,17 @@ export default class Lexer
     private tokenSplitterRegex: RegExp;
 
     private numberTestRegex: RegExp;
+    private stringTestRegex: RegExp;
     private idTestRegex: RegExp;
 
     private operatorList: Set<string>;
 
     constructor ()
     {
-        this.tokenSplitterRegex = /\d+|[a-zA-Z]+|\(|\)/g;
+        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|\(|\)/g;
 
         this.numberTestRegex = /^\d+$/;
+        this.stringTestRegex = /^'.*'$/;
         this.idTestRegex = /^[a-zA-Z]+$/;
 
         this.operatorList = new Set();
@@ -42,6 +44,12 @@ export default class Lexer
                 if (this.numberTestRegex.test(fullMatch))
                 {
                     token = new Token(LexicalType.Number, fullMatch);
+                }
+                else if (this.stringTestRegex.test(fullMatch))
+                {
+                    const stringContent = match[1];
+
+                    token = new Token(LexicalType.String, stringContent);
                 }
                 else if (this.operatorList.has(fullMatch))
                 {

@@ -3,6 +3,7 @@ enum LexicalType
     File,
     Id,
     Number,
+    String,
     Operator,
 }
 

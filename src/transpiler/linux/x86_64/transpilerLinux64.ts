@@ -1,3 +1,4 @@
+import ActionToken from "../../../constructor_/actionToken";
 import ActionTreeNode from "../../../constructor_/actionTreeNode";
 import SemanticalType from "../../../constructor_/semanticalType";
 import Transpiler from "../../transpiler";
@@ -5,73 +6,86 @@ import Transpiler from "../../transpiler";
 export default class TranspilerLinux64 implements Transpiler
 {
     /**
-     * Constant value to constant name.
+     * Constant name to constant action token.
      */
-    private constants: Map<string, string>;
+    private constants: Map<string, ActionToken>;
 
     constructor ()
     {
-        this.constants = new Map<string, string>();
+        this.constants = new Map<string, ActionToken>();
     }
 
     public run (actionTree: ActionTreeNode): string
     {
-        const strings = this.transpileNode(actionTree);
+        const assembly: string[] = [];
 
-        const result = strings.join("\n");
+        const code = this.transpileNode(actionTree);
+
+        assembly.push('section .rodata');
+
+        assembly.push(...this.transpileCollectedConstants());
+
+        assembly.push(
+            'section .text',
+            'global _start',
+            'extern print',
+            '_start:'
+        );
+
+        assembly.push(...code);
+
+        const result = assembly.join("\n");
 
         return result;
     }
 
     private transpileNode (node: ActionTreeNode): string[]
     {
-        let result: string[];
+        const result: string[] = [];
+
+        for (const child of node.children)
+        {
+            result.push(...this.transpileNode(child));
+        }
 
         switch (node.value.type)
         {
             case SemanticalType.IntegerLiteral:
             {
-                // The constant name will never be undefined because we inserted all of them getConstants:
-                const constantName = this.constants.get(node.value.content) as string;
+                const constantName = 'constant_' + node.value.content;
 
-                result = [
+                this.constants.set(constantName, node.value);
+
+                result.push(
                     'mov rdi, ' + constantName,
                     'mov rsi, 1'
-                ];
+                );
+
+                break;
+            }
+            case SemanticalType.StringLiteral:
+            {
+                const constantName = 'constant_' + node.value.content;
+
+                this.constants.set(constantName, node.value);
+
+                const constantLength = node.value.content.length;
+
+                result.push(
+                    'mov rdi, ' + constantName,
+                    'mov rsi, ' + `${constantLength}`,
+                );
 
                 break;
             }
             case SemanticalType.Function:
             {
-                result = this.transpileNode(node.children[0]);
-
                 result.push('call ' + node.value.content);
 
                 break;
             }
             case SemanticalType.File:
             {
-                result = [
-                    'section .rodata'
-                ];
-
-                for (const child of node.children)
-                {
-                    result.push(...this.getConstants(child));
-                }
-
-                result.push(
-                    'section .text',
-                    'global _start',
-                    'extern print',
-                    '_start:'
-                );
-
-                for (const child of node.children)
-                {
-                    result.push(...this.transpileNode(child));
-                }
-
                 result.push(
                     'mov rdi, 0',
                     'mov rax, 60',
@@ -87,32 +101,35 @@ export default class TranspilerLinux64 implements Transpiler
         return result;
     }
 
-    private getConstants (node: ActionTreeNode): string[]
+    private transpileCollectedConstants (): string[]
     {
-        if (node.value.type === SemanticalType.IntegerLiteral)
-        {
-            const constantName = 'constant_' + node.value.content;
+        const result: string[] = [];
 
-            if (this.constants.has(node.value.content))
-            {
-                return [];
-            }
-            else
-            {
-                this.constants.set(node.value.content, constantName);
+        for (const [name, token] of this.constants)
+        {
+            let constantAssembler: string;
 
-                return [
-                    constantName + ': db ' + node.value.content
-                ];
+            switch (token.type)
+            {
+                case SemanticalType.IntegerLiteral:
+                {
+                    constantAssembler = name + ': db ' + token.content;
+
+                    break;
+                }
+                case SemanticalType.StringLiteral:
+                {
+                    constantAssembler = name + ': db ' + "'" + token.content + "'";
+
+                    break;
+                }
+                default:
+                    throw new Error('Unknown semantical type of constant "' + token.content + '"');
             }
+
+            result.push(constantAssembler);
         }
-        else if (node.children.length > 0)
-        {
-            return this.getConstants(node.children[0]);
-        }
-        else
-        {
-            return [];
-        }
+
+        return result;
     }
 }

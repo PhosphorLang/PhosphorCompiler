@@ -78,16 +78,19 @@ export default class Parser
                     break;
                 }
                 case LexicalType.Number:
+                case LexicalType.String:
                 {
                     if ((currentNode.value.type == LexicalType.Id) && (lastToken.content == Operator.openingBracket))
                     {
-                        // The number is an end point, not being able to get any children.
+                        // The literals are end points, not being able to get any children.
                         // So we only add it as a child and not set it as the new current node:
                         new SyntaxTreeNode(currentNode, token);
+
+                        // TODO: Check that there are really no children!
                     }
                     else
                     {
-                        throw new Error('Unexpected number "' + token.content + '"');
+                        throw new Error('Unexpected literal "' + token.content + '"');
                     }
 
                     break;

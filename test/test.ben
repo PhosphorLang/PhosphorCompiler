@@ -1,2 +1,2 @@
-print(66);
+print('ABC');
 print(10);

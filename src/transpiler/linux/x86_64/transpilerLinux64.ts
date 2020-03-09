@@ -12,14 +12,14 @@ export default class TranspilerLinux64 implements Transpiler
 
         this.transpileNode(actionTree, constants, code);
 
-        assembly.push('section .rodata');
+        assembly.push('[section .rodata]');
 
         assembly.push(...constants);
 
         assembly.push(
-            'section .text',
-            'global _start',
-            'extern print',
+            '[section .text]',
+            '[global _start]',
+            '[extern print]',
             '_start:'
         );
 

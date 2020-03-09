@@ -1,7 +1,7 @@
 ; Standard library
 
-section .text
-    global print
+[section .text]
+    [global print]
 
     print: ; Parameters: address to char, length in bytes
         mov rdx, rsi ; Move length of char to parameter.

@@ -14,9 +14,9 @@ export default abstract class Assembler
     public run (assemblyPath: string): void
     {
         // Standard library:
-        childProcess.execSync('nasm -f ' + this.format + ' -o tmp/standard.o "' + this.standardLibraryPath + '"');
+        childProcess.execSync('nasm -a -f ' + this.format + ' -o tmp/standard.o "' + this.standardLibraryPath + '"');
 
         // Assembly:
-        childProcess.execSync('nasm -f ' + this.format + ' -o tmp/test.o "' + assemblyPath + '"');
+        childProcess.execSync('nasm -a -f ' + this.format + ' -o tmp/test.o "' + assemblyPath + '"');
     }
 }

@@ -3,24 +3,48 @@ import ActionTreeNode from "./actionTreeNode";
 import LexicalType from "../lexer/lexicalType";
 import SemanticalType from "./semanticalType";
 import SyntaxTreeNode from "../parser/syntaxTreeNode";
+import Token from "../lexer/token";
 
 export default class Constructor
 {
     private functions: string[];
+    private constantValueToActionTokenMap: Map<string, ActionToken>;
+    private constantIdCounter: number;
 
     constructor ()
     {
         this.functions = ['print'];
+
+        this.constantValueToActionTokenMap = new Map<string, ActionToken>();
+        this.constantIdCounter = 0;
     }
 
     public run (syntaxTree: SyntaxTreeNode): ActionTreeNode
     {
         const actionTreeNode = this.constructNode(syntaxTree, null);
 
+        this.constructConstants(actionTreeNode);
+
+        // Clear the temporary lists and counters:
+        this.constantValueToActionTokenMap.clear();
+        this.constantIdCounter = 0;
+
         return actionTreeNode;
     }
 
-    public constructNode (node: SyntaxTreeNode, parent: ActionTreeNode|null): ActionTreeNode
+    /**
+     * Construct all constants by adding their definition action tokens to the action tree root.
+     * @param actionTree The action tree to add the constants to.
+     */
+    private constructConstants (actionTree: ActionTreeNode): void
+    {
+        for (const constantActionToken of this.constantValueToActionTokenMap.values())
+        {
+            new ActionTreeNode(actionTree, constantActionToken);
+        }
+    }
+
+    private constructNode (node: SyntaxTreeNode, parent: ActionTreeNode|null): ActionTreeNode
     {
         let result: ActionTreeNode;
 
@@ -49,14 +73,16 @@ export default class Constructor
             }
             case LexicalType.Number:
             {
-                const numberActionToken = new ActionToken(SemanticalType.IntegerLiteral, node.value.content);
+                const constantId = this.getConstantId(node.value);
+                const numberActionToken = new ActionToken(SemanticalType.IntegerLiteral, constantId, node.value.content);
                 result = new ActionTreeNode(parent, numberActionToken);
 
                 break;
             }
             case LexicalType.String:
             {
-                const stringActionToken = new ActionToken(SemanticalType.StringLiteral, node.value.content);
+                const constantId = this.getConstantId(node.value);
+                const stringActionToken = new ActionToken(SemanticalType.StringLiteral, constantId, node.value.content);
                 result = new ActionTreeNode(parent, stringActionToken);
 
                 break;
@@ -71,5 +97,42 @@ export default class Constructor
         }
 
         return result;
+    }
+
+    /**
+     * Will get the ID for a constant by looking up the constant value to action token map.
+     * If there is no ID for the given constant value, a new one is created.
+     * @param constantValue The value of the constant.
+     * @return The ID for the given constant.
+     */
+    private getConstantId (constantToken: Token): string
+    {
+        let actionToken = this.constantValueToActionTokenMap.get(constantToken.content);
+
+        if (actionToken === undefined)
+        {
+            const constantId = `c_${this.constantIdCounter}`;
+            this.constantIdCounter++;
+
+            let constantType: SemanticalType;
+
+            switch (constantToken.type)
+            {
+                case LexicalType.Number:
+                    constantType = SemanticalType.IntegerDefinition;
+                    break;
+                case LexicalType.String:
+                    constantType = SemanticalType.StringDefinition;
+                    break;
+                default:
+                    throw new Error('Unknown lexical type of constant "' + constantToken.content + '"');
+            }
+
+            actionToken = new ActionToken(constantType, constantId, constantToken.content);
+        }
+
+        this.constantValueToActionTokenMap.set(constantToken.content, actionToken);
+
+        return actionToken.id;
     }
 }

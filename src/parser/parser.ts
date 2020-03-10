@@ -1,107 +1,156 @@
 import LexicalType from "../lexer/lexicalType";
 import Operator from "../definitions/operator";
+import StatementType from "./statementType";
 import SyntaxTreeNode from "./syntaxTreeNode";
 import Token from "../lexer/token";
+
+interface ParserResult
+{
+    nodes: SyntaxTreeNode[];
+    lastIndex: number;
+}
 
 export default class Parser
 {
     /**
      * Run the parser for a given token list of a file.
      * @param tokens The list of tokens
-     * @param filePath The path of the file
      * @return The parsed syntax tree.
      */
-    public run (tokens: Token[], filePath: string): SyntaxTreeNode
+    public run (tokens: Token[]): SyntaxTreeNode
     {
-        const fileToken = new Token(LexicalType.File, filePath);
-        const root = new SyntaxTreeNode(null, fileToken);
+        const parseResult = this.parseScope(tokens, 0);
 
-        let currentNode = root;
-        let lastToken = fileToken;
-
-        for (const token of tokens)
-        {
-            switch (token.type)
-            {
-                case LexicalType.Id:
-                {
-                    // The id becomes the new current node, now able to get children:
-                    currentNode = new SyntaxTreeNode(currentNode, token);
-
-                    break;
-                }
-                case LexicalType.Operator:
-                {
-                    switch (token.content)
-                    {
-                        case Operator.openingBracket:
-                        {
-                            if (currentNode.value.type != LexicalType.Id)
-                            {
-                                throw new Error('Unexpected operator "' + token.content + '"');
-                            }
-
-                            break;
-                        }
-                        case Operator.closingBracket:
-                        {
-                            if ((currentNode.parent !== null) && (currentNode.children.length > 0))
-                            {
-                                // Closing the bracket means whatever has been in it has ended, so we go a node upwards:
-                                currentNode = currentNode.parent;
-                            }
-                            else
-                            {
-                                throw new Error('Unexpected operator "' + token.content + '"');
-                            }
-
-                            break;
-                        }
-                        case Operator.semicolon:
-                        {
-                            // Semicolon means end the statement, if there is one:
-                            if ((currentNode.parent !== null) && (currentNode.parent.value.type === LexicalType.Id))
-                            {
-                                currentNode = currentNode.parent;
-                            }
-                            else
-                            {
-                                throw new Error('Unexpected operator "' + token.content + '"');
-                            }
-
-                            break;
-                        }
-                        default:
-                            throw new Error('Unknown operator "' + token.content + '"');
-                    }
-
-                    break;
-                }
-                case LexicalType.Number:
-                case LexicalType.String:
-                {
-                    if ((currentNode.value.type == LexicalType.Id) && (lastToken.content == Operator.openingBracket))
-                    {
-                        // The literals are end points, not being able to get any children.
-                        // So we only add it as a child and not set it as the new current node:
-                        new SyntaxTreeNode(currentNode, token);
-
-                        // TODO: Check that there are really no children!
-                    }
-                    else
-                    {
-                        throw new Error('Unexpected literal "' + token.content + '"');
-                    }
-
-                    break;
-                }
-                default:
-                    throw new Error('Unknown lexical type of symbol "' + token.content + '"');
-            }
-
-            lastToken = token;
-        }
+        const root = parseResult.nodes[0];
 
         return root;
+    }
+
+    private parseScope (tokens: Token[], startIndex: number): ParserResult
+    {
+        const nodes: SyntaxTreeNode[] = [];
+
+        let i = startIndex;
+        while (i < tokens.length)
+        {
+            const token = tokens[i];
+
+            if (token.type == LexicalType.File)
+            {
+                const fileRoot = new SyntaxTreeNode(null, token);
+                nodes.push(fileRoot);
+
+                const parserResult = this.parseScope(tokens, i + 1);
+
+                for (const child of parserResult.nodes)
+                {
+                    child.parent = fileRoot;
+                }
+
+                i = parserResult.lastIndex;
+            }
+            else if (token.type == LexicalType.Id)
+            {
+                const idNode = new SyntaxTreeNode(null, token);
+                nodes.push(idNode);
+
+                const parserResult = this.parseStatement(tokens, i + 1);
+
+                for (const child of parserResult.nodes)
+                {
+                    child.parent = idNode;
+                }
+
+                i = parserResult.lastIndex;
+            }
+            else
+            {
+                throw new Error('Given token "' + token.content + '" is no scope.');
+            }
+
+            i++;
+        }
+
+        return {
+            nodes: nodes,
+            lastIndex: i,
+        };
+    }
+
+    private parseStatement (tokens: Token[], startIndex: number): ParserResult
+    {
+        const result: SyntaxTreeNode[] = [];
+        const stack: SyntaxTreeNode[] = [];
+        let statementType = StatementType.None;
+
+        let i = startIndex;
+        while (i < tokens.length)
+        {
+            const token = tokens[i];
+
+            if (token.type == LexicalType.Id)
+            {
+                stack.push(new SyntaxTreeNode(null, token));
+                statementType = StatementType.UnaryLeft;
+            }
+            else if (token.content == Operator.plus)
+            {
+                stack.push(new SyntaxTreeNode(null, token));
+                statementType = StatementType.Binary;
+            }
+            else if (token.content == Operator.openingBracket)
+            {
+                const subResult = this.parseStatement(tokens, i + 1);
+                stack.push(...subResult.nodes);
+                i = subResult.lastIndex;
+            }
+            else if ((token.type == LexicalType.Number) || (token.type == LexicalType.String))
+            {
+                stack.push(new SyntaxTreeNode(null, token));
+            }
+            else if ((token.content == Operator.closingBracket) || (token.content == Operator.semicolon))
+            {
+                break;
+            }
+            else
+            {
+                throw new Error('Unknown token "' + token.content + '"');
+            }
+
+            i++;
+        }
+
+        if (statementType == StatementType.None)
+        {
+            result.push(...stack);
+
+            return {
+                nodes: result,
+                lastIndex: i,
+            };
+        }
+        else if (statementType == StatementType.UnaryLeft)
+        {
+            stack[1].parent = stack[0];
+
+            return {
+                nodes: [stack[0]],
+                lastIndex: i,
+            };
+        }
+        else if (statementType == StatementType.Binary)
+        {
+            stack[0].parent = stack[1];
+            stack[2].parent = stack[1];
+
+            return {
+                nodes: [stack[1]],
+                lastIndex: i,
+            };
+        }
+        else
+        {
+            throw new Error('Unknown statement type');
+        }
     }
 }

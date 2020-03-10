@@ -56,8 +56,8 @@ class Main
 
         const fileContent = fs.readFileSync(this.filePath, {encoding: 'utf8'});
 
-        const tokens = lexer.run(fileContent);
-        const syntaxTree = parser.run(tokens, this.filePath);
+        const tokens = lexer.run(fileContent, this.filePath);
+        const syntaxTree = parser.run(tokens);
         const actionTree = constructor.run(syntaxTree);
         const assembly = transpiler.run(actionTree);
 

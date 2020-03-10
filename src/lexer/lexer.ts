@@ -14,7 +14,7 @@ export default class Lexer
 
     constructor ()
     {
-        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|\(|\)/g;
+        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|\S/g;
 
         this.numberTestRegex = /^\d+$/;
         this.stringTestRegex = /^'.*'$/;
@@ -27,9 +27,17 @@ export default class Lexer
         }
     }
 
-    public run (fileContent: string): Token[]
+    /**
+     * Run the lexer.
+     * @param fileContent The content of the file
+     * @param filePath The path of the file
+     */
+    public run (fileContent: string, filePath: string): Token[]
     {
         const tokens: Token[] = [];
+
+        const fileToken = new Token(LexicalType.File, filePath);
+        tokens.push(fileToken);
 
         let match: RegExpExecArray | null;
         do

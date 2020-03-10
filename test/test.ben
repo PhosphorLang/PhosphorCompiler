@@ -1,2 +1,3 @@
-print('ABC');
+print(66 + 1);
+print(66+2);
 print(10);

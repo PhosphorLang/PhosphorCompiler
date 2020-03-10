@@ -6,6 +6,7 @@ enum SemanticalType
     IntegerLiteral,
     StringDefinition,
     StringLiteral,
+    Addition,
 }
 
 export default SemanticalType;

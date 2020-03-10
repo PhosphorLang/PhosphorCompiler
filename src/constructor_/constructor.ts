@@ -4,6 +4,7 @@ import LexicalType from "../lexer/lexicalType";
 import SemanticalType from "./semanticalType";
 import SyntaxTreeNode from "../parser/syntaxTreeNode";
 import Token from "../lexer/token";
+import Operator from "../definitions/operator";
 
 export default class Constructor
 {
@@ -84,6 +85,23 @@ export default class Constructor
                 const constantId = this.getConstantId(node.value);
                 const stringActionToken = new ActionToken(SemanticalType.StringLiteral, constantId, node.value.content);
                 result = new ActionTreeNode(parent, stringActionToken);
+
+                break;
+            }
+            case LexicalType.Operator:
+            {
+                switch (node.value.content)
+                {
+                    case Operator.plus:
+                    {
+                        const additionActionToken = new ActionToken(SemanticalType.Addition);
+                        result = new ActionTreeNode(parent, additionActionToken);
+
+                        break;
+                    }
+                    default:
+                        throw new Error('Unknown operator "' + Operator.plus + '"');
+                }
 
                 break;
             }

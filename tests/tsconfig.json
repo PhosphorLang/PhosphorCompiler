@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2018",
+
+		"noImplicitThis": true,
+
+		"allowJs": false,
+
+		"sourceMap": true
+	},
+	"include": [
+		"./**/*.ts",
+		"../src/**/*.ts"
+	]
+}

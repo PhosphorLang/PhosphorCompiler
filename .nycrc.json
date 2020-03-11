@@ -1,0 +1,28 @@
+{
+    "cache": false,
+    "all": true,
+    "reporter": [
+        "html",
+        "text"
+    ],
+    "extension": [
+        ".ts",
+        ".tsx"
+    ],
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "**/*.d.ts",
+        "coverage/**",
+        "packages/*/test/**",
+        "test/**",
+        "tests/**",
+        "test{,-*}.ts",
+        "tests{,-*}.ts",
+        "**/*{.,-}{test,spec}.ts",
+        "**/__tests__/**",
+        "**/node_modules/**"
+    ],
+    "temp-directory": "./coverage/.nyc_output"
+}

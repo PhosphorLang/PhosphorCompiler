@@ -15,3 +15,6 @@ package-lock.json
 # No builds:
 bin/**/*
 tmp/**/*
+
+# Coverage directory used by tools like istanbul:
+coverage

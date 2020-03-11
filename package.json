@@ -15,6 +15,7 @@
         "@types/mocha": "^7.0.2",
         "chai": "^4.2.0",
         "@types/chai": "4.2.10",
+        "nyc": "^15.0.0",
         "ts-node": "^8.6.2"
     },
     "peerDependencies": {
@@ -28,6 +29,7 @@
         "prestart": "tsc",
         "start": "node build/main.js",
         "test": "./node_modules/.bin/mocha -r ts-node/register 'tests/**/*.ts'",
+        "coverage": "./node_modules/.bin/nyc npm run test",
         "prepack": "rm -r bin && tsc -p tsconfig.release.json"
     },
     "private": true

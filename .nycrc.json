@@ -5,6 +5,9 @@
         "html",
         "text"
     ],
+    "require": [
+        "ts-node/register"
+    ],
     "extension": [
         ".ts",
         ".tsx"

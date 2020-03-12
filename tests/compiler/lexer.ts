@@ -69,7 +69,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newIdentificator('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
@@ -90,7 +90,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newIdentificator('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber('8'),
                     TokenCreator.newClosingBracket(),
@@ -112,7 +112,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newIdentificator('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newString('My test parameter string'),
                     TokenCreator.newClosingBracket(),
@@ -134,7 +134,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newIdentificator('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber('24'),
                     TokenCreator.newPlus(),

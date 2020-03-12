@@ -9,9 +9,9 @@ export default class TokenCreator
         return new Token(LexicalType.File, fileName);
     }
 
-    public static newFunctionCall (functionName = 'print'): Token
+    public static newIdentificator (identificator = 'print'): Token
     {
-        return new Token(LexicalType.Id, functionName);
+        return new Token(LexicalType.Id, identificator);
     }
 
     public static newNumber (value = '24'): Token

@@ -17,7 +17,7 @@ describe('Constructor',
             {
                 const input = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newIdentificator())
                     .getRoot();
 
                 const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
@@ -36,7 +36,7 @@ describe('Constructor',
             {
                 const input = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newIdentificator())
                     .add(TokenCreator.newNumber())
                     .getRoot();
 
@@ -58,7 +58,7 @@ describe('Constructor',
             {
                 const input = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newIdentificator())
                     .add(TokenCreator.newString())
                     .getRoot();
 
@@ -80,7 +80,7 @@ describe('Constructor',
             {
                 const input = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newIdentificator())
                     .add(TokenCreator.newPlus())
                     .addAfter(TokenCreator.newNumber('24'))
                     .addAfter(TokenCreator.newNumber('8'))
@@ -107,7 +107,7 @@ describe('Constructor',
             {
                 const input = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newIdentificator())
                     .add(TokenCreator.newUnknownOperator())
                     .addAfter(TokenCreator.newNumber('24'))
                     .addAfter(TokenCreator.newNumber('8'))
@@ -126,7 +126,7 @@ describe('Constructor',
             {
                 const input = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newFunctionCall('thisFunctionDoesNotExist'))
+                    .add(TokenCreator.newIdentificator('thisFunctionDoesNotExist'))
                     .getRoot();
 
                 const constructor = new Constructor();

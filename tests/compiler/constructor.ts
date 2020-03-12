@@ -3,10 +3,9 @@ import ActionToken from '../../src/constructor_/actionToken';
 import ActionTreeNode from '../../src/constructor_/actionTreeNode';
 import { assert } from 'chai';
 import Constructor from '../../src/constructor_/constructor';
-import LexicalType from '../../src/lexer/lexicalType';
 import SemanticalType from '../../src/constructor_/semanticalType';
-import SyntaxTreeNode from '../../src/parser/syntaxTreeNode';
-import Token from '../../src/lexer/token';
+import SyntaxTreeBuilder from '../utility/syntaxTreeBuilder';
+import TokenCreator from '../utility/tokenCreator';
 
 describe('Constructor',
     function ()
@@ -16,8 +15,10 @@ describe('Constructor',
         it('can construct a function call.',
             function ()
             {
-                const input = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
-                new SyntaxTreeNode(input, new Token(LexicalType.Id, 'print'));
+                const input = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newFunctionCall())
+                    .getRoot();
 
                 const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
                 new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));
@@ -33,9 +34,11 @@ describe('Constructor',
         it('can construct an integer parameter.',
             function ()
             {
-                const input = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
-                new SyntaxTreeNode(input, new Token(LexicalType.Id, 'print'));
-                new SyntaxTreeNode(input.children[0], new Token(LexicalType.Number, '24'));
+                const input = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newNumber())
+                    .getRoot();
 
                 const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
                 new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));
@@ -53,9 +56,11 @@ describe('Constructor',
         it('can construct a string parameter.',
             function ()
             {
-                const input = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
-                new SyntaxTreeNode(input, new Token(LexicalType.Id, 'print'));
-                new SyntaxTreeNode(input.children[0], new Token(LexicalType.String, 'Test string'));
+                const input = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newString())
+                    .getRoot();
 
                 const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
                 new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));

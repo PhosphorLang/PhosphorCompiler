@@ -2,13 +2,12 @@ import 'mocha';
 import { assert } from 'chai';
 
 import Parser from '../../src/parser/parser';
+import SyntaxTreeBuilder from '../utility/syntaxTreeBuilder';
 import TokenCreator from '../utility/tokenCreator';
 
 describe('Parser',
     function ()
     {
-        const fileName = 'testFile';
-
         it('can parse a function call.',
             function ()
             {
@@ -20,8 +19,10 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                 ];
 
-                const expectedResult = new SyntaxTreeNode(null, input[0]);
-                new SyntaxTreeNode(expectedResult, input[1]);
+                const expectedResult = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newFunctionCall())
+                    .getRoot();
 
                 const parser = new Parser();
 
@@ -43,9 +44,11 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                 ];
 
-                const expectedResult = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
-                new SyntaxTreeNode(expectedResult, new Token(LexicalType.Id, 'print'));
-                new SyntaxTreeNode(expectedResult.children[0], new Token(LexicalType.Number, '24'));
+                const expectedResult = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newNumber())
+                    .getRoot();
 
                 const parser = new Parser();
 
@@ -67,9 +70,11 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                 ];
 
-                const expectedResult = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
-                new SyntaxTreeNode(expectedResult, new Token(LexicalType.Id, 'print'));
-                new SyntaxTreeNode(expectedResult.children[0], new Token(LexicalType.String, 'Test string'));
+                const expectedResult = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newFunctionCall())
+                    .add(TokenCreator.newString())
+                    .getRoot();
 
                 const parser = new Parser();
 

@@ -1,6 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
 
+import MissingArgumentError from '../../src/errors/missingArgumentError';
 import ProcessArguments from '../../src/processArguments';
 
 describe('ProcessArguments',
@@ -56,7 +57,8 @@ describe('ProcessArguments',
                     (): void =>
                     {
                         new ProcessArguments();
-                    }
+                    },
+                    MissingArgumentError
                 );
 
             }
@@ -73,7 +75,8 @@ describe('ProcessArguments',
                     (): void =>
                     {
                         new ProcessArguments();
-                    }
+                    },
+                    MissingArgumentError
                 );
 
             }

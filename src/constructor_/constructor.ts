@@ -1,10 +1,10 @@
 import ActionToken from "./actionToken";
 import ActionTreeNode from "./actionTreeNode";
 import LexicalType from "../lexer/lexicalType";
+import Operator from "../definitions/operator";
 import SemanticalType from "./semanticalType";
 import SyntaxTreeNode from "../parser/syntaxTreeNode";
 import Token from "../lexer/token";
-import Operator from "../definitions/operator";
 
 export default class Constructor
 {
@@ -100,7 +100,7 @@ export default class Constructor
                         break;
                     }
                     default:
-                        throw new Error('Unknown operator "' + Operator.plus + '"');
+                        throw new Error('Unknown operator "' + node.value.content + '"');
                 }
 
                 break;

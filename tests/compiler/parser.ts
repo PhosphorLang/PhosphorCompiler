@@ -1,11 +1,8 @@
 import 'mocha';
 import { assert } from 'chai';
 
-import LexicalType from '../../src/lexer/lexicalType';
-import Operator from '../../src/definitions/operator';
 import Parser from '../../src/parser/parser';
-import SyntaxTreeNode from '../../src/parser/syntaxTreeNode';
-import Token from '../../src/lexer/token';
+import TokenCreator from '../utility/tokenCreator';
 
 describe('Parser',
     function ()
@@ -16,11 +13,11 @@ describe('Parser',
             function ()
             {
                 const input = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, Operator.openingBracket),
-                    new Token(LexicalType.Operator, Operator.closingBracket),
-                    new Token(LexicalType.Operator, Operator.semicolon),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall(),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
                 ];
 
                 const expectedResult = new SyntaxTreeNode(null, input[0]);
@@ -38,12 +35,12 @@ describe('Parser',
             function ()
             {
                 const input = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, Operator.openingBracket),
-                    new Token(LexicalType.Number, '24'),
-                    new Token(LexicalType.Operator, Operator.closingBracket),
-                    new Token(LexicalType.Operator, Operator.semicolon),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall(),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newNumber(),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
                 ];
 
                 const expectedResult = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
@@ -62,12 +59,12 @@ describe('Parser',
             function ()
             {
                 const input = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, Operator.openingBracket),
-                    new Token(LexicalType.String, 'Test string'),
-                    new Token(LexicalType.Operator, Operator.closingBracket),
-                    new Token(LexicalType.Operator, Operator.semicolon),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall(),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newString(),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
                 ];
 
                 const expectedResult = new SyntaxTreeNode(null, new Token(LexicalType.File, fileName));
@@ -86,9 +83,9 @@ describe('Parser',
             function ()
             {
                 const input = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, '§'),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall(),
+                    TokenCreator.newUnknownOperator(),
                 ];
 
                 const parser = new Parser();

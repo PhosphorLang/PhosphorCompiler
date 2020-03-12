@@ -1,6 +1,6 @@
 # Compiler
 
-TODO: Present a readme.
+A compiler for my custom language.
 
 ## External Dependencies
 
@@ -46,3 +46,20 @@ TODO: Present a readme.
     - Written in Assembly, provides basic platform specific code like reading from stdin or writing to stdout.
 2. Runtime library
     - Written in the programming language, provides generic functionality from type conversions to thread pools.
+
+## The working features
+
+1. Function calls
+   - With no parameter
+   - With a single parameter
+2. The print function
+   - For a char constant (ASCII encoded)
+   - For a string constant (UTF-8 encoded)
+
+## Full example of all features
+
+```
+print()
+print(65)
+print('Works ✓')
+```

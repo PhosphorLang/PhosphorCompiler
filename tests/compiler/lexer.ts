@@ -151,6 +151,26 @@ describe('Lexer',
             }
         );
 
+        it('can tokenise a variable declaration.',
+            function ()
+            {
+                const input = "var testVariable;";
+
+                const expectedResult = [
+                    TokenCreator.newFile('testFile'),
+                    TokenCreator.newVar(),
+                    TokenCreator.newIdentificator('testVariable'),
+                    TokenCreator.newSemicolon(),
+                ];
+
+                const lexer = new Lexer();
+
+                const result = lexer.run(input, 'testFile');
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('throws an exception at unknown tokens.',
             function ()
             {

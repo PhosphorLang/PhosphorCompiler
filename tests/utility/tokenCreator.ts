@@ -48,4 +48,9 @@ export default class TokenCreator
     {
         return new Token(LexicalType.Operator, Operator.plus);
     }
+
+    public static newVar (): Token
+    {
+        return new Token(LexicalType.Operator, Operator.var);
+    }
 }

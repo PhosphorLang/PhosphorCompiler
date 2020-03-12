@@ -25,7 +25,7 @@ export default class TranspilerLinux64 implements Transpiler
 
         assembly.push(...code);
 
-        const result = assembly.join("\n");
+        const result = assembly.join("\n") + "\n";
 
         return result;
     }

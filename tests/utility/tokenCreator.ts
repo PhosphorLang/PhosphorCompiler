@@ -4,29 +4,29 @@ import Token from "../../src/lexer/token";
 
 export default class TokenCreator
 {
-    public static newFile (): Token
+    public static newFile (fileName = 'testFile'): Token
     {
-        return new Token(LexicalType.File, 'testFile');
+        return new Token(LexicalType.File, fileName);
     }
 
-    public static newFunctionCall (): Token
+    public static newFunctionCall (functionName = 'print'): Token
     {
-        return new Token(LexicalType.Id, 'print');
+        return new Token(LexicalType.Id, functionName);
     }
 
-    public static newNumber (): Token
+    public static newNumber (value = '24'): Token
     {
-        return new Token(LexicalType.Number, '24');
+        return new Token(LexicalType.Number, value);
     }
 
-    public static newString (): Token
+    public static newString (value = 'Test string'): Token
     {
-        return new Token(LexicalType.String, 'Test string');
+        return new Token(LexicalType.String, value);
     }
 
-    public static newUnknownOperator (): Token
+    public static newUnknownOperator (operator = '§'): Token
     {
-        return new Token(LexicalType.Operator, '§');
+        return new Token(LexicalType.Operator, operator);
     }
 
     public static newOpeningBracket (): Token

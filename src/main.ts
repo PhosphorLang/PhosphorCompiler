@@ -7,42 +7,17 @@ import fs from 'fs';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
 import Parser from './parser/parser';
+import ProcessArguments from './processArguments';
 import Transpiler from './transpiler/transpiler';
 import TranspilerLinux64 from './transpiler/linux/x86_64/transpilerLinux64';
 
 class Main
 {
-    private filePath: string;
-    private outputPath: string;
+    private arguments: ProcessArguments;
 
     constructor ()
     {
-        // TODO: Own class for command line parameters.
-
-        let indexOfFileArgument = process.argv.indexOf('-f');
-        if (indexOfFileArgument === -1)
-        {
-            indexOfFileArgument = process.argv.indexOf('--file');
-
-            if (indexOfFileArgument === -1)
-            {
-                throw new Error('No file given.');
-            }
-        }
-
-        let indexOfOutputArgument = process.argv.indexOf('-o');
-        if (indexOfOutputArgument === -1)
-        {
-            indexOfOutputArgument = process.argv.indexOf('--output');
-
-            if (indexOfOutputArgument === -1)
-            {
-                throw new Error('No output file path given.');
-            }
-        }
-
-        this.filePath = process.argv[indexOfFileArgument + 1];
-        this.outputPath = process.argv[indexOfOutputArgument + 1];
+        this.arguments = new ProcessArguments();
     }
 
     public run (): void
@@ -54,9 +29,9 @@ class Main
         const assembler: Assembler = new AssemblerLinux64();
         const linker = new Linker();
 
-        const fileContent = fs.readFileSync(this.filePath, {encoding: 'utf8'});
+        const fileContent = fs.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
 
-        const tokens = lexer.run(fileContent, this.filePath);
+        const tokens = lexer.run(fileContent, this.arguments.filePath);
         const syntaxTree = parser.run(tokens);
         const actionTree = constructor.run(syntaxTree);
         const assembly = transpiler.run(actionTree);
@@ -65,7 +40,7 @@ class Main
 
         assembler.run('tmp/test.asm');
 
-        linker.run(this.outputPath, ['tmp/test.o', 'tmp/standard.o']);
+        linker.run(this.arguments.outputPath, ['tmp/test.o', 'tmp/standard.o']);
     }
 }
 

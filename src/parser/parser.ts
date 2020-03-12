@@ -1,6 +1,5 @@
 import LexicalType from "../lexer/lexicalType";
 import Operator from "../definitions/operator";
-import StatementType from "./statementType";
 import SyntaxTreeNode from "./syntaxTreeNode";
 import Token from "../lexer/token";
 
@@ -19,11 +18,24 @@ export default class Parser
      */
     public run (tokens: Token[]): SyntaxTreeNode
     {
-        const parseResult = this.parseScope(tokens, 0);
-
-        const root = parseResult.nodes[0];
+        const root = this.parseFile(tokens);
 
         return root;
+    }
+
+    private parseFile (tokens: Token[]): SyntaxTreeNode
+    {
+        const fileRoot = new SyntaxTreeNode(null, tokens[0]);
+
+        // The file token starts a scope:
+        const parserResult = this.parseScope(tokens, 1);
+
+        for (const child of parserResult.nodes)
+        {
+            child.parent = fileRoot;
+        }
+
+        return fileRoot;
     }
 
     private parseScope (tokens: Token[], startIndex: number): ParserResult
@@ -33,42 +45,11 @@ export default class Parser
         let i = startIndex;
         while (i < tokens.length)
         {
-            const token = tokens[i];
+            // There can only be statements inside a scope:
+            const parserResult = this.parseStatement(tokens, i);
 
-            if (token.type == LexicalType.File)
-            {
-                const fileRoot = new SyntaxTreeNode(null, token);
-                nodes.push(fileRoot);
-
-                const parserResult = this.parseScope(tokens, i + 1);
-
-                for (const child of parserResult.nodes)
-                {
-                    child.parent = fileRoot;
-                }
-
-                i = parserResult.lastIndex;
-            }
-            else if (token.type == LexicalType.Id)
-            {
-                const idNode = new SyntaxTreeNode(null, token);
-                nodes.push(idNode);
-
-                const parserResult = this.parseStatement(tokens, i + 1);
-
-                for (const child of parserResult.nodes)
-                {
-                    child.parent = idNode;
-                }
-
-                i = parserResult.lastIndex;
-            }
-            else
-            {
-                throw new Error('Given token "' + token.content + '" is no scope.');
-            }
-
-            i++;
+            nodes.push(...parserResult.nodes);
+            i = parserResult.lastIndex + 1;
         }
 
         return {
@@ -79,78 +60,118 @@ export default class Parser
 
     private parseStatement (tokens: Token[], startIndex: number): ParserResult
     {
-        const result: SyntaxTreeNode[] = [];
-        const stack: SyntaxTreeNode[] = [];
-        let statementType = StatementType.None;
+        let node: SyntaxTreeNode;
+        let children: SyntaxTreeNode[] = [];
+        let lastIndex = startIndex;
 
-        let i = startIndex;
-        while (i < tokens.length)
+        const token = tokens[lastIndex];
+
+        if (token.type == LexicalType.Id)
         {
-            const token = tokens[i];
+            // We assume a function here.
 
-            if (token.type == LexicalType.Id)
+            node = new SyntaxTreeNode(null, token);
+
+            const result = this.parseFunctionParameters(tokens, lastIndex + 1);
+
+            children = result.nodes;
+            lastIndex = result.lastIndex;
+        }
+        else if ((token.type == LexicalType.Operator) && (token.content == Operator.var))
+        {
+            node = new SyntaxTreeNode(null, token);
+
+            const result = this.parseVariableDeclaration(tokens, lastIndex + 1);
+
+            children = result.nodes;
+            lastIndex = result.lastIndex;
+        }
+        else
+        {
+            throw new Error('Unknown statement "' + token.content + '"');
+        }
+
+        lastIndex++;
+        const endToken = tokens[lastIndex];
+
+        if ((endToken.type != LexicalType.Operator) || (endToken.content != Operator.semicolon))
+        {
+            throw new Error('A statement must end with a semicolon.');
+        }
+
+        for (const child of children)
+        {
+            child.parent = node;
+        }
+
+        return {
+            nodes: [node],
+            lastIndex: lastIndex,
+        };
+    }
+
+    private parseFunctionParameters (tokens: Token[], startIndex: number): ParserResult
+    {
+        let node: SyntaxTreeNode|null = null;
+        let currentIndex = startIndex;
+
+        const startToken = tokens[currentIndex];
+        currentIndex++;
+
+        if ((startToken.type != LexicalType.Operator) || (startToken.content != Operator.openingBracket))
+        {
+            throw new Error('A function parameter list must start with an opening bracket.');
+        }
+
+        const parameterToken = tokens[currentIndex];
+
+        switch (parameterToken.type)
+        {
+            case LexicalType.Number:
+            case LexicalType.String:
             {
-                stack.push(new SyntaxTreeNode(null, token));
-                statementType = StatementType.UnaryLeft;
-            }
-            else if (token.content == Operator.plus)
-            {
-                stack.push(new SyntaxTreeNode(null, token));
-                statementType = StatementType.Binary;
-            }
-            else if (token.content == Operator.openingBracket)
-            {
-                const subResult = this.parseStatement(tokens, i + 1);
-                stack.push(...subResult.nodes);
-                i = subResult.lastIndex;
-            }
-            else if ((token.type == LexicalType.Number) || (token.type == LexicalType.String))
-            {
-                stack.push(new SyntaxTreeNode(null, token));
-            }
-            else if ((token.content == Operator.closingBracket) || (token.content == Operator.semicolon))
-            {
+                node = new SyntaxTreeNode(null, parameterToken);
+
+                currentIndex++;
+
                 break;
             }
-            else
-            {
-                throw new Error('Unknown token "' + token.content + '"');
-            }
-
-            i++;
+            default:
+                if (parameterToken.content != Operator.closingBracket)
+                {
+                    throw new Error('The given token "' + parameterToken.content + '" is no valid function parameter.');
+                }
         }
 
-        if (statementType == StatementType.None)
-        {
-            result.push(...stack);
+        const endToken = tokens[currentIndex];
 
-            return {
-                nodes: result,
-                lastIndex: i,
-            };
+        if ((endToken.type != LexicalType.Operator) || (endToken.content != Operator.closingBracket))
+        {
+            throw new Error('A function parameter list must end with an closing bracket.');
         }
-        else if (statementType == StatementType.UnaryLeft)
+
+        return {
+            nodes: node === null ? [] : [node],
+            lastIndex: currentIndex,
+        };
+    }
+
+    private parseVariableDeclaration (tokens: Token[], startIndex: number): ParserResult
+    {
+        const token = tokens[startIndex];
+
+        if (token.type == LexicalType.Id)
         {
-            stack[1].parent = stack[0];
+            const node = new SyntaxTreeNode(null, token);
 
             return {
-                nodes: [stack[0]],
-                lastIndex: i,
-            };
-        }
-        else if (statementType == StatementType.Binary)
-        {
-            stack[0].parent = stack[1];
-            stack[2].parent = stack[1];
-
-            return {
-                nodes: [stack[1]],
-                lastIndex: i,
+                nodes: [node],
+                lastIndex: startIndex,
             };
         }
         else
         {
-            throw new Error('Unknown statement type');
+            throw new Error('Expected identifier in variable declaration, got "' + token.content + '".');
         }
     }
 }

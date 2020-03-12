@@ -2,9 +2,7 @@ import 'mocha';
 import { assert } from 'chai';
 
 import Lexer from '../../src/lexer/lexer';
-import LexicalType from '../../src/lexer/lexicalType';
-import Operator from '../../src/definitions/operator';
-import Token from '../../src/lexer/token';
+import TokenCreator from '../utility/tokenCreator';
 
 describe('Lexer',
     function ()
@@ -17,8 +15,8 @@ describe('Lexer',
                 const input = '24';
 
                 const expectedResult = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Number, '24'),
+                    TokenCreator.newFile(),
+                    TokenCreator.newNumber('24'),
                 ];
 
                 const lexer = new Lexer();
@@ -35,8 +33,8 @@ describe('Lexer',
                 const input = "'My string'";
 
                 const expectedResult = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.String, 'My string'),
+                    TokenCreator.newFile(),
+                    TokenCreator.newString('My string'),
                 ];
 
                 const lexer = new Lexer();
@@ -53,11 +51,11 @@ describe('Lexer',
                 const input = 'print();';
 
                 const expectedResult = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, Operator.openingBracket),
-                    new Token(LexicalType.Operator, Operator.closingBracket),
-                    new Token(LexicalType.Operator, Operator.semicolon),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
                 ];
 
                 const lexer = new Lexer();
@@ -74,12 +72,12 @@ describe('Lexer',
                 const input = 'print(8);';
 
                 const expectedResult = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, Operator.openingBracket),
-                    new Token(LexicalType.Number, '8'),
-                    new Token(LexicalType.Operator, Operator.closingBracket),
-                    new Token(LexicalType.Operator, Operator.semicolon),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newNumber('8'),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
                 ];
 
                 const lexer = new Lexer();
@@ -96,12 +94,12 @@ describe('Lexer',
                 const input = "print('My test parameter string');";
 
                 const expectedResult = [
-                    new Token(LexicalType.File, fileName),
-                    new Token(LexicalType.Id, 'print'),
-                    new Token(LexicalType.Operator, Operator.openingBracket),
-                    new Token(LexicalType.String, 'My test parameter string'),
-                    new Token(LexicalType.Operator, Operator.closingBracket),
-                    new Token(LexicalType.Operator, Operator.semicolon),
+                    TokenCreator.newFile(),
+                    TokenCreator.newFunctionCall('print'),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newString('My test parameter string'),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
                 ];
 
                 const lexer = new Lexer();

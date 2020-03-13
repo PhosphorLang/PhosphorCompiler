@@ -14,7 +14,7 @@ export default class Lexer
 
     constructor ()
     {
-        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|\S|\n/g;
+        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|:=|\S|\n/g;
 
         this.numberTestRegex = /^\d+$/;
         this.stringTestRegex = /^'.*'$/;

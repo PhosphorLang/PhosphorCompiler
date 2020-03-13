@@ -5,6 +5,7 @@ enum Operator // TODO: Make these PascalCase!
     semicolon = ';',
     plus = '+',
     var = 'var',
+    assignment = ':=',
 }
 
 export default Operator;

@@ -171,6 +171,49 @@ describe('Lexer',
             }
         );
 
+        it('can tokenise a variable assignment.',
+            function ()
+            {
+                const input = "testVariable := 8;";
+
+                const expectedResult = [
+                    TokenCreator.newFile('testFile'),
+                    TokenCreator.newIdentificator('testVariable'),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newNumber('8'),
+                    TokenCreator.newSemicolon(),
+                ];
+
+                const lexer = new Lexer();
+
+                const result = lexer.run(input, 'testFile', false);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can tokenise a variable as parameter.',
+            function ()
+            {
+                const input = "print(testVariable);";
+
+                const expectedResult = [
+                    TokenCreator.newFile('testFile'),
+                    TokenCreator.newIdentificator('print'),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newIdentificator('testVariable'),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newSemicolon(),
+                ];
+
+                const lexer = new Lexer();
+
+                const result = lexer.run(input, 'testFile', false);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('sets correct line information.',
             function ()
             {

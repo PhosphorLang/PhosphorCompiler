@@ -20,7 +20,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -38,7 +38,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -56,7 +56,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -77,7 +77,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -99,7 +99,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -121,7 +121,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -145,7 +145,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, 'testFile', false);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -165,6 +165,27 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
+                const result = lexer.run(input, 'testFile', false);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('sets correct line information.',
+            function ()
+            {
+                const input = "a\nb c\nd";
+
+                const expectedResult = [
+                    TokenCreator.newFile('testFile'),
+                    TokenCreator.newIdentificator('a', 1, 1),
+                    TokenCreator.newIdentificator('b', 2, 1),
+                    TokenCreator.newIdentificator('c', 2, 3),
+                    TokenCreator.newIdentificator('d', 3, 1),
+                ];
+
+                const lexer = new Lexer();
+
                 const result = lexer.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -179,7 +200,7 @@ describe('Lexer',
                 const lexer = new Lexer();
 
                 assert.throws(
-                    (): void => { lexer.run(input, 'testFile'); } // TODO: Add specific error as soon as there are ones.
+                    (): void => { lexer.run(input, 'testFile', false); } // TODO: Add specific error as soon as there are ones.
                 );
             }
         );

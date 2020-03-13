@@ -14,7 +14,7 @@ export default class Lexer
 
     constructor ()
     {
-        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|\S/g;
+        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|\S|\n/g;
 
         this.numberTestRegex = /^\d+$/;
         this.stringTestRegex = /^'.*'$/;
@@ -31,10 +31,16 @@ export default class Lexer
      * Run the lexer.
      * @param fileContent The content of the file
      * @param filePath The path of the file
+     * @param setLineInfo If true the tokens will include line and column numbers, otherwise they will always be zero.
+     * @returns The generated list of tokens.
      */
-    public run (fileContent: string, filePath: string): Token[]
+    public run (fileContent: string, filePath: string, setLineInfo = true): Token[]
     {
         const tokens: Token[] = [];
+
+        let currentLine = 1;
+        /** The position from the beginning of the file at which the last line ended, or: The position of the last line break. */
+        let lastLineEndPosition = -1;
 
         const fileToken = new Token(LexicalType.File, filePath);
         tokens.push(fileToken);
@@ -48,24 +54,45 @@ export default class Lexer
                 const fullMatch = match[0];
 
                 let token: Token;
+                let currentColumn: number;
+
+                if (fullMatch === "\n")
+                {
+                    currentLine++;
+                    lastLineEndPosition = match.index;
+
+                    continue;
+                }
+                else
+                {
+                    if (setLineInfo)
+                    {
+                        currentColumn = match.index - lastLineEndPosition;
+                    }
+                    else
+                    {
+                        currentLine = 0;
+                        currentColumn = 0;
+                    }
+                }
 
                 if (this.numberTestRegex.test(fullMatch))
                 {
-                    token = new Token(LexicalType.Number, fullMatch);
+                    token = new Token(LexicalType.Number, fullMatch, currentLine, currentColumn);
                 }
                 else if (this.stringTestRegex.test(fullMatch))
                 {
                     const stringContent = match[1];
 
-                    token = new Token(LexicalType.String, stringContent);
+                    token = new Token(LexicalType.String, stringContent, currentLine, currentColumn);
                 }
                 else if (this.operatorList.has(fullMatch))
                 {
-                    token = new Token(LexicalType.Operator, fullMatch);
+                    token = new Token(LexicalType.Operator, fullMatch, currentLine, currentColumn);
                 }
                 else if (this.idTestRegex.test(fullMatch))
                 {
-                    token = new Token(LexicalType.Id, fullMatch);
+                    token = new Token(LexicalType.Id, fullMatch, currentLine, currentColumn);
                 }
                 else
                 {

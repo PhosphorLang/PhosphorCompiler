@@ -97,7 +97,7 @@ export default class Lexer
                 }
                 else
                 {
-                    throw new UnknownSymbolError(fullMatch, {line: currentLine, column: currentColumn});
+                    throw new UnknownSymbolError(fullMatch, filePath, {line: currentLine, column: currentColumn});
                 }
 
                 tokens.push(token);

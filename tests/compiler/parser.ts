@@ -5,6 +5,7 @@ import InvalidTokenError from '../../src/errors/invalidTokenError';
 import Parser from '../../src/parser/parser';
 import SyntaxTreeBuilder from '../utility/syntaxTreeBuilder';
 import TokenCreator from '../utility/tokenCreator';
+import UnexpectedTokenError from '../../src/errors/unexpectedTokenError';
 import UnknownTokenError from '../../src/errors/unknownTokenError';
 
 describe('Parser',
@@ -147,7 +148,7 @@ describe('Parser',
             }
         );
 
-        it('can tokenise a variable declaration.',
+        it('can parse a variable declaration.',
             function ()
             {
                 const input = [
@@ -161,6 +162,32 @@ describe('Parser',
                     .new(TokenCreator.newFile())
                     .add(TokenCreator.newVar())
                     .add(TokenCreator.newIdentificator())
+                    .getRoot();
+
+                const parser = new Parser();
+
+                const result = parser.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse a variable assignment.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFile(),
+                    TokenCreator.newIdentificator(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newNumber(),
+                    TokenCreator.newSemicolon(),
+                ];
+
+                const expectedResult = SyntaxTreeBuilder
+                    .new(TokenCreator.newFile())
+                    .add(TokenCreator.newAssignment())
+                    .addAfter(TokenCreator.newIdentificator())
+                    .addAfter(TokenCreator.newNumber())
                     .getRoot();
 
                 const parser = new Parser();
@@ -208,7 +235,7 @@ describe('Parser',
             }
         );
 
-        it('throws an exception if a function parameter list does not start with an opening bracket.',
+        it('throws an exception if there is an invalid token after an identifier.',
             function ()
             {
                 const input = [
@@ -221,7 +248,7 @@ describe('Parser',
 
                 assert.throws(
                     (): void => { parser.run(input); },
-                    InvalidTokenError
+                    UnexpectedTokenError
                 );
             }
         );

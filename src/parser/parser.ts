@@ -3,11 +3,20 @@ import LexicalType from "../lexer/lexicalType";
 import Operator from "../definitions/operator";
 import SyntaxTreeNode from "./syntaxTreeNode";
 import Token from "../lexer/token";
+import UnexpectedTokenError from "../errors/unexpectedTokenError";
 import UnknownTokenError from "../errors/unknownTokenError";
 
-interface ParserResult
+/** The result of a parser, containing multiple nodes. */
+interface ParserScopeResult
 {
     nodes: SyntaxTreeNode[];
+    lastIndex: number;
+}
+
+/** The result of a parser, containing a single node. */
+interface ParserStatementResult
+{
+    node: SyntaxTreeNode;
     lastIndex: number;
 }
 
@@ -34,6 +43,11 @@ export default class Parser
         return root;
     }
 
+    /**
+     * Parse a file scope. This initialises the parsing process.
+     * @param tokens
+     * @returns
+     */
     private parseFile (tokens: Token[]): SyntaxTreeNode
     {
         const fileRoot = new SyntaxTreeNode(null, tokens[0]);
@@ -49,7 +63,13 @@ export default class Parser
         return fileRoot;
     }
 
-    private parseScope (tokens: Token[], startIndex: number): ParserResult
+    /**
+     * Parse a scope, returning multiple nodes.
+     * @param tokens
+     * @param startIndex
+     * @returns
+     */
+    private parseScope (tokens: Token[], startIndex: number): ParserScopeResult
     {
         const nodes: SyntaxTreeNode[] = [];
 
@@ -59,7 +79,7 @@ export default class Parser
             // There can only be statements inside a scope:
             const parserResult = this.parseStatement(tokens, i);
 
-            nodes.push(...parserResult.nodes);
+            nodes.push(parserResult.node);
             i = parserResult.lastIndex + 1;
         }
 
@@ -69,23 +89,25 @@ export default class Parser
         };
     }
 
-    private parseStatement (tokens: Token[], startIndex: number): ParserResult
+    /**
+     * Parse a statement, returning a single node.
+     * @param tokens
+     * @param startIndex
+     * @returns
+     */
+    private parseStatement (tokens: Token[], startIndex: number): ParserStatementResult
     {
         let node: SyntaxTreeNode;
-        let children: SyntaxTreeNode[] = [];
+        const children: SyntaxTreeNode[] = [];
         let lastIndex = startIndex;
 
         const token = tokens[lastIndex];
 
         if (token.type == LexicalType.Id)
         {
-            // We assume a function here.
+            const result = this.parseIdentificator(tokens, lastIndex);
 
-            node = new SyntaxTreeNode(null, token);
-
-            const result = this.parseFunctionParameters(tokens, lastIndex + 1);
-
-            children = result.nodes;
+            node = result.node;
             lastIndex = result.lastIndex;
         }
         else if ((token.type == LexicalType.Operator) && (token.content == Operator.var))
@@ -94,7 +116,7 @@ export default class Parser
 
             const result = this.parseVariableDeclaration(tokens, lastIndex + 1);
 
-            children = result.nodes;
+            children.push(result.node);
             lastIndex = result.lastIndex;
         }
         else
@@ -116,12 +138,71 @@ export default class Parser
         }
 
         return {
-            nodes: [node],
+            node: node,
             lastIndex: lastIndex,
         };
     }
 
-    private parseFunctionParameters (tokens: Token[], startIndex: number): ParserResult
+    /**
+     * Parse an identificator, deciding its function by looking at it's neighbours, returning a single node.
+     * @param tokens
+     * @param startIndex
+     * @returns
+     */
+    private parseIdentificator (tokens: Token[], startIndex: number): ParserStatementResult
+    {
+        let currentIndex = startIndex;
+
+        const identificatorToken = tokens[currentIndex];
+
+        let node: SyntaxTreeNode;
+
+        const followerToken = tokens[currentIndex + 1];
+
+        switch (followerToken.content)
+        {
+            case Operator.openingBracket:
+            {
+                node = new SyntaxTreeNode(null, identificatorToken);
+
+                const result = this.parseFunctionParameters(tokens, currentIndex + 1);
+
+                for (const child of result.nodes)
+                {
+                    child.parent = node;
+                }
+
+                currentIndex = result.lastIndex;
+
+                break;
+            }
+            case Operator.assignment:
+            {
+                const result = this.parseAssignment(tokens, currentIndex);
+
+                node = result.node;
+
+                currentIndex = result.lastIndex;
+
+                break;
+            }
+            default:
+                throw new UnexpectedTokenError('identificator', this.fileName, followerToken);
+        }
+
+        return {
+            node: node,
+            lastIndex: currentIndex,
+        };
+    }
+
+    /**
+     * Parse a function parameter list, returning multiple nodes.
+     * @param tokens
+     * @param startIndex
+     * @returns
+     */
+    private parseFunctionParameters (tokens: Token[], startIndex: number): ParserScopeResult
     {
         let node: SyntaxTreeNode|null = null;
         let currentIndex = startIndex;
@@ -171,7 +252,13 @@ export default class Parser
         };
     }
 
-    private parseVariableDeclaration (tokens: Token[], startIndex: number): ParserResult
+    /**
+     * Parse a variable declaration, returning a single node.
+     * @param tokens
+     * @param startIndex
+     * @return
+     */
+    private parseVariableDeclaration (tokens: Token[], startIndex: number): ParserStatementResult
     {
         const token = tokens[startIndex];
 
@@ -180,7 +267,7 @@ export default class Parser
             const node = new SyntaxTreeNode(null, token);
 
             return {
-                nodes: [node],
+                node: node,
                 lastIndex: startIndex,
             };
         }
@@ -188,5 +275,35 @@ export default class Parser
         {
             throw new InvalidTokenError('Expected identifier in variable declaration, got "' + token.content + '".', this.fileName, token);
         }
+    }
+
+    private parseAssignment (tokens: Token[], startIndex: number): ParserStatementResult
+    {
+        const node = new SyntaxTreeNode(null, tokens[startIndex + 1]);
+        new SyntaxTreeNode(node, tokens[startIndex]);
+
+        const secondArgumentToken = tokens[startIndex + 2];
+
+        switch (secondArgumentToken.type)
+        {
+            case LexicalType.Number:
+            case LexicalType.String:
+            {
+                new SyntaxTreeNode(node, secondArgumentToken);
+
+                break;
+            }
+            default:
+                throw new InvalidTokenError(
+                    `The given token "${secondArgumentToken.content}" is no valid second argument for an assignment.`,
+                    this.fileName,
+                    secondArgumentToken
+                );
+        }
+
+        return {
+            node: node,
+            lastIndex: startIndex + 2,
+        };
     }
 }

@@ -15,6 +15,11 @@ export default class TokenCreator
         return new Token(LexicalType.Id, identifier, line, column);
     }
 
+    public static newVariableIdentifier (identifier = Defaults.variableName): Token
+    {
+        return new Token(LexicalType.Id, identifier);
+    }
+
     public static newNumber (value = Defaults.number): Token
     {
         return new Token(LexicalType.Number, value);

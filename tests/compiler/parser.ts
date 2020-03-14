@@ -154,14 +154,14 @@ describe('Parser',
                 const input = [
                     TokenCreator.newFile(),
                     TokenCreator.newVar(),
-                    TokenCreator.newIdentifier(),
+                    TokenCreator.newVariableIdentifier(),
                     TokenCreator.newSemicolon(),
                 ];
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
                     .add(TokenCreator.newVar())
-                    .add(TokenCreator.newIdentifier())
+                    .add(TokenCreator.newVariableIdentifier())
                     .getRoot();
 
                 const parser = new Parser();
@@ -177,7 +177,7 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentifier(),
+                    TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newNumber(),
                     TokenCreator.newSemicolon(),
@@ -186,7 +186,7 @@ describe('Parser',
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
                     .add(TokenCreator.newAssignment())
-                    .addAfter(TokenCreator.newIdentifier())
+                    .addAfter(TokenCreator.newVariableIdentifier())
                     .addAfter(TokenCreator.newNumber())
                     .getRoot();
 

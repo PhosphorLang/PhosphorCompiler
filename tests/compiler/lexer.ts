@@ -160,7 +160,7 @@ describe('Lexer',
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
                     TokenCreator.newVar(),
-                    TokenCreator.newIdentifier('testVariable'),
+                    TokenCreator.newVariableIdentifier('testVariable'),
                     TokenCreator.newSemicolon(),
                 ];
 
@@ -179,7 +179,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentifier('testVariable'),
+                    TokenCreator.newVariableIdentifier('testVariable'),
                     TokenCreator.newAssignment(),
                     TokenCreator.newNumber('8'),
                     TokenCreator.newSemicolon(),

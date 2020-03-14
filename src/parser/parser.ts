@@ -1,7 +1,9 @@
+import InvalidTokenError from "../errors/invalidTokenError";
 import LexicalType from "../lexer/lexicalType";
 import Operator from "../definitions/operator";
 import SyntaxTreeNode from "./syntaxTreeNode";
 import Token from "../lexer/token";
+import UnknownTokenError from "../errors/unknownTokenError";
 
 interface ParserResult
 {
@@ -11,6 +13,13 @@ interface ParserResult
 
 export default class Parser
 {
+    private fileName: string;
+
+    constructor ()
+    {
+        this.fileName = '';
+    }
+
     /**
      * Run the parser for a given token list of a file.
      * @param tokens The list of tokens
@@ -18,6 +27,8 @@ export default class Parser
      */
     public run (tokens: Token[]): SyntaxTreeNode
     {
+        this.fileName = tokens[0].content; // The first token is the file token.
+
         const root = this.parseFile(tokens);
 
         return root;
@@ -88,7 +99,7 @@ export default class Parser
         }
         else
         {
-            throw new Error('Unknown statement "' + token.content + '"');
+            throw new UnknownTokenError('statement', this.fileName, token);
         }
 
         lastIndex++;
@@ -96,7 +107,7 @@ export default class Parser
 
         if ((endToken.type != LexicalType.Operator) || (endToken.content != Operator.semicolon))
         {
-            throw new Error('A statement must end with a semicolon.');
+            throw new InvalidTokenError('A statement must end with a semicolon.', this.fileName, token);
         }
 
         for (const child of children)
@@ -120,7 +131,7 @@ export default class Parser
 
         if ((startToken.type != LexicalType.Operator) || (startToken.content != Operator.openingBracket))
         {
-            throw new Error('A function parameter list must start with an opening bracket.');
+            throw new InvalidTokenError('A function parameter list must start with an opening bracket.', this.fileName, startToken);
         }
 
         const parameterToken = tokens[currentIndex];
@@ -139,7 +150,11 @@ export default class Parser
             default:
                 if (parameterToken.content != Operator.closingBracket)
                 {
-                    throw new Error('The given token "' + parameterToken.content + '" is no valid function parameter.');
+                    throw new InvalidTokenError(
+                        `The given token "${parameterToken.content}" is no valid function parameter.`,
+                        this.fileName,
+                        startToken
+                    );
                 }
         }
 
@@ -147,7 +162,7 @@ export default class Parser
 
         if ((endToken.type != LexicalType.Operator) || (endToken.content != Operator.closingBracket))
         {
-            throw new Error('A function parameter list must end with an closing bracket.');
+            throw new InvalidTokenError('A function parameter list must end with an closing bracket.', this.fileName, startToken);
         }
 
         return {
@@ -171,7 +186,7 @@ export default class Parser
         }
         else
         {
-            throw new Error('Expected identifier in variable declaration, got "' + token.content + '".');
+            throw new InvalidTokenError('Expected identifier in variable declaration, got "' + token.content + '".', this.fileName, token);
         }
     }
 }

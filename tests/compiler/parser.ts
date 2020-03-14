@@ -1,9 +1,11 @@
 import 'mocha';
 import { assert } from 'chai';
 
+import InvalidTokenError from '../../src/errors/invalidTokenError';
 import Parser from '../../src/parser/parser';
 import SyntaxTreeBuilder from '../utility/syntaxTreeBuilder';
 import TokenCreator from '../utility/tokenCreator';
+import UnknownTokenError from '../../src/errors/unknownTokenError';
 
 describe('Parser',
     function ()
@@ -169,42 +171,114 @@ describe('Parser',
             }
         );
 
-        it('throws an exception at unknown tokens.',
+        it('throws an exception at unknown statement type.',
             function ()
             {
-                // FIXME: This needs an overhaul.
-                this.skip();
-
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
                     TokenCreator.newUnknownOperator(),
                 ];
 
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); } // TODO: Add specific error as soon as there are ones.
+                    (): void => { parser.run(input); },
+                    UnknownTokenError
                 );
             }
         );
 
-        it('throws an exception when there is a statement on file level.',
+        it('throws an exception at a missing semicolon after a statement.',
             function ()
             {
-                // FIXME: This test is obsolete.
-                this.skip();
-
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newNumber(),
-                    TokenCreator.newSemicolon(),
+                    TokenCreator.newIdentificator(),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newClosingBracket(),
+                    TokenCreator.newIdentificator(),
                 ];
 
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); } // TODO: Add specific error as soon as there are ones.
+                    (): void => { parser.run(input); },
+                    InvalidTokenError
+                );
+            }
+        );
+
+        it('throws an exception if a function parameter list does not start with an opening bracket.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFile(),
+                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentificator(),
+                ];
+
+                const parser = new Parser();
+
+                assert.throws(
+                    (): void => { parser.run(input); },
+                    InvalidTokenError
+                );
+            }
+        );
+
+        it('throws an exception if a function parameter list does not end with a closing bracket.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFile(),
+                    TokenCreator.newIdentificator(),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newNumber(),
+                    TokenCreator.newIdentificator(),
+                ];
+
+                const parser = new Parser();
+
+                assert.throws(
+                    (): void => { parser.run(input); },
+                    InvalidTokenError
+                );
+            }
+        );
+
+        it('throws an exception at an invalid function parameter.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFile(),
+                    TokenCreator.newIdentificator(),
+                    TokenCreator.newOpeningBracket(),
+                    TokenCreator.newUnknownOperator(),
+                ];
+
+                const parser = new Parser();
+
+                assert.throws(
+                    (): void => { parser.run(input); },
+                    InvalidTokenError
+                );
+            }
+        );
+
+        it('throws an exception if there is something else than an identifier in a variable declaration.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFile(),
+                    TokenCreator.newVar(),
+                    TokenCreator.newUnknownOperator(),
+                ];
+
+                const parser = new Parser();
+
+                assert.throws(
+                    (): void => { parser.run(input); },
+                    InvalidTokenError
                 );
             }
         );

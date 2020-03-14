@@ -3,6 +3,7 @@ import { assert } from 'chai';
 
 import Lexer from '../../src/lexer/lexer';
 import TokenCreator from '../utility/tokenCreator';
+import UnknownSymbolError from '../../src/errors/unknownSymbolError';
 
 describe('Lexer',
     function ()
@@ -243,7 +244,8 @@ describe('Lexer',
                 const lexer = new Lexer();
 
                 assert.throws(
-                    (): void => { lexer.run(input, 'testFile', false); } // TODO: Add specific error as soon as there are ones.
+                    (): void => { lexer.run(input, 'testFile', false); },
+                    UnknownSymbolError
                 );
             }
         );

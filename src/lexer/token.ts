@@ -1,6 +1,7 @@
 import LexicalType from "./lexicalType";
+import LineInformation from "../definitions/lineInformation";
 
-export default class Token
+export default class Token implements LineInformation
 {
     public readonly type: LexicalType;
     public readonly content: string;

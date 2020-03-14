@@ -1,6 +1,7 @@
 import LexicalType from './lexicalType';
 import Operator from '../definitions/operator';
 import Token from './token';
+import UnknownSymbolError from '../errors/unknownSymbolError';
 
 export default class Lexer
 {
@@ -96,7 +97,7 @@ export default class Lexer
                 }
                 else
                 {
-                    throw new Error('Unknown token "' + fullMatch + '"');
+                    throw new UnknownSymbolError(fullMatch, {line: currentLine, column: currentColumn});
                 }
 
                 tokens.push(token);

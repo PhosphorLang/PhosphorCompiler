@@ -70,7 +70,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('print'),
+                    TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
@@ -91,7 +91,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('print'),
+                    TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber('8'),
                     TokenCreator.newClosingBracket(),
@@ -113,7 +113,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('print'),
+                    TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newString('My test parameter string'),
                     TokenCreator.newClosingBracket(),
@@ -135,7 +135,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('print'),
+                    TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber('24'),
                     TokenCreator.newPlus(),
@@ -160,7 +160,7 @@ describe('Lexer',
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
                     TokenCreator.newVar(),
-                    TokenCreator.newIdentificator('testVariable'),
+                    TokenCreator.newIdentifier('testVariable'),
                     TokenCreator.newSemicolon(),
                 ];
 
@@ -179,7 +179,7 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('testVariable'),
+                    TokenCreator.newIdentifier('testVariable'),
                     TokenCreator.newAssignment(),
                     TokenCreator.newNumber('8'),
                     TokenCreator.newSemicolon(),
@@ -200,9 +200,9 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('print'),
+                    TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
-                    TokenCreator.newIdentificator('testVariable'),
+                    TokenCreator.newIdentifier('testVariable'),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
                 ];
@@ -222,10 +222,10 @@ describe('Lexer',
 
                 const expectedResult = [
                     TokenCreator.newFile('testFile'),
-                    TokenCreator.newIdentificator('a', 1, 1),
-                    TokenCreator.newIdentificator('b', 2, 1),
-                    TokenCreator.newIdentificator('c', 2, 3),
-                    TokenCreator.newIdentificator('d', 3, 1),
+                    TokenCreator.newIdentifier('a', 1, 1),
+                    TokenCreator.newIdentifier('b', 2, 1),
+                    TokenCreator.newIdentifier('c', 2, 3),
+                    TokenCreator.newIdentifier('d', 3, 1),
                 ];
 
                 const lexer = new Lexer();

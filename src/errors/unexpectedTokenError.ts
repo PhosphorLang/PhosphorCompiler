@@ -5,7 +5,7 @@ export default class UnexpectedTokenError extends BaseCompilerError
 {
     /**
      * Thrown when a given token is unexpected.
-     * @param after The thing/type/tokenContent after which the unexpected token has been found, e.g. "identificator".
+     * @param after The thing/type/tokenContent after which the unexpected token has been found, e.g. "identifier".
      * @param fileName The name/path of the file the error has happend in.
      * @param token The token the error referes to.
      */

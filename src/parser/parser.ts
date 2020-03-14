@@ -105,7 +105,7 @@ export default class Parser
 
         if (token.type == LexicalType.Id)
         {
-            const result = this.parseIdentificator(tokens, lastIndex);
+            const result = this.parseIdentifier(tokens, lastIndex);
 
             node = result.node;
             lastIndex = result.lastIndex;
@@ -144,16 +144,16 @@ export default class Parser
     }
 
     /**
-     * Parse an identificator, deciding its function by looking at it's neighbours, returning a single node.
+     * Parse an identifier, deciding its function by looking at it's neighbours, returning a single node.
      * @param tokens
      * @param startIndex
      * @returns
      */
-    private parseIdentificator (tokens: Token[], startIndex: number): ParserStatementResult
+    private parseIdentifier (tokens: Token[], startIndex: number): ParserStatementResult
     {
         let currentIndex = startIndex;
 
-        const identificatorToken = tokens[currentIndex];
+        const identifierToken = tokens[currentIndex];
 
         let node: SyntaxTreeNode;
 
@@ -163,7 +163,7 @@ export default class Parser
         {
             case Operator.openingBracket:
             {
-                node = new SyntaxTreeNode(null, identificatorToken);
+                node = new SyntaxTreeNode(null, identifierToken);
 
                 const result = this.parseFunctionParameters(tokens, currentIndex + 1);
 
@@ -187,7 +187,7 @@ export default class Parser
                 break;
             }
             default:
-                throw new UnexpectedTokenError('identificator', this.fileName, followerToken);
+                throw new UnexpectedTokenError('identifier', this.fileName, followerToken);
         }
 
         return {

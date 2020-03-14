@@ -16,7 +16,7 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
@@ -24,7 +24,7 @@ describe('Parser',
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newIdentificator())
+                    .add(TokenCreator.newIdentifier())
                     .getRoot();
 
                 const parser = new Parser();
@@ -40,11 +40,11 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
@@ -52,8 +52,8 @@ describe('Parser',
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .addAfter(TokenCreator.newIdentificator())
-                    .addAfter(TokenCreator.newIdentificator())
+                    .addAfter(TokenCreator.newIdentifier())
+                    .addAfter(TokenCreator.newIdentifier())
                     .getRoot();
 
                 const parser = new Parser();
@@ -69,7 +69,7 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber(),
                     TokenCreator.newClosingBracket(),
@@ -78,7 +78,7 @@ describe('Parser',
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newIdentificator())
+                    .add(TokenCreator.newIdentifier())
                     .add(TokenCreator.newNumber())
                     .getRoot();
 
@@ -95,7 +95,7 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newString(),
                     TokenCreator.newClosingBracket(),
@@ -104,7 +104,7 @@ describe('Parser',
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newIdentificator())
+                    .add(TokenCreator.newIdentifier())
                     .add(TokenCreator.newString())
                     .getRoot();
 
@@ -123,7 +123,7 @@ describe('Parser',
 
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber(),
                     TokenCreator.newPlus(),
@@ -134,7 +134,7 @@ describe('Parser',
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
-                    .add(TokenCreator.newIdentificator())
+                    .add(TokenCreator.newIdentifier())
                     .add(TokenCreator.newPlus())
                     .addAfter(TokenCreator.newNumber())
                     .addAfter(TokenCreator.newNumber())
@@ -154,14 +154,14 @@ describe('Parser',
                 const input = [
                     TokenCreator.newFile(),
                     TokenCreator.newVar(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newSemicolon(),
                 ];
 
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
                     .add(TokenCreator.newVar())
-                    .add(TokenCreator.newIdentificator())
+                    .add(TokenCreator.newIdentifier())
                     .getRoot();
 
                 const parser = new Parser();
@@ -177,7 +177,7 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newNumber(),
                     TokenCreator.newSemicolon(),
@@ -186,7 +186,7 @@ describe('Parser',
                 const expectedResult = SyntaxTreeBuilder
                     .new(TokenCreator.newFile())
                     .add(TokenCreator.newAssignment())
-                    .addAfter(TokenCreator.newIdentificator())
+                    .addAfter(TokenCreator.newIdentifier())
                     .addAfter(TokenCreator.newNumber())
                     .getRoot();
 
@@ -220,10 +220,10 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                 ];
 
                 const parser = new Parser();
@@ -240,8 +240,8 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newIdentifier(),
                 ];
 
                 const parser = new Parser();
@@ -258,10 +258,10 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newNumber(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                 ];
 
                 const parser = new Parser();
@@ -278,7 +278,7 @@ describe('Parser',
             {
                 const input = [
                     TokenCreator.newFile(),
-                    TokenCreator.newIdentificator(),
+                    TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newUnknownOperator(),
                 ];

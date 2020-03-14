@@ -9,9 +9,9 @@ export default class TokenCreator
         return new Token(LexicalType.File, fileName);
     }
 
-    public static newIdentificator (identificator = 'print', line = 0, column = 0): Token
+    public static newIdentifier (identifier = 'print', line = 0, column = 0): Token
     {
-        return new Token(LexicalType.Id, identificator, line, column);
+        return new Token(LexicalType.Id, identifier, line, column);
     }
 
     public static newNumber (value = '24'): Token

@@ -1,30 +1,31 @@
+import Defaults from "./defaults";
 import LexicalType from "../../src/lexer/lexicalType";
 import Operator from "../../src/definitions/operator";
 import Token from "../../src/lexer/token";
 
 export default class TokenCreator
 {
-    public static newFile (fileName = 'testFile'): Token
+    public static newFile (fileName = Defaults.fileName): Token
     {
         return new Token(LexicalType.File, fileName);
     }
 
-    public static newIdentifier (identifier = 'print', line = 0, column = 0): Token
+    public static newIdentifier (identifier = Defaults.identifier, line = 0, column = 0): Token
     {
         return new Token(LexicalType.Id, identifier, line, column);
     }
 
-    public static newNumber (value = '24'): Token
+    public static newNumber (value = Defaults.number): Token
     {
         return new Token(LexicalType.Number, value);
     }
 
-    public static newString (value = 'Test string'): Token
+    public static newString (value = Defaults.string): Token
     {
         return new Token(LexicalType.String, value);
     }
 
-    public static newUnknownOperator (operator = '§'): Token
+    public static newUnknownOperator (operator = Defaults.unknown): Token
     {
         return new Token(LexicalType.Operator, operator);
     }

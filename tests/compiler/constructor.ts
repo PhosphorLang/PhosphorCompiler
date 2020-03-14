@@ -1,17 +1,14 @@
 import 'mocha';
-import ActionToken from '../../src/constructor_/actionToken';
-import ActionTreeNode from '../../src/constructor_/actionTreeNode';
+import ActionTokenCreator from '../utility/actionTokenCreator';
+import ActionTreeBuilder from '../utility/actionTreeBuilder';
 import { assert } from 'chai';
 import Constructor from '../../src/constructor_/constructor';
-import SemanticalType from '../../src/constructor_/semanticalType';
 import SyntaxTreeBuilder from '../utility/syntaxTreeBuilder';
 import TokenCreator from '../utility/tokenCreator';
 
 describe('Constructor',
     function ()
     {
-        const fileName = 'testFile';
-
         it('can construct a function call.',
             function ()
             {
@@ -20,8 +17,10 @@ describe('Constructor',
                     .add(TokenCreator.newIdentifier())
                     .getRoot();
 
-                const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));
+                const expectedResult = ActionTreeBuilder
+                    .new(ActionTokenCreator.newFile())
+                    .add(ActionTokenCreator.newFunction())
+                    .getRoot();
 
                 const constructor = new Constructor();
 
@@ -40,10 +39,13 @@ describe('Constructor',
                     .add(TokenCreator.newNumber())
                     .getRoot();
 
-                const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));
-                new ActionTreeNode(expectedResult.children[0], new ActionToken(SemanticalType.IntegerLiteral, 'c_0', '24'));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.IntegerDefinition, 'c_0', '24'));
+                const expectedResult = ActionTreeBuilder
+                    .new(ActionTokenCreator.newFile())
+                    .add(ActionTokenCreator.newFunction())
+                    .addAfter(ActionTokenCreator.newIntegerLiteral('c_0'))
+                    .toParent()
+                    .add(ActionTokenCreator.newIntegerDefinition('c_0'))
+                    .getRoot();
 
                 const constructor = new Constructor();
 
@@ -62,10 +64,13 @@ describe('Constructor',
                     .add(TokenCreator.newString())
                     .getRoot();
 
-                const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));
-                new ActionTreeNode(expectedResult.children[0], new ActionToken(SemanticalType.StringLiteral, 'c_0', 'Test string'));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.StringDefinition, 'c_0', 'Test string'));
+                const expectedResult = ActionTreeBuilder
+                    .new(ActionTokenCreator.newFile())
+                    .add(ActionTokenCreator.newFunction())
+                    .addAfter(ActionTokenCreator.newStringLiteral('c_0'))
+                    .toParent()
+                    .add(ActionTokenCreator.newStringDefinition('c_0'))
+                    .getRoot();
 
                 const constructor = new Constructor();
 
@@ -86,13 +91,17 @@ describe('Constructor',
                     .addAfter(TokenCreator.newNumber('8'))
                     .getRoot();
 
-                const expectedResult = new ActionTreeNode(null, new ActionToken(SemanticalType.File, fileName));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.Function, 'print'));
-                new ActionTreeNode(expectedResult.children[0], new ActionToken(SemanticalType.Addition));
-                new ActionTreeNode(expectedResult.children[0].children[0], new ActionToken(SemanticalType.IntegerLiteral, 'c_0', '24'));
-                new ActionTreeNode(expectedResult.children[0].children[0], new ActionToken(SemanticalType.IntegerLiteral, 'c_1', '8'));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.IntegerDefinition, 'c_0', '24'));
-                new ActionTreeNode(expectedResult, new ActionToken(SemanticalType.IntegerDefinition, 'c_1', '8'));
+                const expectedResult = ActionTreeBuilder
+                    .new(ActionTokenCreator.newFile())
+                    .add(ActionTokenCreator.newFunction())
+                    .add(ActionTokenCreator.newAddition())
+                    .addAfter(ActionTokenCreator.newIntegerLiteral('c_0', '24'))
+                    .addAfter(ActionTokenCreator.newIntegerLiteral('c_1', '8'))
+                    .toParent()
+                    .toParent()
+                    .addAfter(ActionTokenCreator.newIntegerDefinition('c_0', '24'))
+                    .addAfter(ActionTokenCreator.newIntegerDefinition('c_1', '8'))
+                    .getRoot();
 
                 const constructor = new Constructor();
 

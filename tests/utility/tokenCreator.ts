@@ -1,67 +1,62 @@
 import Defaults from "./defaults";
-import LexicalType from "../../src/lexer/lexicalType";
 import Operator from "../../src/definitions/operator";
 import Token from "../../src/lexer/token";
+import TokenType from "../../src/lexer/tokenType";
 
 export default class TokenCreator
 {
-    public static newFile (fileName = Defaults.fileName): Token
+    public static newFile (name = Defaults.fileName): Token
     {
-        return new Token(LexicalType.File, fileName);
+        return new Token(TokenType.File, name);
     }
 
     public static newIdentifier (identifier = Defaults.identifier, line = 0, column = 0): Token
     {
-        return new Token(LexicalType.Id, identifier, line, column);
+        return new Token(TokenType.IdentifierToken, identifier, line, column);
     }
 
     public static newVariableIdentifier (identifier = Defaults.variableName): Token
     {
-        return new Token(LexicalType.Id, identifier);
+        return new Token(TokenType.IdentifierToken, identifier);
     }
 
-    public static newNumber (value = Defaults.number): Token
+    public static newInteger (value = Defaults.number): Token
     {
-        return new Token(LexicalType.Number, value);
+        return new Token(TokenType.IntegerToken, value);
     }
 
     public static newString (value = Defaults.string): Token
     {
-        return new Token(LexicalType.String, value);
-    }
-
-    public static newUnknownOperator (operator = Defaults.unknown): Token
-    {
-        return new Token(LexicalType.Operator, operator);
+        return new Token(TokenType.StringToken, value);
     }
 
     public static newOpeningBracket (): Token
     {
-        return new Token(LexicalType.Operator, Operator.openingBracket);
+        return new Token(TokenType.OpeningBracketToken, Operator.openingBracket);
     }
 
     public static newClosingBracket (): Token
     {
-        return new Token(LexicalType.Operator, Operator.closingBracket);
+        return new Token(TokenType.ClosingBracketToken, Operator.closingBracket);
     }
 
     public static newSemicolon (): Token
     {
-        return new Token(LexicalType.Operator, Operator.semicolon);
+        return new Token(TokenType.SemicolonToken, Operator.semicolon);
     }
 
     public static newPlus (): Token
     {
-        return new Token(LexicalType.Operator, Operator.plus);
+        return new Token(TokenType.PlusOperator, Operator.plus);
     }
 
     public static newVar (): Token
     {
-        return new Token(LexicalType.Operator, Operator.var);
+        return new Token(TokenType.VarKeyword, Operator.var);
     }
 
     public static newAssignment (): Token
     {
-        return new Token(LexicalType.Operator, Operator.assignment);
+        return new Token(TokenType.AssignmentOperator, Operator.assignment);
     }
 }

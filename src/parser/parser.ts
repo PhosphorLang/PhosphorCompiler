@@ -1,5 +1,5 @@
 import InvalidTokenError from "../errors/invalidTokenError";
-import LexicalType from "../lexer/lexicalType";
+import TokenType from "../lexer/tokenType";
 import Operator from "../definitions/operator";
 import SyntaxTreeNode from "./syntaxTreeNode";
 import Token from "../lexer/token";
@@ -103,14 +103,14 @@ export default class Parser
 
         const token = tokens[lastIndex];
 
-        if (token.type == LexicalType.Id)
+        if (token.type == TokenType.IdentifierToken)
         {
             const result = this.parseIdentifier(tokens, lastIndex);
 
             node = result.node;
             lastIndex = result.lastIndex;
         }
-        else if ((token.type == LexicalType.Operator) && (token.content == Operator.var))
+        else if (token.type == TokenType.VarKeyword)
         {
             node = new SyntaxTreeNode(null, token);
 
@@ -127,7 +127,7 @@ export default class Parser
         lastIndex++;
         const endToken = tokens[lastIndex];
 
-        if ((endToken.type != LexicalType.Operator) || (endToken.content != Operator.semicolon))
+        if (endToken.type != TokenType.SemicolonToken)
         {
             throw new InvalidTokenError('A statement must end with a semicolon.', this.fileName, token);
         }
@@ -210,7 +210,7 @@ export default class Parser
         const startToken = tokens[currentIndex];
         currentIndex++;
 
-        if ((startToken.type != LexicalType.Operator) || (startToken.content != Operator.openingBracket))
+        if (startToken.type != TokenType.OpeningBracketToken)
         {
             throw new InvalidTokenError('A function parameter list must start with an opening bracket.', this.fileName, startToken);
         }
@@ -219,8 +219,8 @@ export default class Parser
 
         switch (parameterToken.type)
         {
-            case LexicalType.Number:
-            case LexicalType.String:
+            case TokenType.IntegerToken:
+            case TokenType.StringToken:
             {
                 node = new SyntaxTreeNode(null, parameterToken);
 
@@ -241,7 +241,7 @@ export default class Parser
 
         const endToken = tokens[currentIndex];
 
-        if ((endToken.type != LexicalType.Operator) || (endToken.content != Operator.closingBracket))
+        if (endToken.type != TokenType.ClosingBracketToken)
         {
             throw new InvalidTokenError('A function parameter list must end with an closing bracket.', this.fileName, startToken);
         }
@@ -262,7 +262,7 @@ export default class Parser
     {
         const token = tokens[startIndex];
 
-        if (token.type == LexicalType.Id)
+        if (token.type == TokenType.IdentifierToken)
         {
             const node = new SyntaxTreeNode(null, token);
 
@@ -286,8 +286,8 @@ export default class Parser
 
         switch (secondArgumentToken.type)
         {
-            case LexicalType.Number:
-            case LexicalType.String:
+            case TokenType.IntegerToken:
+            case TokenType.StringToken:
             {
                 new SyntaxTreeNode(node, secondArgumentToken);
 

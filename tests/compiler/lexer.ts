@@ -14,9 +14,8 @@ describe('Lexer',
                 const input = '24                   8';
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
-                    TokenCreator.newNumber('24'),
-                    TokenCreator.newNumber('8'),
+                    TokenCreator.newInteger('24'),
+                    TokenCreator.newInteger('8'),
                 ];
 
                 const lexer = new Lexer();
@@ -33,8 +32,7 @@ describe('Lexer',
                 const input = '24';
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
-                    TokenCreator.newNumber('24'),
+                    TokenCreator.newInteger('24'),
                 ];
 
                 const lexer = new Lexer();
@@ -51,7 +49,6 @@ describe('Lexer',
                 const input = "'My string'";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newString('My string'),
                 ];
 
@@ -69,7 +66,6 @@ describe('Lexer',
                 const input = 'print();';
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newClosingBracket(),
@@ -90,10 +86,9 @@ describe('Lexer',
                 const input = 'print(8);';
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
-                    TokenCreator.newNumber('8'),
+                    TokenCreator.newInteger('8'),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
                 ];
@@ -112,7 +107,6 @@ describe('Lexer',
                 const input = "print('My test parameter string');";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newString('My test parameter string'),
@@ -134,12 +128,11 @@ describe('Lexer',
                 const input = "print(24 + 8);";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
-                    TokenCreator.newNumber('24'),
+                    TokenCreator.newInteger('24'),
                     TokenCreator.newPlus(),
-                    TokenCreator.newNumber('8'),
+                    TokenCreator.newInteger('8'),
                     TokenCreator.newClosingBracket(),
                     TokenCreator.newSemicolon(),
                 ];
@@ -158,7 +151,6 @@ describe('Lexer',
                 const input = "var testVariable;";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newVar(),
                     TokenCreator.newVariableIdentifier('testVariable'),
                     TokenCreator.newSemicolon(),
@@ -178,10 +170,9 @@ describe('Lexer',
                 const input = "testVariable := 8;";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newVariableIdentifier('testVariable'),
                     TokenCreator.newAssignment(),
-                    TokenCreator.newNumber('8'),
+                    TokenCreator.newInteger('8'),
                     TokenCreator.newSemicolon(),
                 ];
 
@@ -199,7 +190,6 @@ describe('Lexer',
                 const input = "print(testVariable);";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newIdentifier('print'),
                     TokenCreator.newOpeningBracket(),
                     TokenCreator.newIdentifier('testVariable'),
@@ -221,7 +211,6 @@ describe('Lexer',
                 const input = "a\nb c\nd";
 
                 const expectedResult = [
-                    TokenCreator.newFile('testFile'),
                     TokenCreator.newIdentifier('a', 1, 1),
                     TokenCreator.newIdentifier('b', 2, 1),
                     TokenCreator.newIdentifier('c', 2, 3),

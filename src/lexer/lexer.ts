@@ -1,110 +1,238 @@
-import LexicalType from './lexicalType';
-import Operator from '../definitions/operator';
 import Token from './token';
+import TokenType from './tokenType';
 import UnknownSymbolError from '../errors/unknownSymbolError';
+import UnterminatedStringError from '../errors/unterminatedStringError';
+
+interface ContentAndType
+{
+    content: string;
+    type: TokenType;
+}
 
 export default class Lexer
 {
-    private tokenSplitterRegex: RegExp;
+    private fileName: string;
+    private position: number;
+    private line: number;
+    private column: number;
+    private text: string;
 
-    private numberTestRegex: RegExp;
-    private stringTestRegex: RegExp;
-    private idTestRegex: RegExp;
-
-    private operatorList: Set<string>;
+    private readonly numberTestRegex: RegExp;
+    private readonly identifierTestRegex: RegExp;
 
     constructor ()
     {
-        this.tokenSplitterRegex = /'(.*?)'|\d+|[a-zA-Z]+|:=|\S|\n/g;
+        this.fileName = '';
+        this.position = 0;
+        this.line = 1;
+        this.column = 1;
+        this.text = '';
 
-        this.numberTestRegex = /^\d+$/;
-        this.stringTestRegex = /^'.*'$/;
-        this.idTestRegex = /^[a-zA-Z]+$/;
+        this.numberTestRegex = /\d/;
+        this.identifierTestRegex = /[a-zA-Z]/;
+    }
 
-        this.operatorList = new Set();
-        for (const operator of Object.values(Operator))
+    private getNextChar (): string
+    {
+        let result = '';
+
+        if (this.position < this.text.length)
         {
-            this.operatorList.add(operator);
+            result = this.text[this.position];
+
+            this.position++;
         }
+
+        return result;
     }
 
     /**
      * Run the lexer.
      * @param fileContent The content of the file
-     * @param filePath The path of the file
+     * @param fileName The name/path of the file
      * @param setLineInfo If true the tokens will include line and column numbers, otherwise they will always be zero.
      * @returns The generated list of tokens.
      */
-    public run (fileContent: string, filePath: string, setLineInfo = true): Token[]
+    public run (fileContent: string, fileName: string, setLineInfo = true): Token[]
     {
-        const tokens: Token[] = [];
+        this.fileName = fileName;
+        this.position = 0;
+        this.line = 1;
+        this.column = 1;
+        this.text = fileContent;
 
-        let currentLine = 1;
-        /** The position from the beginning of the file at which the last line ended, or: The position of the last line break. */
-        let lastLineEndPosition = -1;
-
-        const fileToken = new Token(LexicalType.File, filePath);
-        tokens.push(fileToken);
-
-        let match: RegExpExecArray | null;
-        do
+        if ((this.text === '') || (!this.text.endsWith("\n")))
         {
-            match = this.tokenSplitterRegex.exec(fileContent);
-            if (match)
+            this.text += "\n"; // Go sure the text ends with a line ending.
+        }
+
+        const tokens: Token[] = [];
+        while (this.position < this.text.length)
+        {
+            const token = this.lex(setLineInfo);
+
+            if (token !== null)
             {
-                const fullMatch = match[0];
-
-                let token: Token;
-                let currentColumn: number;
-
-                if (fullMatch === "\n")
-                {
-                    currentLine++;
-                    lastLineEndPosition = match.index;
-
-                    continue;
-                }
-                else
-                {
-                    if (setLineInfo)
-                    {
-                        currentColumn = match.index - lastLineEndPosition;
-                    }
-                    else
-                    {
-                        currentLine = 0;
-                        currentColumn = 0;
-                    }
-                }
-
-                if (this.numberTestRegex.test(fullMatch))
-                {
-                    token = new Token(LexicalType.Number, fullMatch, currentLine, currentColumn);
-                }
-                else if (this.stringTestRegex.test(fullMatch))
-                {
-                    const stringContent = match[1];
-
-                    token = new Token(LexicalType.String, stringContent, currentLine, currentColumn);
-                }
-                else if (this.operatorList.has(fullMatch))
-                {
-                    token = new Token(LexicalType.Operator, fullMatch, currentLine, currentColumn);
-                }
-                else if (this.idTestRegex.test(fullMatch))
-                {
-                    token = new Token(LexicalType.Id, fullMatch, currentLine, currentColumn);
-                }
-                else
-                {
-                    throw new UnknownSymbolError(fullMatch, filePath, {line: currentLine, column: currentColumn});
-                }
-
                 tokens.push(token);
             }
         }
-        while (match);
 
         return tokens;
+    }
+
+    public lex (setLineInfo: boolean): Token|null
+    {
+        let type: TokenType|undefined = undefined;
+        let content = this.getNextChar();
+
+        switch (content)
+        {
+            case "\n":
+                this.line++;
+                this.column = 1;
+                return null;
+            case ' ':
+                this.column++;
+                return null;
+            case '(':
+                type = TokenType.OpeningBracketToken;
+                break;
+            case ')':
+                type = TokenType.ClosingBracketToken;
+                break;
+            case '+':
+                type = TokenType.PlusOperator;
+                break;
+            case ':':
+                if (this.getNextChar() === '=')
+                {
+                    type = TokenType.AssignmentOperator;
+                    content = ':=';
+                }
+                else
+                {
+                    throw new UnknownSymbolError(content, this.fileName, {line: this.line, column: this.column});
+                }
+                break;
+            case ';':
+                type = TokenType.SemicolonToken;
+                break;
+            case "'":
+                type = TokenType.StringToken;
+                content = this.readString();
+                break;
+            default:
+                if (this.numberTestRegex.test(content))
+                {
+                    this.position--;
+                    const readResult = this.readNumber();
+                    content = readResult.content;
+                    type = readResult.type;
+                }
+                else if (this.identifierTestRegex.test(content))
+                {
+                    this.position--;
+                    const readResult = this.readIdentifierOrKeyword();
+                    content = readResult.content;
+                    type = readResult.type;
+                }
+                else
+                {
+                    throw new UnknownSymbolError(content, this.fileName, {line: this.line, column: this.column});
+                }
+        }
+
+        let token: Token;
+        if (setLineInfo)
+        {
+            token = new Token(type, content, this.line, this.column);
+        }
+        else
+        {
+            token = new Token(type, content);
+        }
+
+        this.column++;
+
+        return token;
+    }
+
+    private readString (): string
+    {
+        const start = this.position;
+
+        let continueReading = true;
+        while (continueReading)
+        {
+            switch (this.getNextChar())
+            {
+                case '':
+                case "\n":
+                    throw new UnterminatedStringError(this.fileName, {line: this.line, column: this.column});
+                case "'":
+                    continueReading = false;
+                    break;
+            }
+        }
+
+        const content = this.text.slice(start, this.position - 1);
+
+        this.column += this.position - start - 1;
+
+        return content;
+    }
+
+    private readNumber (): ContentAndType
+    {
+        const content = this.readWhileRegexPasses(this.numberTestRegex);
+
+        return {
+            content: content,
+            type: TokenType.IntegerToken,
+        };
+    }
+
+    private readIdentifierOrKeyword (): ContentAndType
+    {
+        const content = this.readWhileRegexPasses(this.identifierTestRegex);
+        let type: TokenType;
+
+        switch (content)
+        {
+            case 'var':
+                type = TokenType.VarKeyword;
+                break;
+            default:
+                type = TokenType.IdentifierToken;
+        }
+
+        return {
+            content: content,
+            type: type,
+        };
+    }
+
+    /**
+     * Read a token while the given regex' test function returns true.
+     * @param regex The regex to test with.
+     * @returns The read content.
+     */
+    private readWhileRegexPasses (regex: RegExp): string
+    {
+        const start = this.position;
+
+        let nextChar: string;
+        do
+        {
+            nextChar = this.getNextChar();
+        }
+        while (regex.test(nextChar));
+
+        this.position--;
+        const content = this.text.slice(start, this.position);
+
+        this.column += this.position - start - 1;
+
+        return content;
     }
 }

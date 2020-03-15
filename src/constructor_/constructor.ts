@@ -1,10 +1,9 @@
 import ActionToken from "./actionToken";
 import ActionTreeNode from "./actionTreeNode";
-import LexicalType from "../lexer/lexicalType";
-import Operator from "../definitions/operator";
 import SemanticalType from "./semanticalType";
 import SyntaxTreeNode from "../parser/syntaxTreeNode";
 import Token from "../lexer/token";
+import TokenType from "../lexer/tokenType";
 import UnknownTokenError from "../errors/unknownTokenError";
 
 export default class Constructor
@@ -57,14 +56,16 @@ export default class Constructor
 
         switch (node.value.type)
         {
-            case LexicalType.File:
+            /*
+            case TokenType.File:
             {
                 const fileActionToken = new ActionToken(SemanticalType.File, node.value.content);
                 result = new ActionTreeNode(parent, fileActionToken);
 
                 break;
             }
-            case LexicalType.Id:
+            */
+            case TokenType.IdentifierToken:
             {
                 if (!this.functions.has(node.value.content))
                 {
@@ -76,7 +77,7 @@ export default class Constructor
 
                 break;
             }
-            case LexicalType.Number:
+            case TokenType.IntegerToken:
             {
                 const constantId = this.getConstantId(node.value);
                 const numberActionToken = new ActionToken(SemanticalType.IntegerLiteral, constantId, node.value.content);
@@ -84,7 +85,7 @@ export default class Constructor
 
                 break;
             }
-            case LexicalType.String:
+            case TokenType.StringToken:
             {
                 const constantId = this.getConstantId(node.value);
                 const stringActionToken = new ActionToken(SemanticalType.StringLiteral, constantId, node.value.content);
@@ -92,20 +93,10 @@ export default class Constructor
 
                 break;
             }
-            case LexicalType.Operator:
+            case TokenType.PlusOperator:
             {
-                switch (node.value.content)
-                {
-                    case Operator.plus:
-                    {
-                        const additionActionToken = new ActionToken(SemanticalType.Addition);
-                        result = new ActionTreeNode(parent, additionActionToken);
-
-                        break;
-                    }
-                    default:
-                        throw new UnknownTokenError('operator', this.fileName, node.value);
-                }
+                const additionActionToken = new ActionToken(SemanticalType.Addition);
+                result = new ActionTreeNode(parent, additionActionToken);
 
                 break;
             }
@@ -140,10 +131,10 @@ export default class Constructor
 
             switch (constantToken.type)
             {
-                case LexicalType.Number:
+                case TokenType.IntegerToken:
                     constantType = SemanticalType.IntegerDefinition;
                     break;
-                case LexicalType.String:
+                case TokenType.StringToken:
                     constantType = SemanticalType.StringDefinition;
                     break;
                 default:

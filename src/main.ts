@@ -31,10 +31,20 @@ class Main
 
         const fileContent = fs.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
 
-        const tokens = lexer.run(fileContent, this.arguments.filePath);
-        const syntaxTree = parser.run(tokens);
-        const actionTree = constructor.run(syntaxTree);
-        const assembly = transpiler.run(actionTree);
+        let assembly: string;
+        try
+        {
+            const tokens = lexer.run(fileContent, this.arguments.filePath);
+            const syntaxTree = parser.run(tokens);
+            const actionTree = constructor.run(syntaxTree);
+            assembly = transpiler.run(actionTree);
+        }
+        catch (error)
+        {
+            console.error((error as Error).message);
+
+            return;
+        }
 
         fs.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
 

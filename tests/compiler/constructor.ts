@@ -5,6 +5,7 @@ import { assert } from 'chai';
 import Constructor from '../../src/constructor_/constructor';
 import SyntaxTreeBuilder from '../utility/syntaxTreeBuilder';
 import TokenCreator from '../utility/tokenCreator';
+import UnknownTokenError from '../../src/errors/unknownTokenError';
 
 describe('Constructor',
     function ()
@@ -127,7 +128,8 @@ describe('Constructor',
                 const constructor = new Constructor();
 
                 assert.throws(
-                    (): void => { constructor.run(input); } // TODO: Add specific error as soon as there are ones.
+                    (): void => { constructor.run(input); },
+                    UnknownTokenError
                 );
             }
         );
@@ -143,7 +145,8 @@ describe('Constructor',
                 const constructor = new Constructor();
 
                 assert.throws(
-                    (): void => { constructor.run(input); } // TODO: Add specific error as soon as there are ones.
+                    (): void => { constructor.run(input); },
+                    UnknownTokenError
                 );
             }
         );

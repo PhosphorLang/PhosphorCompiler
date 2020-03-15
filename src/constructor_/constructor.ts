@@ -5,23 +5,29 @@ import Operator from "../definitions/operator";
 import SemanticalType from "./semanticalType";
 import SyntaxTreeNode from "../parser/syntaxTreeNode";
 import Token from "../lexer/token";
+import UnknownTokenError from "../errors/unknownTokenError";
 
 export default class Constructor
 {
-    private functions: string[];
+    private fileName: string;
+
+    private functions: Set<string>;
     private constantValueToActionTokenMap: Map<string, ActionToken>;
     private constantIdCounter: number;
 
     constructor ()
     {
-        this.functions = ['print'];
+        this.functions = new Set<string>(['print']);
 
         this.constantValueToActionTokenMap = new Map<string, ActionToken>();
         this.constantIdCounter = 0;
+        this.fileName = '';
     }
 
     public run (syntaxTree: SyntaxTreeNode): ActionTreeNode
     {
+        this.fileName = syntaxTree.value.content; // The first node is the file node, containing the file name.
+
         const actionTreeNode = this.constructNode(syntaxTree, null);
 
         this.constructConstants(actionTreeNode);
@@ -60,11 +66,9 @@ export default class Constructor
             }
             case LexicalType.Id:
             {
-                const functionId = this.functions.indexOf(node.value.content);
-
-                if (functionId === -1)
+                if (!this.functions.has(node.value.content))
                 {
-                    throw new Error('Unknown function "' + node.value.content + '"');
+                    throw new UnknownTokenError('function', this.fileName, node.value);
                 }
 
                 const functionActionToken = new ActionToken(SemanticalType.Function, node.value.content);
@@ -100,13 +104,13 @@ export default class Constructor
                         break;
                     }
                     default:
-                        throw new Error('Unknown operator "' + node.value.content + '"');
+                        throw new UnknownTokenError('operator', this.fileName, node.value);
                 }
 
                 break;
             }
             default:
-                throw new Error('Unknown lexical type of symbol "' + node.value.content + '"');
+                throw new UnknownTokenError('lexical type', this.fileName, node.value);
         }
 
         for (const child of node.children)
@@ -143,7 +147,7 @@ export default class Constructor
                     constantType = SemanticalType.StringDefinition;
                     break;
                 default:
-                    throw new Error('Unknown lexical type of constant "' + constantToken.content + '"');
+                    throw new UnknownTokenError('lexical type of constant', this.fileName, constantToken);
             }
 
             actionToken = new ActionToken(constantType, constantId, constantToken.content);

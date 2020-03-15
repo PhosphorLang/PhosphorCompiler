@@ -13,6 +13,6 @@ export default class UnknownTokenError extends BaseCompilerError
     {
         const message = `Unknown ${type} "${token.content}"`;
 
-        super(message, 'UnknownTokenError', fileName, token);
+        super(message, fileName, token);
     }
 }

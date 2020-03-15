@@ -7,6 +7,6 @@ export default class UnknownSymbolError extends BaseCompilerError
     {
         const message = `Unknown symbol "${symbol}"`;
 
-        super(message, 'UnknownSymbolError', fileName, lineInformation);
+        super(message, fileName, lineInformation);
     }
 }

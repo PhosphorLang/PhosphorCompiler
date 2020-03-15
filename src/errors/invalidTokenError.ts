@@ -5,6 +5,6 @@ export default class InvalidTokenError extends BaseCompilerError
 {
     constructor (message: string, fileName: string, token: Token)
     {
-        super(message, 'InvalidTokenError', fileName, token);
+        super(message, fileName, token);
     }
 }

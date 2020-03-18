@@ -12,10 +12,10 @@ interface ContentAndType
 export default class Lexer
 {
     private fileName: string;
+    private text: string;
     private position: number;
     private line: number;
     private column: number;
-    private text: string;
 
     private readonly numberTestRegex: RegExp;
     private readonly identifierTestRegex: RegExp;
@@ -23,10 +23,10 @@ export default class Lexer
     constructor ()
     {
         this.fileName = '';
+        this.text = '';
         this.position = 0;
         this.line = 1;
         this.column = 1;
-        this.text = '';
 
         this.numberTestRegex = /\d/;
         this.identifierTestRegex = /[a-zA-Z]/;
@@ -122,24 +122,27 @@ export default class Lexer
                 content = this.readString();
                 break;
             default:
+            {
+                this.position--;
+
+                let readResult: ContentAndType;
+
                 if (this.numberTestRegex.test(content))
                 {
-                    this.position--;
-                    const readResult = this.readNumber();
-                    content = readResult.content;
-                    type = readResult.type;
+                    readResult = this.readNumber();
                 }
                 else if (this.identifierTestRegex.test(content))
                 {
-                    this.position--;
-                    const readResult = this.readIdentifierOrKeyword();
-                    content = readResult.content;
-                    type = readResult.type;
+                    readResult = this.readIdentifierOrKeyword();
                 }
                 else
                 {
                     throw new UnknownSymbolError(content, this.fileName, {line: this.line, column: this.column});
                 }
+
+                content = readResult.content;
+                type = readResult.type;
+            }
         }
 
         let token: Token;

@@ -10,7 +10,6 @@ import NameExpressionSyntaxNode from "./syntaxNodes/nameExpressionSyntaxNode";
 import OperatorOrder from "./operatorOrder";
 import ParenthesizedExpressionSyntaxNode from "./syntaxNodes/parenthesizedExpressionSyntaxNode";
 import SyntaxNode from "./syntaxNodes/syntaxNode";
-import SyntaxType from "./syntaxType";
 import Token from "../lexer/token";
 import TokenType from "../lexer/tokenType";
 import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
@@ -86,7 +85,7 @@ export default class Parser
 
     private parseFile (): FileSyntaxNode
     {
-        const fileRoot = new SyntaxNode(SyntaxType.File); // TODO: Add file name to file syntax node (and create a file syntax node)!
+        const fileRoot = new FileSyntaxNode(this.fileName);
 
         const sectionNodes = this.parseSection();
 

@@ -1,6 +1,6 @@
 import SyntaxType from "../syntaxType";
 
-export default class SyntaxNode
+export default abstract class SyntaxNode
 {
     public readonly type: SyntaxType;
     public readonly children: SyntaxNode[];

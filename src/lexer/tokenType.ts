@@ -1,6 +1,6 @@
 enum TokenType
 {
-    File,
+    NoToken,
     // Tokens
     IdentifierToken,
     IntegerToken,
@@ -11,6 +11,10 @@ enum TokenType
     // Operators
     AssignmentOperator,
     PlusOperator,
+    MinusOperator,
+    StarOperator,
+    SlashOperator,
+    CommaOperator,
     // Keywords
     VarKeyword,
 }

@@ -1,309 +1,324 @@
+import ArgumentsSyntaxNode from "./syntaxNodes/argumentsSyntaxNode";
+import AssignmentSyntaxNode from "./syntaxNodes/assignmentSyntaxNode";
+import BinaryExpressionSyntaxNode from "./syntaxNodes/binaryExpressionSyntaxNode";
+import CallExpressionSyntaxNode from "./syntaxNodes/callExpressionSyntaxNode";
+import ExpressionSyntaxNode from "./syntaxNodes/expressionSyntaxNode";
+import FileSyntaxNode from "./syntaxNodes/fileSyntaxNode";
 import InvalidTokenError from "../errors/invalidTokenError";
-import TokenType from "../lexer/tokenType";
-import Operator from "../definitions/operator";
-import SyntaxTreeNode from "./syntaxTreeNode";
+import LiteralExpressionSyntaxNode from "./syntaxNodes/literalExpressionSyntaxNode";
+import NameExpressionSyntaxNode from "./syntaxNodes/nameExpressionSyntaxNode";
+import OperatorOrder from "./operatorOrder";
+import ParenthesizedExpressionSyntaxNode from "./syntaxNodes/parenthesizedExpressionSyntaxNode";
+import SyntaxNode from "./syntaxNodes/syntaxNode";
+import SyntaxType from "./syntaxType";
 import Token from "../lexer/token";
-import UnexpectedTokenError from "../errors/unexpectedTokenError";
+import TokenType from "../lexer/tokenType";
+import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
 import UnknownTokenError from "../errors/unknownTokenError";
-
-/** The result of a parser, containing multiple nodes. */
-interface ParserScopeResult
-{
-    nodes: SyntaxTreeNode[];
-    lastIndex: number;
-}
-
-/** The result of a parser, containing a single node. */
-interface ParserStatementResult
-{
-    node: SyntaxTreeNode;
-    lastIndex: number;
-}
+import VariableDeclarationSyntaxNode from "./syntaxNodes/variableDeclarationSyntaxNode";
 
 export default class Parser
 {
     private fileName: string;
+    private tokens: Token[];
+    private position: number;
 
     constructor ()
     {
         this.fileName = '';
+        this.tokens = [];
+        this.position = 0;
+    }
+
+    private getToken (relativePosition: number, increasePosition: boolean): Token
+    {
+        const index = this.position + relativePosition;
+        let result: Token;
+
+        if (index < this.tokens.length)
+        {
+            result = this.tokens[index];
+        }
+        else
+        {
+            result = new Token(TokenType.NoToken, '');
+        }
+
+        if (increasePosition)
+        {
+            this.position++;
+        }
+
+        return result;
+    }
+
+    private getNextToken (): Token
+    {
+        return this.getToken(0, true);
+    }
+
+    private get currentToken (): Token
+    {
+        return this.getToken(0, false);
+    }
+
+    private get followerToken (): Token
+    {
+        return this.getToken(1, false);
     }
 
     /**
      * Run the parser for a given token list of a file.
      * @param tokens The list of tokens
-     * @return The parsed syntax tree.
+     * @param fileName The name/path of the file
+     * @return The root of the parsed syntax tree.
      */
-    public run (tokens: Token[]): SyntaxTreeNode
+    public run (tokens: Token[], fileName: string): SyntaxNode
     {
-        this.fileName = tokens[0].content; // The first token is the file token.
+        this.tokens = tokens;
+        this.fileName = fileName;
+        this.position = 0;
 
-        const root = this.parseFile(tokens);
+        const root = this.parseFile();
 
         return root;
     }
 
-    /**
-     * Parse a file scope. This initialises the parsing process.
-     * @param tokens
-     * @returns
-     */
-    private parseFile (tokens: Token[]): SyntaxTreeNode
+    private parseFile (): FileSyntaxNode
     {
-        const fileRoot = new SyntaxTreeNode(null, tokens[0]);
+        const fileRoot = new SyntaxNode(SyntaxType.File); // TODO: Add file name to file syntax node (and create a file syntax node)!
 
-        // The file token starts a scope:
-        const parserResult = this.parseScope(tokens, 1);
+        const sectionNodes = this.parseSection();
 
-        for (const child of parserResult.nodes)
-        {
-            child.parent = fileRoot;
-        }
+        fileRoot.children.push(...sectionNodes);
 
         return fileRoot;
     }
 
-    /**
-     * Parse a scope, returning multiple nodes.
-     * @param tokens
-     * @param startIndex
-     * @returns
-     */
-    private parseScope (tokens: Token[], startIndex: number): ParserScopeResult
+    private parseSection (): SyntaxNode[]
     {
-        const nodes: SyntaxTreeNode[] = [];
+        const nodes: SyntaxNode[] = [];
 
-        let i = startIndex;
-        while (i < tokens.length)
+        while (this.currentToken.type != TokenType.NoToken)
         {
-            // There can only be statements inside a scope:
-            const parserResult = this.parseStatement(tokens, i);
-
-            nodes.push(parserResult.node);
-            i = parserResult.lastIndex + 1;
+            const statement = this.parseStatement();
+            nodes.push(statement);
         }
 
-        return {
-            nodes: nodes,
-            lastIndex: i,
-        };
+        return nodes;
     }
 
-    /**
-     * Parse a statement, returning a single node.
-     * @param tokens
-     * @param startIndex
-     * @returns
-     */
-    private parseStatement (tokens: Token[], startIndex: number): ParserStatementResult
+    private parseStatement (): SyntaxNode
     {
-        let node: SyntaxTreeNode;
-        const children: SyntaxTreeNode[] = [];
-        let lastIndex = startIndex;
+        let result: SyntaxNode;
 
-        const token = tokens[lastIndex];
-
-        if (token.type == TokenType.IdentifierToken)
+        switch (this.currentToken.type)
         {
-            const result = this.parseIdentifier(tokens, lastIndex);
-
-            node = result.node;
-            lastIndex = result.lastIndex;
+            case TokenType.VarKeyword:
+                result = this.parseVariableDeclaration();
+                break;
+            default:
+            {
+                if (this.isAssignmentExpression())
+                {
+                    result = this.parseAssignment();
+                }
+                else
+                {
+                    result = this.parseExpression();
+                }
+            }
         }
-        else if (token.type == TokenType.VarKeyword)
+
+        if (this.currentToken.type == TokenType.SemicolonToken)
         {
-            node = new SyntaxTreeNode(null, token);
-
-            const result = this.parseVariableDeclaration(tokens, lastIndex + 1);
-
-            children.push(result.node);
-            lastIndex = result.lastIndex;
+            // Remove the correct token:
+            this.getNextToken();
         }
         else
         {
-            throw new UnknownTokenError('statement', this.fileName, token);
+            throw new InvalidTokenError('Missing semicolon after statement.', this.fileName, this.currentToken);
         }
 
-        lastIndex++;
-        const endToken = tokens[lastIndex];
-
-        if (endToken.type != TokenType.SemicolonToken)
-        {
-            throw new InvalidTokenError('A statement must end with a semicolon.', this.fileName, token);
-        }
-
-        for (const child of children)
-        {
-            child.parent = node;
-        }
-
-        return {
-            node: node,
-            lastIndex: lastIndex,
-        };
+        return result;
     }
 
-    /**
-     * Parse an identifier, deciding its function by looking at it's neighbours, returning a single node.
-     * @param tokens
-     * @param startIndex
-     * @returns
-     */
-    private parseIdentifier (tokens: Token[], startIndex: number): ParserStatementResult
+    private parseVariableDeclaration (): VariableDeclarationSyntaxNode
     {
-        let currentIndex = startIndex;
+        const keyword = this.getNextToken();
+        let identifier: Token;
+        let assignment: AssignmentSyntaxNode|null = null;
 
-        const identifierToken = tokens[currentIndex];
-
-        let node: SyntaxTreeNode;
-
-        const followerToken = tokens[currentIndex + 1];
-
-        switch (followerToken.content)
+        if (this.followerToken.type == TokenType.AssignmentOperator)
         {
-            case Operator.openingBracket:
-            {
-                node = new SyntaxTreeNode(null, identifierToken);
+            identifier = this.currentToken;
 
-                const result = this.parseFunctionParameters(tokens, currentIndex + 1);
-
-                for (const child of result.nodes)
-                {
-                    child.parent = node;
-                }
-
-                currentIndex = result.lastIndex;
-
-                break;
-            }
-            case Operator.assignment:
-            {
-                const result = this.parseAssignment(tokens, currentIndex);
-
-                node = result.node;
-
-                currentIndex = result.lastIndex;
-
-                break;
-            }
-            default:
-                throw new UnexpectedTokenError('identifier', this.fileName, followerToken);
-        }
-
-        return {
-            node: node,
-            lastIndex: currentIndex,
-        };
-    }
-
-    /**
-     * Parse a function parameter list, returning multiple nodes.
-     * @param tokens
-     * @param startIndex
-     * @returns
-     */
-    private parseFunctionParameters (tokens: Token[], startIndex: number): ParserScopeResult
-    {
-        let node: SyntaxTreeNode|null = null;
-        let currentIndex = startIndex;
-
-        const startToken = tokens[currentIndex];
-        currentIndex++;
-
-        if (startToken.type != TokenType.OpeningBracketToken)
-        {
-            throw new InvalidTokenError('A function parameter list must start with an opening bracket.', this.fileName, startToken);
-        }
-
-        const parameterToken = tokens[currentIndex];
-
-        switch (parameterToken.type)
-        {
-            case TokenType.IntegerToken:
-            case TokenType.StringToken:
-            {
-                node = new SyntaxTreeNode(null, parameterToken);
-
-                currentIndex++;
-
-                break;
-            }
-            default:
-                if (parameterToken.content != Operator.closingBracket)
-                {
-                    throw new InvalidTokenError(
-                        `The given token "${parameterToken.content}" is no valid function parameter.`,
-                        this.fileName,
-                        startToken
-                    );
-                }
-        }
-
-        const endToken = tokens[currentIndex];
-
-        if (endToken.type != TokenType.ClosingBracketToken)
-        {
-            throw new InvalidTokenError('A function parameter list must end with an closing bracket.', this.fileName, startToken);
-        }
-
-        return {
-            nodes: node === null ? [] : [node],
-            lastIndex: currentIndex,
-        };
-    }
-
-    /**
-     * Parse a variable declaration, returning a single node.
-     * @param tokens
-     * @param startIndex
-     * @return
-     */
-    private parseVariableDeclaration (tokens: Token[], startIndex: number): ParserStatementResult
-    {
-        const token = tokens[startIndex];
-
-        if (token.type == TokenType.IdentifierToken)
-        {
-            const node = new SyntaxTreeNode(null, token);
-
-            return {
-                node: node,
-                lastIndex: startIndex,
-            };
+            assignment = this.parseAssignment();
         }
         else
         {
-            throw new InvalidTokenError('Expected identifier in variable declaration, got "' + token.content + '".', this.fileName, token);
+            identifier = this.getNextToken();
+        }
+
+        return new VariableDeclarationSyntaxNode(keyword, identifier, assignment);
+    }
+
+    private isAssignmentExpression (): boolean
+    {
+        const result = (this.currentToken.type == TokenType.IdentifierToken) && (this.followerToken.type == TokenType.AssignmentOperator);
+
+        return result;
+    }
+
+    private parseAssignment (): AssignmentSyntaxNode
+    {
+        const identifierToken = this.getNextToken();
+        const operatorToken = this.getNextToken();
+        const rightSide = this.parseExpression();
+
+        const result = new AssignmentSyntaxNode(identifierToken, operatorToken, rightSide);
+
+        return result;
+    }
+
+    private parseExpression (parentPriority = 0): ExpressionSyntaxNode
+    {
+        let left;
+
+        if (this.isUnaryExpression(parentPriority))
+        {
+            left = this.parseUnaryExpression();
+        }
+        else
+        {
+            left = this.parsePrimaryExpression();
+        }
+
+        while (this.isBinaryExpression(parentPriority))
+        {
+            left = this.parseBinaryExpression(left);
+        }
+
+        return left;
+    }
+
+    private isUnaryExpression (parentPriority: number): boolean
+    {
+        const unaryPriority = OperatorOrder.getUnaryPriority(this.currentToken);
+
+        const result = (unaryPriority !== 0) && (unaryPriority >= parentPriority);
+
+        return result;
+    }
+
+    private isBinaryExpression (parentPriority: number): boolean
+    {
+        const binaryPriority = OperatorOrder.getBinaryPriority(this.currentToken);
+
+        const result = (binaryPriority !== 0) && (binaryPriority > parentPriority);
+
+        return result;
+    }
+
+    private parseUnaryExpression (): UnaryExpressionSyntaxNode
+    {
+        const operator = this.getNextToken();
+        const operatorPriority = OperatorOrder.getUnaryPriority(operator);
+        const operand = this.parseExpression(operatorPriority);
+
+        return new UnaryExpressionSyntaxNode(operator, operand);
+    }
+
+    private parseBinaryExpression (left: SyntaxNode): BinaryExpressionSyntaxNode
+    {
+        const operator = this.getNextToken();
+        const operatorPriority = OperatorOrder.getBinaryPriority(operator);
+        const right = this.parseExpression(operatorPriority);
+
+        return new BinaryExpressionSyntaxNode(left, operator, right);
+    }
+
+    private parsePrimaryExpression (): ExpressionSyntaxNode
+    {
+        switch (this.currentToken.type)
+        {
+            case TokenType.OpeningBracketToken:
+                return this.parseParenthesizedExpression();
+            case TokenType.IntegerToken:
+            case TokenType.StringToken:
+                return this.parseLiteralExpression();
+            case TokenType.IdentifierToken:
+                return this.parseIdentifierExpression();
+            default:
+                throw new UnknownTokenError('expression', this.fileName, this.currentToken);
         }
     }
 
-    private parseAssignment (tokens: Token[], startIndex: number): ParserStatementResult
+    private parseParenthesizedExpression (): ParenthesizedExpressionSyntaxNode
     {
-        const node = new SyntaxTreeNode(null, tokens[startIndex + 1]);
-        new SyntaxTreeNode(node, tokens[startIndex]);
+        const opening = this.getNextToken();
+        const expression = this.parseExpression();
+        const closing = this.getNextToken();
 
-        const secondArgumentToken = tokens[startIndex + 2];
+        return new ParenthesizedExpressionSyntaxNode(opening, expression, closing);
+    }
 
-        switch (secondArgumentToken.type)
+    private parseLiteralExpression (): LiteralExpressionSyntaxNode
+    {
+        const literal = this.getNextToken();
+
+        return new LiteralExpressionSyntaxNode(literal);
+    }
+
+    private parseIdentifierExpression (): ExpressionSyntaxNode
+    {
+        if (this.followerToken.type == TokenType.OpeningBracketToken)
         {
-            case TokenType.IntegerToken:
-            case TokenType.StringToken:
-            {
-                new SyntaxTreeNode(node, secondArgumentToken);
+            return this.parseCallExpression();
+        }
+        else
+        {
+            return this.parseNameExpression();
+        }
+    }
 
+    private parseCallExpression (): CallExpressionSyntaxNode
+    {
+        const identifier = this.getNextToken();
+        const opening = this.getNextToken();
+        const callArguments = this.parseArguments();
+        const closing = this.getNextToken();
+
+        return new CallExpressionSyntaxNode(identifier, opening, callArguments, closing);
+    }
+
+    private parseArguments (): ArgumentsSyntaxNode
+    {
+        const expressions: ExpressionSyntaxNode[] = [];
+        const separators: Token[] = [];
+
+        while ((this.currentToken.type != TokenType.ClosingBracketToken) && (this.currentToken.type != TokenType.NoToken))
+        {
+            const expression = this.parseExpression();
+            expressions.push(expression);
+
+            if (this.currentToken.type == TokenType.CommaOperator)
+            {
+                separators.push(this.getNextToken());
+            }
+            else
+            {
                 break;
             }
-            default:
-                throw new InvalidTokenError(
-                    `The given token "${secondArgumentToken.content}" is no valid second argument for an assignment.`,
-                    this.fileName,
-                    secondArgumentToken
-                );
         }
 
-        return {
-            node: node,
-            lastIndex: startIndex + 2,
-        };
+        return new ArgumentsSyntaxNode(expressions, separators);
+    }
+
+    private parseNameExpression (): NameExpressionSyntaxNode
+    {
+        const identifier = this.getNextToken();
+
+        return new NameExpressionSyntaxNode(identifier);
     }
 }

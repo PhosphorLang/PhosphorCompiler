@@ -1,7 +1,7 @@
 import ActionToken from "./actionToken";
 import ActionTreeNode from "./actionTreeNode";
 import SemanticalType from "./semanticalType";
-import SyntaxTreeNode from "../parser/syntaxTreeNode";
+import SyntaxNode from "../parser/syntaxNodes/syntaxNode";
 import Token from "../lexer/token";
 import TokenType from "../lexer/tokenType";
 import UnknownTokenError from "../errors/unknownTokenError";
@@ -23,7 +23,7 @@ export default class Constructor
         this.fileName = '';
     }
 
-    public run (syntaxTree: SyntaxTreeNode): ActionTreeNode
+    public run (syntaxTree: SyntaxNode): ActionTreeNode
     {
         this.fileName = syntaxTree.value.content; // The first node is the file node, containing the file name.
 
@@ -50,7 +50,7 @@ export default class Constructor
         }
     }
 
-    private constructNode (node: SyntaxTreeNode, parent: ActionTreeNode|null): ActionTreeNode
+    private constructNode (node: SyntaxNode, parent: ActionTreeNode|null): ActionTreeNode
     {
         let result: ActionTreeNode;
 

@@ -72,7 +72,7 @@ export default class Parser
      * @param fileName The name/path of the file
      * @return The root of the parsed syntax tree.
      */
-    public run (tokens: Token[], fileName: string): SyntaxNode
+    public run (tokens: Token[], fileName: string): FileSyntaxNode
     {
         this.tokens = tokens;
         this.fileName = fileName;
@@ -85,11 +85,9 @@ export default class Parser
 
     private parseFile (): FileSyntaxNode
     {
-        const fileRoot = new FileSyntaxNode(this.fileName);
-
         const sectionNodes = this.parseSection();
 
-        fileRoot.children.push(...sectionNodes);
+        const fileRoot = new FileSyntaxNode(this.fileName, sectionNodes);
 
         return fileRoot;
     }

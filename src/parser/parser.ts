@@ -1,6 +1,6 @@
-import ArgumentsSyntaxNode from "./syntaxNodes/argumentsSyntaxNode";
 import AssignmentSyntaxNode from "./syntaxNodes/assignmentSyntaxNode";
 import BinaryExpressionSyntaxNode from "./syntaxNodes/binaryExpressionSyntaxNode";
+import CallArgumentsList from "./callArgumentsList";
 import CallExpressionSyntaxNode from "./syntaxNodes/callExpressionSyntaxNode";
 import ExpressionSyntaxNode from "./syntaxNodes/expressionSyntaxNode";
 import FileSyntaxNode from "./syntaxNodes/fileSyntaxNode";
@@ -291,7 +291,7 @@ export default class Parser
         return new CallExpressionSyntaxNode(identifier, opening, callArguments, closing);
     }
 
-    private parseArguments (): ArgumentsSyntaxNode
+    private parseArguments (): CallArgumentsList
     {
         const expressions: ExpressionSyntaxNode[] = [];
         const separators: Token[] = [];
@@ -311,7 +311,7 @@ export default class Parser
             }
         }
 
-        return new ArgumentsSyntaxNode(expressions, separators);
+        return new CallArgumentsList(expressions, separators);
     }
 
     private parseNameExpression (): NameExpressionSyntaxNode

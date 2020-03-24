@@ -11,7 +11,6 @@ enum SyntaxType
     LiteralExpression,
     NameExpression,
     CallExpression,
-    Arguments,
 }
 
 export default SyntaxType;

@@ -8,6 +8,11 @@ export default class AssignmentSyntaxNode extends SyntaxNode
     public readonly assignment: Token;
     public readonly rightSide: SyntaxNode;
 
+    public get children (): Iterable<SyntaxNode>
+    {
+        return [this.rightSide];
+    }
+
     constructor (identifier: Token, assignment: Token, rightSide: SyntaxNode)
     {
         super(SyntaxType.Assignment);
@@ -15,7 +20,5 @@ export default class AssignmentSyntaxNode extends SyntaxNode
         this.identifier = identifier;
         this.assignment = assignment;
         this.rightSide = rightSide;
-
-        this.children.push(rightSide);
     }
 }

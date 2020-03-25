@@ -116,7 +116,7 @@ export default class Parser
                 break;
             default:
             {
-                if (this.isAssignmentExpression())
+                if (this.isAssignment())
                 {
                     result = this.parseAssignment();
                 }
@@ -160,7 +160,7 @@ export default class Parser
         return new VariableDeclarationSyntaxNode(keyword, identifier, assignment);
     }
 
-    private isAssignmentExpression (): boolean
+    private isAssignment (): boolean
     {
         const result = (this.currentToken.type == TokenType.IdentifierToken) && (this.followerToken.type == TokenType.AssignmentOperator);
 
@@ -226,7 +226,7 @@ export default class Parser
         return new UnaryExpressionSyntaxNode(operator, operand);
     }
 
-    private parseBinaryExpression (left: SyntaxNode): BinaryExpressionSyntaxNode
+    private parseBinaryExpression (left: ExpressionSyntaxNode): BinaryExpressionSyntaxNode
     {
         const operator = this.getNextToken();
         const operatorPriority = OperatorOrder.getBinaryPriority(operator);

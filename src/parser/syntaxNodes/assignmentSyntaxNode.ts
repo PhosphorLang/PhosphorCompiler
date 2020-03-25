@@ -1,3 +1,4 @@
+import ExpressionSyntaxNode from "./expressionSyntaxNode";
 import SyntaxNode from "./syntaxNode";
 import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
@@ -5,20 +6,20 @@ import Token from "../../lexer/token";
 export default class AssignmentSyntaxNode extends SyntaxNode
 {
     public readonly identifier: Token;
-    public readonly assignment: Token;
-    public readonly rightSide: SyntaxNode;
+    public readonly operator: Token;
+    public readonly expression: ExpressionSyntaxNode;
 
     public get children (): Iterable<SyntaxNode>
     {
-        return [this.rightSide];
+        return [this.expression];
     }
 
-    constructor (identifier: Token, assignment: Token, rightSide: SyntaxNode)
+    constructor (identifier: Token, operator: Token, expression: ExpressionSyntaxNode)
     {
         super(SyntaxType.Assignment);
 
         this.identifier = identifier;
-        this.assignment = assignment;
-        this.rightSide = rightSide;
+        this.operator = operator;
+        this.expression = expression;
     }
 }

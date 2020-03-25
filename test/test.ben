@@ -1,5 +1,18 @@
-var testus;
+function getText (): string
+{
+    var text := 'Hello world!';
 
-print('A string');
-print(66);
-print(10);
+    return text;
+}
+
+function main ()
+{
+    var testus := getText();
+
+    print(testus);
+    print(' ');
+
+    return;
+}
+
+main();

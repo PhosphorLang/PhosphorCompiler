@@ -95,13 +95,16 @@ export default class Lexer
                 this.column++;
                 return null;
             case '(':
-                type = TokenType.OpeningBracketToken;
+                type = TokenType.OpeningParenthesisToken;
                 break;
             case ')':
-                type = TokenType.ClosingBracketToken;
+                type = TokenType.ClosingParenthesisToken;
                 break;
-            case '+':
-                type = TokenType.PlusOperator;
+            case '{':
+                type = TokenType.OpeningBraceToken;
+                break;
+            case '}':
+                type = TokenType.ClosingBraceToken;
                 break;
             case ':':
                 if (this.getNextChar() === '=')
@@ -111,11 +114,26 @@ export default class Lexer
                 }
                 else
                 {
-                    throw new UnknownSymbolError(content, this.fileName, {line: this.line, column: this.column});
+                    type = TokenType.ColonToken;
                 }
                 break;
             case ';':
                 type = TokenType.SemicolonToken;
+                break;
+            case ',':
+                type = TokenType.CommaToken;
+                break;
+            case '+':
+                type = TokenType.PlusOperator;
+                break;
+            case '-':
+                type = TokenType.MinusOperator;
+                break;
+            case '*':
+                type = TokenType.StarOperator;
+                break;
+            case '/':
+                type = TokenType.SlashOperator;
                 break;
             case "'":
                 type = TokenType.StringToken;
@@ -204,6 +222,12 @@ export default class Lexer
         {
             case 'var':
                 type = TokenType.VarKeyword;
+                break;
+            case 'function':
+                type = TokenType.FunctionKeyword;
+                break;
+            case 'return':
+                type = TokenType.ReturnKeyword;
                 break;
             default:
                 type = TokenType.IdentifierToken;

@@ -5,18 +5,23 @@ enum TokenType
     IdentifierToken,
     IntegerToken,
     StringToken,
-    OpeningBracketToken,
-    ClosingBracketToken,
+    OpeningParenthesisToken,
+    ClosingParenthesisToken,
+    OpeningBraceToken,
+    ClosingBraceToken,
+    ColonToken,
     SemicolonToken,
+    CommaToken,
     // Operators
     AssignmentOperator,
     PlusOperator,
     MinusOperator,
     StarOperator,
     SlashOperator,
-    CommaOperator,
     // Keywords
     VarKeyword,
+    FunctionKeyword,
+    ReturnKeyword,
 }
 
 export default TokenType;

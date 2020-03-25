@@ -1,16 +1,16 @@
 enum SyntaxType
 {
-    NoType,
-    File,
-    VariableDeclaration,
-    Assignment,
-    PrimaryExpression,
-    UnaryExpression,
-    BinaryExpression,
-    ParenthesizedExpression,
-    LiteralExpression,
-    NameExpression,
-    CallExpression,
+    NoType = 'NoType',
+    File = 'File',
+    VariableDeclaration = 'VariableDeclaration',
+    Assignment = 'Assignment',
+    PrimaryExpression = 'PrimaryExpression',
+    UnaryExpression = 'UnaryExpression',
+    BinaryExpression = 'BinaryExpression',
+    ParenthesizedExpression = 'ParenthesizedExpression',
+    LiteralExpression = 'LiteralExpression',
+    NameExpression = 'NameExpression',
+    CallExpression = 'CallExpression',
 }
 
 export default SyntaxType;

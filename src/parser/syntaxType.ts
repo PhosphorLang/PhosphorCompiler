@@ -2,8 +2,14 @@ enum SyntaxType
 {
     NoType = 'NoType',
     File = 'File',
-    VariableDeclaration = 'VariableDeclaration',
+    Section = 'Section',
+    FunctionDeclaration = 'FunctionDeclaration',
+    FunctionParameter = 'FunctionParameter',
+    // Statements
     Assignment = 'Assignment',
+    VariableDeclaration = 'VariableDeclaration',
+    ReturnStatement = 'ReturnStatement',
+    // Expressions
     PrimaryExpression = 'PrimaryExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',

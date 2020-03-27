@@ -94,25 +94,24 @@ export default class Parser
 
     private parseFile (): FileSyntaxNode
     {
-        const nodes: SyntaxNode[] = [];
+        const functions: FunctionDeclarationSyntaxNode[] = [];
 
         while (this.currentToken.kind != TokenKind.NoToken)
         {
-            let node: SyntaxNode;
-
             switch (this.currentToken.kind)
             {
                 case TokenKind.FunctionKeyword:
-                    node = this.parseFunctionDeclaration();
+                {
+                    const functionDeclaration = this.parseFunctionDeclaration();
+                    functions.push(functionDeclaration);
                     break;
+                }
                 default:
                     throw new InvalidTokenError('Invalid token in file scope', this.fileName, this.currentToken);
             }
-
-            nodes.push(node);
         }
 
-        const fileRoot = new FileSyntaxNode(this.fileName, nodes);
+        const fileRoot = new FileSyntaxNode(this.fileName, functions);
 
         return fileRoot;
     }

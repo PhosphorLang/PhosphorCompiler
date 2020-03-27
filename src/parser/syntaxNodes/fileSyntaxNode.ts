@@ -1,21 +1,22 @@
+import FunctionDeclarationSyntaxNode from "./functionDeclarationSyntaxNode";
 import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
 
 export default class FileSyntaxNode extends SyntaxNode
 {
     public readonly fileName: string;
-    public readonly nodes: SyntaxNode[];
+    public readonly functions: FunctionDeclarationSyntaxNode[];
 
     public get children (): Iterable<SyntaxNode>
     {
-        return this.nodes;
+        return this.functions;
     }
 
-    constructor (fileName: string, nodes: SyntaxNode[])
+    constructor (fileName: string, functions: FunctionDeclarationSyntaxNode[])
     {
         super(SyntaxKind.File);
 
         this.fileName = fileName;
-        this.nodes = nodes;
+        this.functions = functions;
     }
 }

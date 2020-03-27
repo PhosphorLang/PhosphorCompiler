@@ -21,6 +21,7 @@
     ],
     "rules": {
         "@typescript-eslint/no-unused-vars": "off", // Provided by the tsconfig.json
+        "@typescript-eslint/ban-ts-ignore": "warn", // From "error"; we are building a compiler, we need this thing... sadly...
         "spaced-comment": "warn",
         "no-multi-spaces": "warn",
         "no-whitespace-before-property": "warn",

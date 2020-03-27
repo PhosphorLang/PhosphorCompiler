@@ -231,7 +231,7 @@ export default class Parser
             // Remove the correct token:
             this.getNextToken();
         }
-        else
+        else if (result.kind != SyntaxKind.Section) // No semicolon needed after a section.
         {
             throw new InvalidTokenError('Missing semicolon after statement.', this.fileName, this.currentToken);
         }

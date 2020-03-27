@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import LineInformation from "../definitions/lineInformation";
 
-export default abstract class BaseCompilerError extends Error
+export default class CompilerError extends Error
 {
     constructor (message: string, fileName: string, lineInformation: LineInformation)
     {

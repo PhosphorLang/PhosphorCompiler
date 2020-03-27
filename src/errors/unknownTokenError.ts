@@ -1,7 +1,7 @@
-import BaseCompilerError from "./baseCompilerError";
+import CompilerError from "./compilerError";
 import Token from "../lexer/token";
 
-export default class UnknownTokenError extends BaseCompilerError
+export default class UnknownTokenError extends CompilerError
 {
     /**
      * Thrown when a given token is unknown.

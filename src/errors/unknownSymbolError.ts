@@ -1,7 +1,7 @@
-import BaseCompilerError from "./baseCompilerError";
+import CompilerError from "./compilerError";
 import LineInformation from "../definitions/lineInformation";
 
-export default class UnknownSymbolError extends BaseCompilerError
+export default class UnknownSymbolError extends CompilerError
 {
     constructor (symbol: string, fileName: string, lineInformation: LineInformation)
     {

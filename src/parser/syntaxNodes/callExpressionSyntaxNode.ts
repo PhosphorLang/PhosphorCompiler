@@ -1,7 +1,7 @@
 import CallArgumentsList from "../callArgumentsList";
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class CallExpressionSyntaxNode extends ExpressionSyntaxNode
@@ -18,7 +18,7 @@ export default class CallExpressionSyntaxNode extends ExpressionSyntaxNode
 
     constructor (identifier: Token, opening: Token, callArguments: CallArgumentsList, closing: Token)
     {
-        super(SyntaxType.CallExpression);
+        super(SyntaxKind.CallExpression);
 
         this.identifier = identifier;
         this.opening = opening;

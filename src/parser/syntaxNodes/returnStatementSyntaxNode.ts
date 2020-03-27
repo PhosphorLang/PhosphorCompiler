@@ -1,6 +1,6 @@
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class ReturnStatementSyntaxNode extends SyntaxNode
@@ -22,7 +22,7 @@ export default class ReturnStatementSyntaxNode extends SyntaxNode
 
     constructor (keyword: Token, expression: ExpressionSyntaxNode|null)
     {
-        super(SyntaxType.ReturnStatement);
+        super(SyntaxKind.ReturnStatement);
 
         this.keyword = keyword;
         this.expression = expression;

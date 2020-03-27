@@ -16,7 +16,7 @@ import ReturnStatementSyntaxNode from "./syntaxNodes/returnStatementSyntaxNode";
 import SectionSyntaxNode from "./syntaxNodes/sectionSyntaxNode";
 import SyntaxNode from "./syntaxNodes/syntaxNode";
 import Token from "../lexer/token";
-import TokenType from "../lexer/tokenType";
+import TokenKind from "../lexer/tokenKind";
 import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
 import UnknownTokenError from "../errors/unknownTokenError";
 import VariableDeclarationSyntaxNode from "./syntaxNodes/variableDeclarationSyntaxNode";
@@ -45,7 +45,7 @@ export default class Parser
         }
         else
         {
-            result = new Token(TokenType.NoToken, '');
+            result = new Token(TokenKind.NoToken, '');
         }
 
         if (increasePosition)
@@ -92,13 +92,13 @@ export default class Parser
     {
         const nodes: SyntaxNode[] = [];
 
-        while (this.currentToken.type != TokenType.NoToken)
+        while (this.currentToken.kind != TokenKind.NoToken)
         {
             let node: SyntaxNode;
 
-            switch (this.currentToken.type)
+            switch (this.currentToken.kind)
             {
-                case TokenType.FunctionKeyword:
+                case TokenKind.FunctionKeyword:
                     node = this.parseFunctionDeclaration();
                     break;
                 default:
@@ -130,12 +130,12 @@ export default class Parser
         const parameters: FunctionParameterSyntaxNode[] = [];
         const separators: Token[] = [];
 
-        while ((this.currentToken.type != TokenType.ClosingParenthesisToken) && (this.currentToken.type != TokenType.NoToken))
+        while ((this.currentToken.kind != TokenKind.ClosingParenthesisToken) && (this.currentToken.kind != TokenKind.NoToken))
         {
             const parameter = this.parseFunctionParameter();
             parameters.push(parameter);
 
-            if (this.currentToken.type == TokenType.CommaToken)
+            if (this.currentToken.kind == TokenKind.CommaToken)
             {
                 separators.push(this.getNextToken());
             }
@@ -161,7 +161,7 @@ export default class Parser
 
         const statements: SyntaxNode[] = [];
 
-        while ((this.currentToken.type != TokenType.ClosingBraceToken) && (this.currentToken.type != TokenType.NoToken))
+        while ((this.currentToken.kind != TokenKind.ClosingBraceToken) && (this.currentToken.kind != TokenKind.NoToken))
         {
             const statement = this.parseStatement();
             statements.push(statement);
@@ -178,15 +178,15 @@ export default class Parser
     {
         let result: SyntaxNode;
 
-        switch (this.currentToken.type)
+        switch (this.currentToken.kind)
         {
-            case TokenType.VarKeyword:
+            case TokenKind.VarKeyword:
                 result = this.parseVariableDeclaration();
                 break;
-            case TokenType.OpeningBraceToken:
+            case TokenKind.OpeningBraceToken:
                 result = this.parseSection();
                 break;
-            case TokenType.ReturnKeyword:
+            case TokenKind.ReturnKeyword:
                 result = this.parseReturnStatement();
                 break;
             default:
@@ -202,7 +202,7 @@ export default class Parser
             }
         }
 
-        if (this.currentToken.type == TokenType.SemicolonToken)
+        if (this.currentToken.kind == TokenKind.SemicolonToken)
         {
             // Remove the correct token:
             this.getNextToken();
@@ -221,7 +221,7 @@ export default class Parser
 
         let expression: ExpressionSyntaxNode|null = null;
 
-        if (this.currentToken.type != TokenType.SemicolonToken)
+        if (this.currentToken.kind != TokenKind.SemicolonToken)
         {
             expression = this.parseExpression();
         }
@@ -235,7 +235,7 @@ export default class Parser
         let identifier: Token;
         let assignment: AssignmentSyntaxNode|null = null;
 
-        if (this.followerToken.type == TokenType.AssignmentOperator)
+        if (this.followerToken.kind == TokenKind.AssignmentOperator)
         {
             identifier = this.currentToken;
 
@@ -251,7 +251,7 @@ export default class Parser
 
     private isAssignment (): boolean
     {
-        const result = (this.currentToken.type == TokenType.IdentifierToken) && (this.followerToken.type == TokenType.AssignmentOperator);
+        const result = (this.currentToken.kind == TokenKind.IdentifierToken) && (this.followerToken.kind == TokenKind.AssignmentOperator);
 
         return result;
     }
@@ -326,14 +326,14 @@ export default class Parser
 
     private parsePrimaryExpression (): ExpressionSyntaxNode
     {
-        switch (this.currentToken.type)
+        switch (this.currentToken.kind)
         {
-            case TokenType.OpeningParenthesisToken:
+            case TokenKind.OpeningParenthesisToken:
                 return this.parseParenthesizedExpression();
-            case TokenType.IntegerToken:
-            case TokenType.StringToken:
+            case TokenKind.IntegerToken:
+            case TokenKind.StringToken:
                 return this.parseLiteralExpression();
-            case TokenType.IdentifierToken:
+            case TokenKind.IdentifierToken:
                 return this.parseIdentifierExpression();
             default:
                 throw new UnknownTokenError('expression', this.fileName, this.currentToken);
@@ -358,7 +358,7 @@ export default class Parser
 
     private parseIdentifierExpression (): ExpressionSyntaxNode
     {
-        if (this.followerToken.type == TokenType.OpeningParenthesisToken)
+        if (this.followerToken.kind == TokenKind.OpeningParenthesisToken)
         {
             return this.parseCallExpression();
         }
@@ -383,12 +383,12 @@ export default class Parser
         const expressions: ExpressionSyntaxNode[] = [];
         const separators: Token[] = [];
 
-        while ((this.currentToken.type != TokenType.ClosingParenthesisToken) && (this.currentToken.type != TokenType.NoToken))
+        while ((this.currentToken.kind != TokenKind.ClosingParenthesisToken) && (this.currentToken.kind != TokenKind.NoToken))
         {
             const expression = this.parseExpression();
             expressions.push(expression);
 
-            if (this.currentToken.type == TokenType.CommaToken)
+            if (this.currentToken.kind == TokenKind.CommaToken)
             {
                 separators.push(this.getNextToken());
             }

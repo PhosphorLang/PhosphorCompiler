@@ -1,5 +1,5 @@
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class SectionSyntaxNode extends SyntaxNode
@@ -15,7 +15,7 @@ export default class SectionSyntaxNode extends SyntaxNode
 
     constructor (opening: Token, statements: SyntaxNode[], closing: Token)
     {
-        super(SyntaxType.Section);
+        super(SyntaxKind.Section);
 
         this.opening = opening;
         this.statements = statements;

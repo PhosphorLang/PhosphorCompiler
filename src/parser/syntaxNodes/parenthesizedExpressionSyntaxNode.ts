@@ -1,6 +1,6 @@
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode
@@ -16,7 +16,7 @@ export default class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxN
 
     constructor (openingToken: Token, expression: ExpressionSyntaxNode, closingToken: Token)
     {
-        super(SyntaxType.ParenthesizedExpression);
+        super(SyntaxKind.ParenthesizedExpression);
 
         this.openingToken = openingToken;
         this.expression = expression;

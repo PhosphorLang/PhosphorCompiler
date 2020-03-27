@@ -1,6 +1,6 @@
 import AssignmentSyntaxNode from "./assignmentSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class VariableDeclarationSyntaxNode extends SyntaxNode
@@ -23,7 +23,7 @@ export default class VariableDeclarationSyntaxNode extends SyntaxNode
 
     constructor (keyword: Token, identifier: Token, assignment: AssignmentSyntaxNode|null)
     {
-        super(SyntaxType.VariableDeclaration);
+        super(SyntaxKind.VariableDeclaration);
 
         this.keyword = keyword;
         this.identifier = identifier;

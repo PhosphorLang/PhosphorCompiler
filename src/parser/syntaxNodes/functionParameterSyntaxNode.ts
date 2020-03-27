@@ -1,5 +1,5 @@
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class FunctionParameterSyntaxNode extends SyntaxNode
@@ -13,7 +13,7 @@ export default class FunctionParameterSyntaxNode extends SyntaxNode
 
     constructor (identifier: Token)
     {
-        super(SyntaxType.FunctionParameter);
+        super(SyntaxKind.FunctionParameter);
 
         this.identifier = identifier;
     }

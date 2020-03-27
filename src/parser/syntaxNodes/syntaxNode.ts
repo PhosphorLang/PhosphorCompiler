@@ -1,13 +1,13 @@
-import SyntaxType from "../syntaxType";
+import SyntaxKind from "../syntaxKind";
 
 export default abstract class SyntaxNode
 {
-    public readonly type: SyntaxType;
+    public readonly kind: SyntaxKind;
 
     public abstract get children (): Iterable<SyntaxNode>;
 
-    constructor (type: SyntaxType)
+    constructor (kind: SyntaxKind)
     {
-        this.type = type;
+        this.kind = kind;
     }
 }

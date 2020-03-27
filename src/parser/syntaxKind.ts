@@ -1,6 +1,6 @@
-enum SyntaxType
+enum SyntaxKind
 {
-    NoType = 'NoType',
+    NoKind = 'NoKind',
     File = 'File',
     Section = 'Section',
     FunctionDeclaration = 'FunctionDeclaration',
@@ -19,4 +19,4 @@ enum SyntaxType
     CallExpression = 'CallExpression',
 }
 
-export default SyntaxType;
+export default SyntaxKind;

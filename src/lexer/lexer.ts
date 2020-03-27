@@ -1,12 +1,12 @@
 import Token from './token';
-import TokenType from './tokenType';
+import TokenKind from './tokenKind';
 import UnknownSymbolError from '../errors/unknownSymbolError';
 import UnterminatedStringError from '../errors/unterminatedStringError';
 
-interface ContentAndType
+interface ContentAndKind
 {
     content: string;
-    type: TokenType;
+    kind: TokenKind;
 }
 
 export default class Lexer
@@ -82,7 +82,7 @@ export default class Lexer
 
     public lex (setLineInfo: boolean): Token|null
     {
-        let type: TokenType|undefined = undefined;
+        let kind: TokenKind|undefined = undefined;
         let content = this.getNextChar();
 
         switch (content)
@@ -95,55 +95,55 @@ export default class Lexer
                 this.column++;
                 return null;
             case '(':
-                type = TokenType.OpeningParenthesisToken;
+                kind = TokenKind.OpeningParenthesisToken;
                 break;
             case ')':
-                type = TokenType.ClosingParenthesisToken;
+                kind = TokenKind.ClosingParenthesisToken;
                 break;
             case '{':
-                type = TokenType.OpeningBraceToken;
+                kind = TokenKind.OpeningBraceToken;
                 break;
             case '}':
-                type = TokenType.ClosingBraceToken;
+                kind = TokenKind.ClosingBraceToken;
                 break;
             case ':':
                 if (this.getNextChar() === '=')
                 {
-                    type = TokenType.AssignmentOperator;
+                    kind = TokenKind.AssignmentOperator;
                     content = ':=';
                 }
                 else
                 {
-                    type = TokenType.ColonToken;
+                    kind = TokenKind.ColonToken;
                 }
                 break;
             case ';':
-                type = TokenType.SemicolonToken;
+                kind = TokenKind.SemicolonToken;
                 break;
             case ',':
-                type = TokenType.CommaToken;
+                kind = TokenKind.CommaToken;
                 break;
             case '+':
-                type = TokenType.PlusOperator;
+                kind = TokenKind.PlusOperator;
                 break;
             case '-':
-                type = TokenType.MinusOperator;
+                kind = TokenKind.MinusOperator;
                 break;
             case '*':
-                type = TokenType.StarOperator;
+                kind = TokenKind.StarOperator;
                 break;
             case '/':
-                type = TokenType.SlashOperator;
+                kind = TokenKind.SlashOperator;
                 break;
             case "'":
-                type = TokenType.StringToken;
+                kind = TokenKind.StringToken;
                 content = this.readString();
                 break;
             default:
             {
                 this.position--;
 
-                let readResult: ContentAndType;
+                let readResult: ContentAndKind;
 
                 if (this.numberTestRegex.test(content))
                 {
@@ -159,18 +159,18 @@ export default class Lexer
                 }
 
                 content = readResult.content;
-                type = readResult.type;
+                kind = readResult.kind;
             }
         }
 
         let token: Token;
         if (setLineInfo)
         {
-            token = new Token(type, content, this.line, this.column);
+            token = new Token(kind, content, this.line, this.column);
         }
         else
         {
-            token = new Token(type, content);
+            token = new Token(kind, content);
         }
 
         this.column++;
@@ -203,39 +203,39 @@ export default class Lexer
         return content;
     }
 
-    private readNumber (): ContentAndType
+    private readNumber (): ContentAndKind
     {
         const content = this.readWhileRegexPasses(this.numberTestRegex);
 
         return {
             content: content,
-            type: TokenType.IntegerToken,
+            kind: TokenKind.IntegerToken,
         };
     }
 
-    private readIdentifierOrKeyword (): ContentAndType
+    private readIdentifierOrKeyword (): ContentAndKind
     {
         const content = this.readWhileRegexPasses(this.identifierTestRegex);
-        let type: TokenType;
+        let kind: TokenKind;
 
         switch (content)
         {
             case 'var':
-                type = TokenType.VarKeyword;
+                kind = TokenKind.VarKeyword;
                 break;
             case 'function':
-                type = TokenType.FunctionKeyword;
+                kind = TokenKind.FunctionKeyword;
                 break;
             case 'return':
-                type = TokenType.ReturnKeyword;
+                kind = TokenKind.ReturnKeyword;
                 break;
             default:
-                type = TokenType.IdentifierToken;
+                kind = TokenKind.IdentifierToken;
         }
 
         return {
             content: content,
-            type: type,
+            kind: kind,
         };
     }
 

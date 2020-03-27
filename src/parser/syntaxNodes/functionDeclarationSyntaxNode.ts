@@ -1,7 +1,7 @@
 import FunctionParametersList from "../functionParametersList";
 import SectionSyntaxNode from "./sectionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class FunctionDeclarationSyntaxNode extends SyntaxNode
@@ -20,7 +20,7 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
 
     constructor (keyword: Token, identifier: Token, opening: Token, parameters: FunctionParametersList, closing: Token, body: SectionSyntaxNode)
     {
-        super(SyntaxType.FunctionDeclaration);
+        super(SyntaxKind.FunctionDeclaration);
 
         this.keyword = keyword;
         this.identifier = identifier;

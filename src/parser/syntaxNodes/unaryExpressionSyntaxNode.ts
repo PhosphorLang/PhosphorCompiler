@@ -1,6 +1,6 @@
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class UnaryExpressionSyntaxNode extends ExpressionSyntaxNode
@@ -15,7 +15,7 @@ export default class UnaryExpressionSyntaxNode extends ExpressionSyntaxNode
 
     constructor (operator: Token, operand: ExpressionSyntaxNode)
     {
-        super(SyntaxType.UnaryExpression);
+        super(SyntaxKind.UnaryExpression);
 
         this.operator = operator;
         this.operand = operand;

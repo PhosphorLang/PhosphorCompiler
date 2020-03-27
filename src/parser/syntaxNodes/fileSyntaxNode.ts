@@ -1,5 +1,5 @@
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 
 export default class FileSyntaxNode extends SyntaxNode
 {
@@ -13,7 +13,7 @@ export default class FileSyntaxNode extends SyntaxNode
 
     constructor (fileName: string, nodes: SyntaxNode[])
     {
-        super(SyntaxType.File);
+        super(SyntaxKind.File);
 
         this.fileName = fileName;
         this.nodes = nodes;

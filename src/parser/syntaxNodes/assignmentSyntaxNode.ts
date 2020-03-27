@@ -1,6 +1,6 @@
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class AssignmentSyntaxNode extends SyntaxNode
@@ -16,7 +16,7 @@ export default class AssignmentSyntaxNode extends SyntaxNode
 
     constructor (identifier: Token, operator: Token, expression: ExpressionSyntaxNode)
     {
-        super(SyntaxType.Assignment);
+        super(SyntaxKind.Assignment);
 
         this.identifier = identifier;
         this.operator = operator;

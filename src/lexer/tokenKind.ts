@@ -1,4 +1,4 @@
-enum TokenType
+enum TokenKind
 {
     NoToken,
     // Tokens
@@ -24,4 +24,4 @@ enum TokenType
     ReturnKeyword,
 }
 
-export default TokenType;
+export default TokenKind;

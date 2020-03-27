@@ -1,6 +1,6 @@
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class BinaryExpressionSyntaxNode extends ExpressionSyntaxNode
@@ -16,7 +16,7 @@ export default class BinaryExpressionSyntaxNode extends ExpressionSyntaxNode
 
     constructor (leftSide: ExpressionSyntaxNode, operator: Token, rightSide: ExpressionSyntaxNode)
     {
-        super(SyntaxType.BinaryExpression);
+        super(SyntaxKind.BinaryExpression);
 
         this.leftSide = leftSide;
         this.operator = operator;

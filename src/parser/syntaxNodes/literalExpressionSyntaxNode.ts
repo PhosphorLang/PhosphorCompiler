@@ -1,6 +1,6 @@
 import ExpressionSyntaxNode from "./expressionSyntaxNode";
+import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
-import SyntaxType from "../syntaxType";
 import Token from "../../lexer/token";
 
 export default class LiteralExpressionSyntaxNode extends ExpressionSyntaxNode
@@ -14,7 +14,7 @@ export default class LiteralExpressionSyntaxNode extends ExpressionSyntaxNode
 
     constructor (literal: Token)
     {
-        super(SyntaxType.LiteralExpression);
+        super(SyntaxKind.LiteralExpression);
 
         this.literal = literal;
     }

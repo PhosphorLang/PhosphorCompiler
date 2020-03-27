@@ -5,6 +5,7 @@ enum SyntaxKind
     Section = 'Section',
     FunctionDeclaration = 'FunctionDeclaration',
     FunctionParameter = 'FunctionParameter',
+    TypeClause = 'TypeClause',
     // Statements
     Assignment = 'Assignment',
     VariableDeclaration = 'VariableDeclaration',

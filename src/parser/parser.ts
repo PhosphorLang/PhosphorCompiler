@@ -1,4 +1,5 @@
 import AssignmentSyntaxNode from "./syntaxNodes/assignmentSyntaxNode";
+import CompilerError from "../errors/compilerError";
 import BinaryExpressionSyntaxNode from "./syntaxNodes/binaryExpressionSyntaxNode";
 import CallArgumentsList from "./callArgumentsList";
 import CallExpressionSyntaxNode from "./syntaxNodes/callExpressionSyntaxNode";
@@ -17,10 +18,11 @@ import SectionSyntaxNode from "./syntaxNodes/sectionSyntaxNode";
 import SyntaxNode from "./syntaxNodes/syntaxNode";
 import Token from "../lexer/token";
 import TokenKind from "../lexer/tokenKind";
+import TypeClauseSyntaxNode from "./syntaxNodes/typeClauseSyntaxNode";
 import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
 import UnknownTokenError from "../errors/unknownTokenError";
 import VariableDeclarationSyntaxNode from "./syntaxNodes/variableDeclarationSyntaxNode";
-
+import UnexpectedTokenError from "../errors/unexpectedTokenError";
 export default class Parser
 {
     private fileName: string;
@@ -120,9 +122,10 @@ export default class Parser
         const opening = this.getNextToken();
         const parameters = this.parseFunctionParameters();
         const closing = this.getNextToken();
+        const type = this.parseTypeClause();
         const body = this.parseSection();
 
-        return new FunctionDeclarationSyntaxNode(keyword, identifier, opening, parameters, closing, body);
+        return new FunctionDeclarationSyntaxNode(keyword, identifier, opening, parameters, closing, type, body);
     }
 
     private parseFunctionParameters (): FunctionParametersList
@@ -151,8 +154,29 @@ export default class Parser
     private parseFunctionParameter (): FunctionParameterSyntaxNode
     {
         const identifier = this.getNextToken();
+        const type = this.parseTypeClause();
 
-        return new FunctionParameterSyntaxNode(identifier);
+        if (type === null)
+        {
+            throw new CompilerError('Missing type clause in parameter definition', this.fileName, identifier);
+        }
+
+        return new FunctionParameterSyntaxNode(identifier, type);
+    }
+
+    private parseTypeClause (): TypeClauseSyntaxNode|null
+    {
+        if (this.currentToken.kind != TokenKind.ColonToken)
+        {
+            return null;
+        }
+        else
+        {
+            const colon = this.getNextToken();
+            const identifier = this.getNextToken();
+
+            return new TypeClauseSyntaxNode(colon, identifier);
+        }
     }
 
     private parseSection (): SectionSyntaxNode
@@ -233,6 +257,7 @@ export default class Parser
     {
         const keyword = this.getNextToken();
         let identifier: Token;
+        let type: TypeClauseSyntaxNode|null = null;
         let assignment: AssignmentSyntaxNode|null = null;
 
         if (this.followerToken.kind == TokenKind.AssignmentOperator)
@@ -241,12 +266,17 @@ export default class Parser
 
             assignment = this.parseAssignment();
         }
-        else
+        else if (this.followerToken.kind == TokenKind.ColonToken)
         {
             identifier = this.getNextToken();
+            type = this.parseTypeClause();
+        }
+        else
+        {
+            throw new UnexpectedTokenError('variable declaration identifier', this.fileName, this.followerToken);
         }
 
-        return new VariableDeclarationSyntaxNode(keyword, identifier, assignment);
+        return new VariableDeclarationSyntaxNode(keyword, identifier, type, assignment);
     }
 
     private isAssignment (): boolean

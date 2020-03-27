@@ -3,6 +3,7 @@ import SectionSyntaxNode from "./sectionSyntaxNode";
 import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
 import Token from "../../lexer/token";
+import TypeClauseSyntaxNode from "./typeClauseSyntaxNode";
 
 export default class FunctionDeclarationSyntaxNode extends SyntaxNode
 {
@@ -11,6 +12,7 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
     public readonly opening: Token;
     public readonly parameters: FunctionParametersList;
     public readonly closing: Token;
+    public readonly type: TypeClauseSyntaxNode|null;
     public readonly body: SectionSyntaxNode;
 
     public get children (): Iterable<SyntaxNode>
@@ -18,7 +20,14 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
         return this.parameters.parameters;
     }
 
-    constructor (keyword: Token, identifier: Token, opening: Token, parameters: FunctionParametersList, closing: Token, body: SectionSyntaxNode)
+    constructor (
+        keyword: Token,
+        identifier: Token,
+        opening: Token,
+        parameters: FunctionParametersList,
+        closing: Token,
+        type: TypeClauseSyntaxNode|null,
+        body: SectionSyntaxNode)
     {
         super(SyntaxKind.FunctionDeclaration);
 
@@ -27,6 +36,7 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
         this.opening = opening;
         this.parameters = parameters;
         this.closing = closing;
+        this.type = type;
         this.body = body;
     }
 }

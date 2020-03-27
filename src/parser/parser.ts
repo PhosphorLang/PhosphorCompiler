@@ -1,8 +1,8 @@
 import AssignmentSyntaxNode from "./syntaxNodes/assignmentSyntaxNode";
-import CompilerError from "../errors/compilerError";
 import BinaryExpressionSyntaxNode from "./syntaxNodes/binaryExpressionSyntaxNode";
 import CallArgumentsList from "./callArgumentsList";
 import CallExpressionSyntaxNode from "./syntaxNodes/callExpressionSyntaxNode";
+import CompilerError from "../errors/compilerError";
 import ExpressionSyntaxNode from "./syntaxNodes/expressionSyntaxNode";
 import FileSyntaxNode from "./syntaxNodes/fileSyntaxNode";
 import FunctionDeclarationSyntaxNode from "./syntaxNodes/functionDeclarationSyntaxNode";
@@ -15,14 +15,16 @@ import OperatorOrder from "./operatorOrder";
 import ParenthesizedExpressionSyntaxNode from "./syntaxNodes/parenthesizedExpressionSyntaxNode";
 import ReturnStatementSyntaxNode from "./syntaxNodes/returnStatementSyntaxNode";
 import SectionSyntaxNode from "./syntaxNodes/sectionSyntaxNode";
+import SyntaxKind from "./syntaxKind";
 import SyntaxNode from "./syntaxNodes/syntaxNode";
 import Token from "../lexer/token";
 import TokenKind from "../lexer/tokenKind";
 import TypeClauseSyntaxNode from "./syntaxNodes/typeClauseSyntaxNode";
 import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
+import UnexpectedTokenError from "../errors/unexpectedTokenError";
 import UnknownTokenError from "../errors/unknownTokenError";
 import VariableDeclarationSyntaxNode from "./syntaxNodes/variableDeclarationSyntaxNode";
-import UnexpectedTokenError from "../errors/unexpectedTokenError";
+
 export default class Parser
 {
     private fileName: string;
@@ -104,7 +106,7 @@ export default class Parser
                     node = this.parseFunctionDeclaration();
                     break;
                 default:
-                    node = this.parseStatement();
+                    throw new InvalidTokenError('Invalid token in file scope', this.fileName, this.currentToken);
             }
 
             nodes.push(node);

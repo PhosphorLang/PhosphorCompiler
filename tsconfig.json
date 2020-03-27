@@ -16,7 +16,9 @@
         "esModuleInterop": true,
 
         "sourceMap": true,
-        "removeComments": true
+        "removeComments": true,
+
+        "incremental": true
     },
     "include": [
         "src/**/*.ts"

@@ -10,7 +10,6 @@ import FunctionParametersList from "./functionParametersList";
 import FunctionParameterSyntaxNode from "./syntaxNodes/functionParameterSyntaxNode";
 import InvalidTokenError from "../errors/invalidTokenError";
 import LiteralExpressionSyntaxNode from "./syntaxNodes/literalExpressionSyntaxNode";
-import NameExpressionSyntaxNode from "./syntaxNodes/nameExpressionSyntaxNode";
 import OperatorOrder from "./operatorOrder";
 import ParenthesizedExpressionSyntaxNode from "./syntaxNodes/parenthesizedExpressionSyntaxNode";
 import ReturnStatementSyntaxNode from "./syntaxNodes/returnStatementSyntaxNode";
@@ -24,6 +23,7 @@ import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
 import UnexpectedTokenError from "../errors/unexpectedTokenError";
 import UnknownTokenError from "../errors/unknownTokenError";
 import VariableDeclarationSyntaxNode from "./syntaxNodes/variableDeclarationSyntaxNode";
+import VariableExpressionSyntaxNode from "./syntaxNodes/variableExpressionSyntaxNode";
 
 export default class Parser
 {
@@ -395,7 +395,7 @@ export default class Parser
         }
         else
         {
-            return this.parseNameExpression();
+            return this.parseVariableExpression();
         }
     }
 
@@ -432,10 +432,10 @@ export default class Parser
         return new CallArgumentsList(expressions, separators);
     }
 
-    private parseNameExpression (): NameExpressionSyntaxNode
+    private parseVariableExpression (): VariableExpressionSyntaxNode
     {
         const identifier = this.getNextToken();
 
-        return new NameExpressionSyntaxNode(identifier);
+        return new VariableExpressionSyntaxNode(identifier);
     }
 }

@@ -3,7 +3,7 @@ import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
 import Token from "../../lexer/token";
 
-export default class NameExpressionSyntaxNode extends ExpressionSyntaxNode
+export default class VariableExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly identifier: Token;
 
@@ -14,7 +14,7 @@ export default class NameExpressionSyntaxNode extends ExpressionSyntaxNode
 
     constructor (identifier: Token)
     {
-        super(SyntaxKind.NameExpression);
+        super(SyntaxKind.VariableExpression);
 
         this.identifier = identifier;
     }

@@ -11,12 +11,11 @@ enum SyntaxKind
     VariableDeclaration = 'VariableDeclaration',
     ReturnStatement = 'ReturnStatement',
     // Expressions
-    PrimaryExpression = 'PrimaryExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',
     ParenthesizedExpression = 'ParenthesizedExpression',
     LiteralExpression = 'LiteralExpression',
-    NameExpression = 'NameExpression',
+    VariableExpression = 'VariableExpression',
     CallExpression = 'CallExpression',
 }
 

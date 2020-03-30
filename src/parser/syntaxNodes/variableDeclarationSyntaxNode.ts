@@ -1,4 +1,4 @@
-import AssignmentSyntaxNode from "./assignmentSyntaxNode";
+import ExpressionSyntaxNode from "./expressionSyntaxNode";
 import SyntaxKind from "../syntaxKind";
 import SyntaxNode from "./syntaxNode";
 import Token from "../../lexer/token";
@@ -9,21 +9,27 @@ export default class VariableDeclarationSyntaxNode extends SyntaxNode
     public readonly keyword: Token;
     public readonly identifier: Token;
     public readonly type: TypeClauseSyntaxNode|null;
-    public readonly assignment: AssignmentSyntaxNode|null;
+    public readonly assignment: Token|null;
+    public readonly initialiser: ExpressionSyntaxNode|null;
 
     public get children (): Iterable<SyntaxNode>
     {
-        if (this.assignment === null)
+        if (this.initialiser === null)
         {
             return [];
         }
         else
         {
-            return [this.assignment];
+            return [this.initialiser];
         }
     }
 
-    constructor (keyword: Token, identifier: Token, type: TypeClauseSyntaxNode|null, assignment: AssignmentSyntaxNode|null)
+    constructor (
+        keyword: Token,
+        identifier: Token,
+        type: TypeClauseSyntaxNode|null,
+        assignment: Token|null,
+        initialiser: ExpressionSyntaxNode|null)
     {
         super(SyntaxKind.VariableDeclaration);
 
@@ -31,5 +37,6 @@ export default class VariableDeclarationSyntaxNode extends SyntaxNode
         this.identifier = identifier;
         this.type = type;
         this.assignment = assignment;
+        this.initialiser = initialiser;
     }
 }

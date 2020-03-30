@@ -257,27 +257,25 @@ export default class Parser
     private parseVariableDeclaration (): VariableDeclarationSyntaxNode
     {
         const keyword = this.getNextToken();
-        let identifier: Token;
+        const identifier = this.getNextToken();
         let type: TypeClauseSyntaxNode|null = null;
-        let assignment: AssignmentSyntaxNode|null = null;
+        let assignment: Token|null = null;
+        let initialiser: ExpressionSyntaxNode|null = null;
 
-        if (this.followerToken.kind == TokenKind.AssignmentOperator)
+        switch (this.currentToken.kind)
         {
-            identifier = this.currentToken;
-
-            assignment = this.parseAssignment();
-        }
-        else if (this.followerToken.kind == TokenKind.ColonToken)
-        {
-            identifier = this.getNextToken();
-            type = this.parseTypeClause();
-        }
-        else
-        {
-            throw new UnexpectedTokenError('variable declaration identifier', this.fileName, this.followerToken);
+            case TokenKind.AssignmentOperator:
+                assignment = this.getNextToken();
+                initialiser = this.parseExpression();
+                break;
+            case TokenKind.ColonToken:
+                type = this.parseTypeClause();
+                break;
+            default:
+                throw new UnexpectedTokenError('variable declaration identifier', this.fileName, this.followerToken);
         }
 
-        return new VariableDeclarationSyntaxNode(keyword, identifier, type, assignment);
+        return new VariableDeclarationSyntaxNode(keyword, identifier, type, assignment, initialiser);
     }
 
     private isAssignment (): boolean

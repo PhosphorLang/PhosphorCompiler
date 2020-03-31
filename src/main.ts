@@ -2,7 +2,7 @@
 
 import Assembler from './assembler/assembler';
 import AssemblerLinux64 from './assembler/linux/x86_64/assemblerLinux64';
-import Constructor from './constructor_/constructor';
+import Connector from './connector/connector';
 import fs from 'fs';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
@@ -24,7 +24,7 @@ class Main
     {
         const lexer = new Lexer();
         const parser = new Parser();
-        const constructor = new Constructor();
+        const connector = new Connector();
         const transpiler: Transpiler = new TranspilerLinux64();
         const assembler: Assembler = new AssemblerLinux64();
         const linker = new Linker();
@@ -35,9 +35,9 @@ class Main
         try
         {
             const tokens = lexer.run(fileContent, this.arguments.filePath);
-            const syntaxTree = parser.run(tokens);
-            const actionTree = constructor.run(syntaxTree);
-            assembly = transpiler.run(actionTree);
+            const syntaxTree = parser.run(tokens, this.arguments.filePath);
+            const semanticTree = connector.run(syntaxTree);
+            assembly = transpiler.run(semanticTree);
         }
         catch (error)
         {

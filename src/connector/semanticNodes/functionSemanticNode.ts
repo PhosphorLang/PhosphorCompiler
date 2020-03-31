@@ -1,0 +1,18 @@
+import FunctionSemanticSymbol from "../semanticSymbols/functionSemanticSymbol";
+import SectionSemanticNode from "./sectionSemanticNode";
+import SemanticKind from "../semanticKind";
+import SemanticNode from "./semanticNode";
+
+export default class FunctionSemanticNode extends SemanticNode
+{
+    public readonly symbol: FunctionSemanticSymbol;
+    public readonly section: SectionSemanticNode;
+
+    constructor (symbol: FunctionSemanticSymbol, section: SectionSemanticNode)
+    {
+        super(SemanticKind.Function);
+
+        this.symbol = symbol;
+        this.section = section;
+    }
+}

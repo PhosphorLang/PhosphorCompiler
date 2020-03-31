@@ -1,4 +1,4 @@
-function getText (): string
+function getText (): String
 {
     var text := 'Hello world!';
 

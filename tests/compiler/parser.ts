@@ -29,7 +29,7 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -58,7 +58,7 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -84,7 +84,7 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -110,7 +110,7 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -142,7 +142,7 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -166,7 +166,7 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -192,13 +192,13 @@ describe('Parser',
 
                 const parser = new Parser();
 
-                const result = parser.run(input);
+                const result = parser.run(input, 'testFile');
 
                 assert.deepStrictEqual(result, expectedResult);
             }
         );
 
-        it('throws an exception at unknown statement type.',
+        it('throws an exception at unknown token kind.',
             function ()
             {
                 this.skip();
@@ -210,7 +210,7 @@ describe('Parser',
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); },
+                    (): void => { parser.run(input, 'testFile'); },
                     UnknownTokenError
                 );
             }
@@ -230,7 +230,7 @@ describe('Parser',
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); },
+                    (): void => { parser.run(input, 'testFile'); },
                     InvalidTokenError
                 );
             }
@@ -248,7 +248,7 @@ describe('Parser',
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); },
+                    (): void => { parser.run(input, 'testFile'); },
                     UnexpectedTokenError
                 );
             }
@@ -268,7 +268,7 @@ describe('Parser',
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); },
+                    (): void => { parser.run(input, 'testFile'); },
                     InvalidTokenError
                 );
             }
@@ -288,7 +288,7 @@ describe('Parser',
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); },
+                    (): void => { parser.run(input, 'testFile'); },
                     InvalidTokenError
                 );
             }
@@ -307,7 +307,7 @@ describe('Parser',
                 const parser = new Parser();
 
                 assert.throws(
-                    (): void => { parser.run(input); },
+                    (): void => { parser.run(input, 'testFile'); },
                     InvalidTokenError
                 );
             }

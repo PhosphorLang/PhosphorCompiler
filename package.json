@@ -28,11 +28,11 @@
     ],
     "main": "bin/main.js",
     "scripts": {
-        "prestart": "tsc",
-        "start": "node build/main.js",
-        "test": "./node_modules/.bin/mocha -r ts-node/register 'tests/**/*.ts'",
-        "coverage": "./node_modules/.bin/nyc npm run test",
-        "prepack": "rm -r bin && tsc -p tsconfig.release.json"
+        "prestart": "npx tsc",
+        "start": "npx node bin/main.js",
+        "test": "npx mocha -r ts-node/register 'tests/**/*.ts'",
+        "coverage": "npx nyc npm run test",
+        "prepack": "rm -r bin && npx tsc -p tsconfig.release.json"
     },
     "private": true
 }

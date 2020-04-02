@@ -1,29 +1,15 @@
-import AssignmentSyntaxNode from "./syntaxNodes/assignmentSyntaxNode";
-import BinaryExpressionSyntaxNode from "./syntaxNodes/binaryExpressionSyntaxNode";
+import * as SyntaxNodes from "./syntaxNodes";
 import CallArgumentsList from "./callArgumentsList";
-import CallExpressionSyntaxNode from "./syntaxNodes/callExpressionSyntaxNode";
 import CompilerError from "../errors/compilerError";
-import ExpressionSyntaxNode from "./syntaxNodes/expressionSyntaxNode";
-import FileSyntaxNode from "./syntaxNodes/fileSyntaxNode";
-import FunctionDeclarationSyntaxNode from "./syntaxNodes/functionDeclarationSyntaxNode";
 import FunctionParametersList from "./functionParametersList";
-import FunctionParameterSyntaxNode from "./syntaxNodes/functionParameterSyntaxNode";
 import InvalidTokenError from "../errors/invalidTokenError";
-import LiteralExpressionSyntaxNode from "./syntaxNodes/literalExpressionSyntaxNode";
 import OperatorOrder from "./operatorOrder";
-import ParenthesizedExpressionSyntaxNode from "./syntaxNodes/parenthesizedExpressionSyntaxNode";
-import ReturnStatementSyntaxNode from "./syntaxNodes/returnStatementSyntaxNode";
-import SectionSyntaxNode from "./syntaxNodes/sectionSyntaxNode";
 import SyntaxKind from "./syntaxKind";
-import SyntaxNode from "./syntaxNodes/syntaxNode";
+import { SyntaxNode } from "./syntaxNodes";
 import Token from "../lexer/token";
 import TokenKind from "../lexer/tokenKind";
-import TypeClauseSyntaxNode from "./syntaxNodes/typeClauseSyntaxNode";
-import UnaryExpressionSyntaxNode from "./syntaxNodes/unaryExpressionSyntaxNode";
 import UnexpectedTokenError from "../errors/unexpectedTokenError";
 import UnknownTokenError from "../errors/unknownTokenError";
-import VariableDeclarationSyntaxNode from "./syntaxNodes/variableDeclarationSyntaxNode";
-import VariableExpressionSyntaxNode from "./syntaxNodes/variableExpressionSyntaxNode";
 
 export default class Parser
 {
@@ -81,7 +67,7 @@ export default class Parser
      * @param fileName The name/path of the file
      * @return The root of the parsed syntax tree.
      */
-    public run (tokens: Token[], fileName: string): FileSyntaxNode
+    public run (tokens: Token[], fileName: string): SyntaxNodes.File
     {
         this.tokens = tokens;
         this.fileName = fileName;
@@ -92,9 +78,9 @@ export default class Parser
         return root;
     }
 
-    private parseFile (): FileSyntaxNode
+    private parseFile (): SyntaxNodes.File
     {
-        const functions: FunctionDeclarationSyntaxNode[] = [];
+        const functions: SyntaxNodes.FunctionDeclaration[] = [];
 
         while (this.currentToken.kind != TokenKind.NoToken)
         {
@@ -111,12 +97,12 @@ export default class Parser
             }
         }
 
-        const fileRoot = new FileSyntaxNode(this.fileName, functions);
+        const fileRoot = new SyntaxNodes.File(this.fileName, functions);
 
         return fileRoot;
     }
 
-    private parseFunctionDeclaration (): FunctionDeclarationSyntaxNode
+    private parseFunctionDeclaration (): SyntaxNodes.FunctionDeclaration
     {
         const keyword = this.getNextToken();
         const identifier = this.getNextToken();
@@ -126,12 +112,12 @@ export default class Parser
         const type = this.parseTypeClause();
         const body = this.parseSection();
 
-        return new FunctionDeclarationSyntaxNode(keyword, identifier, opening, parameters, closing, type, body);
+        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body);
     }
 
     private parseFunctionParameters (): FunctionParametersList
     {
-        const parameters: FunctionParameterSyntaxNode[] = [];
+        const parameters: SyntaxNodes.FunctionParameter[] = [];
         const separators: Token[] = [];
 
         while ((this.currentToken.kind != TokenKind.ClosingParenthesisToken) && (this.currentToken.kind != TokenKind.NoToken))
@@ -152,7 +138,7 @@ export default class Parser
         return new FunctionParametersList(parameters, separators);
     }
 
-    private parseFunctionParameter (): FunctionParameterSyntaxNode
+    private parseFunctionParameter (): SyntaxNodes.FunctionParameter
     {
         const identifier = this.getNextToken();
         const type = this.parseTypeClause();
@@ -162,10 +148,10 @@ export default class Parser
             throw new CompilerError('Missing type clause in parameter definition', this.fileName, identifier);
         }
 
-        return new FunctionParameterSyntaxNode(identifier, type);
+        return new SyntaxNodes.FunctionParameter(identifier, type);
     }
 
-    private parseTypeClause (): TypeClauseSyntaxNode|null
+    private parseTypeClause (): SyntaxNodes.TypeClause|null
     {
         if (this.currentToken.kind != TokenKind.ColonToken)
         {
@@ -176,11 +162,11 @@ export default class Parser
             const colon = this.getNextToken();
             const identifier = this.getNextToken();
 
-            return new TypeClauseSyntaxNode(colon, identifier);
+            return new SyntaxNodes.TypeClause(colon, identifier);
         }
     }
 
-    private parseSection (): SectionSyntaxNode
+    private parseSection (): SyntaxNodes.Section
     {
         const opening = this.getNextToken();
 
@@ -196,7 +182,7 @@ export default class Parser
 
         const closing = this.getNextToken();
 
-        return new SectionSyntaxNode(opening, statements, closing);
+        return new SyntaxNodes.Section(opening, statements, closing);
     }
 
     private parseStatement (): SyntaxNode
@@ -240,27 +226,27 @@ export default class Parser
         return result;
     }
 
-    private parseReturnStatement (): ReturnStatementSyntaxNode
+    private parseReturnStatement (): SyntaxNodes.ReturnStatement
     {
         const keyword = this.getNextToken();
 
-        let expression: ExpressionSyntaxNode|null = null;
+        let expression: SyntaxNodes.Expression|null = null;
 
         if (this.currentToken.kind != TokenKind.SemicolonToken)
         {
             expression = this.parseExpression();
         }
 
-        return new ReturnStatementSyntaxNode(keyword, expression);
+        return new SyntaxNodes.ReturnStatement(keyword, expression);
     }
 
-    private parseVariableDeclaration (): VariableDeclarationSyntaxNode
+    private parseVariableDeclaration (): SyntaxNodes.VariableDeclaration
     {
         const keyword = this.getNextToken();
         const identifier = this.getNextToken();
-        let type: TypeClauseSyntaxNode|null = null;
+        let type: SyntaxNodes.TypeClause|null = null;
         let assignment: Token|null = null;
-        let initialiser: ExpressionSyntaxNode|null = null;
+        let initialiser: SyntaxNodes.Expression|null = null;
 
         switch (this.currentToken.kind)
         {
@@ -275,7 +261,7 @@ export default class Parser
                 throw new UnexpectedTokenError('variable declaration identifier', this.fileName, this.followerToken);
         }
 
-        return new VariableDeclarationSyntaxNode(keyword, identifier, type, assignment, initialiser);
+        return new SyntaxNodes.VariableDeclaration(keyword, identifier, type, assignment, initialiser);
     }
 
     private isAssignment (): boolean
@@ -285,18 +271,18 @@ export default class Parser
         return result;
     }
 
-    private parseAssignment (): AssignmentSyntaxNode
+    private parseAssignment (): SyntaxNodes.Assignment
     {
         const identifierToken = this.getNextToken();
         const operatorToken = this.getNextToken();
         const rightSide = this.parseExpression();
 
-        const result = new AssignmentSyntaxNode(identifierToken, operatorToken, rightSide);
+        const result = new SyntaxNodes.Assignment(identifierToken, operatorToken, rightSide);
 
         return result;
     }
 
-    private parseExpression (parentPriority = 0): ExpressionSyntaxNode
+    private parseExpression (parentPriority = 0): SyntaxNodes.Expression
     {
         let left;
 
@@ -335,25 +321,25 @@ export default class Parser
         return result;
     }
 
-    private parseUnaryExpression (): UnaryExpressionSyntaxNode
+    private parseUnaryExpression (): SyntaxNodes.UnaryExpression
     {
         const operator = this.getNextToken();
         const operatorPriority = OperatorOrder.getUnaryPriority(operator);
         const operand = this.parseExpression(operatorPriority);
 
-        return new UnaryExpressionSyntaxNode(operator, operand);
+        return new SyntaxNodes.UnaryExpression(operator, operand);
     }
 
-    private parseBinaryExpression (left: ExpressionSyntaxNode): BinaryExpressionSyntaxNode
+    private parseBinaryExpression (left: SyntaxNodes.Expression): SyntaxNodes.BinaryExpression
     {
         const operator = this.getNextToken();
         const operatorPriority = OperatorOrder.getBinaryPriority(operator);
         const right = this.parseExpression(operatorPriority);
 
-        return new BinaryExpressionSyntaxNode(left, operator, right);
+        return new SyntaxNodes.BinaryExpression(left, operator, right);
     }
 
-    private parsePrimaryExpression (): ExpressionSyntaxNode
+    private parsePrimaryExpression (): SyntaxNodes.Expression
     {
         switch (this.currentToken.kind)
         {
@@ -369,23 +355,23 @@ export default class Parser
         }
     }
 
-    private parseParenthesizedExpression (): ParenthesizedExpressionSyntaxNode
+    private parseParenthesizedExpression (): SyntaxNodes.ParenthesizedExpression
     {
         const opening = this.getNextToken();
         const expression = this.parseExpression();
         const closing = this.getNextToken();
 
-        return new ParenthesizedExpressionSyntaxNode(opening, expression, closing);
+        return new SyntaxNodes.ParenthesizedExpression(opening, expression, closing);
     }
 
-    private parseLiteralExpression (): LiteralExpressionSyntaxNode
+    private parseLiteralExpression (): SyntaxNodes.LiteralExpression
     {
         const literal = this.getNextToken();
 
-        return new LiteralExpressionSyntaxNode(literal);
+        return new SyntaxNodes.LiteralExpression(literal);
     }
 
-    private parseIdentifierExpression (): ExpressionSyntaxNode
+    private parseIdentifierExpression (): SyntaxNodes.Expression
     {
         if (this.followerToken.kind == TokenKind.OpeningParenthesisToken)
         {
@@ -397,19 +383,19 @@ export default class Parser
         }
     }
 
-    private parseCallExpression (): CallExpressionSyntaxNode
+    private parseCallExpression (): SyntaxNodes.CallExpression
     {
         const identifier = this.getNextToken();
         const opening = this.getNextToken();
         const callArguments = this.parseArguments();
         const closing = this.getNextToken();
 
-        return new CallExpressionSyntaxNode(identifier, opening, callArguments, closing);
+        return new SyntaxNodes.CallExpression(identifier, opening, callArguments, closing);
     }
 
     private parseArguments (): CallArgumentsList
     {
-        const expressions: ExpressionSyntaxNode[] = [];
+        const expressions: SyntaxNodes.Expression[] = [];
         const separators: Token[] = [];
 
         while ((this.currentToken.kind != TokenKind.ClosingParenthesisToken) && (this.currentToken.kind != TokenKind.NoToken))
@@ -430,10 +416,10 @@ export default class Parser
         return new CallArgumentsList(expressions, separators);
     }
 
-    private parseVariableExpression (): VariableExpressionSyntaxNode
+    private parseVariableExpression (): SyntaxNodes.VariableExpression
     {
         const identifier = this.getNextToken();
 
-        return new VariableExpressionSyntaxNode(identifier);
+        return new SyntaxNodes.VariableExpression(identifier);
     }
 }

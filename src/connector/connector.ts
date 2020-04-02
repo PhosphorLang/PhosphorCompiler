@@ -1,41 +1,14 @@
-import AssignmentSemanticNode from "./semanticNodes/assignmentSemanticNode";
-import AssignmentSyntaxNode from "../parser/syntaxNodes/assignmentSyntaxNode";
-import BinaryExpressionSemanticNode from "./semanticNodes/binaryExpressionSemanticNode";
-import BinaryExpressionSyntaxNode from "../parser/syntaxNodes/binaryExpressionSyntaxNode";
+import * as SemanticNodes from "./semanticNodes";
+import * as SemanticSymbols from "./semanticSymbols";
+import * as SyntaxNodes from "../parser/syntaxNodes";
 import BuildInFunctions from "../definitions/buildInFunctions";
 import BuildInOperators from "../definitions/buildInOperators";
 import BuildInTypes from "../definitions/buildInTypes";
-import CallExpressionSemanticNode from "./semanticNodes/callExpressionSemanticNode";
-import CallExpressionSyntaxNode from "../parser/syntaxNodes/callExpressionSyntaxNode";
 import CompilerError from "../errors/compilerError";
-import ExpressionSemanticNode from "./semanticNodes/expressionSemanticNode";
-import ExpressionSyntaxNode from "../parser/syntaxNodes/expressionSyntaxNode";
-import FileSemanticNode from "./semanticNodes/fileSemanticNode";
-import FileSyntaxNode from "../parser/syntaxNodes/fileSyntaxNode";
-import FunctionDeclarationSyntaxNode from "../parser/syntaxNodes/functionDeclarationSyntaxNode";
 import FunctionParametersList from "../parser/functionParametersList";
-import FunctionSemanticNode from "./semanticNodes/functionSemanticNode";
-import FunctionSemanticSymbol from "./semanticSymbols/functionSemanticSymbol";
-import LiteralExpressionSemanticNode from "./semanticNodes/literalExpressionSemanticNode";
-import LiteralExpressionSyntaxNode from "../parser/syntaxNodes/literalExpressionSyntaxNode";
-import ParameterSemanticSymbol from "./semanticSymbols/parameterSemanticSymbol";
-import ParenthesizedExpressionSyntaxNode from "../parser/syntaxNodes/parenthesizedExpressionSyntaxNode";
-import ReturnStatementSemanticNode from "./semanticNodes/returnStatementSemanticNode";
-import ReturnStatementSyntaxNode from "../parser/syntaxNodes/returnStatementSyntaxNode";
-import SectionSemanticNode from "./semanticNodes/sectionSemanticNode";
-import SectionSyntaxNode from "../parser/syntaxNodes/sectionSyntaxNode";
-import SemanticNode from "./semanticNodes/semanticNode";
+import { SemanticNode } from "./semanticNodes";
 import SyntaxKind from "../parser/syntaxKind";
-import SyntaxNode from "../parser/syntaxNodes/syntaxNode";
-import TypeClauseSyntaxNode from "../parser/syntaxNodes/typeClauseSyntaxNode";
-import TypeSemanticSymbol from "./semanticSymbols/typeSemanticSymbol";
-import UnaryExpressionSemanticNode from "./semanticNodes/unaryExpressionSemanticNode";
-import UnaryExpressionSyntaxNode from "../parser/syntaxNodes/unaryExpressionSyntaxNode";
-import VariableDeclarationSemanticNode from "./semanticNodes/variableDeclarationSemanticNode";
-import VariableDeclarationSyntaxNode from "../parser/syntaxNodes/variableDeclarationSyntaxNode";
-import VariableExpressionSemanticNode from "./semanticNodes/variableExpressionSemanticNode";
-import VariableExpressionSyntaxNode from "../parser/syntaxNodes/variableExpressionSyntaxNode";
-import VariableSemanticSymbol from "./semanticSymbols/variableSemanticSymbol";
+import { SyntaxNode } from "../parser/syntaxNodes";
 
 export default class Connector
 {
@@ -45,17 +18,17 @@ export default class Connector
      * This is filled before the function bodies are connected, so every function can reference every other function,
      * regardless of their position.
      */
-    private functions: Map<string, FunctionSemanticSymbol>;
+    private functions: Map<string, SemanticSymbols.Function>;
     /**
      * A list of variable lists, working as a stack.
      * While connecting the function bodies, at the beginning of each section a new list is pushed, at the end of the section it is removed.
      * With this we keep track of which variables are accessible at which point in the code.
      */
-    private variables: Map<string, VariableSemanticSymbol>[];
+    private variables: Map<string, SemanticSymbols.Variable>[];
 
-    private currentFunction: FunctionSemanticSymbol|null;
+    private currentFunction: SemanticSymbols.Function|null;
 
-    private get currentVariableStack (): Map<string, VariableSemanticSymbol>
+    private get currentVariableStack (): Map<string, SemanticSymbols.Variable>
     {
         return this.variables[this.variables.length - 1];
     }
@@ -63,12 +36,12 @@ export default class Connector
     constructor ()
     {
         this.fileName = '';
-        this.functions = new Map<string, FunctionSemanticSymbol>();
+        this.functions = new Map<string, SemanticSymbols.Function>();
         this.variables = [];
         this.currentFunction = null;
     }
 
-    public run (fileSyntaxNode: FileSyntaxNode): SemanticNode
+    public run (fileSyntaxNode: SyntaxNodes.File): SemanticNode
     {
         this.fileName = '';
         this.functions.clear();
@@ -87,11 +60,11 @@ export default class Connector
         this.functions.set(BuildInFunctions.print.name, BuildInFunctions.print); // TODO: This is really ugly...
     }
 
-    private connectFile (fileSyntaxNode: FileSyntaxNode): FileSemanticNode
+    private connectFile (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
     {
         this.fileName = fileSyntaxNode.fileName;
 
-        const functionNodes: FunctionSemanticNode[] = [];
+        const functionNodes: SemanticNodes.Function[] = [];
 
         // Function declarations:
         for (const functionDeclaration of fileSyntaxNode.functions)
@@ -109,19 +82,19 @@ export default class Connector
             functionNodes.push(functionNode);
         }
 
-        return new FileSemanticNode(fileSyntaxNode.fileName, functionNodes);
+        return new SemanticNodes.File(fileSyntaxNode.fileName, functionNodes);
     }
 
-    private connectFunctionDeclaration (functionDeclaration: FunctionDeclarationSyntaxNode): FunctionSemanticSymbol
+    private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function
     {
         const name = functionDeclaration.identifier.content;
         const returnType = this.connectType(functionDeclaration.type) ?? BuildInTypes.noType;
         const parameters = this.connectParameters(functionDeclaration.parameters);
 
-        return new FunctionSemanticSymbol(name, returnType, parameters);
+        return new SemanticSymbols.Function(name, returnType, parameters);
     }
 
-    private connectType (typeClause: TypeClauseSyntaxNode|null): TypeSemanticSymbol|null
+    private connectType (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.Type|null
     {
         if (typeClause === null)
         {
@@ -140,9 +113,9 @@ export default class Connector
         }
     }
 
-    private connectParameters (parameters: FunctionParametersList): ParameterSemanticSymbol[]
+    private connectParameters (parameters: FunctionParametersList): SemanticSymbols.Parameter[]
     {
-        const parameterSymbols: ParameterSemanticSymbol[] = [];
+        const parameterSymbols: SemanticSymbols.Parameter[] = [];
 
         const names = new Set<string>();
 
@@ -164,7 +137,7 @@ export default class Connector
                 throw new CompilerError('Parameters must have a type clause given', this.fileName, parameter.identifier);
             }
 
-            const parameterSymbol = new ParameterSemanticSymbol(name, type);
+            const parameterSymbol = new SemanticSymbols.Parameter(name, type);
 
             parameterSymbols.push(parameterSymbol);
         }
@@ -172,9 +145,9 @@ export default class Connector
         return parameterSymbols;
     }
 
-    private connectFunction (functionDeclaration: FunctionDeclarationSyntaxNode): FunctionSemanticNode
+    private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.Function
     {
-        const symbol = this.functions.get(functionDeclaration.identifier.content) as FunctionSemanticSymbol;
+        const symbol = this.functions.get(functionDeclaration.identifier.content) as SemanticSymbols.Function;
         // The function symbol must exist because we added it previously based on the same function declarations.
 
         this.currentFunction = symbol;
@@ -183,15 +156,15 @@ export default class Connector
 
         this.currentFunction = null;
 
-        return new FunctionSemanticNode(symbol, section);
+        return new SemanticNodes.Function(symbol, section);
     }
 
-    private connectSection (sectionSyntaxNode: SectionSyntaxNode): SectionSemanticNode
+    private connectSection (sectionSyntaxNode: SyntaxNodes.Section): SemanticNodes.Section
     {
         const statementNodes: SemanticNode[] = [];
 
         // Push a new list of variables to the variable stack:
-        const variables = new Map<string, VariableSemanticSymbol>();
+        const variables = new Map<string, SemanticSymbols.Variable>();
         this.variables.push(variables);
 
         for (const statement of sectionSyntaxNode.statements)
@@ -204,7 +177,7 @@ export default class Connector
         // Remove the list of variables from the variable stack:
         this.variables.pop();
 
-        return new SectionSemanticNode(statementNodes);
+        return new SemanticNodes.Section(statementNodes);
     }
 
     private connectStatement (statement: SyntaxNode): SemanticNode
@@ -212,19 +185,19 @@ export default class Connector
         switch (statement.kind)
         {
             case SyntaxKind.Section:
-                return this.connectSection(statement as SectionSyntaxNode);
+                return this.connectSection(statement as SyntaxNodes.Section);
             case SyntaxKind.VariableDeclaration:
-                return this.connectVariableDeclaration(statement as VariableDeclarationSyntaxNode);
+                return this.connectVariableDeclaration(statement as SyntaxNodes.VariableDeclaration);
             case SyntaxKind.ReturnStatement:
-                return this.connectReturnStatement(statement as ReturnStatementSyntaxNode);
+                return this.connectReturnStatement(statement as SyntaxNodes.ReturnStatement);
             case SyntaxKind.Assignment:
-                return this.connectAssignment(statement as AssignmentSyntaxNode);
+                return this.connectAssignment(statement as SyntaxNodes.Assignment);
             default:
-                return this.connectExpression(statement as ExpressionSyntaxNode);
+                return this.connectExpression(statement as SyntaxNodes.Expression);
         }
     }
 
-    private connectVariableDeclaration (variableDeclaration: VariableDeclarationSyntaxNode): VariableDeclarationSemanticNode
+    private connectVariableDeclaration (variableDeclaration: SyntaxNodes.VariableDeclaration): SemanticNodes.VariableDeclaration
     {
         const name = variableDeclaration.identifier.content;
         const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
@@ -246,7 +219,7 @@ export default class Connector
             }
         }
 
-        const symbol = new VariableSemanticSymbol(name, type, false);
+        const symbol = new SemanticSymbols.Variable(name, type, false);
 
         if (this.currentVariableStack.has(name))
         {
@@ -255,17 +228,17 @@ export default class Connector
 
         this.currentVariableStack.set(name, symbol);
 
-        return new VariableDeclarationSemanticNode(symbol, initialisier);
+        return new SemanticNodes.VariableDeclaration(symbol, initialisier);
     }
 
-    private connectReturnStatement (returnStatement: ReturnStatementSyntaxNode): ReturnStatementSemanticNode
+    private connectReturnStatement (returnStatement: SyntaxNodes.ReturnStatement): SemanticNodes.ReturnStatement
     {
         if (this.currentFunction === null)
         {
             throw new CompilerError('Found return statement in non-function environment', this.fileName, returnStatement.keyword);
         }
 
-        let expression: ExpressionSemanticNode|null = null;
+        let expression: SemanticNodes.Expression|null = null;
 
         if (returnStatement.expression !== null)
         {
@@ -291,10 +264,10 @@ export default class Connector
             }
         }
 
-        return new ReturnStatementSemanticNode(expression);
+        return new SemanticNodes.ReturnStatement(expression);
     }
 
-    private connectAssignment (assignment: AssignmentSyntaxNode): AssignmentSemanticNode
+    private connectAssignment (assignment: SyntaxNodes.Assignment): SemanticNodes.Assignment
     {
         const name = assignment.identifier.content;
 
@@ -312,31 +285,31 @@ export default class Connector
 
         const expression = this.connectExpression(assignment.expression);
 
-        return new AssignmentSemanticNode(variable, expression);
+        return new SemanticNodes.Assignment(variable, expression);
     }
 
-    private connectExpression (expression: ExpressionSyntaxNode): ExpressionSemanticNode
+    private connectExpression (expression: SyntaxNodes.Expression): SemanticNodes.Expression
     {
         switch (expression.kind)
         {
             case SyntaxKind.LiteralExpression:
-                return this.connectLiteralExpression(expression as LiteralExpressionSyntaxNode);
+                return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
             case SyntaxKind.VariableExpression:
-                return this.connectVariableExpression(expression as VariableExpressionSyntaxNode);
+                return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
-                return this.connectCallExpression(expression as CallExpressionSyntaxNode);
+                return this.connectCallExpression(expression as SyntaxNodes.CallExpression);
             case SyntaxKind.ParenthesizedExpression:
-                return this.connectParenthesizedExpression(expression as ParenthesizedExpressionSyntaxNode);
+                return this.connectParenthesizedExpression(expression as SyntaxNodes.ParenthesizedExpression);
             case SyntaxKind.UnaryExpression:
-                return this.connectUnaryExpression(expression as UnaryExpressionSyntaxNode);
+                return this.connectUnaryExpression(expression as SyntaxNodes.UnaryExpression);
             case SyntaxKind.BinaryExpression:
-                return this.connectBinaryExpression(expression as BinaryExpressionSyntaxNode);
+                return this.connectBinaryExpression(expression as SyntaxNodes.BinaryExpression);
             default:
                 throw new Error(`Unexpected syntax of kind "${expression.kind}".`);
         }
     }
 
-    private connectLiteralExpression (expression: LiteralExpressionSyntaxNode): LiteralExpressionSemanticNode
+    private connectLiteralExpression (expression: SyntaxNodes.LiteralExpression): SemanticNodes.LiteralExpression
     {
         const value = expression.literal.content;
         const type = BuildInTypes.getTypeByTokenKind(expression.literal.kind);
@@ -346,10 +319,10 @@ export default class Connector
             throw new Error (`Unexpected type of literal token "${expression.kind}".`);
         }
 
-        return new LiteralExpressionSemanticNode(value, type);
+        return new SemanticNodes.LiteralExpression(value, type);
     }
 
-    private connectVariableExpression (expression: VariableExpressionSyntaxNode): VariableExpressionSemanticNode
+    private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression
     {
         const name = expression.identifier.content;
 
@@ -360,10 +333,10 @@ export default class Connector
             throw new CompilerError(`Unknown variable "${name}"`, this.fileName, expression.identifier);
         }
 
-        return new VariableExpressionSemanticNode(variable);
+        return new SemanticNodes.VariableExpression(variable);
     }
 
-    private connectCallExpression (expression: CallExpressionSyntaxNode): CallExpressionSemanticNode
+    private connectCallExpression (expression: SyntaxNodes.CallExpression): SemanticNodes.CallExpression
     {
         const functionSymbol = this.functions.get(expression.identifier.content);
 
@@ -372,7 +345,7 @@ export default class Connector
             throw new CompilerError(`Unknown function "${expression.identifier.content}"`, this.fileName, expression.identifier);
         }
 
-        const callArguments: ExpressionSemanticNode[] = [];
+        const callArguments: SemanticNodes.Expression[] = [];
 
         for (const argumentExpression of expression.arguments.expressions)
         {
@@ -401,15 +374,15 @@ export default class Connector
             }
         }
 
-        return new CallExpressionSemanticNode(functionSymbol, callArguments);
+        return new SemanticNodes.CallExpression(functionSymbol, callArguments);
     }
 
-    private connectParenthesizedExpression (expression: ParenthesizedExpressionSyntaxNode): ExpressionSemanticNode
+    private connectParenthesizedExpression (expression: SyntaxNodes.ParenthesizedExpression): SemanticNodes.Expression
     {
         return this.connectExpression(expression.expression);
     }
 
-    private connectUnaryExpression (expression: UnaryExpressionSyntaxNode): UnaryExpressionSemanticNode
+    private connectUnaryExpression (expression: SyntaxNodes.UnaryExpression): SemanticNodes.UnaryExpression
     {
         const operand = this.connectExpression(expression.operand);
 
@@ -420,10 +393,10 @@ export default class Connector
             throw new CompilerError(`Unknown unary operator "${expression.operator.content}"`, this.fileName, expression.operator);
         }
 
-        return new UnaryExpressionSemanticNode(operator, operand);
+        return new SemanticNodes.UnaryExpression(operator, operand);
     }
 
-    private connectBinaryExpression (expression: BinaryExpressionSyntaxNode): BinaryExpressionSemanticNode
+    private connectBinaryExpression (expression: SyntaxNodes.BinaryExpression): SemanticNodes.BinaryExpression
     {
         const leftOperand = this.connectExpression(expression.leftSide);
         const rightOperand = this.connectExpression(expression.rightSide);
@@ -435,6 +408,6 @@ export default class Connector
             throw new CompilerError(`Unknown binary operator "${expression.operator.content}"`, this.fileName, expression.operator);
         }
 
-        return new BinaryExpressionSemanticNode(operator, leftOperand, rightOperand);
+        return new SemanticNodes.BinaryExpression(operator, leftOperand, rightOperand);
     }
 }

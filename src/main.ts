@@ -50,7 +50,7 @@ class Main
 
         assembler.run('tmp/test.asm');
 
-        linker.run(this.arguments.outputPath, ['tmp/test.o', 'tmp/standard.o']);
+        linker.run(this.arguments.outputPath, [this.arguments.standardLibraryPath, 'tmp/test.o']);
     }
 }
 

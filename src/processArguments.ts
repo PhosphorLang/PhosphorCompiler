@@ -4,6 +4,7 @@ export default class ProcessArguments
 {
     public readonly filePath: string;
     public readonly outputPath: string;
+    public readonly standardLibraryPath: string;
 
     constructor ()
     {
@@ -29,7 +30,22 @@ export default class ProcessArguments
             }
         }
 
+        let indexOfStandardLibraryPath = process.argv.indexOf('-s');
+        if (indexOfStandardLibraryPath === -1)
+        {
+            indexOfStandardLibraryPath = process.argv.indexOf('--standardLibraryPath');
+        }
+
         this.filePath = process.argv[indexOfFileArgument + 1];
         this.outputPath = process.argv[indexOfOutputArgument + 1];
+
+        if (indexOfStandardLibraryPath !== -1)
+        {
+            this.standardLibraryPath = process.argv[indexOfStandardLibraryPath + 1];
+        }
+        else
+        {
+            this.standardLibraryPath = 'standardLibrary.a';
+        }
     }
 }

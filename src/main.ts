@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import Assembler from './assembler/assembler';
-import AssemblerLinux64 from './assembler/linux/x86_64/assemblerLinux64';
+import AssemblerAmd64Linux from './assembler/amd64/linux/assemblerAmd64Linux';
 import Connector from './connector/connector';
 import fs from 'fs';
 import Lexer from './lexer/lexer';
@@ -26,7 +26,7 @@ class Main
         const parser = new Parser();
         const connector = new Connector();
         const transpiler: Transpiler = new TranspilerLinux64();
-        const assembler: Assembler = new AssemblerLinux64();
+        const assembler: Assembler = new AssemblerAmd64Linux();
         const linker = new Linker();
 
         const fileContent = fs.readFileSync(this.arguments.filePath, {encoding: 'utf8'});

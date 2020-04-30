@@ -7,16 +7,24 @@ import UnarySemanticOperator from "../connector/semanticOperators/unarySemanticO
 
 export default abstract class BuildInOperators
 {
+    public static readonly unaryIntAddition = new UnarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int);
+    public static readonly unaryIntSubtraction = new UnarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int);
+
+    public static readonly binaryIntAddition = new BinarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+    public static readonly binaryIntSubtraction = new BinarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+    public static readonly binaryIntMultiplication = new BinarySemanticOperator(SemanticOperatorKind.Multiplication, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+    public static readonly binaryIntDivision = new BinarySemanticOperator(SemanticOperatorKind.Division, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+
     private static unaryOperators: UnarySemanticOperator[] = [
-        new UnarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int),
-        new UnarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int),
+        BuildInOperators.unaryIntAddition,
+        BuildInOperators.unaryIntSubtraction,
     ];
 
     private static binaryOperators: BinarySemanticOperator[] = [
-        new BinarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int),
-        new BinarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int),
-        new BinarySemanticOperator(SemanticOperatorKind.Multiplication, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int),
-        new BinarySemanticOperator(SemanticOperatorKind.Division, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int),
+        BuildInOperators.binaryIntAddition,
+        BuildInOperators.binaryIntSubtraction,
+        BuildInOperators.binaryIntMultiplication,
+        BuildInOperators.binaryIntDivision,
     ];
 
     private static tokenKindToSemanticOperatorKind (tokenKind: TokenKind): SemanticOperatorKind|null

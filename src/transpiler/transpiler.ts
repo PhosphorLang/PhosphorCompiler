@@ -1,6 +1,6 @@
-import ActionTreeNode from "../constructor_/actionTreeNode";
+import * as SemanticNodes from "../connector/semanticNodes";
 
 export default interface Transpiler
 {
-    run (actionTree: ActionTreeNode): string;
+    run (semanticTree: SemanticNodes.File): string;
 }

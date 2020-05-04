@@ -41,7 +41,7 @@ export default class Connector
         this.currentFunction = null;
     }
 
-    public run (fileSyntaxNode: SyntaxNodes.File): SemanticNode
+    public run (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
     {
         this.fileName = '';
         this.functions.clear();

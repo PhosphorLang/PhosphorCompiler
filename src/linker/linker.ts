@@ -6,6 +6,6 @@ export default class Linker
     {
         const filesAsString = files.join('" "'); // TODO: Give a better name.
 
-        childProcess.execSync('ld -o "' + outputPath + '" "' + filesAsString + '"');
+        childProcess.execSync('ld -s --gc-sections -o "' + outputPath + '" "' + filesAsString + '"');
     }
 }

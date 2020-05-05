@@ -9,7 +9,7 @@ import Linker from './linker/linker';
 import Parser from './parser/parser';
 import ProcessArguments from './processArguments';
 import Transpiler from './transpiler/transpiler';
-import TranspilerLinux64 from './transpiler/linux/x86_64/transpilerLinux64';
+import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
 
 class Main
 {
@@ -25,7 +25,7 @@ class Main
         const lexer = new Lexer();
         const parser = new Parser();
         const connector = new Connector();
-        const transpiler: Transpiler = new TranspilerLinux64();
+        const transpiler: Transpiler = new TranspilerAmd64Linux();
         const assembler: Assembler = new AssemblerAmd64Linux();
         const linker = new Linker();
 

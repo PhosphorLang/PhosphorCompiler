@@ -221,6 +221,9 @@ export default class Connector
 
         const symbol = new SemanticSymbols.Variable(name, type, false);
 
+        /* TODO: The following currently only checks if there is a variable with the same name in the current variable
+                 stack but does not check previous stacks. This allows redefinitions for the current stack.
+                 We should prevent that by checking all stacks and disallow temporary redefinitions. */
         if (this.currentVariableStack.has(name))
         {
             throw new CompilerError(`Duplicate declaration of variable "${name}`, this.fileName, variableDeclaration.identifier);

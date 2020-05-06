@@ -1,11 +1,26 @@
 {
     "name": "phosphor-compiler",
-    "version": "0.1.0",
-    "description": "A compiler for my custom language.",
+    "description": "A compiler for the Phosphor programming language.",
     "author": "Benedikt Magnus",
+    "version": "0.1.0",
     "license": "MIT",
+    "keywords": [
+        "Phosphor",
+        "compiler",
+        "language"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PhosphorLang/Compiler"
+    },
+    "bugs": {
+        "url": "https://github.com/PhosphorLang/Compiler/issues"
+    },
+    "bin": {
+        "phc": "./bin/main.js"
+    },
     "engines": {
-        "node": "^12.16.3"
+        "node": ">=12.16.3"
     },
     "dependencies": {
         "chalk": "^4.0.0"
@@ -24,7 +39,9 @@
         "typescript": "^3.8.3"
     },
     "files": [
-        "bin"
+        "bin",
+        "LICENSE",
+        "README.md"
     ],
     "main": "bin/main.js",
     "scripts": {

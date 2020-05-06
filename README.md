@@ -1,61 +1,114 @@
-# Compiler
+# **The Phosphor Compiler**
 
-A compiler for my custom language.
+A compiler for the Phosphor programming language.
 
-## External Dependencies
+<br>
 
-- NASM >= 2.13
-- GNU ld >= 2.30
+## **Table of contents**
 
-## Formats
+- [Usage](#usage)
+    - [External Dependencies](#external-dependencies)
+    - [Compile the compiler](#compile-the-compiler)
+    - [Get the standard library](#get-the-standard-library)
+    - [Compile your code](#compile-your-code)
+- [Description](#description)
+    - [Components](#components)
+    - [The working features](#the-working-features)
+    - [Examples](#examples)
 
-1. File string
-    - A complete source file as string.
-2. Token list
-    - Tokens are the smallest parts of a source file, describing the barest types (like identifiers, literals, operators etc). Tokens are contextless.
-3. Syntax tree
-    - The token list is organised into a syntax tree by looking at the token's neighbours in the hierarchy. Parameters become children of functions, statements the ones of their scope. \
-    A syntax tree is still contextless but neighbouring relationships are represented.
-4. Action tree
-    - By adding context to a syntax tree we get an action tree, containing all information that would be necessary to interpret the language. The action tree fully describes types, what a node does and which symbols are the same (like the same variable in the context, not just the same name).
-5. Platform specific Assembly
-    - The Action tree is transpiled into Assembly for a specific platform and needed parts (like read/write of stdin and stdout) are added. The output is an Assembly file containing everything needed for the final binary.
-6. Object file
-    - This is the result of the Assembler, a binary file ready to be linked.
-7. Executable
-    - The executable is the linked object file, a binary file ready to be executed on the target platform.
+<br>
 
-## Components
+## **Usage**
+
+### **External Dependencies**
+
+You need the following present on your system:
+
+- [Node.js](https://nodejs.org/) >= 12.0.0
+- [NASM](https://nasm.us/) >= 2.13
+- [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
+
+<br>
+
+### **Compile the compiler**
+
+```bash
+npm install
+npm run compile
+```
+
+<br>
+
+### **Get the standard library**
+
+You will need the standard library for compiling Phosphor code. You can find it here:
+<https://github.com/PhosphorLang/StandardLibrary>. \
+Follow the instructions there to compile the standard library.
+
+<br>
+
+### **Compile your code**
+
+Important: Note that the only currently supported platform by now is Linux on x86_64.
+
+For compiling the hello world example, execute the following command: \
+(You have to replace `<path to standard library>` with the actual path, possibly `../StandardLibrary` if you have cloned
+the git repository of the standard library next to the repository of the compiler.)
+
+```bash
+node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard library>/bin/standardLibrary.a
+```
+
+<br>
+
+## **Description**
+
+### **Components**
 
 1. Lexer (Frontend)
     - Converts a file string into a token list by lexical analysis.
 2. Parser (Frontend)
     - Converts a token list into a syntax tree by syntactical analysis.
-3. Constructor (Frontend)
-    - Converts a syntax tree into an action tree by semantic analysis.
+3. Connector (Frontend)
+    - Converts a syntax tree into an semantic tree by semantic analysis.
 4. Transpiler (Backend)
-    - Transpiles the action tree into platform specific Assembly.
+    - Transpiles the semantic tree into platform specific Assembly.
 5. Assembler (Backend)
     - Creates an object file from the Assembly.
 6. Linker
     - Links the object files into an executable.
 
-## Code parts
+<br>
 
-1. Standard library
-    - Written in Assembly, provides basic platform specific code like reading from stdin or writing to stdout.
-2. Runtime library
-    - Written in the programming language, provides generic functionality from type conversions to thread pools.
+### **The working features**
 
-## The working features
-
+1. Types
+    - Int
+    - String
+1. Variables
+    - Definition
+    - Type inference
+    - Assignment
+1. Constants
+    - Inline integer
+    - Inline string
+1. Function definitions
+    - With up to six integer/pointer arguments
+    - Argument types
+    - Return type
+    - Return statement
+1. Main function
+    - As entry point
+1. Build in functions
+    - print (a string)
 1. Function calls
-   - With no parameter
-   - With a single parameter
-2. The print function
-   - For a char constant (ASCII encoded)
-   - For a string constant (UTF-8 encoded)
+    - As a statement
+    - As an expression (with return value)
 
-## Full example of all features
+<br>
+
+### **Examples**
+
+You can find a full example of all features [here](/examples/everything.ph).
 
 More example are in the [examples directory](/examples/);

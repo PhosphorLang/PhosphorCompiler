@@ -45,11 +45,12 @@
     ],
     "main": "bin/main.js",
     "scripts": {
-        "prestart": "npx tsc",
-        "start": "npx node bin/main.js",
-        "test": "npx mocha -r ts-node/register 'tests/**/*.ts'",
+        "build": "npx tsc",
+        "clean": "rm -r bin",
         "coverage": "npx nyc npm run test",
-        "prepack": "rm -r bin && npx tsc -p tsconfig.release.json"
+        "prepack": "npm run build && npx tsc -p tsconfig.release.json",
+        "start": "node bin/main.js",
+        "test": "npx mocha -r ts-node/register 'tests/**/*.ts'"
     },
     "private": true
 }

@@ -39,9 +39,9 @@ export default class Lexer
         if (this.position < this.text.length)
         {
             result = this.text[this.position];
-
-            this.position++;
         }
+
+        this.position++;
 
         return result;
     }
@@ -60,11 +60,6 @@ export default class Lexer
         this.line = 1;
         this.column = 1;
         this.text = fileContent;
-
-        if ((this.text === '') || (!this.text.endsWith("\n")))
-        {
-            this.text += "\n"; // Go sure the text ends with a line ending.
-        }
 
         const tokens: Token[] = [];
         while (this.position < this.text.length)

@@ -1,5 +1,5 @@
 {
-    "name": "compiler",
+    "name": "phosphor-compiler",
     "version": "0.1.0",
     "description": "A compiler for my custom language.",
     "author": "Benedikt Magnus",

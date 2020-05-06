@@ -58,8 +58,4 @@ A compiler for my custom language.
 
 ## Full example of all features
 
-```
-print()
-print(65)
-print('Works ✓')
-```
+More example are in the [examples directory](/examples/);

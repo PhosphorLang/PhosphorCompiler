@@ -5,6 +5,12 @@
         "html",
         "text"
     ],
+    "watermarks": {
+        "statements": [60, 80],
+        "branches": [70, 90],
+        "functions": [80, 95],
+        "lines": [50, 80]
+    },
     "require": [
         "ts-node/register"
     ],

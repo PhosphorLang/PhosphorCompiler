@@ -1,8 +1,9 @@
-import Defaults from "./defaults";
-import Token from "../../src/lexer/token";
+import BuildInTypes from '../../src/definitions/buildInTypes';
+import Defaults from './defaults';
+import Token from '../../src/lexer/token';
 import TokenKind from '../../src/lexer/tokenKind';
 
-export default class TokenCreator
+export default abstract class TokenCreator
 {
     public static newIdentifier (identifier = Defaults.identifier, line = 0, column = 0): Token
     {
@@ -14,7 +15,12 @@ export default class TokenCreator
         return new Token(TokenKind.IdentifierToken, identifier);
     }
 
-    public static newInteger (value = Defaults.number): Token
+    public static newTypeIdentifier (identifier = BuildInTypes.int.name): Token
+    {
+        return new Token(TokenKind.IdentifierToken, identifier);
+    }
+
+    public static newInteger (value = Defaults.integer): Token
     {
         return new Token(TokenKind.IntegerToken, value);
     }
@@ -46,7 +52,7 @@ export default class TokenCreator
 
     public static newColon (): Token
     {
-        return new Token(TokenKind.SemicolonToken, ':');
+        return new Token(TokenKind.ColonToken, ':');
     }
 
     public static newSemicolon (): Token

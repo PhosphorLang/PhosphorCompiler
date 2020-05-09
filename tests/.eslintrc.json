@@ -13,7 +13,5 @@
     },
     "extends": [
         "../.eslintrc.json"
-    ],
-    "rules": {
-    }
+    ]
 }

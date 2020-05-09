@@ -9,16 +9,15 @@
         "ts-node/register"
     ],
     "extension": [
-        ".ts",
-        ".tsx"
+        ".ts"
     ],
     "include": [
         "src/**/*.ts"
     ],
     "exclude": [
+        "src/main.ts",
         "**/*.d.ts",
         "coverage/**",
-        "packages/*/test/**",
         "test/**",
         "tests/**",
         "test{,-*}.ts",
@@ -27,5 +26,5 @@
         "**/__tests__/**",
         "**/node_modules/**"
     ],
-    "temp-directory": "./coverage/.nyc_output"
+    "temp-dir": "./coverage/.nyc_output"
 }

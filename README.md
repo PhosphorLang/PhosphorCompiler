@@ -37,7 +37,7 @@ You need the following present on your system:
 
 ```bash
 npm install
-npm run compile
+npm run build
 ```
 
 ### **Get the standard library**

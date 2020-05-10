@@ -2,7 +2,7 @@
 
 A compiler for the Phosphor programming language.
 
-<br>
+<hr>
 
 ## **Table of contents**
 
@@ -18,7 +18,7 @@ A compiler for the Phosphor programming language.
     - [**The working features**](#the-working-features)
     - [**Examples**](#examples)
 
-<br>
+<hr>
 
 ## **Usage**
 
@@ -30,8 +30,6 @@ You need the following present on your system:
 - [NASM](https://nasm.us/) >= 2.13
 - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
 
-<br>
-
 ### **Compile the compiler**
 
 ```bash
@@ -39,15 +37,11 @@ npm install
 npm run compile
 ```
 
-<br>
-
 ### **Get the standard library**
 
 You will need the standard library for compiling Phosphor code. You can find it here:
 <https://github.com/PhosphorLang/StandardLibrary>. \
 Follow the instructions there to compile the standard library.
-
-<br>
 
 ### **Compile your code**
 
@@ -61,7 +55,7 @@ the git repository of the standard library next to the repository of the compile
 node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard library>/bin/standardLibrary.a
 ```
 
-<br>
+<hr>
 
 ## **Description**
 
@@ -79,8 +73,6 @@ node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard li
     - Creates an object file from the Assembly.
 6. Linker
     - Links the object files into an executable.
-
-<br>
 
 ### **The working features**
 
@@ -106,8 +98,6 @@ node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard li
 1. Function calls
     - As a statement
     - As an expression (with return value)
-
-<br>
 
 ### **Examples**
 

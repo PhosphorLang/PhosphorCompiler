@@ -82,21 +82,27 @@ describe('Lexer',
             new InputToTokenKind('return', TokenKind.ReturnKeyword, 'the return keyword'),
         ];
 
-        // Create a test case for every possible token:
-        for (const inputToTokenKind of inputToTokenKindList)
-        {
-            it(`can tokenise ${inputToTokenKind.text}.`,
-                function ()
+        describe('can tokenise',
+            function ()
+            {
+                // Create a test case for every possible token:
+                for (const inputToTokenKind of inputToTokenKindList)
                 {
-                    const lexer = new Lexer();
+                    it(`${inputToTokenKind.text}.`,
+                        function ()
+                        {
+                            const lexer = new Lexer();
 
-                    const result = lexer.run(inputToTokenKind.input, 'testFile', false);
+                            const result = lexer.run(inputToTokenKind.input, 'testFile', false);
 
-                    assert.strictEqual(result.length, 1);
-                    assert.strictEqual(result[0].kind, inputToTokenKind.tokenKind);
+                            assert.strictEqual(result.length, 1);
+                            assert.strictEqual(result[0].kind, inputToTokenKind.tokenKind);
+                        }
+                    );
                 }
-            );
-        }
+
+            }
+        );
 
         describe('can handle non-delimited combinations',
             function ()

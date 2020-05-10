@@ -31,7 +31,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile', false);
+                const result = lexer.run(input, Defaults.fileName, false);
 
                 assert.isEmpty(result);
             }
@@ -44,7 +44,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile', false);
+                const result = lexer.run(input, Defaults.fileName, false);
 
                 assert.isEmpty(result);
             }
@@ -145,7 +145,7 @@ describe('Lexer',
 
                 const lexer = new Lexer();
 
-                const result = lexer.run(input, 'testFile');
+                const result = lexer.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -159,7 +159,7 @@ describe('Lexer',
                 const lexer = new Lexer();
 
                 assert.throws(
-                    (): void => { lexer.run(input, 'testFile', false); },
+                    (): void => { lexer.run(input, Defaults.fileName, false); },
                     UnterminatedStringError
                 );
             }
@@ -173,7 +173,7 @@ describe('Lexer',
                 const lexer = new Lexer();
 
                 assert.throws(
-                    (): void => { lexer.run(input, 'testFile', false); },
+                    (): void => { lexer.run(input, Defaults.fileName, false); },
                     UnterminatedStringError
                 );
             }
@@ -187,7 +187,7 @@ describe('Lexer',
                 const lexer = new Lexer();
 
                 assert.throws(
-                    (): void => { lexer.run(input, 'testFile', false); },
+                    (): void => { lexer.run(input, Defaults.fileName, false); },
                     UnknownSymbolError
                 );
             }

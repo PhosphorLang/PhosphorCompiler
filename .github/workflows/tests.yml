@@ -1,4 +1,4 @@
-name: Tests (linting, testing, coverage/coveralls)
+name: Tests
 
 on: ["push", "pull_request"]
 

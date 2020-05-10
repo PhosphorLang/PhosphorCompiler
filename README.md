@@ -1,3 +1,6 @@
+![Tests](https://github.com/PhosphorLang/Compiler/workflows/Tests)/badge.svg)
+[![Coverage](https://coveralls.io/repos/github/PhosphorLang/Compiler/badge.svg?branch=master)](https://coveralls.io/github/PhosphorLang/Compiler?branch=master)
+
 # **The Phosphor Compiler**
 
 A compiler for the Phosphor programming language.

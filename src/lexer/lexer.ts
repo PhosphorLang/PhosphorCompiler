@@ -109,6 +109,8 @@ export default class Lexer
                 }
                 else
                 {
+                    this.position--;
+
                     kind = TokenKind.ColonToken;
                 }
                 break;

@@ -50,14 +50,11 @@ describe('Lexer',
             }
         );
 
-        // A list of inputs to their resulting token kind to automatically create tests out of that:
-        const inputToTokenKindList: InputToTokenKind[] = [
-            new InputToTokenKind('myIdentifier', TokenKind.IdentifierToken, 'an identifier'),
-            new InputToTokenKind('8', TokenKind.IntegerToken, 'a single digit integer literal'),
-            new InputToTokenKind('24', TokenKind.IntegerToken, 'a multi digit integer literal'),
+
+        // A list of inputs to their resulting token kind to automatically create combination tests out of that.
+        // This lists only include the tokens that do not need any delimiters to other tokens (e.g. spaces).
+        const nonDelimitedInputToTokenKindList: InputToTokenKind[] = [
             new InputToTokenKind("'a'", TokenKind.StringToken, 'a single char string literal'),
-            new InputToTokenKind("'abc'", TokenKind.StringToken, 'a multi char string literal'),
-            new InputToTokenKind("'my string'", TokenKind.StringToken, 'a string literal containing whitespace'),
             new InputToTokenKind('(', TokenKind.OpeningParenthesisToken, 'an opening parenthesis'),
             new InputToTokenKind(')', TokenKind.ClosingParenthesisToken, 'a closing parenthesis'),
             new InputToTokenKind('{', TokenKind.OpeningBraceToken, 'an opening brace'),
@@ -70,6 +67,16 @@ describe('Lexer',
             new InputToTokenKind('-', TokenKind.MinusOperator, 'a minus operator'),
             new InputToTokenKind('*', TokenKind.StarOperator, 'a star operator'),
             new InputToTokenKind('/', TokenKind.SlashOperator, 'a slash operator'),
+        ];
+
+        // A list of inputs to their resulting token kind to automatically create tests out of that:
+        const inputToTokenKindList: InputToTokenKind[] = [
+            ...nonDelimitedInputToTokenKindList,
+            new InputToTokenKind("'abc'", TokenKind.StringToken, 'a multi char string literal'),
+            new InputToTokenKind("'my string'", TokenKind.StringToken, 'a string literal containing whitespace'),
+            new InputToTokenKind('myIdentifier', TokenKind.IdentifierToken, 'an identifier'),
+            new InputToTokenKind('8', TokenKind.IntegerToken, 'a single digit integer literal'),
+            new InputToTokenKind('24', TokenKind.IntegerToken, 'a multi digit integer literal'),
             new InputToTokenKind('var', TokenKind.VarKeyword, 'the var keyword'),
             new InputToTokenKind('function', TokenKind.FunctionKeyword, 'the function keyword'),
             new InputToTokenKind('return', TokenKind.ReturnKeyword, 'the return keyword'),
@@ -90,6 +97,33 @@ describe('Lexer',
                 }
             );
         }
+
+        describe('can handle non-delimited combinations',
+            function ()
+            {
+                // Create a test case for every possible non-delimited token combination:
+                for (const leftInputToTokenKind of nonDelimitedInputToTokenKindList)
+                {
+                    for (const rightInputToTokenKind of nonDelimitedInputToTokenKindList)
+                    {
+                        it(`of ${leftInputToTokenKind.text} and ${rightInputToTokenKind.text}.`,
+                            function ()
+                            {
+                                const input = leftInputToTokenKind.input + rightInputToTokenKind.input;
+
+                                const lexer = new Lexer();
+
+                                const result = lexer.run(input, 'testFile', false);
+
+                                assert.strictEqual(result.length, 2);
+                                assert.strictEqual(result[0].kind, leftInputToTokenKind.tokenKind);
+                                assert.strictEqual(result[1].kind, rightInputToTokenKind.tokenKind);
+                            }
+                        );
+                    }
+                }
+            }
+        );
 
         it('sets correct line information.',
             function ()

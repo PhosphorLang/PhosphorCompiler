@@ -4,14 +4,14 @@ import SemanticNode from "./semanticNode";
 
 export default class FileSemanticNode extends SemanticNode
 {
-    public readonly fileName: string;
+    public readonly name: string;
     public functions: FunctionSemanticNode[];
 
-    constructor (fileName: string, functions: FunctionSemanticNode[])
+    constructor (name: string, functions: FunctionSemanticNode[])
     {
         super(SemanticKind.File);
 
-        this.fileName = fileName;
+        this.name = name;
         this.functions = functions;
     }
 }

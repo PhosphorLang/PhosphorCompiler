@@ -4,7 +4,7 @@ import SyntaxNode from "./syntaxNode";
 
 export default class FileSyntaxNode extends SyntaxNode
 {
-    public readonly fileName: string;
+    public readonly name: string;
     public readonly functions: FunctionDeclarationSyntaxNode[];
 
     public get children (): Iterable<SyntaxNode>
@@ -12,11 +12,11 @@ export default class FileSyntaxNode extends SyntaxNode
         return this.functions;
     }
 
-    constructor (fileName: string, functions: FunctionDeclarationSyntaxNode[])
+    constructor (name: string, functions: FunctionDeclarationSyntaxNode[])
     {
         super(SyntaxKind.File);
 
-        this.fileName = fileName;
+        this.name = name;
         this.functions = functions;
     }
 }

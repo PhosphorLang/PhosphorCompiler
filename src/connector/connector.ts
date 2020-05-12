@@ -60,14 +60,14 @@ export default class Connector
         this.functions.set(BuildInFunctions.print.name, BuildInFunctions.print); // TODO: This is really ugly...
     }
 
-    private connectFile (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
+    private connectFile (file: SyntaxNodes.File): SemanticNodes.File
     {
-        this.fileName = fileSyntaxNode.fileName;
+        this.fileName = file.name;
 
         const functionNodes: SemanticNodes.Function[] = [];
 
         // Function declarations:
-        for (const functionDeclaration of fileSyntaxNode.functions)
+        for (const functionDeclaration of file.functions)
         {
             const functionSymbol = this.connectFunctionDeclaration(functionDeclaration);
 
@@ -75,14 +75,14 @@ export default class Connector
         }
 
         // Function bodies:
-        for (const functionDeclaration of fileSyntaxNode.functions)
+        for (const functionDeclaration of file.functions)
         {
             const functionNode = this.connectFunction(functionDeclaration);
 
             functionNodes.push(functionNode);
         }
 
-        return new SemanticNodes.File(fileSyntaxNode.fileName, functionNodes);
+        return new SemanticNodes.File(file.name, functionNodes);
     }
 
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function

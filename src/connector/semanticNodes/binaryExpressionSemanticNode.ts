@@ -5,8 +5,8 @@ import SemanticKind from "../semanticKind";
 export default class BinaryExpressionSemanticNode extends ExpressionSemanticNode
 {
     public readonly operator: BinarySemanticOperator;
-    public readonly leftOperand: ExpressionSemanticNode;
-    public readonly rightOperand: ExpressionSemanticNode;
+    public leftOperand: ExpressionSemanticNode;
+    public rightOperand: ExpressionSemanticNode;
 
     constructor (operator: BinarySemanticOperator, leftOperand: ExpressionSemanticNode, rightOperand: ExpressionSemanticNode)
     {

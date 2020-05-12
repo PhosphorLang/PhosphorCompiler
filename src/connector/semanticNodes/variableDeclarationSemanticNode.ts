@@ -6,7 +6,7 @@ import VariableSemanticSymbol from "../semanticSymbols/variableSemanticSymbol";
 export default class VariableDeclarationSemanticNode extends SemanticNode
 {
     public readonly symbol: VariableSemanticSymbol;
-    public readonly initialiser: ExpressionSemanticNode|null;
+    public initialiser: ExpressionSemanticNode|null;
 
     constructor (symbol: VariableSemanticSymbol, initialiser: ExpressionSemanticNode|null)
     {

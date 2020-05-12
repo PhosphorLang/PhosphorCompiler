@@ -4,7 +4,7 @@ import SemanticNode from "./semanticNode";
 
 export default class ReturnStatementSemanticNode extends SemanticNode
 {
-    public readonly expression: ExpressionSemanticNode|null;
+    public expression: ExpressionSemanticNode|null;
 
     constructor (expression: ExpressionSemanticNode|null)
     {

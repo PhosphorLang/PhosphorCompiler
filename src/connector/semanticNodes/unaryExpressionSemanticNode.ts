@@ -5,7 +5,7 @@ import UnarySemanticOperator from "../semanticOperators/unarySemanticOperator";
 export default class UnaryExpressionSemanticNode extends ExpressionSemanticNode
 {
     public readonly operator: UnarySemanticOperator;
-    public readonly operand: ExpressionSemanticNode;
+    public operand: ExpressionSemanticNode;
 
     constructor (operator: UnarySemanticOperator, operand: ExpressionSemanticNode)
     {

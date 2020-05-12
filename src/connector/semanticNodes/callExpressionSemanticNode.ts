@@ -5,7 +5,7 @@ import SemanticKind from "../semanticKind";
 export default class CallExpressionSemanticNode extends ExpressionSemanticNode
 {
     public readonly functionSymbol: FunctionSemanticSymbol;
-    public readonly arguments: ExpressionSemanticNode[];
+    public arguments: ExpressionSemanticNode[];
 
     constructor (functionSymbol: FunctionSemanticSymbol, callArguments: ExpressionSemanticNode[])
     {

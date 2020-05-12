@@ -5,7 +5,7 @@ import SemanticNode from "./semanticNode";
 export default class FileSemanticNode extends SemanticNode
 {
     public readonly fileName: string;
-    public readonly functions: FunctionSemanticNode[];
+    public functions: FunctionSemanticNode[];
 
     constructor (fileName: string, functions: FunctionSemanticNode[])
     {

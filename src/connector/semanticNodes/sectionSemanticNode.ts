@@ -3,7 +3,7 @@ import SemanticNode from "./semanticNode";
 
 export default class SectionSemanticNode extends SemanticNode
 {
-    public readonly statements: SemanticNode[];
+    public statements: SemanticNode[];
 
     constructor (statements: SemanticNode[])
     {

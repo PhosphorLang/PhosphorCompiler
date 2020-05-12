@@ -64,7 +64,7 @@ export default class Connector
     {
         this.fileName = file.name;
 
-        const functionNodes: SemanticNodes.Function[] = [];
+        const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
 
         // Function declarations:
         for (const functionDeclaration of file.functions)
@@ -145,7 +145,7 @@ export default class Connector
         return parameterSymbols;
     }
 
-    private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.Function
+    private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
     {
         const symbol = this.functions.get(functionDeclaration.identifier.content) as SemanticSymbols.Function;
         // The function symbol must exist because we added it previously based on the same function declarations.
@@ -156,7 +156,7 @@ export default class Connector
 
         this.currentFunction = null;
 
-        return new SemanticNodes.Function(symbol, section);
+        return new SemanticNodes.FunctionDeclaration(symbol, section);
     }
 
     private connectSection (sectionSyntaxNode: SyntaxNodes.Section): SemanticNodes.Section

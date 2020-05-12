@@ -5,7 +5,7 @@ export { default as BinaryExpression } from "./binaryExpressionSemanticNode";
 export { default as CallExpression } from "./callExpressionSemanticNode";
 export { default as Expression } from "./expressionSemanticNode";
 export { default as File } from "./fileSemanticNode";
-export { default as Function } from "./functionSemanticNode";
+export { default as FunctionDeclaration } from "./functionDeclarationSemanticNode";
 export { default as LiteralExpression } from "./literalExpressionSemanticNode";
 export { default as ReturnStatement } from "./returnStatementSemanticNode";
 export { default as Section } from "./sectionSemanticNode";

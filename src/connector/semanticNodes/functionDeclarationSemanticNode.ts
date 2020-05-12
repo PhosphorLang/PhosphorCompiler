@@ -3,7 +3,7 @@ import SectionSemanticNode from "./sectionSemanticNode";
 import SemanticKind from "../semanticKind";
 import SemanticNode from "./semanticNode";
 
-export default class FunctionSemanticNode extends SemanticNode
+export default class FunctionDeclarationSemanticNode extends SemanticNode
 {
     public readonly symbol: FunctionSemanticSymbol;
     public section: SectionSemanticNode;

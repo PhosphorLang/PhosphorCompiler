@@ -7,14 +7,17 @@ import Defaults from "./defaults";
 
 export default abstract class SemanticCreator
 {
-    public static newFile (functions: SemanticNodes.Function[] = [], fileName = Defaults.fileName): SemanticNodes.File
+    public static newFile (functions: SemanticNodes.FunctionDeclaration[] = [], fileName = Defaults.fileName): SemanticNodes.File
     {
         return new SemanticNodes.File(fileName, functions);
     }
 
-    public static newFunctionDeclaration (section = SemanticCreator.newSection(), symbol = SemanticCreator.newFunctionSymbol()): SemanticNodes.Function
+    public static newFunctionDeclaration (
+        section = SemanticCreator.newSection(),
+        symbol = SemanticCreator.newFunctionSymbol()
+    ): SemanticNodes.FunctionDeclaration
     {
-        return new SemanticNodes.Function(symbol, section);
+        return new SemanticNodes.FunctionDeclaration(symbol, section);
     }
 
     public static newSection (statements: SemanticNodes.SemanticNode[] = []): SemanticNodes.Section

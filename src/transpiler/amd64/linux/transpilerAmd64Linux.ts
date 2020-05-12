@@ -70,7 +70,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         return assembly;
     }
 
-    private transpileFunction (functionNode: SemanticNodes.Function): void
+    private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void
     {
         this.code.push(functionNode.symbol.name + ':'); // Function name
 

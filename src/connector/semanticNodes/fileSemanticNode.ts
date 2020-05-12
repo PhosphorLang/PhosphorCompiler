@@ -1,13 +1,13 @@
-import FunctionSemanticNode from "./functionSemanticNode";
+import FunctionDeclarationSemanticNode from "./functionDeclarationSemanticNode";
 import SemanticKind from "../semanticKind";
 import SemanticNode from "./semanticNode";
 
 export default class FileSemanticNode extends SemanticNode
 {
     public readonly name: string;
-    public functions: FunctionSemanticNode[];
+    public functions: FunctionDeclarationSemanticNode[];
 
-    constructor (name: string, functions: FunctionSemanticNode[])
+    constructor (name: string, functions: FunctionDeclarationSemanticNode[])
     {
         super(SemanticKind.File);
 

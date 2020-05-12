@@ -2,19 +2,16 @@ name: Tests
 
 on: ["push", "pull_request"]
 
-env:
-  CI: true
-
 jobs:
-  test:
-    name: Run linting, tests and coverage with Node.js 12.x on latest Ubuntu # TODO: Switch to a matrix
+  linting:
+    name: Linting
     runs-on: ubuntu-latest
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -25,8 +22,59 @@ jobs:
       - name: Run linter
         run: npm run lint
 
+  testing:
+    name: Running tests
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [12.x]
+        experimental: [false]
+        include:
+          - os: ubuntu-latest
+            node: 14.x
+            experimental: true
+          - os: windows-latest
+            node: 12.x
+            experimental: true
+          - os: macos-latest
+            node: 12.x
+            experimental: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install npm dependencies
+        run: npm install # TODO: Switch to npm ci
+
       - name: Run tests
-        run: npm run coverage:coveralls # The coveralls coverage runs the tests
+        run: npm run test
+
+  coverage:
+    name: Coverage with Coveralls
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Install npm dependencies
+        run: npm install # TODO: Switch to npm ci
+
+      - name: Run coverage
+        run: npm run coverage:coveralls
 
       - name: Coveralls
         uses: coverallsapp/github-action@master

@@ -10,16 +10,16 @@ A compiler for the Phosphor programming language.
 ## **Table of contents**
 
 - [**The Phosphor Compiler**](#the-phosphor-compiler)
-  - [**Table of contents**](#table-of-contents)
-  - [**Usage**](#usage)
-    - [**External Dependencies**](#external-dependencies)
-    - [**Compile the compiler**](#compile-the-compiler)
-    - [**Get the standard library**](#get-the-standard-library)
-    - [**Compile your code**](#compile-your-code)
-  - [**Description**](#description)
-    - [**Components**](#components)
-    - [**The working features**](#the-working-features)
-    - [**Examples**](#examples)
+    - [**Table of contents**](#table-of-contents)
+    - [**Usage**](#usage)
+        - [**External Dependencies**](#external-dependencies)
+        - [**Compile the compiler**](#compile-the-compiler)
+        - [**Get the standard library**](#get-the-standard-library)
+        - [**Compile your code**](#compile-your-code)
+    - [**Description**](#description)
+        - [**Components**](#components)
+        - [**The working features**](#the-working-features)
+        - [**Examples**](#examples)
 
 <hr>
 

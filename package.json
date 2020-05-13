@@ -46,9 +46,10 @@
     "main": "bin/main.js",
     "scripts": {
         "build": "npx tsc",
-        "clean": "rm -r bin",
+        "clean": "rm -r bin && rm -r tmp && rm -r coverage",
         "coverage": "npx nyc npm run test",
         "coverage:coveralls": "npx nyc --reporter=lcov npm run test",
+        "coverage:text": "npx nyc --reporter=text npm run test",
         "lint": "npx eslint src/**/*.ts",
         "prepack": "npm run clean && npx tsc -p tsconfig.release.json",
         "start": "node bin/main.js",

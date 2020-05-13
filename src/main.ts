@@ -6,6 +6,7 @@ import Connector from './connector/connector';
 import fs from 'fs';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
+import Lowerer from './lowerer/lowerer';
 import Parser from './parser/parser';
 import ProcessArguments from './processArguments';
 import Transpiler from './transpiler/transpiler';
@@ -26,6 +27,7 @@ class Main
         const parser = new Parser();
         const connector = new Connector();
         const transpiler: Transpiler = new TranspilerAmd64Linux();
+        const lowerer = new Lowerer();
         const assembler: Assembler = new AssemblerAmd64Linux();
         const linker = new Linker();
 
@@ -37,7 +39,8 @@ class Main
             const tokens = lexer.run(fileContent, this.arguments.filePath);
             const syntaxTree = parser.run(tokens, this.arguments.filePath);
             const semanticTree = connector.run(syntaxTree);
-            assembly = transpiler.run(semanticTree);
+            const loweredSemanticTree = lowerer.run(semanticTree);
+            assembly = transpiler.run(loweredSemanticTree);
         }
         catch (error)
         {

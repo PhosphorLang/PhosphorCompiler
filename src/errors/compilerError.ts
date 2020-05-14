@@ -3,12 +3,12 @@ import LineInformation from "../definitions/lineInformation";
 
 export default class CompilerError extends Error
 {
-    constructor (message: string, fileName: string, lineInformation: LineInformation)
+    constructor (message: string, lineInformation: LineInformation)
     {
         const fullMessage =
-            chalk.blueBright(fileName) + ':' +
-            chalk.yellowBright(lineInformation.line) + ':' +
-            chalk.yellowBright(lineInformation.column) + ' - ' +
+            chalk.blueBright(lineInformation.fileName) + ':' +
+            chalk.yellowBright(lineInformation.lineNumber) + ':' +
+            chalk.yellowBright(lineInformation.columnNumber) + ' - ' +
             chalk.redBright('Error') + ': ' +
             message + '.';
 

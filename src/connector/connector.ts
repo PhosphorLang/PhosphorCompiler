@@ -12,7 +12,6 @@ import { SyntaxNode } from "../parser/syntaxNodes";
 
 export default class Connector
 {
-    private fileName: string;
     /**
      * A list of functions, global to the file.
      * This is filled before the function bodies are connected, so every function can reference every other function,
@@ -35,7 +34,6 @@ export default class Connector
 
     constructor ()
     {
-        this.fileName = '';
         this.functions = new Map<string, SemanticSymbols.Function>();
         this.variables = [];
         this.currentFunction = null;
@@ -43,7 +41,6 @@ export default class Connector
 
     public run (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
     {
-        this.fileName = '';
         this.functions.clear();
         this.variables = [];
         this.currentFunction = null;
@@ -62,8 +59,6 @@ export default class Connector
 
     private connectFile (file: SyntaxNodes.File): SemanticNodes.File
     {
-        this.fileName = file.name;
-
         const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
 
         // Function declarations:
@@ -106,7 +101,7 @@ export default class Connector
 
             if (type === null)
             {
-                throw new CompilerError(`Unknown type "${typeClause.identifier.content}"`, this.fileName, typeClause.identifier);
+                throw new CompilerError(`Unknown type "${typeClause.identifier.content}"`, typeClause.identifier);
             }
 
             return type;
@@ -125,7 +120,7 @@ export default class Connector
 
             if (names.has(name))
             {
-                throw new CompilerError(`Duplicate parameter name "${name}`, this.fileName, parameter.identifier);
+                throw new CompilerError(`Duplicate parameter name "${name}`, parameter.identifier);
             }
 
             names.add(name);
@@ -134,7 +129,7 @@ export default class Connector
 
             if (type === null)
             {
-                throw new CompilerError('Parameters must have a type clause given', this.fileName, parameter.identifier);
+                throw new CompilerError('Parameters must have a type clause given', parameter.identifier);
             }
 
             const parameterSymbol = new SemanticSymbols.Parameter(name, type);
@@ -209,7 +204,6 @@ export default class Connector
             {
                 throw new CompilerError(
                     `The variable "${name}" must either have a type clause or an initialiser`,
-                    this.fileName,
                     variableDeclaration.identifier
                 );
             }
@@ -226,7 +220,7 @@ export default class Connector
                  We should prevent that by checking all stacks and disallow temporary redefinitions. */
         if (this.currentVariableStack.has(name))
         {
-            throw new CompilerError(`Duplicate declaration of variable "${name}`, this.fileName, variableDeclaration.identifier);
+            throw new CompilerError(`Duplicate declaration of variable "${name}`, variableDeclaration.identifier);
         }
 
         this.currentVariableStack.set(name, symbol);
@@ -238,7 +232,7 @@ export default class Connector
     {
         if (this.currentFunction === null)
         {
-            throw new CompilerError('Found return statement in non-function environment', this.fileName, returnStatement.keyword);
+            throw new CompilerError('Found return statement in non-function environment', returnStatement.keyword);
         }
 
         let expression: SemanticNodes.Expression|null = null;
@@ -252,18 +246,18 @@ export default class Connector
         {
             if (expression !== null)
             {
-                throw new CompilerError('A function without a return type must return nothing.', this.fileName, returnStatement.keyword);
+                throw new CompilerError('A function without a return type must return nothing.', returnStatement.keyword);
             }
         }
         else
         {
             if (expression === null)
             {
-                throw new CompilerError('A function with a return type must not return nothing.', this.fileName, returnStatement.keyword);
+                throw new CompilerError('A function with a return type must not return nothing.', returnStatement.keyword);
             }
             else if (expression.type != this.currentFunction.returnType)
             {
-                throw new CompilerError('The return type does not match the function type.', this.fileName, returnStatement.keyword);
+                throw new CompilerError('The return type does not match the function type.', returnStatement.keyword);
             }
         }
 
@@ -278,12 +272,12 @@ export default class Connector
 
         if (variable === undefined)
         {
-            throw new CompilerError(`Unknown variable "${name}"`, this.fileName, assignment.identifier);
+            throw new CompilerError(`Unknown variable "${name}"`, assignment.identifier);
         }
 
         if (variable.isReadonly)
         {
-            throw new CompilerError(`"${name}" is readonly, an assignment is not allowed`, this.fileName, assignment.identifier);
+            throw new CompilerError(`"${name}" is readonly, an assignment is not allowed`, assignment.identifier);
         }
 
         const expression = this.connectExpression(assignment.expression);
@@ -333,7 +327,7 @@ export default class Connector
 
         if (variable === undefined)
         {
-            throw new CompilerError(`Unknown variable "${name}"`, this.fileName, expression.identifier);
+            throw new CompilerError(`Unknown variable "${name}"`, expression.identifier);
         }
 
         return new SemanticNodes.VariableExpression(variable);
@@ -345,7 +339,7 @@ export default class Connector
 
         if (functionSymbol === undefined)
         {
-            throw new CompilerError(`Unknown function "${expression.identifier.content}"`, this.fileName, expression.identifier);
+            throw new CompilerError(`Unknown function "${expression.identifier.content}"`, expression.identifier);
         }
 
         const callArguments: SemanticNodes.Expression[] = [];
@@ -360,7 +354,6 @@ export default class Connector
         {
             throw new CompilerError(
                 `Wrong argument count for function "${expression.identifier.content}"`,
-                this.fileName,
                 expression.identifier
             );
         }
@@ -371,7 +364,6 @@ export default class Connector
             {
                 throw new CompilerError(
                     `Wrong type for argument "${functionSymbol.parameters[i].name}".`,
-                    this.fileName,
                     expression.identifier
                 );
             }
@@ -393,7 +385,7 @@ export default class Connector
 
         if (operator === null)
         {
-            throw new CompilerError(`Unknown unary operator "${expression.operator.content}"`, this.fileName, expression.operator);
+            throw new CompilerError(`Unknown unary operator "${expression.operator.content}"`, expression.operator);
         }
 
         return new SemanticNodes.UnaryExpression(operator, operand);
@@ -408,7 +400,7 @@ export default class Connector
 
         if (operator === null)
         {
-            throw new CompilerError(`Unknown binary operator "${expression.operator.content}"`, this.fileName, expression.operator);
+            throw new CompilerError(`Unknown binary operator "${expression.operator.content}"`, expression.operator);
         }
 
         return new SemanticNodes.BinaryExpression(operator, leftOperand, rightOperand);

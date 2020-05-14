@@ -5,14 +5,16 @@ export default class Token implements LineInformation
 {
     public readonly kind: TokenKind;
     public readonly content: string;
-    public readonly line: number;
-    public readonly column: number;
+    public readonly fileName: string;
+    public readonly lineNumber: number;
+    public readonly columnNumber: number;
 
-    constructor (kind: TokenKind, content: string, line = 0, column = 0)
+    constructor (kind: TokenKind, content: string, fileName = '', line = 0, column = 0)
     {
         this.kind = kind;
         this.content = content;
-        this.line = line;
-        this.column = column;
+        this.fileName = fileName;
+        this.lineNumber = line;
+        this.columnNumber = column;
     }
 }

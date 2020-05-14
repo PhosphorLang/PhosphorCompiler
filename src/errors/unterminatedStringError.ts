@@ -3,10 +3,10 @@ import LineInformation from "../definitions/lineInformation";
 
 export default class UnterminatedStringError extends CompilerError
 {
-    constructor (fileName: string, lineInformation: LineInformation)
+    constructor (lineInformation: LineInformation)
     {
         const message = 'Unterminated string';
 
-        super(message, fileName, lineInformation);
+        super(message, lineInformation);
     }
 }

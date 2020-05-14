@@ -93,7 +93,7 @@ export default class Parser
                     break;
                 }
                 default:
-                    throw new InvalidTokenError('Invalid token in file scope', this.fileName, this.currentToken);
+                    throw new InvalidTokenError('Invalid token in file scope', this.currentToken);
             }
         }
 
@@ -145,7 +145,7 @@ export default class Parser
 
         if (type === null)
         {
-            throw new CompilerError('Missing type clause in parameter definition', this.fileName, identifier);
+            throw new CompilerError('Missing type clause in parameter definition', identifier);
         }
 
         return new SyntaxNodes.FunctionParameter(identifier, type);
@@ -220,7 +220,7 @@ export default class Parser
         }
         else if (result.kind != SyntaxKind.Section) // No semicolon needed after a section.
         {
-            throw new InvalidTokenError('Missing semicolon after statement', this.fileName, this.currentToken);
+            throw new InvalidTokenError('Missing semicolon after statement', this.currentToken);
         }
 
         return result;
@@ -258,7 +258,7 @@ export default class Parser
                 type = this.parseTypeClause();
                 break;
             default:
-                throw new UnexpectedTokenError('variable declaration identifier', this.fileName, this.followerToken);
+                throw new UnexpectedTokenError('variable declaration identifier', this.followerToken);
         }
 
         return new SyntaxNodes.VariableDeclaration(keyword, identifier, type, assignment, initialiser);
@@ -351,7 +351,7 @@ export default class Parser
             case TokenKind.IdentifierToken:
                 return this.parseIdentifierExpression();
             default:
-                throw new UnknownTokenError('expression', this.fileName, this.currentToken);
+                throw new UnknownTokenError('expression', this.currentToken);
         }
     }
 

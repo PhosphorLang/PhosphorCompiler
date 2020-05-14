@@ -152,7 +152,14 @@ export default class Lexer
                 }
                 else
                 {
-                    throw new UnknownSymbolError(content, this.fileName, {line: this.line, column: this.column});
+                    throw new UnknownSymbolError(
+                        content,
+                        {
+                            fileName: this.fileName,
+                            lineNumber: this.line,
+                            columnNumber: this.column
+                        }
+                    );
                 }
 
                 content = readResult.content;
@@ -163,7 +170,7 @@ export default class Lexer
         let token: Token;
         if (setLineInfo)
         {
-            token = new Token(kind, content, this.line, this.column);
+            token = new Token(kind, content, this.fileName, this.line, this.column);
         }
         else
         {
@@ -186,7 +193,13 @@ export default class Lexer
             {
                 case '':
                 case "\n":
-                    throw new UnterminatedStringError(this.fileName, {line: this.line, column: this.column});
+                    throw new UnterminatedStringError(
+                        {
+                            fileName: this.fileName,
+                            lineNumber: this.line,
+                            columnNumber: this.column
+                        }
+                    );
                 case "'":
                     continueReading = false;
                     break;

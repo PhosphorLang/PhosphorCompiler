@@ -5,9 +5,9 @@ import TokenKind from '../../src/lexer/tokenKind';
 
 export default abstract class TokenCreator
 {
-    public static newIdentifier (identifier = Defaults.identifier, line = 0, column = 0): Token
+    public static newIdentifier (identifier = Defaults.identifier, line = 0, column = 0, fileName = Defaults.fileName): Token
     {
-        return new Token(TokenKind.IdentifierToken, identifier, line, column);
+        return new Token(TokenKind.IdentifierToken, identifier, fileName, line, column);
     }
 
     public static newVariableIdentifier (identifier = Defaults.variableName): Token

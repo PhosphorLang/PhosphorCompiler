@@ -16,14 +16,6 @@ jobs:
         with:
           node-version: 12.x
 
-      - name: Initialise the npm cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-node-12.x
-          restore-keys: |
-            npm-${{ runner.os }}-node-12.x
-
       - name: Install npm dependencies
         run: npm install
 

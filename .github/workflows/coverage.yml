@@ -1,0 +1,28 @@
+name: Coverage
+
+on: ["push", "pull_request"]
+
+jobs:
+  coverage:
+    name: Coverage with Coveralls
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Run coverage
+        run: npm run coverage:coveralls
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,4 +1,4 @@
-name: Tests
+name: Test
 
 on: ["push", "pull_request"]
 
@@ -17,7 +17,7 @@ jobs:
           node-version: 12.x
 
       - name: Install npm dependencies
-        run: npm install # TODO: Switch to npm ci
+        run: npm install
 
       - name: Run linter
         run: npm run lint
@@ -52,31 +52,7 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install npm dependencies
-        run: npm install # TODO: Switch to npm ci
+        run: npm install
 
       - name: Run tests
-        run: npm run test
-
-  coverage:
-    name: Coverage with Coveralls
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-
-      - name: Install npm dependencies
-        run: npm install # TODO: Switch to npm ci
-
-      - name: Run coverage
-        run: npm run coverage:coveralls
-
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        run: npm test

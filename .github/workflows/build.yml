@@ -1,0 +1,39 @@
+name: Build
+
+on: ["push", "pull_request"]
+
+jobs:
+  building:
+    name: Building
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [12.x]
+        experimental: [false]
+        include:
+          - os: ubuntu-latest
+            node: 14.x
+            experimental: true
+          - os: windows-latest
+            node: 12.x
+            experimental: true
+          - os: macos-latest
+            node: 12.x
+            experimental: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build

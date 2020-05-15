@@ -1,4 +1,5 @@
-[![Tests](https://github.com/PhosphorLang/Compiler/workflows/Tests/badge.svg)](https://github.com/PhosphorLang/Compiler/actions)
+[![Build](https://github.com/PhosphorLang/Compiler/workflows/Build/badge.svg)](https://github.com/PhosphorLang/Compiler/actions)
+[![Test](https://github.com/PhosphorLang/Compiler/workflows/Test/badge.svg)](https://github.com/PhosphorLang/Compiler/actions)
 [![Coverage](https://coveralls.io/repos/github/PhosphorLang/Compiler/badge.svg?branch=master)](https://coveralls.io/github/PhosphorLang/Compiler?branch=master)
 
 # **The Phosphor Compiler**

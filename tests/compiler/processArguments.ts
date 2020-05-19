@@ -1,64 +1,50 @@
 import 'mocha';
 import { assert } from 'chai';
-
-import MissingArgumentError from '../../src/errors/missingArgumentError';
 import ProcessArguments from '../../src/processArguments';
 
 describe('ProcessArguments',
     function ()
     {
-        beforeEach(
+        it('recognises in and out file.',
             function ()
             {
-                process.argv = [
-                    'main.js',
+                const argv: string[] = [
+                    'inFile',
+                    'outFile',
                 ];
+
+                const processArguments = new ProcessArguments(argv);
+
+                assert.deepStrictEqual(processArguments.filePath, 'inFile');
+                assert.deepStrictEqual(processArguments.outputPath, 'outFile');
             }
         );
 
-        it('recognises short arguments.',
+        it('recognises standard library.',
             function ()
             {
-                process.argv.push(
-                    '-f', 'a',
-                    '-o', 'b',
-                );
+                const argv: string[] = [
+                    '--standardLibrary', 'standardLibrary',
+                    'inFile',
+                    'outFile',
+                ];
 
-                const processArguments = new ProcessArguments();
+                const processArguments = new ProcessArguments(argv);
 
-                assert.deepStrictEqual(processArguments.filePath, 'a');
-                assert.deepStrictEqual(processArguments.outputPath, 'b');
-            }
-        );
-
-        it('recognises long arguments.',
-            function ()
-            {
-                process.argv.push(
-                    '--file', 'a',
-                    '--output', 'b',
-                );
-
-                const processArguments = new ProcessArguments();
-
-                assert.deepStrictEqual(processArguments.filePath, 'a');
-                assert.deepStrictEqual(processArguments.outputPath, 'b');
+                assert.deepStrictEqual(processArguments.standardLibraryPath, 'standardLibrary');
             }
         );
 
         it('throws when file argument is missing.',
             function ()
             {
-                process.argv.push(
-                    '--output', 'b',
-                );
+                const argv: string[] = [];
 
                 assert.throws(
                     (): void =>
                     {
-                        new ProcessArguments();
-                    },
-                    MissingArgumentError
+                        new ProcessArguments(argv);
+                    }
                 );
 
             }
@@ -67,16 +53,34 @@ describe('ProcessArguments',
         it('throws when output argument is missing.',
             function ()
             {
-                process.argv.push(
-                    '--file', 'a',
-                );
+                const argv: string[] = [
+                    'inFile',
+                ];
 
                 assert.throws(
                     (): void =>
                     {
-                        new ProcessArguments();
-                    },
-                    MissingArgumentError
+                        new ProcessArguments(argv);
+                    }
+                );
+
+            }
+        );
+
+        it('throws when standardLibrary option is set without any value.',
+            function ()
+            {
+                const argv: string[] = [
+                    '--standardLibrary',
+                    'inFile',
+                    'outFile',
+                ];
+
+                assert.throws(
+                    (): void =>
+                    {
+                        new ProcessArguments(argv);
+                    }
                 );
 
             }

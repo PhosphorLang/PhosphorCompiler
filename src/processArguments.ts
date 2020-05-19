@@ -1,4 +1,6 @@
-import MissingArgumentError from "./errors/missingArgumentError";
+import { Command, CommanderError } from 'commander';
+
+export type ProcessArgumentsError = CommanderError;
 
 export default class ProcessArguments
 {
@@ -6,46 +8,48 @@ export default class ProcessArguments
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
 
-    constructor ()
+    constructor (argv?: string[])
     {
-        let indexOfFileArgument = process.argv.indexOf('-f');
-        if (indexOfFileArgument === -1)
-        {
-            indexOfFileArgument = process.argv.indexOf('--file');
+        let filePath = '';
+        let outputPath = '';
 
-            if (indexOfFileArgument === -1)
+        let command = new Command();
+
+        command.exitOverride(
+            (error): void =>
             {
-                throw new MissingArgumentError('file path', '"-f <path>" or "--file <path>"');
+                // We do not want that command calls process.exit() directly. Instead, the error shall be thrown so that we can handle
+                // it later, either in the programme itself (and do not much with it) or, more importantly, in the unit tests to test
+                // whether there really has been an error.
+                throw error;
             }
-        }
+        );
 
-        let indexOfOutputArgument = process.argv.indexOf('-o');
-        if (indexOfOutputArgument === -1)
-        {
-            indexOfOutputArgument = process.argv.indexOf('--output');
+        command.name('phosphor');
 
-            if (indexOfOutputArgument === -1)
-            {
-                throw new MissingArgumentError('output file path', '"-o <path>" or "--output <path>"');
-            }
-        }
+        command
+            .arguments('<inputFile> <outputFile>')
+            .action(
+                (inputFile, outputFile) =>
+                {
+                    filePath = inputFile;
+                    outputPath = outputFile;
+                }
+            );
 
-        let indexOfStandardLibraryPath = process.argv.indexOf('-s');
-        if (indexOfStandardLibraryPath === -1)
-        {
-            indexOfStandardLibraryPath = process.argv.indexOf('--standardLibraryPath');
-        }
+        command
+            .option(
+                '-s, --standardLibrary <file>',
+                'File path to the compiled standard library',
+                'standardLibrary.a',
+            );
 
-        this.filePath = process.argv[indexOfFileArgument + 1];
-        this.outputPath = process.argv[indexOfOutputArgument + 1];
+        command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
-        if (indexOfStandardLibraryPath !== -1)
-        {
-            this.standardLibraryPath = process.argv[indexOfStandardLibraryPath + 1];
-        }
-        else
-        {
-            this.standardLibraryPath = 'standardLibrary.a';
-        }
+        // If the following would still be empty, the command parsing would have been thrown an error.
+        this.filePath = filePath;
+        this.outputPath = outputPath;
+
+        this.standardLibraryPath = command.standardLibrary;
     }
 }

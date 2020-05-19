@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import ProcessArguments, { ProcessArgumentsError } from './processArguments';
 import Assembler from './assembler/assembler';
 import AssemblerAmd64Linux from './assembler/amd64/linux/assemblerAmd64Linux';
 import Connector from './connector/connector';
@@ -8,7 +9,6 @@ import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
 import Lowerer from './lowerer/lowerer';
 import Parser from './parser/parser';
-import ProcessArguments from './processArguments';
 import Transpiler from './transpiler/transpiler';
 import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
 
@@ -18,7 +18,16 @@ class Main
 
     constructor ()
     {
-        this.arguments = new ProcessArguments();
+        try
+        {
+            this.arguments = new ProcessArguments();
+        }
+        catch (error)
+        {
+            const processArgumentsError = error as ProcessArgumentsError;
+
+            process.exit(processArgumentsError.exitCode);
+        }
     }
 
     public run (): void

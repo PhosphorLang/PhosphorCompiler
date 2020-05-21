@@ -39,7 +39,7 @@ class Main
 
         const lexer = new Lexer(diagnostic);
         const parser = new Parser(diagnostic);
-        const connector = new Connector();
+        const connector = new Connector(diagnostic);
         const transpiler: Transpiler = new TranspilerAmd64Linux();
         const lowerer = new Lowerer();
         const assembler: Assembler = new AssemblerAmd64Linux();

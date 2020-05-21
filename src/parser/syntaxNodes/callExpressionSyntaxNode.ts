@@ -16,6 +16,11 @@ export default class CallExpressionSyntaxNode extends ExpressionSyntaxNode
         return this.arguments.expressions;
     }
 
+    public get token (): Token
+    {
+        return this.identifier;
+    }
+
     constructor (identifier: Token, opening: Token, callArguments: CallArgumentsList, closing: Token)
     {
         super(SyntaxKind.CallExpression);

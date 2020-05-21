@@ -12,6 +12,11 @@ export default class VariableExpressionSyntaxNode extends ExpressionSyntaxNode
         return [];
     }
 
+    public get token (): Token
+    {
+        return this.identifier;
+    }
+
     constructor (identifier: Token)
     {
         super(SyntaxKind.VariableExpression);

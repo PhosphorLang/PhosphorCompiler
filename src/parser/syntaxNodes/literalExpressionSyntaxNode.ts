@@ -12,6 +12,11 @@ export default class LiteralExpressionSyntaxNode extends ExpressionSyntaxNode
         return [];
     }
 
+    public get token (): Token
+    {
+        return this.literal;
+    }
+
     constructor (literal: Token)
     {
         super(SyntaxKind.LiteralExpression);

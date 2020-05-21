@@ -14,6 +14,11 @@ export default class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxN
         return [this.expression];
     }
 
+    public get token (): Token
+    {
+        return this.openingToken;
+    }
+
     constructor (openingToken: Token, expression: ExpressionSyntaxNode, closingToken: Token)
     {
         super(SyntaxKind.ParenthesizedExpression);

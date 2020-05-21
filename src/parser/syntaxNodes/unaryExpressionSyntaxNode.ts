@@ -13,6 +13,11 @@ export default class UnaryExpressionSyntaxNode extends ExpressionSyntaxNode
         return [this.operand];
     }
 
+    public get token (): Token
+    {
+        return this.operator;
+    }
+
     constructor (operator: Token, operand: ExpressionSyntaxNode)
     {
         super(SyntaxKind.UnaryExpression);

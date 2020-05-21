@@ -14,6 +14,11 @@ export default class BinaryExpressionSyntaxNode extends ExpressionSyntaxNode
         return [this.leftSide, this.rightSide];
     }
 
+    public get token (): Token
+    {
+        return this.operator;
+    }
+
     constructor (leftSide: ExpressionSyntaxNode, operator: Token, rightSide: ExpressionSyntaxNode)
     {
         super(SyntaxKind.BinaryExpression);

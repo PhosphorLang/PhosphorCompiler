@@ -1,20 +1,31 @@
 import 'mocha';
 import { assert } from 'chai';
 import Connector from '../../src/connector/connector';
+import Diagnostic from '../../src/diagnostic/diagnostic';
 import SemanticCreator from '../utility/semanticCreator';
 import SyntaxCreator from '../utility/syntaxCreator';
 
 describe('Connector',
     function ()
     {
+        let diagnostic: Diagnostic;
+        let connector: Connector;
+
+        beforeEach(
+            function ()
+            {
+                diagnostic = new Diagnostic();
+
+                connector = new Connector(diagnostic);
+            }
+        );
+
         it('can connect an empty file.',
             function ()
             {
                 const input = SyntaxCreator.newFile();
 
                 const expectedResult = SemanticCreator.newFile();
-
-                const connector = new Connector();
 
                 const result = connector.run(input);
 
@@ -36,8 +47,6 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration()
                     ]
                 );
-
-                const connector = new Connector();
 
                 const result = connector.run(input);
 
@@ -71,8 +80,6 @@ describe('Connector',
                         )
                     ]
                 );
-
-                const connector = new Connector();
 
                 const result = connector.run(input);
 
@@ -109,8 +116,6 @@ describe('Connector',
                         )
                     ]
                 );
-
-                const connector = new Connector();
 
                 const result = connector.run(input);
 
@@ -154,8 +159,6 @@ describe('Connector',
                     ]
                 );
 
-                const connector = new Connector();
-
                 const result = connector.run(input);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -193,8 +196,6 @@ describe('Connector',
                     ]
                 );
 
-                const connector = new Connector();
-
                 const result = connector.run(input);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -231,8 +232,6 @@ describe('Connector',
                         )
                     ]
                 );
-
-                const connector = new Connector();
 
                 const result = connector.run(input);
 

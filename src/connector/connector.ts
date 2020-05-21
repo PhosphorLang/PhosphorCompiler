@@ -4,7 +4,9 @@ import * as SyntaxNodes from "../parser/syntaxNodes";
 import BuildInFunctions from "../definitions/buildInFunctions";
 import BuildInOperators from "../definitions/buildInOperators";
 import BuildInTypes from "../definitions/buildInTypes";
-import CompilerError from "../errors/compilerError";
+import Diagnostic from "../diagnostic/diagnostic";
+import DiagnosticCodes from "../diagnostic/diagnosticCodes";
+import DiagnosticError from "../diagnostic/diagnosticError";
 import FunctionParametersList from "../parser/functionParametersList";
 import { SemanticNode } from "./semanticNodes";
 import SyntaxKind from "../parser/syntaxKind";
@@ -12,6 +14,8 @@ import { SyntaxNode } from "../parser/syntaxNodes";
 
 export default class Connector
 {
+    private readonly diagnostic: Diagnostic;
+
     /**
      * A list of functions, global to the file.
      * This is filled before the function bodies are connected, so every function can reference every other function,
@@ -32,8 +36,10 @@ export default class Connector
         return this.variables[this.variables.length - 1];
     }
 
-    constructor ()
+    constructor (diagnostic: Diagnostic)
     {
+        this.diagnostic = diagnostic;
+
         this.functions = new Map<string, SemanticSymbols.Function>();
         this.variables = [];
         this.currentFunction = null;
@@ -101,7 +107,13 @@ export default class Connector
 
             if (type === null)
             {
-                throw new CompilerError(`Unknown type "${typeClause.identifier.content}"`, typeClause.identifier);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Unknown type "${typeClause.identifier.content}"`,
+                        DiagnosticCodes.UnknownTypeError,
+                        typeClause.identifier
+                    )
+                );
             }
 
             return type;
@@ -120,7 +132,13 @@ export default class Connector
 
             if (names.has(name))
             {
-                throw new CompilerError(`Duplicate parameter name "${name}`, parameter.identifier);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Duplicate parameter name "${name}"`,
+                        DiagnosticCodes.DuplicateParameterNameError,
+                        parameter.identifier
+                    )
+                );
             }
 
             names.add(name);
@@ -129,7 +147,13 @@ export default class Connector
 
             if (type === null)
             {
-                throw new CompilerError('Parameters must have a type clause given', parameter.identifier);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        'Parameters must have a type clause given.',
+                        DiagnosticCodes.ParameterWithoutTypeClauseError,
+                        parameter.identifier
+                    )
+                );
             }
 
             const parameterSymbol = new SemanticSymbols.Parameter(name, type);
@@ -202,9 +226,12 @@ export default class Connector
         {
             if (initialisier === null)
             {
-                throw new CompilerError(
-                    `The variable "${name}" must either have a type clause or an initialiser`,
-                    variableDeclaration.identifier
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `The variable "${name}" must either have a type clause or an initialiser.`,
+                        DiagnosticCodes.VariableWithoutTypeClauseAndInitialiserError,
+                        variableDeclaration.identifier
+                    )
                 );
             }
             else
@@ -220,7 +247,13 @@ export default class Connector
                  We should prevent that by checking all stacks and disallow temporary redefinitions. */
         if (this.currentVariableStack.has(name))
         {
-            throw new CompilerError(`Duplicate declaration of variable "${name}`, variableDeclaration.identifier);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Duplicate declaration of variable "${name}".`,
+                    DiagnosticCodes.DuplicateVariableDeclarationError,
+                    variableDeclaration.identifier
+                )
+            );
         }
 
         this.currentVariableStack.set(name, symbol);
@@ -232,7 +265,13 @@ export default class Connector
     {
         if (this.currentFunction === null)
         {
-            throw new CompilerError('Found return statement in non-function environment', returnStatement.keyword);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    'Return statements must be placed inside a function body.',
+                    DiagnosticCodes.ReturnStatementOutsideFunctionBodyError,
+                    returnStatement.keyword
+                )
+            );
         }
 
         let expression: SemanticNodes.Expression|null = null;
@@ -246,18 +285,36 @@ export default class Connector
         {
             if (expression !== null)
             {
-                throw new CompilerError('A function without a return type must return nothing.', returnStatement.keyword);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        'A function without a return type must return nothing.',
+                        DiagnosticCodes.NotEmptyReturnInFunctionWithoutReturnTypeError,
+                        returnStatement.keyword
+                    )
+                );
             }
         }
         else
         {
             if (expression === null)
             {
-                throw new CompilerError('A function with a return type must not return nothing.', returnStatement.keyword);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        'A function with a return type must not return nothing.',
+                        DiagnosticCodes.EmptyReturnInFunctionWithReturnTypeError,
+                        returnStatement.keyword
+                    )
+                );
             }
             else if (expression.type != this.currentFunction.returnType)
             {
-                throw new CompilerError('The return type does not match the function type.', returnStatement.keyword);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        'A function with a return type must not return nothing.',
+                        DiagnosticCodes.ReturnTypeDoesNotMatchFunctionReturnTypeError,
+                        returnStatement.keyword
+                    )
+                );
             }
         }
 
@@ -272,12 +329,24 @@ export default class Connector
 
         if (variable === undefined)
         {
-            throw new CompilerError(`Unknown variable "${name}"`, assignment.identifier);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Unknown variable "${name}"`,
+                    DiagnosticCodes.UnknownVariableError,
+                    assignment.identifier
+                )
+            );
         }
 
         if (variable.isReadonly)
         {
-            throw new CompilerError(`"${name}" is readonly, an assignment is not allowed`, assignment.identifier);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `"${name}" is readonly, an assignment is not allowed.`,
+                    DiagnosticCodes.ReadonlyAssignmentError,
+                    assignment.identifier
+                )
+            );
         }
 
         const expression = this.connectExpression(assignment.expression);
@@ -302,7 +371,13 @@ export default class Connector
             case SyntaxKind.BinaryExpression:
                 return this.connectBinaryExpression(expression as SyntaxNodes.BinaryExpression);
             default:
-                throw new Error(`Unexpected syntax of kind "${expression.kind}".`);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Unexpected syntax of kind "${expression.kind}".`,
+                        DiagnosticCodes.UnexpectedExpressionSyntaxKindError,
+                        expression.token
+                    )
+                );
         }
     }
 
@@ -313,7 +388,13 @@ export default class Connector
 
         if (type === null)
         {
-            throw new Error (`Unexpected type of literal token "${expression.kind}".`);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Unexpected literal "${expression.literal.content}" of type "${expression.kind}".`,
+                    DiagnosticCodes.UnexpectedLiteralExpressionSyntaxKindError,
+                    expression.literal
+                )
+            );
         }
 
         return new SemanticNodes.LiteralExpression(value, type);
@@ -327,7 +408,13 @@ export default class Connector
 
         if (variable === undefined)
         {
-            throw new CompilerError(`Unknown variable "${name}"`, expression.identifier);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Unknown variable "${name}"`,
+                    DiagnosticCodes.UnknownVariableError,
+                    expression.identifier
+                )
+            );
         }
 
         return new SemanticNodes.VariableExpression(variable);
@@ -339,7 +426,13 @@ export default class Connector
 
         if (functionSymbol === undefined)
         {
-            throw new CompilerError(`Unknown function "${expression.identifier.content}"`, expression.identifier);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Unknown function "${expression.identifier.content}"`,
+                    DiagnosticCodes.UnknownFunctionError,
+                    expression.identifier
+                )
+            );
         }
 
         const callArguments: SemanticNodes.Expression[] = [];
@@ -352,9 +445,12 @@ export default class Connector
 
         if (functionSymbol.parameters.length !== callArguments.length)
         {
-            throw new CompilerError(
-                `Wrong argument count for function "${expression.identifier.content}"`,
-                expression.identifier
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Wrong argument count for function "${expression.identifier.content}"`,
+                    DiagnosticCodes.WrongArgumentCountError,
+                    expression.identifier
+                )
             );
         }
 
@@ -362,9 +458,12 @@ export default class Connector
         {
             if (callArguments[i].type !== functionSymbol.parameters[i].type)
             {
-                throw new CompilerError(
-                    `Wrong type for argument "${functionSymbol.parameters[i].name}".`,
-                    expression.identifier
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Wrong type for argument "${functionSymbol.parameters[i].name}".`,
+                        DiagnosticCodes.WrongArgumentTypeError,
+                        expression.identifier
+                    )
                 );
             }
         }
@@ -385,7 +484,13 @@ export default class Connector
 
         if (operator === null)
         {
-            throw new CompilerError(`Unknown unary operator "${expression.operator.content}"`, expression.operator);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Unknown unary operator "${expression.operator.content}"`,
+                    DiagnosticCodes.UnknownUnaryOperatorError,
+                    expression.operator
+                )
+            );
         }
 
         return new SemanticNodes.UnaryExpression(operator, operand);
@@ -400,7 +505,13 @@ export default class Connector
 
         if (operator === null)
         {
-            throw new CompilerError(`Unknown binary operator "${expression.operator.content}"`, expression.operator);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Unknown binary operator "${expression.operator.content}"`,
+                    DiagnosticCodes.UnknownBinaryOperatorError,
+                    expression.operator
+                )
+            );
         }
 
         return new SemanticNodes.BinaryExpression(operator, leftOperand, rightOperand);

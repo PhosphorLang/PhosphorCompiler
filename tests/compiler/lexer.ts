@@ -1,11 +1,11 @@
 import 'mocha';
 import { assert } from 'chai';
 import Defaults from '../utility/defaults';
+import Diagnostic from '../../src/diagnostic/diagnostic';
+import DiagnosticCodes from '../../src/diagnostic/diagnosticCodes';
 import Lexer from '../../src/lexer/lexer';
 import TokenCreator from '../utility/tokenCreator';
 import TokenKind from '../../src/lexer/tokenKind';
-import UnknownSymbolError from '../../src/errors/unknownSymbolError';
-import UnterminatedStringError from '../../src/errors/unterminatedStringError';
 
 class InputToTokenKind
 {
@@ -24,12 +24,22 @@ class InputToTokenKind
 describe('Lexer',
     function ()
     {
+        let diagnostic: Diagnostic;
+        let lexer: Lexer;
+
+        beforeEach(
+            function ()
+            {
+                diagnostic = new Diagnostic();
+
+                lexer = new Lexer(diagnostic);
+            }
+        );
+
         it('ignores whitespaces.',
             function ()
             {
                 const input = '    ';
-
-                const lexer = new Lexer();
 
                 const result = lexer.run(input, Defaults.fileName, false);
 
@@ -41,8 +51,6 @@ describe('Lexer',
             function ()
             {
                 const input = '\n\n\n\n';
-
-                const lexer = new Lexer();
 
                 const result = lexer.run(input, Defaults.fileName, false);
 
@@ -91,8 +99,6 @@ describe('Lexer',
                     it(`${inputToTokenKind.text}.`,
                         function ()
                         {
-                            const lexer = new Lexer();
-
                             const result = lexer.run(inputToTokenKind.input, 'testFile', false);
 
                             assert.strictEqual(result.length, 1);
@@ -116,8 +122,6 @@ describe('Lexer',
                             function ()
                             {
                                 const input = leftInputToTokenKind.input + rightInputToTokenKind.input;
-
-                                const lexer = new Lexer();
 
                                 const result = lexer.run(input, 'testFile', false);
 
@@ -143,8 +147,6 @@ describe('Lexer',
                     TokenCreator.newIdentifier('d', 3, 1),
                 ];
 
-                const lexer = new Lexer();
-
                 const result = lexer.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -156,11 +158,9 @@ describe('Lexer',
             {
                 const input = `'${Defaults.string}\n`;
 
-                const lexer = new Lexer();
-
                 assert.throws(
                     (): void => { lexer.run(input, Defaults.fileName, false); },
-                    UnterminatedStringError
+                    DiagnosticCodes.UnterminatedStringError
                 );
             }
         );
@@ -170,11 +170,9 @@ describe('Lexer',
             {
                 const input = `'${Defaults.string}`;
 
-                const lexer = new Lexer();
-
                 assert.throws(
                     (): void => { lexer.run(input, Defaults.fileName, false); },
-                    UnterminatedStringError
+                    DiagnosticCodes.UnterminatedStringError
                 );
             }
         );
@@ -184,11 +182,9 @@ describe('Lexer',
             {
                 const input = Defaults.unknown;
 
-                const lexer = new Lexer();
-
                 assert.throws(
                     (): void => { lexer.run(input, Defaults.fileName, false); },
-                    UnknownSymbolError
+                    DiagnosticCodes.UnknownTokenError
                 );
             }
         );

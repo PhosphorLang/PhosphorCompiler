@@ -1,21 +1,31 @@
 import 'mocha';
 import { assert } from 'chai';
 import Defaults from '../utility/defaults';
-import InvalidTokenError from '../../src/errors/invalidTokenError';
+import Diagnostic from '../../src/diagnostic/diagnostic';
+import DiagnosticCodes from '../../src/diagnostic/diagnosticCodes';
 import Parser from '../../src/parser/parser';
 import SyntaxCreator from '../utility/syntaxCreator';
 import TokenCreator from '../utility/tokenCreator';
-import UnexpectedTokenError from '../../src/errors/unexpectedTokenError';
 
 describe('Parser',
     function ()
     {
+        let diagnostic: Diagnostic;
+        let parser: Parser;
+
+        beforeEach(
+            function ()
+            {
+                diagnostic = new Diagnostic();
+
+                parser = new Parser(diagnostic);
+            }
+        );
+
         it('can parse an empty file.',
             function ()
             {
                 const expectedResult = SyntaxCreator.newFile();
-
-                const parser = new Parser();
 
                 const result = parser.run([], Defaults.fileName);
 
@@ -40,8 +50,6 @@ describe('Parser',
                         SyntaxCreator.newFunctionDeclaration()
                     ]
                 );
-
-                const parser = new Parser();
 
                 const result = parser.run(input, Defaults.fileName);
 
@@ -77,8 +85,6 @@ describe('Parser',
                     ]
                 );
 
-                const parser = new Parser();
-
                 const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -112,8 +118,6 @@ describe('Parser',
                         )
                     ]
                 );
-
-                const parser = new Parser();
 
                 const result = parser.run(input, Defaults.fileName);
 
@@ -156,8 +160,6 @@ describe('Parser',
                     ]
                 );
 
-                const parser = new Parser();
-
                 const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -196,8 +198,6 @@ describe('Parser',
                     ]
                 );
 
-                const parser = new Parser();
-
                 const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -233,8 +233,6 @@ describe('Parser',
                         )
                     ]
                 );
-
-                const parser = new Parser();
 
                 const result = parser.run(input, Defaults.fileName);
 
@@ -273,8 +271,6 @@ describe('Parser',
                         )
                     ]
                 );
-
-                const parser = new Parser();
 
                 const result = parser.run(input, Defaults.fileName);
 
@@ -323,8 +319,6 @@ describe('Parser',
                     ]
                 );
 
-                const parser = new Parser();
-
                 const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -356,8 +350,6 @@ describe('Parser',
                         )
                     ]
                 );
-
-                const parser = new Parser();
 
                 const result = parser.run(input, Defaults.fileName);
 
@@ -398,8 +390,6 @@ describe('Parser',
                     ]
                 );
 
-                const parser = new Parser();
-
                 const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -436,8 +426,6 @@ describe('Parser',
                         )
                     ]
                 );
-
-                const parser = new Parser();
 
                 const result = parser.run(input, Defaults.fileName);
 
@@ -480,8 +468,6 @@ describe('Parser',
                     ]
                 );
 
-                const parser = new Parser();
-
                 const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
@@ -503,11 +489,9 @@ describe('Parser',
                     TokenCreator.newClosingBrace(),
                 ];
 
-                const parser = new Parser();
-
                 assert.throws(
                     (): void => { parser.run(input, Defaults.fileName); },
-                    InvalidTokenError
+                    DiagnosticCodes.MissingSemicolonAfterStatementError
                 );
             }
         );
@@ -527,11 +511,9 @@ describe('Parser',
                     TokenCreator.newClosingBrace(),
                 ];
 
-                const parser = new Parser();
-
                 assert.throws(
                     (): void => { parser.run(input, Defaults.fileName); },
-                    UnexpectedTokenError
+                    DiagnosticCodes.UnexpectedTokenAfterVariableDeclarationIdentifierError
                 );
             }
         );
@@ -551,11 +533,9 @@ describe('Parser',
                     TokenCreator.newClosingBrace(),
                 ];
 
-                const parser = new Parser();
-
                 assert.throws(
                     (): void => { parser.run(input, Defaults.fileName); },
-                    UnexpectedTokenError
+                    DiagnosticCodes.UnexpectedTokenAfterVariableDeclarationIdentifierError
                 );
             }
         );

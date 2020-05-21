@@ -1,24 +1,27 @@
 import * as SyntaxNodes from "./syntaxNodes";
 import CallArgumentsList from "./callArgumentsList";
-import CompilerError from "../errors/compilerError";
+import Diagnostic from "../diagnostic/diagnostic";
+import DiagnosticCodes from "../diagnostic/diagnosticCodes";
+import DiagnosticError from "../diagnostic/diagnosticError";
 import FunctionParametersList from "./functionParametersList";
-import InvalidTokenError from "../errors/invalidTokenError";
 import OperatorOrder from "./operatorOrder";
 import SyntaxKind from "./syntaxKind";
 import { SyntaxNode } from "./syntaxNodes";
 import Token from "../lexer/token";
 import TokenKind from "../lexer/tokenKind";
-import UnexpectedTokenError from "../errors/unexpectedTokenError";
-import UnknownTokenError from "../errors/unknownTokenError";
 
 export default class Parser
 {
+    private readonly diagnostic: Diagnostic;
+
     private fileName: string;
     private tokens: Token[];
     private position: number;
 
-    constructor ()
+    constructor (diagnostic: Diagnostic)
     {
+        this.diagnostic = diagnostic;
+
         this.fileName = '';
         this.tokens = [];
         this.position = 0;
@@ -93,7 +96,13 @@ export default class Parser
                     break;
                 }
                 default:
-                    throw new InvalidTokenError('Invalid token in file scope', this.currentToken);
+                    this.diagnostic.throw(
+                        new DiagnosticError(
+                            `A token "${this.currentToken.content}" is not allowed in the file scope.`,
+                            DiagnosticCodes.InvalidTokenInFileScopeError,
+                            this.currentToken
+                        )
+                    );
             }
         }
 
@@ -145,7 +154,13 @@ export default class Parser
 
         if (type === null)
         {
-            throw new CompilerError('Missing type clause in parameter definition', identifier);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Missing type clause in parameter definition`,
+                    DiagnosticCodes.MissingTypeClauseInParameterDefinitionError,
+                    identifier
+                )
+            );
         }
 
         return new SyntaxNodes.FunctionParameter(identifier, type);
@@ -220,7 +235,13 @@ export default class Parser
         }
         else if (result.kind != SyntaxKind.Section) // No semicolon needed after a section.
         {
-            throw new InvalidTokenError('Missing semicolon after statement', this.currentToken);
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    `Missing semicolon after statement`,
+                    DiagnosticCodes.MissingSemicolonAfterStatementError,
+                    this.currentToken
+                )
+            );
         }
 
         return result;
@@ -258,7 +279,13 @@ export default class Parser
                 type = this.parseTypeClause();
                 break;
             default:
-                throw new UnexpectedTokenError('variable declaration identifier', this.followerToken);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Unexpected token "${this.followerToken.content}" after variable declaration identifier`,
+                        DiagnosticCodes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
+                        this.currentToken
+                    )
+                );
         }
 
         return new SyntaxNodes.VariableDeclaration(keyword, identifier, type, assignment, initialiser);
@@ -351,7 +378,13 @@ export default class Parser
             case TokenKind.IdentifierToken:
                 return this.parseIdentifierExpression();
             default:
-                throw new UnknownTokenError('expression', this.currentToken);
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Unknown expression "${this.currentToken.content}"`,
+                        DiagnosticCodes.UnknownExpressionError,
+                        this.currentToken
+                    )
+                );
         }
     }
 

@@ -1,7 +1,8 @@
+import Diagnostic from '../diagnostic/diagnostic';
+import DiagnosticCodes from '../diagnostic/diagnosticCodes';
+import DiagnosticError from '../diagnostic/diagnosticError';
 import Token from './token';
 import TokenKind from './tokenKind';
-import UnknownSymbolError from '../errors/unknownSymbolError';
-import UnterminatedStringError from '../errors/unterminatedStringError';
 
 interface ContentAndKind
 {
@@ -11,6 +12,8 @@ interface ContentAndKind
 
 export default class Lexer
 {
+    private readonly diagnostic: Diagnostic;
+
     private fileName: string;
     private text: string;
     private position: number;
@@ -20,8 +23,10 @@ export default class Lexer
     private readonly numberTestRegex: RegExp;
     private readonly identifierTestRegex: RegExp;
 
-    constructor ()
+    constructor (diagnostic: Diagnostic)
     {
+        this.diagnostic = diagnostic;
+
         this.fileName = '';
         this.text = '';
         this.position = 0;
@@ -152,13 +157,16 @@ export default class Lexer
                 }
                 else
                 {
-                    throw new UnknownSymbolError(
-                        content,
-                        {
-                            fileName: this.fileName,
-                            lineNumber: this.line,
-                            columnNumber: this.column
-                        }
+                    this.diagnostic.throw(
+                        new DiagnosticError(
+                            `Unknown token "${content}"`,
+                            DiagnosticCodes.UnknownTokenError,
+                            {
+                                fileName: this.fileName,
+                                lineNumber: this.line,
+                                columnNumber: this.column
+                            }
+                        )
                     );
                 }
 
@@ -193,13 +201,21 @@ export default class Lexer
             {
                 case '':
                 case "\n":
-                    throw new UnterminatedStringError(
-                        {
-                            fileName: this.fileName,
-                            lineNumber: this.line,
-                            columnNumber: this.column
-                        }
+                    this.diagnostic.throw(
+                        new DiagnosticError(
+                            'Unterminated string',
+                            DiagnosticCodes.UnterminatedStringError,
+                            {
+                                fileName: this.fileName,
+                                lineNumber: this.line,
+                                columnNumber: this.column
+                            }
+                        )
                     );
+                // The ESLint rule "no-fallthrough" shows a false positive here because it does not know that the
+                // function "this.diagnostic.throw" throws and never returns.
+                // One should make a proposal to adjust the ESLint Typescript parser package for this.
+                // eslint-disable-next-line no-fallthrough
                 case "'":
                     continueReading = false;
                     break;

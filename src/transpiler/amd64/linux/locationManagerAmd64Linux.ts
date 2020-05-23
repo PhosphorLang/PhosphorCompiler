@@ -46,9 +46,9 @@ export default abstract class LocationManagerAmd64Linux
     private get nextStackLocation (): string
     {
         // TODO: Replace the hardcoded size with the real type sizes:
-        const stackLocation = `[${RegistersAmd64Linux.stackBasePointer}-${this.currentBasePointerOffset}]`;
+        const stackLocation = `[${RegistersAmd64Linux.stackBasePointer.bit64}-${this.currentBasePointerOffset}]`;
         this.currentBasePointerOffset += 8;
-        this.code.push(`add ${RegistersAmd64Linux.stackPointer}, 8`);
+        this.code.push(`sub ${RegistersAmd64Linux.stackPointer.bit64}, 8`);
 
         return stackLocation;
     }

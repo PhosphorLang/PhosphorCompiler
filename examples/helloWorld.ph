@@ -1,6 +1,6 @@
 function main ()
 {
-    print('Hello world!');
+    writeLine('Hello world!');
 
     return;
 }

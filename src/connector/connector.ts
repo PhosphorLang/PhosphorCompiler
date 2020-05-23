@@ -60,7 +60,8 @@ export default class Connector
 
     private injectBuildInFunctions (): void
     {
-        this.functions.set(BuildInFunctions.print.name, BuildInFunctions.print); // TODO: This is really ugly...
+        // TODO: This is really ugly...
+        this.functions.set(BuildInFunctions.writeLine.name, BuildInFunctions.writeLine);
     }
 
     private connectFile (file: SyntaxNodes.File): SemanticNodes.File

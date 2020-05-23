@@ -14,8 +14,8 @@ function main ()
 {
     var text := getHelloWorld();
 
-    print('Hello world?');
-    print(text);
+    writeLine('Hello world?');
+    writeLine(text);
 
     return;
 }

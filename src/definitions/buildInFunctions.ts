@@ -6,9 +6,5 @@ export default abstract class BuildInFunctions
 {
     // TODO: In the long run, this will be replaced by the Standard Library. It will contain definitions for these functions.
 
-    public static readonly print = new FunctionSemanticSymbol(
-        'print',
-        BuildInTypes.noType,
-        [new ParameterSemanticSymbol('text', BuildInTypes.string)]
-    );
+    public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, []);
 }

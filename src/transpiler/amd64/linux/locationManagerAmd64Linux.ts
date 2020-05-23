@@ -27,6 +27,11 @@ export default abstract class LocationManagerAmd64Linux
     private usedCalleeSavedRegisters: Map<Register64, string>;
 
     /**
+     * A list of currently saved registers. Is filled before a function call and emptied after it.
+     */
+    private currentlySavedRegisters: Register64[];
+
+    /**
      * The current offset of the base pointer, equivalent to the current stack frame size.
      */
     private currentBasePointerOffset: number;
@@ -53,6 +58,7 @@ export default abstract class LocationManagerAmd64Linux
         this.variableStacks = [];
         this.registersInUse = new Set<Register64>();
         this.usedCalleeSavedRegisters = new Map<Register64, string>();
+        this.currentlySavedRegisters = [];
         this.currentBasePointerOffset = 0;
     }
 
@@ -282,55 +288,65 @@ export default abstract class LocationManagerAmd64Linux
         throw new Error('Transpile error: There are no registers. How can this happen?');
     }
 
-    protected saveRegistersForFunctionCall (isSystemCall = false): void
+    /**
+     * Save the currently in use caller saved registers before a function call.
+     * @param targetLocation The target location of the function call, for it to be ignored instead of saved.
+     * @param isSystemCall If true, the registers for a system call are saved instead of a normal function call.
+     */
+    protected saveRegistersForFunctionCall (targetLocation: LocationedVariable|undefined, isSystemCall = false): void
     {
-        const registersToSave: Register64[] = []; // TODO: Replace with a Set.
+        const registersToSave: Set<Register64> = new Set<Register64>();
 
         // NOTE: The order of the registers (i.e. the reverse of the restore registers function) is important!
         if (isSystemCall)
         {
-            registersToSave.push(...RegistersAmd64Linux.syscallArguments);
-            registersToSave.push(...RegistersAmd64Linux.syscallCallerSaved);
+            for (const register of [...RegistersAmd64Linux.syscallArguments, ...RegistersAmd64Linux.syscallCallerSaved])
+            {
+                registersToSave.add(register);
+            }
         }
         else
         {
-            registersToSave.push(RegistersAmd64Linux.integerReturn);
-            registersToSave.push(...RegistersAmd64Linux.arguments);
-            registersToSave.push(...RegistersAmd64Linux.callerSaved);
+            registersToSave.add(RegistersAmd64Linux.integerReturn);
+
+            for (const register of [...RegistersAmd64Linux.integerArguments, ...RegistersAmd64Linux.callerSaved])
+            {
+                registersToSave.add(register);
+            }
         }
+
+        // Do not save the target location if it is a register:
+        if (targetLocation?.location instanceof Register64)
+        {
+            registersToSave.delete(targetLocation.location);
+        }
+
+        const savedRegisters: Register64[] = [];
 
         for (const register of registersToSave)
         {
             if (this.registersInUse.has(register))
             {
                 this.code.push(`push ${register.bit64}`);
+
+                savedRegisters.push(register);
             }
         }
+
+        this.currentlySavedRegisters = savedRegisters;
     }
 
-    protected restoreRegistersAfterFunctionCall (isSystemCall = false): void
+    protected restoreRegistersAfterFunctionCall (): void
     {
-        const registersToSave: Register64[] = []; // TODO: Replace with a Set.
-
-        // NOTE: The order of the registers (i.e. the reverse of the save registers function) is important!
-        if (isSystemCall)
-        {
-            registersToSave.push(...RegistersAmd64Linux.syscallCallerSaved.reverse());
-            registersToSave.push(...RegistersAmd64Linux.syscallArguments.reverse());
-        }
-        else
-        {
-            registersToSave.push(...RegistersAmd64Linux.callerSaved.reverse());
-            registersToSave.push(...RegistersAmd64Linux.arguments.reverse());
-            registersToSave.push(RegistersAmd64Linux.integerReturn);
-        }
-
-        for (const register of registersToSave)
+        // The currently saved registers list must be reversed to correctly pop the values into their registers:
+        for (const register of this.currentlySavedRegisters.reverse())
         {
             if (this.registersInUse.has(register))
             {
                 this.code.push(`pop ${register.bit64}`);
             }
         }
+
+        this.currentlySavedRegisters = [];
     }
 }

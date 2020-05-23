@@ -7,15 +7,20 @@ function add (a: Int, b: Int): Int
 
 function getHelloWorld (): String
 {
-    return 'Hello world!';
+    return 'Hello world?';
 }
 
 function main ()
 {
     var text := getHelloWorld();
 
-    writeLine('Hello world?');
     writeLine(text);
+    writeLine('Your name:');
+
+    var name := readLine();
+
+    writeLine('Your name is:');
+    writeLine(name);
 
     return;
 }

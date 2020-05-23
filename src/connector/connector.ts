@@ -61,6 +61,7 @@ export default class Connector
     private injectBuildInFunctions (): void
     {
         // TODO: This is really ugly...
+        this.functions.set(BuildInFunctions.readLine.name, BuildInFunctions.readLine);
         this.functions.set(BuildInFunctions.writeLine.name, BuildInFunctions.writeLine);
     }
 

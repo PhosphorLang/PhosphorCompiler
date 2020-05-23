@@ -56,6 +56,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         assembly.push(
             '[section .text]',
             // FIXME: The following hardcoded externs must definitely be replaced with a proper import functionality.
+            '[extern readLine]',
             '[extern writeLine]',
             '[extern exit]',
             // The start routine calls main and then exits properly:

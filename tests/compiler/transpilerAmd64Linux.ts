@@ -15,7 +15,8 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern print]\n" +
+                    "[extern readLine]\n" +
+                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -42,7 +43,8 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern print]\n" +
+                    "[extern readLine]\n" +
+                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +

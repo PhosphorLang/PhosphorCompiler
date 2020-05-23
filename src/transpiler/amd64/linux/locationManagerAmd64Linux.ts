@@ -202,7 +202,7 @@ export default abstract class LocationManagerAmd64Linux
 
     protected freeVariable (variable: SemanticSymbols.Variable): void
     {
-        for (const variableStack of this.variableStacks.reverse())
+        for (const variableStack of this.variableStacks.slice().reverse())
         {
             const variableLocation = variableStack.get(variable);
 
@@ -224,7 +224,7 @@ export default abstract class LocationManagerAmd64Linux
 
     protected getVariableLocation (variable: SemanticSymbols.Variable): LocationedVariable
     {
-        for (const variableStack of this.variableStacks.reverse())
+        for (const variableStack of this.variableStacks.slice().reverse())
         {
             const variableLocation = variableStack.get(variable);
 

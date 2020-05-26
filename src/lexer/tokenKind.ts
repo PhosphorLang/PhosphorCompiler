@@ -23,6 +23,8 @@ enum TokenKind
     VarKeyword,
     FunctionKeyword,
     ReturnKeyword,
+    TrueKeyword,
+    FalseKeyword,
 }
 
 export default TokenKind;

@@ -109,4 +109,14 @@ export default abstract class TokenCreator
     {
         return new Token(TokenKind.ReturnKeyword, 'return');
     }
+
+    public static newTrueKeyword (): Token
+    {
+        return new Token(TokenKind.TrueKeyword, 'true');
+    }
+
+    public static newFalseKeyword (): Token
+    {
+        return new Token(TokenKind.FalseKeyword, 'false');
+    }
 }

@@ -115,6 +115,16 @@ export default abstract class SyntaxCreator
         return new SyntaxNodes.LiteralExpression(TokenCreator.newString());
     }
 
+    public static newTrueBooleanLiteral (): SyntaxNodes.LiteralExpression
+    {
+        return new SyntaxNodes.LiteralExpression(TokenCreator.newTrueKeyword());
+    }
+
+    public static newFalseBooleanLiteral (): SyntaxNodes.LiteralExpression
+    {
+        return new SyntaxNodes.LiteralExpression(TokenCreator.newFalseKeyword());
+    }
+
     public static newBinaryExpression (left: SyntaxNodes.Expression, operator: Token, right: SyntaxNodes.Expression): SyntaxNodes.BinaryExpression
     {
         return new SyntaxNodes.BinaryExpression(

@@ -374,6 +374,8 @@ export default class Parser
                 return this.parseParenthesizedExpression();
             case TokenKind.IntegerToken:
             case TokenKind.StringToken:
+            case TokenKind.TrueKeyword:
+            case TokenKind.FalseKeyword:
                 return this.parseLiteralExpression();
             case TokenKind.IdentifierToken:
                 return this.parseIdentifierExpression();

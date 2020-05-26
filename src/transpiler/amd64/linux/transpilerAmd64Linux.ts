@@ -2,16 +2,27 @@ import * as SemanticNodes from "../../../connector/semanticNodes";
 import * as SemanticSymbols from "../../../connector/semanticSymbols";
 import BuildInOperators from "../../../definitions/buildInOperators";
 import BuildInTypes from "../../../definitions/buildInTypes";
+import LocationedVariable from "../../common/locationedVariable";
 import LocationManagerAmd64Linux from "./locationManagerAmd64Linux";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 import SemanticKind from "../../../connector/semanticKind";
 import Transpiler from "../../transpiler";
-import LocationedVariable from "../../common/locationedVariable";
 
 export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements Transpiler
 {
     protected code: string[];
     private constantCode: string[];
+
+    private localLabelCounter: number;
+
+    private get nextLocalLabel (): string
+    {
+        const newLocalLabel = `.l#${this.localLabelCounter}`;
+
+        this.localLabelCounter++;
+
+        return newLocalLabel;
+    }
 
     /**
      * A counter for generating unqiue constant IDs.
@@ -25,6 +36,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         this.code = [];
         this.constantCode = [];
         this.constantCounter = 0;
+        this.localLabelCounter = 0;
     }
 
     public run (semanticTree: SemanticNodes.File): string
@@ -32,6 +44,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         this.code = [];
         this.constantCode = [];
         this.constantCounter = 0;
+        this.localLabelCounter = 0;
 
         const fileAssembly = this.transpileFile(semanticTree);
 
@@ -129,6 +142,15 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             case SemanticKind.Assignment:
                 this.transpileAssignment(statementNode as SemanticNodes.Assignment);
                 break;
+            case SemanticKind.Label:
+                this.transpileLabel(statementNode as SemanticNodes.Label);
+                break;
+            case SemanticKind.GotoStatement:
+                this.transpileGotoStatement(statementNode as SemanticNodes.GotoStatement);
+                break;
+            case SemanticKind.ConditionalGotoStatement:
+                this.transpileConditionalGotoStatement(statementNode as SemanticNodes.ConditionalGotoStatement);
+                break;
             default:
                 this.transpileExpression(statementNode as SemanticNodes.Expression);
         }
@@ -166,6 +188,39 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         const variableLocation = this.getVariableLocation(assignmentNode.variable);
 
         this.transpileExpression(assignmentNode.expression, variableLocation);
+    }
+
+    private transpileLabel (labelNode: SemanticNodes.Label): void
+    {
+        // TODO: Should we make the labels "local labels" starting with a point?
+        this.code.push(`${labelNode.symbol.name}:`);
+    }
+
+    private transpileGotoStatement (gotoStatementNode: SemanticNodes.GotoStatement): void
+    {
+        this.code.push(`jmp ${gotoStatementNode.labelSymbol.name}`);
+    }
+
+    private transpileConditionalGotoStatement (conditionalGotoStatement: SemanticNodes.ConditionalGotoStatement): void
+    {
+        const conditionResultTemporaryVariable = new SemanticSymbols.Variable('', conditionalGotoStatement.condition.type, false);
+
+        const conditionResultLocation = this.pushVariable(conditionResultTemporaryVariable);
+
+        // Transpile the condition with the condition result location as target location:
+        this.transpileExpression(conditionalGotoStatement.condition, conditionResultLocation);
+
+        // Go sure the variable is on the register because we need a register for comparisons:
+        this.moveVariableToRegister(conditionResultLocation);
+
+        const compareValue = conditionalGotoStatement.conditionResult ? '1' : '0';
+
+        this.code.push(
+            `cmp ${conditionResultLocation.locationString}, ${compareValue}`,
+            `je ${conditionalGotoStatement.labelSymbol.name}`,
+        );
+
+        this.freeVariable(conditionResultTemporaryVariable);
     }
 
     private transpileExpression (expressionNode: SemanticNodes.Expression, targetLocation?: LocationedVariable): void

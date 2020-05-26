@@ -221,7 +221,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
 
                 const constantLength = encodedString.length;
 
-                const constantId = `c_${this.constantCounter}`;
+                const constantId = `c#${this.constantCounter}`;
                 this.constantCounter++;
 
                 // The string is a byte array prefixed with it's (platform dependent) length:

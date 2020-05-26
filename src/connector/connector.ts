@@ -211,6 +211,8 @@ export default class Connector
                 return this.connectVariableDeclaration(statement as SyntaxNodes.VariableDeclaration);
             case SyntaxKind.ReturnStatement:
                 return this.connectReturnStatement(statement as SyntaxNodes.ReturnStatement);
+            case SyntaxKind.IfStatement:
+                return this.connectIfStatement(statement as SyntaxNodes.IfStatement);
             case SyntaxKind.Assignment:
                 return this.connectAssignment(statement as SyntaxNodes.Assignment);
             default:
@@ -321,6 +323,48 @@ export default class Connector
         }
 
         return new SemanticNodes.ReturnStatement(expression);
+    }
+
+    private connectIfStatement (ifStatement: SyntaxNodes.IfStatement): SemanticNodes.IfStatement
+    {
+        const condition = this.connectExpression(ifStatement.condition);
+
+        if (condition.type !== BuildInTypes.bool)
+        {
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    'The return type of the condition in an if statement must be Bool.',
+                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatement,
+                    ifStatement.condition.token
+                )
+            );
+        }
+
+        const section = this.connectSection(ifStatement.section);
+        let elseClause: SemanticNodes.ElseClause|null = null;
+
+        if (ifStatement.elseClause !== null)
+        {
+            elseClause = this.connectElseClause(ifStatement.elseClause);
+        }
+
+        return new SemanticNodes.IfStatement(condition, section, elseClause);
+    }
+
+    private connectElseClause (elseClause: SyntaxNodes.ElseClause): SemanticNodes.ElseClause
+    {
+        let followUp: SemanticNodes.Section|SemanticNodes.IfStatement;
+
+        if (elseClause.followUp.kind == SyntaxKind.Section)
+        {
+            followUp = this.connectSection(elseClause.followUp as SyntaxNodes.Section);
+        }
+        else
+        {
+            followUp = this.connectIfStatement(elseClause.followUp as SyntaxNodes.IfStatement);
+        }
+
+        return new SemanticNodes.ElseClause(followUp);
     }
 
     private connectAssignment (assignment: SyntaxNodes.Assignment): SemanticNodes.Assignment

@@ -89,6 +89,8 @@ describe('Lexer',
             new InputToTokenKind('var', TokenKind.VarKeyword, 'the var keyword'),
             new InputToTokenKind('function', TokenKind.FunctionKeyword, 'the function keyword'),
             new InputToTokenKind('return', TokenKind.ReturnKeyword, 'the return keyword'),
+            new InputToTokenKind('if', TokenKind.IfKeyword, 'the if keyword'),
+            new InputToTokenKind('else', TokenKind.ElseKeyword, 'the else keyword'),
             new InputToTokenKind('true', TokenKind.TrueKeyword, 'the true keyword'),
             new InputToTokenKind('false', TokenKind.FalseKeyword, 'the false keyword'),
         ];

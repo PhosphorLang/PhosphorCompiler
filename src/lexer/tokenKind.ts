@@ -23,6 +23,8 @@ enum TokenKind
     VarKeyword,
     FunctionKeyword,
     ReturnKeyword,
+    IfKeyword,
+    ElseKeyword,
     TrueKeyword,
     FalseKeyword,
 }

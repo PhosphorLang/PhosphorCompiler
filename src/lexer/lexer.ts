@@ -258,6 +258,12 @@ export default class Lexer
             case 'return':
                 kind = TokenKind.ReturnKeyword;
                 break;
+            case 'if':
+                kind = TokenKind.IfKeyword;
+                break;
+            case 'else':
+                kind = TokenKind.ElseKeyword;
+                break;
             case 'true':
                 kind = TokenKind.TrueKeyword;
                 break;

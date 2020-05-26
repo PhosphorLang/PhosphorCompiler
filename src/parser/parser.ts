@@ -5,7 +5,6 @@ import DiagnosticCodes from "../diagnostic/diagnosticCodes";
 import DiagnosticError from "../diagnostic/diagnosticError";
 import FunctionParametersList from "./functionParametersList";
 import OperatorOrder from "./operatorOrder";
-import SyntaxKind from "./syntaxKind";
 import { SyntaxNode } from "./syntaxNodes";
 import Token from "../lexer/token";
 import TokenKind from "../lexer/tokenKind";
@@ -32,7 +31,7 @@ export default class Parser
         const index = this.position + relativePosition;
         let result: Token;
 
-        if (index < this.tokens.length)
+        if ((index < this.tokens.length) && (index >= 0))
         {
             result = this.tokens[index];
         }
@@ -62,6 +61,11 @@ export default class Parser
     private get followerToken (): Token
     {
         return this.getToken(1, false);
+    }
+
+    private get previousToken (): Token
+    {
+        return this.getToken(-1, false);
     }
 
     /**
@@ -215,6 +219,9 @@ export default class Parser
             case TokenKind.ReturnKeyword:
                 result = this.parseReturnStatement();
                 break;
+            case TokenKind.IfKeyword:
+                result = this.parseIfStatement();
+                break;
             default:
             {
                 if (this.isAssignment())
@@ -233,7 +240,7 @@ export default class Parser
             // Remove the correct token:
             this.getNextToken();
         }
-        else if (result.kind != SyntaxKind.Section) // No semicolon needed after a section.
+        else if (this.previousToken.kind != TokenKind.ClosingBraceToken) // No semicolon needed after a closing brace (often a section).
         {
             this.diagnostic.throw(
                 new DiagnosticError(
@@ -289,6 +296,29 @@ export default class Parser
         }
 
         return new SyntaxNodes.VariableDeclaration(keyword, identifier, type, assignment, initialiser);
+    }
+
+    private parseIfStatement (): SyntaxNodes.IfStatement
+    {
+        const keyword = this.getNextToken();
+        const condition = this.parseExpression();
+        const section = this.parseSection();
+        let elseClause: SyntaxNodes.ElseClause|null = null;
+
+        if (this.currentToken.kind == TokenKind.ElseKeyword)
+        {
+            elseClause = this.parseElseClause();
+        }
+
+        return new SyntaxNodes.IfStatement(keyword, condition, section, elseClause);
+    }
+
+    private parseElseClause (): SyntaxNodes.ElseClause
+    {
+        const keyword = this.getNextToken();
+        const section = this.parseSection();
+
+        return new SyntaxNodes.ElseClause(keyword, section);
     }
 
     private isAssignment (): boolean

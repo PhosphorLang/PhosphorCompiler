@@ -179,4 +179,18 @@ export default abstract class SyntaxCreator
     {
         return new SyntaxNodes.VariableExpression(identifier);
     }
+
+    public static newIfStatement (
+        condition: SyntaxNodes.Expression = SyntaxCreator.newTrueBooleanLiteral(),
+        section = SyntaxCreator.newSection(),
+        elseClause: SyntaxNodes.ElseClause|null = null
+    ): SyntaxNodes.IfStatement
+    {
+        return new SyntaxNodes.IfStatement(TokenCreator.newIfKeyword(), condition, section, elseClause);
+    }
+
+    public static newElseClause (section = SyntaxCreator.newSection()): SyntaxNodes.ElseClause
+    {
+        return new SyntaxNodes.ElseClause(TokenCreator.newElseKeyword(), section);
+    }
 }

@@ -474,6 +474,81 @@ describe('Parser',
             }
         );
 
+        it('can parse an if statement.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newIfKeyword(),
+                    TokenCreator.newTrueKeyword(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newIfStatement()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse an else statement.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newIfKeyword(),
+                    TokenCreator.newFalseKeyword(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newElseKeyword(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newIfStatement(
+                                        SyntaxCreator.newFalseBooleanLiteral(),
+                                        undefined,
+                                        SyntaxCreator.newElseClause()
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('throws an exception if there is no semicolon after a statement.',
             function ()
             {

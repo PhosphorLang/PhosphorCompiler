@@ -110,6 +110,16 @@ export default abstract class TokenCreator
         return new Token(TokenKind.ReturnKeyword, 'return');
     }
 
+    public static newIfKeyword (): Token
+    {
+        return new Token(TokenKind.IfKeyword, 'if');
+    }
+
+    public static newElseKeyword (): Token
+    {
+        return new Token(TokenKind.ElseKeyword, 'else');
+    }
+
     public static newTrueKeyword (): Token
     {
         return new Token(TokenKind.TrueKeyword, 'true');

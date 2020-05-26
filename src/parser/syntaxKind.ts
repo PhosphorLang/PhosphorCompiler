@@ -6,10 +6,12 @@ enum SyntaxKind
     FunctionDeclaration = 'FunctionDeclaration',
     FunctionParameter = 'FunctionParameter',
     TypeClause = 'TypeClause',
+    ElseClause = 'ElseClause',
     // Statements
     Assignment = 'Assignment',
     VariableDeclaration = 'VariableDeclaration',
     ReturnStatement = 'ReturnStatement',
+    IfStatement = 'IfStatement',
     // Expressions
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',

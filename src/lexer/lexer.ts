@@ -137,6 +137,9 @@ export default class Lexer
             case '/':
                 kind = TokenKind.SlashOperator;
                 break;
+            case '=':
+                kind = TokenKind.EqualOperator;
+                break;
             case "'":
                 kind = TokenKind.StringToken;
                 content = this.readString();

@@ -80,6 +80,7 @@ describe('Lexer',
         // A list of inputs to their resulting token kind to automatically create tests out of that:
         const inputToTokenKindList: InputToTokenKind[] = [
             ...nonDelimitedInputToTokenKindList,
+            new InputToTokenKind('=', TokenKind.EqualOperator, 'an equal operator'),
             new InputToTokenKind("'abc'", TokenKind.StringToken, 'a multi char string literal'),
             new InputToTokenKind("'my string'", TokenKind.StringToken, 'a string literal containing whitespace'),
             new InputToTokenKind('myIdentifier', TokenKind.IdentifierToken, 'an identifier'),

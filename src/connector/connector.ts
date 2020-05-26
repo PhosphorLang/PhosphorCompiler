@@ -553,7 +553,7 @@ export default class Connector
         {
             this.diagnostic.throw(
                 new DiagnosticError(
-                    `Unknown binary operator "${expression.operator.content}"`,
+                    `Unknown binary operator "${expression.operator.content}" for "${leftOperand.type.name}" with "${rightOperand.type.name}"`,
                     DiagnosticCodes.UnknownBinaryOperatorError,
                     expression.operator
                 )

@@ -312,27 +312,49 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         }
     }
 
-    private transpileBinaryExpression (_binaryExpression: SemanticNodes.BinaryExpression, _targetLocation: LocationedVariable): void
+    private transpileBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression, targetLocation: LocationedVariable): void
     {
-        /* A
         const operator = binaryExpression.operator;
+
+        // Temporary variable for the right operand:
+        const temporaryVariable = new SemanticSymbols.Variable('', binaryExpression.rightOperand.type, false);
+        const temporaryVariableLocation = this.pushVariable(temporaryVariable);
+
+        this.transpileExpression(binaryExpression.leftOperand, targetLocation);
+        this.transpileExpression(binaryExpression.rightOperand, temporaryVariableLocation);
+
+        this.moveVariableToRegister(targetLocation);
 
         switch (operator)
         {
             case BuildInOperators.binaryIntAddition:
+                this.code.push(`add ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`);
                 break;
             case BuildInOperators.binaryIntSubtraction:
+                this.code.push(`sub ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`);
                 break;
-            case BuildInOperators.binaryIntMultiplication:
+            case BuildInOperators.binaryIntEqual:
+            {
+                const falseLabel = this.nextLocalLabel;
+                const endLabel = this.nextLocalLabel;
+                this.code.push(
+                    `cmp ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`,
+                    `jne ${falseLabel}`,
+                    `mov ${targetLocation.locationString}, 1`,
+                    `jmp ${endLabel}`,
+                    `${falseLabel}:`,
+                    `mov ${targetLocation.locationString}, 0`,
+                    `${endLabel}:`,
+                );
                 break;
-            case BuildInOperators.binaryIntDivision:
-                break;
+            }
             default:
                 throw new Error(
                     `Transpiler error: The operator "${operator.kind}" for the operands of "${operator.leftType}" and ` +
                     `"${operator.leftType}" with the result type of "${operator.rightType}" is not implemented.`
                 );
         }
-        */
+
+        this.freeVariable(temporaryVariable);
     }
 }

@@ -90,6 +90,11 @@ export default abstract class TokenCreator
         return new Token(TokenKind.SlashOperator, '/');
     }
 
+    public static newEqual (): Token
+    {
+        return new Token(TokenKind.EqualOperator, '=');
+    }
+
     public static newVarKeyword (): Token
     {
         return new Token(TokenKind.VarKeyword, 'var');

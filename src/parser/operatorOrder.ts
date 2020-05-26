@@ -3,6 +3,10 @@ import TokenKind from "../lexer/tokenKind";
 
 export default abstract class OperatorOrder
 {
+    /**
+     * Get the unary token priority for a given token. \
+     * The higher the number the higher the priority.
+     */
     public static getUnaryPriority (token: Token): number
     {
         switch (token.kind)
@@ -15,15 +19,21 @@ export default abstract class OperatorOrder
         }
     }
 
+    /**
+     * Get the binary token priority for a given token. \
+     * The higher the number the higher the priority.
+     */
     public static getBinaryPriority (token: Token): number
     {
         switch (token.kind)
         {
             case TokenKind.StarOperator:
             case TokenKind.SlashOperator:
-                return 2;
+                return 3;
             case TokenKind.PlusOperator:
             case TokenKind.MinusOperator:
+                return 2;
+            case TokenKind.EqualOperator:
                 return 1;
             default:
                 return 0;

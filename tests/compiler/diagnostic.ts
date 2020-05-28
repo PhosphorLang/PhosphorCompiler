@@ -1,5 +1,6 @@
 import 'mocha';
 import { assert } from 'chai';
+import chalk from 'chalk';
 import Diagnostic from '../../src/diagnostic/diagnostic';
 import DiagnosticError from '../../src/diagnostic/diagnosticError';
 import DiagnosticInfo from '../../src/diagnostic/diagnosticInfo';
@@ -19,6 +20,13 @@ describe('Diagnostic',
             lineNumber: testLineNumber,
             columnNumber: testColumnNumber,
         };
+
+        this.beforeAll(
+            function ()
+            {
+                chalk.level = 0;
+            }
+        );
 
         it('can add an error.',
             function ()

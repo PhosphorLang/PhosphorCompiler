@@ -6,6 +6,15 @@
 
 A compiler for the Phosphor programming language.
 
+```phosphor
+function main ()
+{
+    writeLine('Hello world!');
+
+    return;
+}
+```
+
 <hr>
 
 ## **Table of contents**
@@ -19,7 +28,6 @@ A compiler for the Phosphor programming language.
         - [**Compile your code**](#compile-your-code)
     - [**Description**](#description)
         - [**Components**](#components)
-        - [**The working features**](#the-working-features)
         - [**Examples**](#examples)
 
 <hr>
@@ -77,31 +85,6 @@ node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard li
     - Creates an object file from the Assembly.
 6. Linker
     - Links the object files into an executable.
-
-### **The working features**
-
-1. Types
-    - Int
-    - String
-1. Variables
-    - Definition
-    - Type inference
-    - Assignment
-1. Constants
-    - Inline integer
-    - Inline string
-1. Function definitions
-    - With up to six integer/pointer arguments
-    - Argument types
-    - Return type
-    - Return statement
-1. Main function
-    - As entry point
-1. Build in functions
-    - print (a string)
-1. Function calls
-    - As a statement
-    - As an expression (with return value)
 
 ### **Examples**
 

@@ -27,28 +27,23 @@ export default class Connector
      * While connecting the function bodies, at the beginning of each section a new list is pushed, at the end of the section it is removed.
      * With this we keep track of which variables are accessible at which point in the code.
      */
-    private variables: Map<string, SemanticSymbols.Variable>[];
+    private variableStacks: Map<string, SemanticSymbols.Variable>[];
 
     private currentFunction: SemanticSymbols.Function|null;
-
-    private get currentVariableStack (): Map<string, SemanticSymbols.Variable>
-    {
-        return this.variables[this.variables.length - 1];
-    }
 
     constructor (diagnostic: Diagnostic)
     {
         this.diagnostic = diagnostic;
 
         this.functions = new Map<string, SemanticSymbols.Function>();
-        this.variables = [];
+        this.variableStacks = [];
         this.currentFunction = null;
     }
 
     public run (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
     {
         this.functions.clear();
-        this.variables = [];
+        this.variableStacks = [];
         this.currentFunction = null;
 
         this.injectBuildInFunctions();
@@ -56,6 +51,29 @@ export default class Connector
         const result = this.connectFile(fileSyntaxNode);
 
         return result;
+    }
+
+    private pushVariable (variable: SemanticSymbols.Variable): void
+    {
+        const currentVariableStack = this.variableStacks[this.variableStacks.length - 1];
+
+        currentVariableStack.set(variable.name, variable);
+    }
+
+    private getVariable (name: string): SemanticSymbols.Variable|null
+    {
+        for (const variableStack of this.variableStacks)
+        {
+            for (const variable of variableStack.values())
+            {
+                if (variable.name == name)
+                {
+                    return variable;
+                }
+            }
+        }
+
+        return null;
     }
 
     private injectBuildInFunctions (): void
@@ -168,16 +186,29 @@ export default class Connector
 
     private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
     {
-        const symbol = this.functions.get(functionDeclaration.identifier.content) as SemanticSymbols.Function;
+        const functionSymbol = this.functions.get(functionDeclaration.identifier.content) as SemanticSymbols.Function;
         // The function symbol must exist because we added it previously based on the same function declarations.
 
-        this.currentFunction = symbol;
+        this.currentFunction = functionSymbol;
+
+        // Push a new list of variables to the variable stack:
+        const variables = new Map<string, SemanticSymbols.Variable>();
+        this.variableStacks.push(variables);
+
+        // Push all parameters to the variable stack:
+        for (const parameter of functionSymbol.parameters)
+        {
+            this.pushVariable(parameter);
+        }
 
         const section = this.connectSection(functionDeclaration.body);
 
+        // Remove the list of variables from the variable stack:
+        this.variableStacks.pop();
+
         this.currentFunction = null;
 
-        return new SemanticNodes.FunctionDeclaration(symbol, section);
+        return new SemanticNodes.FunctionDeclaration(functionSymbol, section);
     }
 
     private connectSection (sectionSyntaxNode: SyntaxNodes.Section): SemanticNodes.Section
@@ -186,7 +217,7 @@ export default class Connector
 
         // Push a new list of variables to the variable stack:
         const variables = new Map<string, SemanticSymbols.Variable>();
-        this.variables.push(variables);
+        this.variableStacks.push(variables);
 
         for (const statement of sectionSyntaxNode.statements)
         {
@@ -196,7 +227,7 @@ export default class Connector
         }
 
         // Remove the list of variables from the variable stack:
-        this.variables.pop();
+        this.variableStacks.pop();
 
         return new SemanticNodes.Section(statementNodes);
     }
@@ -244,12 +275,9 @@ export default class Connector
             }
         }
 
-        const symbol = new SemanticSymbols.Variable(name, type, false);
+        const variable = new SemanticSymbols.Variable(name, type, false);
 
-        /* TODO: The following currently only checks if there is a variable with the same name in the current variable
-                 stack but does not check previous stacks. This allows redefinitions for the current stack.
-                 We should prevent that by checking all stacks and disallow temporary redefinitions. */
-        if (this.currentVariableStack.has(name))
+        if (this.getVariable(name) !== null)
         {
             this.diagnostic.throw(
                 new DiagnosticError(
@@ -260,9 +288,9 @@ export default class Connector
             );
         }
 
-        this.currentVariableStack.set(name, symbol);
+        this.pushVariable(variable);
 
-        return new SemanticNodes.VariableDeclaration(symbol, initialisier);
+        return new SemanticNodes.VariableDeclaration(variable, initialisier);
     }
 
     private connectReturnStatement (returnStatement: SyntaxNodes.ReturnStatement): SemanticNodes.ReturnStatement
@@ -371,9 +399,9 @@ export default class Connector
     {
         const name = assignment.identifier.content;
 
-        const variable = this.currentVariableStack.get(name);
+        const variable = this.getVariable(name);
 
-        if (variable === undefined)
+        if (variable === null)
         {
             this.diagnostic.throw(
                 new DiagnosticError(
@@ -450,9 +478,9 @@ export default class Connector
     {
         const name = expression.identifier.content;
 
-        const variable = this.currentVariableStack.get(name);
+        const variable = this.getVariable(name);
 
-        if (variable === undefined)
+        if (variable === null)
         {
             this.diagnostic.throw(
                 new DiagnosticError(

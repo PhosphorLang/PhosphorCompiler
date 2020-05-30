@@ -4,6 +4,7 @@ import BinarySemanticOperator from "../../src/connector/semanticOperators/binary
 import BuildInOperators from "../../src/definitions/buildInOperators";
 import BuildInTypes from "../../src/definitions/buildInTypes";
 import Defaults from "./defaults";
+import UnarySemanticOperator from "../../src/connector/semanticOperators/unarySemanticOperator";
 
 export default abstract class SemanticCreator
 {
@@ -32,6 +33,11 @@ export default abstract class SemanticCreator
     ): SemanticSymbols.Function
     {
         return new SemanticSymbols.Function(name, returnType, parameters);
+    }
+
+    public static newFunctionParameter (type = BuildInTypes.int, name = Defaults.variableName): SemanticSymbols.Parameter
+    {
+        return new SemanticSymbols.Parameter(name, type);
     }
 
     public static newFunctionCall (
@@ -69,6 +75,21 @@ export default abstract class SemanticCreator
         return new SemanticNodes.LiteralExpression(value, BuildInTypes.int);
     }
 
+    public static newTrueBooleanLiteral (): SemanticNodes.LiteralExpression
+    {
+        return new SemanticNodes.LiteralExpression('true', BuildInTypes.bool);
+    }
+
+    public static newFalseBooleanLiteral (): SemanticNodes.LiteralExpression
+    {
+        return new SemanticNodes.LiteralExpression('false', BuildInTypes.bool);
+    }
+
+    public static newUnaryExpression (operand: SemanticNodes.Expression, operator: UnarySemanticOperator): SemanticNodes.UnaryExpression
+    {
+        return new SemanticNodes.UnaryExpression(operator, operand);
+    }
+
     public static newBinaryExpression (
         left: SemanticNodes.Expression,
         operator: BinarySemanticOperator,
@@ -78,10 +99,39 @@ export default abstract class SemanticCreator
     }
 
     public static newIntegerAddition (
-        left = SemanticCreator.newIntegerLiteral(),
-        right = SemanticCreator.newIntegerLiteral()
+        left: SemanticNodes.Expression = SemanticCreator.newIntegerLiteral(),
+        right: SemanticNodes.Expression = SemanticCreator.newIntegerLiteral()
     ): SemanticNodes.BinaryExpression
     {
         return SemanticCreator.newBinaryExpression(left, BuildInOperators.binaryIntAddition, right);
+    }
+
+    public static newIntegerNegation (): SemanticNodes.UnaryExpression
+    {
+        return SemanticCreator.newUnaryExpression(SemanticCreator.newIntegerLiteral(), BuildInOperators.unaryIntSubtraction);
+    }
+
+    public static newReturn (expression: SemanticNodes.Expression|null = null): SemanticNodes.ReturnStatement
+    {
+        return new SemanticNodes.ReturnStatement(expression);
+    }
+
+    public static newVariableExpression (variable = SemanticCreator.newVariableSymbol()): SemanticNodes.VariableExpression
+    {
+        return new SemanticNodes.VariableExpression(variable);
+    }
+
+    public static newIfStatement (
+        condition: SemanticNodes.Expression = SemanticCreator.newTrueBooleanLiteral(),
+        section = SemanticCreator.newSection(),
+        elseClause: SemanticNodes.ElseClause|null = null
+    ): SemanticNodes.IfStatement
+    {
+        return new SemanticNodes.IfStatement(condition, section, elseClause);
+    }
+
+    public static newElseClause (followUp: SemanticNodes.Section|SemanticNodes.IfStatement = SemanticCreator.newSection()): SemanticNodes.ElseClause
+    {
+        return new SemanticNodes.ElseClause(followUp);
     }
 }

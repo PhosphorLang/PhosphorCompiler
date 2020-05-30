@@ -16,6 +16,8 @@ export default abstract class BuildInTypes
                 return this.int;
             case 'String':
                 return this.string;
+            case 'Bool':
+                return this.bool;
             default:
                 return null;
         }
@@ -29,6 +31,9 @@ export default abstract class BuildInTypes
                 return this.int;
             case TokenKind.StringToken:
                 return this.string;
+            case TokenKind.TrueKeyword:
+            case TokenKind.FalseKeyword:
+                return this.bool;
             default:
                 return null;
         }

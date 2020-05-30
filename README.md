@@ -79,11 +79,13 @@ node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard li
     - Converts a token list into a syntax tree by syntactical analysis.
 3. Connector (Frontend)
     - Converts a syntax tree into an semantic tree by semantic analysis.
-4. Transpiler (Backend)
+4. Lowerer (Middleend)
+    - Lowers complex semantic nodes into simpler ones (e.g. if/else into multiple gotos and labels).
+5. Transpiler (Backend)
     - Transpiles the semantic tree into platform specific Assembly.
-5. Assembler (Backend)
+6. Assembler (Backend)
     - Creates an object file from the Assembly.
-6. Linker
+7. Linker
     - Links the object files into an executable.
 
 ### **Examples**

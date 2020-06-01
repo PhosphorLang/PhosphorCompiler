@@ -86,6 +86,8 @@ export default class Lowerer
                 return [this.lowerReturnStatement(statement as SemanticNodes.ReturnStatement)];
             case SemanticKind.IfStatement:
                 return this.lowerIfStatement(statement as SemanticNodes.IfStatement);
+            case SemanticKind.WhileStatement:
+                return this.lowerWhileStatement(statement as SemanticNodes.WhileStatement);
             case SemanticKind.Assignment:
                 return [this.lowerAssignment(statement as SemanticNodes.Assignment)];
             default:
@@ -182,6 +184,43 @@ export default class Lowerer
                 endLabel,
             ];
         }
+    }
+
+    private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement): SemanticNodes.SemanticNode[]
+    {
+        /* While statement
+
+            while <condition>
+                <section>
+
+            -->
+
+            startLabel:
+            goto <condition> endLabel false
+            <section>
+            goto startLabel
+            endLabel:
+        */
+
+        const condition = this.lowerExpression(whileStatement.condition);
+        const section = this.lowerSection(whileStatement.section);
+
+        const startLabelSymbol = this.generateLabel();
+        const startLabel = new SemanticNodes.Label(startLabelSymbol);
+
+        const endLabelSymbol = this.generateLabel();
+        const endLabel = new SemanticNodes.Label(endLabelSymbol);
+
+        const conditionalEndLabelGoto = new SemanticNodes.ConditionalGotoStatement(endLabelSymbol, condition, false);
+        const startLabelGoto = new SemanticNodes.GotoStatement(startLabelSymbol);
+
+        return [
+            startLabel,
+            conditionalEndLabelGoto,
+            section,
+            startLabelGoto,
+            endLabel,
+        ];
     }
 
     private lowerAssignment (assignment: SemanticNodes.Assignment): SemanticNodes.Assignment

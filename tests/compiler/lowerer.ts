@@ -192,5 +192,54 @@ describe('Lowerer',
                 assert.deepStrictEqual(result, expectedResult);
             }
         );
+
+        it('can lower a while statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newWhileStatement()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newLabel(
+                                        SemanticCreator.newLabelSymbol('l#0')
+                                    ),
+                                    SemanticCreator.newConditionalGotoStatement(
+                                        SemanticCreator.newLabelSymbol('l#1'),
+                                        undefined,
+                                        false
+                                    ),
+                                    SemanticCreator.newSection(),
+                                    SemanticCreator.newGotoStatement(
+                                        SemanticCreator.newLabelSymbol('l#0')
+                                    ),
+                                    SemanticCreator.newLabel(
+                                        SemanticCreator.newLabelSymbol('l#1')
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
     }
 );

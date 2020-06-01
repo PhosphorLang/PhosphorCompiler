@@ -14,5 +14,18 @@ function main ()
         writeLine('They are not the same!');
     }
 
+    if false
+    {
+        writeLine('This will never happen.');
+    }
+    else if true
+    {
+        writeLine('This will happen!');
+    }
+    else
+    {
+        writeLine('This will also never happen.');
+    }
+
     return;
 }

@@ -549,6 +549,51 @@ describe('Parser',
             }
         );
 
+        it('can parse an if else if statement.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newIfKeyword(),
+                    TokenCreator.newFalseKeyword(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newElseKeyword(),
+                    TokenCreator.newIfKeyword(),
+                    TokenCreator.newTrueKeyword(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newIfStatement(
+                                        SyntaxCreator.newFalseBooleanLiteral(),
+                                        undefined,
+                                        SyntaxCreator.newElseClause(
+                                            SyntaxCreator.newIfStatement()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can parse a while statement.',
             function ()
             {

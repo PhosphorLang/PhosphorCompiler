@@ -319,9 +319,18 @@ export default class Parser
     private parseElseClause (): SyntaxNodes.ElseClause
     {
         const keyword = this.getNextToken();
-        const section = this.parseSection();
+        let followUp: SyntaxNodes.Section | SyntaxNodes.IfStatement;
 
-        return new SyntaxNodes.ElseClause(keyword, section);
+        if (this.currentToken.kind == TokenKind.IfKeyword)
+        {
+            followUp = this.parseIfStatement();
+        }
+        else
+        {
+            followUp = this.parseSection();
+        }
+
+        return new SyntaxNodes.ElseClause(keyword, followUp);
     }
 
     private parseWhileStatement (): SyntaxNodes.WhileStatement

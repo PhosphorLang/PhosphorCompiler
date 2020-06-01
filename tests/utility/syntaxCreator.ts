@@ -189,9 +189,9 @@ export default abstract class SyntaxCreator
         return new SyntaxNodes.IfStatement(TokenCreator.newIfKeyword(), condition, section, elseClause);
     }
 
-    public static newElseClause (section = SyntaxCreator.newSection()): SyntaxNodes.ElseClause
+    public static newElseClause (followUp: SyntaxNodes.Section|SyntaxNodes.IfStatement = SyntaxCreator.newSection()): SyntaxNodes.ElseClause
     {
-        return new SyntaxNodes.ElseClause(TokenCreator.newElseKeyword(), section);
+        return new SyntaxNodes.ElseClause(TokenCreator.newElseKeyword(), followUp);
     }
 
     public static newWhileStatement (

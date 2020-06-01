@@ -13,4 +13,9 @@ export default abstract class BuildInFunctions
     );
 
     public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, []);
+
+    public static functions: FunctionSemanticSymbol[] = [
+        BuildInFunctions.writeLine,
+        BuildInFunctions.readLine,
+    ];
 }

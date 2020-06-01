@@ -7,6 +7,7 @@ import LocationManagerAmd64Linux from "./locationManagerAmd64Linux";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 import SemanticKind from "../../../connector/semanticKind";
 import Transpiler from "../../transpiler";
+import BuildInFunctions from "../../../definitions/buildInFunctions";
 
 export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements Transpiler
 {
@@ -29,6 +30,8 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
      */
     private constantCounter: number;
 
+    private importedFunctions: Set<SemanticSymbols.Function>;
+
     constructor ()
     {
         super();
@@ -37,6 +40,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         this.constantCode = [];
         this.constantCounter = 0;
         this.localLabelCounter = 0;
+        this.importedFunctions = new Set<SemanticSymbols.Function>();
     }
 
     public run (semanticTree: SemanticNodes.File): string
@@ -45,6 +49,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         this.constantCode = [];
         this.constantCounter = 0;
         this.localLabelCounter = 0;
+        this.importedFunctions.clear();
 
         const fileAssembly = this.transpileFile(semanticTree);
 
@@ -66,11 +71,15 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
 
         assembly.push(...this.constantCode);
 
+        assembly.push('[section .text]');
+
+        // All imported functions must be marked as extern to be found by the Assembler:
+        for (const importedFunction of this.importedFunctions)
+        {
+            assembly.push(`[extern ${importedFunction.name}]`);
+        }
+
         assembly.push(
-            '[section .text]',
-            // FIXME: The following hardcoded externs must definitely be replaced with a proper import functionality.
-            '[extern readLine]',
-            '[extern writeLine]',
             '[extern exit]',
             // The start routine calls main and then exits properly:
             '[global _start]',
@@ -362,6 +371,11 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         {
             // TODO: Replace hard coded return register with actual type and size:
             this.code.push(`mov ${targetLocation.locationString}, ${RegistersAmd64Linux.integerReturn.bit64}`);
+        }
+
+        if (BuildInFunctions.functions.includes(callExpression.functionSymbol))
+        {
+            this.importedFunctions.add(callExpression.functionSymbol);
         }
     }
 

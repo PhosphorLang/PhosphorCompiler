@@ -46,7 +46,10 @@ export default class Connector
         this.variableStacks = [];
         this.currentFunction = null;
 
-        this.injectBuildInFunctions();
+        for (const buildInFunction of BuildInFunctions.functions)
+        {
+            this.functions.set(buildInFunction.name, buildInFunction);
+        }
 
         const result = this.connectFile(fileSyntaxNode);
 
@@ -74,13 +77,6 @@ export default class Connector
         }
 
         return null;
-    }
-
-    private injectBuildInFunctions (): void
-    {
-        // TODO: This is really ugly...
-        this.functions.set(BuildInFunctions.readLine.name, BuildInFunctions.readLine);
-        this.functions.set(BuildInFunctions.writeLine.name, BuildInFunctions.writeLine);
     }
 
     private connectFile (file: SyntaxNodes.File): SemanticNodes.File

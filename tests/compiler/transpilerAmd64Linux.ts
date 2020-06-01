@@ -1,5 +1,6 @@
 import 'mocha';
 import { assert } from 'chai';
+import BuildInFunctions from '../../src/definitions/buildInFunctions';
 import BuildInTypes from '../../src/definitions/buildInTypes';
 import Defaults from '../utility/defaults';
 import SemanticCreator from '../utility/semanticCreator';
@@ -16,8 +17,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -44,8 +43,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -81,8 +78,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -92,6 +87,46 @@ describe('TranspilerAmd64Linux',
                     "push rbp\n" +
                     "mov rbp, rsp\n" +
                     `call ${Defaults.identifier}\n`;
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a call statement of a build in function.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newFunctionCall(
+                                        undefined,
+                                        BuildInFunctions.readLine
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern readLine]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    "call readLine\n";
 
                 const transpiler = new TranspilerAmd64Linux();
 
@@ -125,8 +160,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -165,8 +198,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -205,8 +236,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -245,8 +274,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -290,8 +317,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern writeLine]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +

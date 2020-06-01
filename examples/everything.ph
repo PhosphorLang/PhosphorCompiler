@@ -22,5 +22,14 @@ function main ()
     writeLine('Your name is:');
     writeLine(name);
 
+    if add(4, 6) = 10
+    {
+        writeLine('They are equal.');
+    }
+    else
+    {
+        writeLine('They are not equal.');
+    }
+
     return;
 }

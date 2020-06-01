@@ -11,13 +11,13 @@ describe('Lowerer',
             {
                 const input = SemanticCreator.newFile();
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -30,13 +30,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -51,13 +51,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -76,13 +76,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -101,13 +101,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -129,13 +129,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -156,13 +156,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
 
@@ -183,13 +183,13 @@ describe('Lowerer',
                     ]
                 );
 
-                const output = input;
+                const expectedResult = input;
 
                 const lowerer = new Lowerer();
 
                 const result = lowerer.run(input);
 
-                assert.deepStrictEqual(result, output);
+                assert.deepStrictEqual(result, expectedResult);
             }
         );
     }

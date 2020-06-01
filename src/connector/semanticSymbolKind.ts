@@ -5,6 +5,7 @@ enum SemanticSymbolKind
     Parameter = 'Parameter',
     Type = 'Type',
     Label = 'Label',
+    // TODO: Sort alphabetically.
 }
 
 export default SemanticSymbolKind;

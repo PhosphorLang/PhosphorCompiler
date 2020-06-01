@@ -16,7 +16,6 @@ export default class IfStatementSemanticNode extends SemanticNode
 
         this.condition = condition;
         this.section = section;
-        this.section = section;
         this.elseClause = elseClause;
     }
 }

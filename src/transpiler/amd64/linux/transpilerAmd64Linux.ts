@@ -293,7 +293,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
                 break;
             }
             default:
-                throw new Error(`Transpiler error: Unknown literal of type "${literalExpression.type}".`);
+                throw new Error(`Transpiler error: Unknown literal of type "${literalExpression.type.name}".`);
         }
     }
 

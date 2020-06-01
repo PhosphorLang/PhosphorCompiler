@@ -342,7 +342,7 @@ export default class Connector
             {
                 this.diagnostic.throw(
                     new DiagnosticError(
-                        'A function with a return type must not return nothing.',
+                        'The return value type must match the function return type.',
                         DiagnosticCodes.ReturnTypeDoesNotMatchFunctionReturnTypeError,
                         returnStatement.keyword
                     )

@@ -17,6 +17,7 @@ enum SemanticKind {
     CallExpression = 'CallExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',
+    // TODO: Sort groups alphabetically.
 }
 
 export default SemanticKind;

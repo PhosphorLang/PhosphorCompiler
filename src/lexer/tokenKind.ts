@@ -25,6 +25,7 @@ enum TokenKind
     ReturnKeyword,
     IfKeyword,
     ElseKeyword,
+    WhileKeyword,
     TrueKeyword,
     FalseKeyword,
 }

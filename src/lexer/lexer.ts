@@ -264,6 +264,9 @@ export default class Lexer
             case 'else':
                 kind = TokenKind.ElseKeyword;
                 break;
+            case 'while':
+                kind = TokenKind.WhileKeyword;
+                break;
             case 'true':
                 kind = TokenKind.TrueKeyword;
                 break;

@@ -27,6 +27,7 @@ enum DiagnosticCodes
     UnknownBinaryOperatorError = 'E1025',
     NoLowererImplementationForExpressionError = 'E1026',
     UnexpectedNonBooleanExpressionInIfStatement = 'E1027',
+    UnexpectedNonBooleanExpressionInWhileStatement = 'E1028',
 }
 
 export default DiagnosticCodes;

@@ -134,4 +134,36 @@ export default abstract class SemanticCreator
     {
         return new SemanticNodes.ElseClause(followUp);
     }
+
+    public static newWhileStatement (
+        condition: SemanticNodes.Expression = SemanticCreator.newTrueBooleanLiteral(),
+        section = SemanticCreator.newSection()
+    ): SemanticNodes.WhileStatement
+    {
+        return new SemanticNodes.WhileStatement(condition, section);
+    }
+
+    public static newLabelSymbol (name = Defaults.labelName): SemanticSymbols.Label
+    {
+        return new SemanticSymbols.Label(name);
+    }
+
+    public static newLabel (labelSymbol = SemanticCreator.newLabelSymbol()): SemanticNodes.Label
+    {
+        return new SemanticNodes.Label(labelSymbol);
+    }
+
+    public static newGotoStatement (labelSymbol = SemanticCreator.newLabelSymbol()): SemanticNodes.GotoStatement
+    {
+        return new SemanticNodes.GotoStatement(labelSymbol);
+    }
+
+    public static newConditionalGotoStatement (
+        labelSymbol = SemanticCreator.newLabelSymbol(),
+        condition: SemanticNodes.Expression = SemanticCreator.newTrueBooleanLiteral(),
+        conditionResult?: boolean
+    ): SemanticNodes.ConditionalGotoStatement
+    {
+        return new SemanticNodes.ConditionalGotoStatement(labelSymbol, condition, conditionResult);
+    }
 }

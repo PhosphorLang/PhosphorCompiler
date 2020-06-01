@@ -244,6 +244,8 @@ export default class Connector
                 return this.connectReturnStatement(statement as SyntaxNodes.ReturnStatement);
             case SyntaxKind.IfStatement:
                 return this.connectIfStatement(statement as SyntaxNodes.IfStatement);
+            case SyntaxKind.WhileStatement:
+                return this.connectWhileStatement(statement as SyntaxNodes.WhileStatement);
             case SyntaxKind.Assignment:
                 return this.connectAssignment(statement as SyntaxNodes.Assignment);
             default:
@@ -393,6 +395,26 @@ export default class Connector
         }
 
         return new SemanticNodes.ElseClause(followUp);
+    }
+
+    private connectWhileStatement (whileStatement: SyntaxNodes.WhileStatement): SemanticNodes.WhileStatement
+    {
+        const condition = this.connectExpression(whileStatement.condition);
+
+        if (condition.type !== BuildInTypes.bool)
+        {
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    'The return type of the condition in an while statement must be Bool.',
+                    DiagnosticCodes.UnexpectedNonBooleanExpressionInWhileStatement,
+                    whileStatement.condition.token
+                )
+            );
+        }
+
+        const section = this.connectSection(whileStatement.section);
+
+        return new SemanticNodes.WhileStatement(condition, section);
     }
 
     private connectAssignment (assignment: SyntaxNodes.Assignment): SemanticNodes.Assignment

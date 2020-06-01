@@ -614,6 +614,39 @@ describe('Connector',
             }
         );
 
+        it('can connect a while statement.',
+            function ()
+            {
+                const input = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newWhileStatement()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newWhileStatement()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = connector.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('throws an exception if there is an unknown type.',
             function ()
             {

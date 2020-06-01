@@ -9,6 +9,7 @@ enum SemanticKind {
     ConditionalGotoStatement = 'ConditionalGotoStatement',
     GotoStatement = 'GotoStatement',
     IfStatement = 'IfStatement',
+    WhileStatement = 'WhileStatement',
     ReturnStatement = 'ReturnStatement',
     VariableDeclaration = 'VariableDeclaration',
     // Expressions

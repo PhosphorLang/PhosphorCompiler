@@ -17,3 +17,4 @@ export { default as Section } from "./sectionSemanticNode";
 export { default as UnaryExpression } from "./unaryExpressionSemanticNode";
 export { default as VariableDeclaration } from "./variableDeclarationSemanticNode";
 export { default as VariableExpression } from "./variableExpressionSemanticNode";
+export { default as WhileStatement } from "./whileStatementSemanticNode";

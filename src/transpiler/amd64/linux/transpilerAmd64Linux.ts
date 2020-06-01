@@ -268,6 +268,27 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             case BuildInTypes.int:
                 this.code.push(`mov ${targetLocation.locationString}, ${literalExpression.value}`);
                 break;
+            case BuildInTypes.bool:
+            {
+                let value: string;
+
+                if (literalExpression.value === 'true')
+                {
+                    value = '1';
+                }
+                else if (literalExpression.value === 'false')
+                {
+                    value = '0';
+                }
+                else
+                {
+                    throw new Error(`Transpiler error: Unknown Bool value of "${literalExpression.value}"`);
+                }
+
+                this.code.push(`mov ${targetLocation.locationString}, ${value}`);
+
+                break;
+            }
             case BuildInTypes.string:
             {
                 // We need an encoded string to get the real byte count:

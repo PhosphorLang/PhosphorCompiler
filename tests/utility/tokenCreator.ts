@@ -129,4 +129,9 @@ export default abstract class TokenCreator
     {
         return new Token(TokenKind.FalseKeyword, 'false');
     }
+
+    public static newWhileKeyword (): Token
+    {
+        return new Token(TokenKind.WhileKeyword, 'while');
+    }
 }

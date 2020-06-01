@@ -549,6 +549,40 @@ describe('Parser',
             }
         );
 
+        it('can parse a while statement.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newWhileKeyword(),
+                    TokenCreator.newTrueKeyword(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newWhileStatement()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('throws an exception if there is no semicolon after a statement.',
             function ()
             {

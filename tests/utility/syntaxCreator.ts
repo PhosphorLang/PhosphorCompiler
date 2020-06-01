@@ -193,4 +193,12 @@ export default abstract class SyntaxCreator
     {
         return new SyntaxNodes.ElseClause(TokenCreator.newElseKeyword(), section);
     }
+
+    public static newWhileStatement (
+        condition: SyntaxNodes.Expression = SyntaxCreator.newTrueBooleanLiteral(),
+        section = SyntaxCreator.newSection()
+    ): SyntaxNodes.WhileStatement
+    {
+        return new SyntaxNodes.WhileStatement(TokenCreator.newWhileKeyword(), condition, section);
+    }
 }

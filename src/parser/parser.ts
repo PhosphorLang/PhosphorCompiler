@@ -222,6 +222,9 @@ export default class Parser
             case TokenKind.IfKeyword:
                 result = this.parseIfStatement();
                 break;
+            case TokenKind.WhileKeyword:
+                result = this.parseWhileStatement();
+                break;
             default:
             {
                 if (this.isAssignment())
@@ -319,6 +322,15 @@ export default class Parser
         const section = this.parseSection();
 
         return new SyntaxNodes.ElseClause(keyword, section);
+    }
+
+    private parseWhileStatement (): SyntaxNodes.WhileStatement
+    {
+        const keyword = this.getNextToken();
+        const condition = this.parseExpression();
+        const section = this.parseSection();
+
+        return new SyntaxNodes.WhileStatement(keyword, condition, section);
     }
 
     private isAssignment (): boolean

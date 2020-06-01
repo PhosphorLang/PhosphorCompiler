@@ -17,3 +17,4 @@ export { default as TypeClause } from "./typeClauseSyntaxNode";
 export { default as UnaryExpression } from "./unaryExpressionSyntaxNode";
 export { default as VariableDeclaration } from "./variableDeclarationSyntaxNode";
 export { default as VariableExpression } from "./variableExpressionSyntaxNode";
+export { default as WhileStatement } from "./whileStatementSyntaxNode";

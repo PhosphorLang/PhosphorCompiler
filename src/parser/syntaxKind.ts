@@ -12,6 +12,7 @@ enum SyntaxKind
     VariableDeclaration = 'VariableDeclaration',
     ReturnStatement = 'ReturnStatement',
     IfStatement = 'IfStatement',
+    WhileStatement = 'WhileStatement',
     // Expressions
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',

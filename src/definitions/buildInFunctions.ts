@@ -11,6 +11,7 @@ export default abstract class BuildInFunctions
         BuildInTypes.noType,
         [new ParameterSemanticSymbol('text', BuildInTypes.string)]
     );
+    public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, []);
 
     public static readonly stringToInt = new FunctionSemanticSymbol(
         'stringToInt',
@@ -23,12 +24,19 @@ export default abstract class BuildInFunctions
         [new ParameterSemanticSymbol('integer', BuildInTypes.int)]
     );
 
-    public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, []);
+    public static readonly randomise = new FunctionSemanticSymbol('randomise', BuildInTypes.noType, []);
+    public static readonly getRandom = new FunctionSemanticSymbol(
+        'getRandom',
+        BuildInTypes.int,
+        [new ParameterSemanticSymbol('range', BuildInTypes.int)]
+    );
 
     public static functions: FunctionSemanticSymbol[] = [
         BuildInFunctions.writeLine,
         BuildInFunctions.readLine,
         BuildInFunctions.stringToInt,
         BuildInFunctions.intToString,
+        BuildInFunctions.randomise,
+        BuildInFunctions.getRandom,
     ];
 }

@@ -336,6 +336,8 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
 
     private transpileCallExpression (callExpression: SemanticNodes.CallExpression, targetLocation?: LocationedVariable): void
     {
+        this.saveRegistersForFunctionCall(targetLocation);
+
         let argumentCounter = 0;
         for (const argument of callExpression.arguments)
         {
@@ -355,17 +357,15 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             argumentCounter++;
         }
 
-        this.saveRegistersForFunctionCall(targetLocation);
-
         this.code.push(`call ${callExpression.functionSymbol.name}`);
-
-        this.restoreRegistersAfterFunctionCall();
 
         // We must free the temporary variables again after the function call:
         for (const parameter of callExpression.functionSymbol.parameters)
         {
             this.freeVariable(parameter);
         }
+
+        this.restoreRegistersAfterFunctionCall();
 
         if ((targetLocation !== undefined) && (targetLocation.location !== RegistersAmd64Linux.integerReturn))
         {

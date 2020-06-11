@@ -321,7 +321,7 @@ export default abstract class LocationManagerAmd64Linux
             registersToSave.delete(targetLocation.location);
         }
 
-        const savedRegisters: Register64[] = [];
+        this.currentlySavedRegisters = [];
 
         for (const register of registersToSave)
         {
@@ -329,11 +329,11 @@ export default abstract class LocationManagerAmd64Linux
             {
                 this.code.push(`push ${register.bit64}`);
 
-                savedRegisters.push(register);
+                this.registersInUse.delete(register);
+
+                this.currentlySavedRegisters.push(register);
             }
         }
-
-        this.currentlySavedRegisters = savedRegisters;
     }
 
     protected restoreRegistersAfterFunctionCall (): void
@@ -341,10 +341,9 @@ export default abstract class LocationManagerAmd64Linux
         // The currently saved registers list must be reversed to correctly pop the values into their registers:
         for (const register of this.currentlySavedRegisters.reverse())
         {
-            if (this.registersInUse.has(register))
-            {
-                this.code.push(`pop ${register.bit64}`);
-            }
+            this.code.push(`pop ${register.bit64}`);
+
+            this.registersInUse.add(register);
         }
 
         this.currentlySavedRegisters = [];

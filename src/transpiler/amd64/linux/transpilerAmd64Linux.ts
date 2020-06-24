@@ -349,7 +349,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             const register = RegistersAmd64Linux.integerArguments[argumentCounter];
 
             // The arguments will be treated as temporary variables:
-            const locationedArgument = this.pushVariable(callExpression.functionSymbol.parameters[argumentCounter], register);
+            const locationedArgument = this.pushVariable(callExpression.functionSymbol.parameters[argumentCounter], register, true);
 
             // The argument is an expression that must be placed into the register for this parameter:
             this.transpileExpression(argument, locationedArgument);

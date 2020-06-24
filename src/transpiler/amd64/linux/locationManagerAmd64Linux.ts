@@ -27,9 +27,9 @@ export default abstract class LocationManagerAmd64Linux
     private usedCalleeSavedRegisters: Map<Register64, string>;
 
     /**
-     * A list of currently saved registers. Is filled before a function call and emptied after it.
+     * A list of currently saved register lists. Before a function call a list is added and filled, after it is removed again.
      */
-    private currentlySavedRegisters: Register64[];
+    private currentlySavedRegistersList: Register64[][];
 
     /**
      * The current offset of the base pointer, equivalent to the current stack frame size.
@@ -58,7 +58,7 @@ export default abstract class LocationManagerAmd64Linux
         this.variableStacks = [];
         this.registersInUse = new Set<Register64>();
         this.usedCalleeSavedRegisters = new Map<Register64, string>();
-        this.currentlySavedRegisters = [];
+        this.currentlySavedRegistersList = [];
         this.currentBasePointerOffset = 0;
     }
 
@@ -95,7 +95,14 @@ export default abstract class LocationManagerAmd64Linux
         }
     }
 
-    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64|string): LocationedVariable
+    /**
+     * Push a variable to a location.
+     * @param variable The variable to push.
+     * @param location The location to push to. If ommitted the next free register is used, or if none is free the memory.
+     * @param saveToMemoryWhenInUse If true and the location is in use, the content will be moved to the memory and not to a free register.
+     *                              This can be used to keep the registers free, e.g. before a function call.
+     */
+    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64|string, saveToMemoryWhenInUse = false): LocationedVariable
     {
         let targetLocation: Register64|string;
 
@@ -111,7 +118,8 @@ export default abstract class LocationManagerAmd64Linux
             {
                 const locationedVariable = this.getVariableForLocation(location);
 
-                const newVariableLocation = this.getNextLocation();
+                // Get the next stack location if it must be saved to memory, otherwise simply get the next location:
+                const newVariableLocation = saveToMemoryWhenInUse ? this.nextStackLocation : this.getNextLocation();
 
                 const oldLocationString = locationedVariable.locationString;
 
@@ -175,6 +183,7 @@ export default abstract class LocationManagerAmd64Linux
     private getNextFreeRegister (): Register64|null
     {
         // Priority of registers: Caller saved, arguments, callee saved.
+        // FIXME: We must save callee saved registers before use and restore them after it or at the end of the function!
         const registers = [...RegistersAmd64Linux.callerSaved, ...RegistersAmd64Linux.integerArguments, ...RegistersAmd64Linux.calleeSaved];
 
         for (const register of registers)
@@ -321,7 +330,7 @@ export default abstract class LocationManagerAmd64Linux
             registersToSave.delete(targetLocation.location);
         }
 
-        this.currentlySavedRegisters = [];
+        const currentlySavedRegisters: Register64[] = [];
 
         for (const register of registersToSave)
         {
@@ -331,21 +340,30 @@ export default abstract class LocationManagerAmd64Linux
 
                 this.registersInUse.delete(register);
 
-                this.currentlySavedRegisters.push(register);
+                currentlySavedRegisters.push(register);
             }
         }
+
+        this.currentlySavedRegistersList.push(currentlySavedRegisters);
     }
 
     protected restoreRegistersAfterFunctionCall (): void
     {
+        const currentlySavedRegisters = this.currentlySavedRegistersList.pop();
+
+        if (currentlySavedRegisters === undefined)
+        {
+            throw new Error('Transpiler error: Tried to restore registers after a function call without saving them.');
+        }
+
         // The currently saved registers list must be reversed to correctly pop the values into their registers:
-        for (const register of this.currentlySavedRegisters.reverse())
+        currentlySavedRegisters.reverse();
+
+        for (const register of currentlySavedRegisters)
         {
             this.code.push(`pop ${register.bit64}`);
 
             this.registersInUse.add(register);
         }
-
-        this.currentlySavedRegisters = [];
     }
 }

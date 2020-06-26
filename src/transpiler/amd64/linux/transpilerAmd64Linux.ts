@@ -424,18 +424,34 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
                 this.code.push(`sub ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`);
                 break;
             case BuildInOperators.binaryIntEqual:
+            case BuildInOperators.binaryIntLess:
+            case BuildInOperators.binaryIntGreater:
             {
-                const falseLabel = this.nextLocalLabel;
+                let operatorInstruction = 'je'; // BuildInOperators.binaryIntEqual
+
+                switch (operator)
+                {
+                    case BuildInOperators.binaryIntLess:
+                        operatorInstruction = 'jl';
+                        break;
+                    case BuildInOperators.binaryIntGreater:
+                        operatorInstruction = 'jg';
+                        break;
+                }
+
+                const trueLabel = this.nextLocalLabel;
                 const endLabel = this.nextLocalLabel;
+
                 this.code.push(
                     `cmp ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`,
-                    `jne ${falseLabel}`,
-                    `mov ${targetLocation.locationString}, 1`,
-                    `jmp ${endLabel}`,
-                    `${falseLabel}:`,
+                    `${operatorInstruction} ${trueLabel}`,
                     `mov ${targetLocation.locationString}, 0`,
+                    `jmp ${endLabel}`,
+                    `${trueLabel}:`,
+                    `mov ${targetLocation.locationString}, 1`,
                     `${endLabel}:`,
                 );
+
                 break;
             }
             default:

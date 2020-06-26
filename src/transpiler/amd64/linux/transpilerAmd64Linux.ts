@@ -396,8 +396,8 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
                 break;
             default:
                 throw new Error(
-                    `Transpiler error: The operator "${operator.kind}" for operand of "${operator.operandType}" and ` +
-                    `result of "${operator.resultType}" is not implemented.`
+                    `Transpiler error: The operator "${operator.kind}" for operand of "${operator.operandType.name}" and ` +
+                    `result of "${operator.resultType.name}" is not implemented.`
                 );
         }
     }
@@ -440,8 +440,8 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             }
             default:
                 throw new Error(
-                    `Transpiler error: The operator "${operator.kind}" for the operands of "${operator.leftType}" and ` +
-                    `"${operator.leftType}" with the result type of "${operator.rightType}" is not implemented.`
+                    `Transpiler error: The operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
+                    `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                 );
         }
 

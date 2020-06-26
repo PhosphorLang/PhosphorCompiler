@@ -71,6 +71,7 @@
         "@typescript-eslint/no-unused-expressions": "warn",
         "@typescript-eslint/no-floating-promises": "warn",
         "@typescript-eslint/no-misused-promises": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/space-before-function-paren": [
             "warn",
             "always"
@@ -88,6 +89,27 @@
                 "overrides": {
                     "constructors": "off"
                 }
+            }
+        ],
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": "default",
+                "format": ["camelCase"],
+                "leadingUnderscore": "forbid",
+                "trailingUnderscore": "forbid"
+            },
+            {
+                "selector": "typeLike",
+                "format": ["PascalCase"],
+                "leadingUnderscore": "forbid",
+                "trailingUnderscore": "forbid"
+            },
+            {
+                "selector": "enumMember",
+                "format": ["PascalCase"],
+                "leadingUnderscore": "forbid",
+                "trailingUnderscore": "forbid"
             }
         ],
         "@typescript-eslint/explicit-function-return-type": "error"

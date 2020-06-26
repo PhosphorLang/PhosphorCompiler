@@ -24,6 +24,15 @@ export default abstract class BuildInFunctions
         [new ParameterSemanticSymbol('integer', BuildInTypes.int)]
     );
 
+    public static readonly stringsAreEqual = new FunctionSemanticSymbol(
+        'stringsAreEqual',
+        BuildInTypes.bool,
+        [
+            new ParameterSemanticSymbol('string1', BuildInTypes.string),
+            new ParameterSemanticSymbol('string2', BuildInTypes.string)
+        ]
+    );
+
     public static readonly randomise = new FunctionSemanticSymbol('randomise', BuildInTypes.noType, []);
     public static readonly getRandom = new FunctionSemanticSymbol(
         'getRandom',
@@ -38,5 +47,6 @@ export default abstract class BuildInFunctions
         BuildInFunctions.intToString,
         BuildInFunctions.randomise,
         BuildInFunctions.getRandom,
+        BuildInFunctions.stringsAreEqual,
     ];
 }

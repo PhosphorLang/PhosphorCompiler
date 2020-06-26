@@ -257,6 +257,56 @@ describe('TranspilerAmd64Linux',
             }
         );
 
+        it('can transpile an equal comparison.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newBinaryExpression(
+                                            SemanticCreator.newIntegerLiteral(),
+                                            BuildInOperators.binaryIntEqual,
+                                            SemanticCreator.newIntegerLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `mov r10, ${Defaults.integer}\n` +
+                    `mov r11, ${Defaults.integer}\n` +
+                    "cmp r10, r11\n" +
+                    "je .l#0\n" +
+                    "mov r10, 0\n" +
+                    "jmp .l#1\n" +
+                    ".l#0:\n" +
+                    "mov r10, 1\n" +
+                    ".l#1:\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can transpile an empty return statement.',
             function ()
             {

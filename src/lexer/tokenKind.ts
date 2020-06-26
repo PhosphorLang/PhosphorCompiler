@@ -19,6 +19,8 @@ enum TokenKind
     StarOperator,
     SlashOperator,
     EqualOperator,
+    LessOperator,
+    GreaterOperator,
     // Keywords
     VarKeyword,
     FunctionKeyword,

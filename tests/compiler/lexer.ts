@@ -75,6 +75,8 @@ describe('Lexer',
             new InputToTokenKind('-', TokenKind.MinusOperator, 'a minus operator'),
             new InputToTokenKind('*', TokenKind.StarOperator, 'a star operator'),
             new InputToTokenKind('/', TokenKind.SlashOperator, 'a slash operator'),
+            new InputToTokenKind('<', TokenKind.LessOperator, 'a less operator'),
+            new InputToTokenKind('>', TokenKind.GreaterOperator, 'a greater operator'),
         ];
 
         // A list of inputs to their resulting token kind to automatically create tests out of that:

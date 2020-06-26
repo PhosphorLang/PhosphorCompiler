@@ -140,6 +140,12 @@ export default class Lexer
             case '=':
                 kind = TokenKind.EqualOperator;
                 break;
+            case '<':
+                kind = TokenKind.LessOperator;
+                break;
+            case '>':
+                kind = TokenKind.GreaterOperator;
+                break;
             case "'":
                 kind = TokenKind.StringToken;
                 content = this.readString();

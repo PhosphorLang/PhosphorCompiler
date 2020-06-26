@@ -30,7 +30,7 @@ export default class ProcessArguments
         command
             .arguments('<inputFile> <outputFile>')
             .action(
-                (inputFile, outputFile) =>
+                (inputFile: string, outputFile: string) =>
                 {
                     filePath = inputFile;
                     outputPath = outputFile;
@@ -50,6 +50,6 @@ export default class ProcessArguments
         this.filePath = filePath;
         this.outputPath = outputPath;
 
-        this.standardLibraryPath = command.standardLibrary;
+        this.standardLibraryPath = command.standardLibrary as string;
     }
 }

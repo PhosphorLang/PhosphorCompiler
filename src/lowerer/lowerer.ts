@@ -1,5 +1,7 @@
 import * as SemanticNodes from "../connector/semanticNodes";
 import * as SemanticSymbols from "../connector/semanticSymbols";
+import BuildInFunctions from "../definitions/buildInFunctions";
+import BuildInOperators from "../definitions/buildInOperators";
 import SemanticKind from "../connector/semanticKind";
 
 /**
@@ -278,7 +280,7 @@ export default class Lowerer
         return unaryExpression;
     }
 
-    private lowerBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression): SemanticNodes.BinaryExpression
+    private lowerBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression): SemanticNodes.Expression
     {
         const loweredLeftOperand = this.lowerExpression(binaryExpression.leftOperand);
         const loweredRightOperand = this.lowerExpression(binaryExpression.rightOperand);
@@ -286,6 +288,35 @@ export default class Lowerer
         binaryExpression.leftOperand = loweredLeftOperand;
         binaryExpression.rightOperand = loweredRightOperand;
 
-        return binaryExpression;
+        if (binaryExpression.operator == BuildInOperators.binaryStringEqual)
+        {
+            /* Equal comparison of two strings
+             * Lowers a comparison of two strings by reference to a function call that compares them by value.
+
+                string1 = string2
+
+                -->
+
+                stringsAreEqual(string1, string2)
+            */
+            // TODO: This changes/corrects behaviour. Putting it into the lowerer is somewhat unclean.
+
+            const callExpression = new SemanticNodes.CallExpression(
+                BuildInFunctions.stringsAreEqual,
+                [
+                    loweredLeftOperand,
+                    loweredRightOperand,
+                ]
+            );
+
+            return callExpression;
+        }
+        else
+        {
+            binaryExpression.leftOperand = loweredLeftOperand;
+            binaryExpression.rightOperand = loweredRightOperand;
+
+            return binaryExpression;
+        }
     }
 }

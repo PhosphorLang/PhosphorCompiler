@@ -19,6 +19,8 @@ export default abstract class BuildInOperators
     public static readonly binaryIntLess = new BinarySemanticOperator(SemanticOperatorKind.Less, BuildInTypes.int, BuildInTypes.int, BuildInTypes.bool);
     public static readonly binaryIntGreater = new BinarySemanticOperator(SemanticOperatorKind.Greater, BuildInTypes.int, BuildInTypes.int, BuildInTypes.bool);
 
+    public static readonly binaryStringEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.string, BuildInTypes.string, BuildInTypes.bool);
+
     private static unaryOperators: UnarySemanticOperator[] = [
         BuildInOperators.unaryIntAddition,
         BuildInOperators.unaryIntSubtraction,
@@ -32,6 +34,7 @@ export default abstract class BuildInOperators
         BuildInOperators.binaryIntEqual,
         BuildInOperators.binaryIntLess,
         BuildInOperators.binaryIntGreater,
+        BuildInOperators.binaryStringEqual,
     ];
 
     private static tokenKindToSemanticOperatorKind (tokenKind: TokenKind): SemanticOperatorKind|null

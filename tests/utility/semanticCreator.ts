@@ -75,6 +75,11 @@ export default abstract class SemanticCreator
         return new SemanticNodes.LiteralExpression(value, BuildInTypes.int);
     }
 
+    public static newStringLiteral (value = Defaults.string): SemanticNodes.LiteralExpression
+    {
+        return new SemanticNodes.LiteralExpression(value, BuildInTypes.string);
+    }
+
     public static newTrueBooleanLiteral (): SemanticNodes.LiteralExpression
     {
         return new SemanticNodes.LiteralExpression('true', BuildInTypes.bool);

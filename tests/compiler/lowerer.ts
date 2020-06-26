@@ -1,5 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
+import BuildInFunctions from '../../src/definitions/buildInFunctions';
+import BuildInOperators from '../../src/definitions/buildInOperators';
 import Lowerer from '../../src/lowerer/lowerer';
 import SemanticCreator from '../utility/semanticCreator';
 
@@ -184,6 +186,55 @@ describe('Lowerer',
                 );
 
                 const expectedResult = input;
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can lower a string comparison.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newBinaryExpression(
+                                            SemanticCreator.newStringLiteral(),
+                                            BuildInOperators.binaryStringEqual,
+                                            SemanticCreator.newStringLiteral(),
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newFunctionCall(
+                                            [
+                                                SemanticCreator.newStringLiteral(),
+                                                SemanticCreator.newStringLiteral(),
+                                            ],
+                                            BuildInFunctions.stringsAreEqual
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
 
                 const lowerer = new Lowerer();
 

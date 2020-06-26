@@ -88,7 +88,7 @@ describe('Lowerer',
             }
         );
 
-        it('can lower variable declaration.',
+        it('can lower a variable declaration.',
             function ()
             {
                 const input = SemanticCreator.newFile(
@@ -113,7 +113,7 @@ describe('Lowerer',
             }
         );
 
-        it('can lower variable assignment.',
+        it('can lower a variable assignment.',
             function ()
             {
                 const input = SemanticCreator.newFile(
@@ -141,7 +141,7 @@ describe('Lowerer',
             }
         );
 
-        it('can lower variable initialisation.',
+        it('can lower a variable initialisation.',
             function ()
             {
                 const input = SemanticCreator.newFile(

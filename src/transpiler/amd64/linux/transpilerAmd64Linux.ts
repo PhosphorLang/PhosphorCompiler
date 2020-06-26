@@ -1,5 +1,6 @@
 import * as SemanticNodes from "../../../connector/semanticNodes";
 import * as SemanticSymbols from "../../../connector/semanticSymbols";
+import BuildInFunctions from "../../../definitions/buildInFunctions";
 import BuildInOperators from "../../../definitions/buildInOperators";
 import BuildInTypes from "../../../definitions/buildInTypes";
 import LocationedVariable from "../../common/locationedVariable";
@@ -7,7 +8,6 @@ import LocationManagerAmd64Linux from "./locationManagerAmd64Linux";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 import SemanticKind from "../../../connector/semanticKind";
 import Transpiler from "../../transpiler";
-import BuildInFunctions from "../../../definitions/buildInFunctions";
 
 export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements Transpiler
 {
@@ -238,6 +238,8 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         {
             switch (expressionNode.kind)
             {
+                // TODO: Move this to the statement transpilation.
+
                 case SemanticKind.CallExpression:
                     this.transpileCallExpression(expressionNode as SemanticNodes.CallExpression);
                     break;
@@ -331,7 +333,10 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
     {
         const variableLocation = this.getVariableLocation(variableExpression.variable);
 
-        this.code.push(`mov ${targetLocation.locationString}, ${variableLocation.locationString}`);
+        if (targetLocation.location !== variableLocation.location)
+        {
+            this.code.push(`mov ${targetLocation.locationString}, ${variableLocation.locationString}`);
+        }
     }
 
     private transpileCallExpression (callExpression: SemanticNodes.CallExpression, targetLocation?: LocationedVariable): void

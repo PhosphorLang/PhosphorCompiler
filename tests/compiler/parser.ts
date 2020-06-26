@@ -278,6 +278,90 @@ describe('Parser',
             }
         );
 
+        it('can parse a less operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newLess(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newBinaryExpression(
+                                            SyntaxCreator.newIntegerLiteral(),
+                                            TokenCreator.newLess(),
+                                            SyntaxCreator.newIntegerLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse a greater operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newGreater(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newBinaryExpression(
+                                            SyntaxCreator.newIntegerLiteral(),
+                                            TokenCreator.newGreater(),
+                                            SyntaxCreator.newIntegerLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can parse a parenthesized expression.',
             function ()
             {

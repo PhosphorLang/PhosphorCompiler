@@ -34,6 +34,8 @@ export default abstract class OperatorOrder
             case TokenKind.MinusOperator:
                 return 2;
             case TokenKind.EqualOperator:
+            case TokenKind.LessOperator:
+            case TokenKind.GreaterOperator:
                 return 1;
             default:
                 return 0;

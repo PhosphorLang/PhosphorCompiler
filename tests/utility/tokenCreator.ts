@@ -95,6 +95,16 @@ export default abstract class TokenCreator
         return new Token(TokenKind.EqualOperator, '=');
     }
 
+    public static newLess (): Token
+    {
+        return new Token(TokenKind.LessOperator, '<');
+    }
+
+    public static newGreater (): Token
+    {
+        return new Token(TokenKind.GreaterOperator, '>');
+    }
+
     public static newVarKeyword (): Token
     {
         return new Token(TokenKind.VarKeyword, 'var');

@@ -32,11 +32,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        node: [12.x]
+        node: [12.x, 14.x]
         experimental: [false]
         include:
           - os: ubuntu-latest
-            node: 14.x
+            node: 15.x
             experimental: true
           - os: windows-latest
             node: 12.x

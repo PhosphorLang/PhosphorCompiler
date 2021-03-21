@@ -3,6 +3,13 @@ import OptimisationLevel from './options/optimisationLevel';
 
 export type ProcessArgumentsError = CommanderError;
 
+/** This is the typing for the result of command.opts. It allows typesafe handling of the options. */
+interface OptionValues
+{
+    standardLibrary: string;
+    optimisation: OptimisationLevel;
+}
+
 export default class ProcessArguments
 {
     public readonly filePath: string;
@@ -53,7 +60,7 @@ export default class ProcessArguments
 
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
-        const options = command.opts();
+        const options = command.opts() as OptionValues;
 
         // If the following were still empty, the command parsing would have thrown an error.
         this.filePath = filePath;

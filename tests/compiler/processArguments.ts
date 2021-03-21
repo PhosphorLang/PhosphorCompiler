@@ -103,7 +103,7 @@ describe('ProcessArguments',
             function ()
             {
                 const argv: string[] = [
-                    '--optimisation',
+                    '--optimisation invalidValue',
                     'inFile',
                     'outFile',
                 ];

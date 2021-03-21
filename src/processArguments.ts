@@ -1,5 +1,6 @@
 import { Command, CommanderError, Option } from 'commander';
 import OptimisationLevel from './options/optimisationLevel';
+import TargetPlatform from './options/targetPlatform';
 
 export type ProcessArgumentsError = CommanderError;
 
@@ -8,6 +9,7 @@ interface OptionValues
 {
     standardLibrary: string;
     optimisation: OptimisationLevel;
+    target: TargetPlatform;
 }
 
 export default class ProcessArguments
@@ -16,6 +18,7 @@ export default class ProcessArguments
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
     public readonly optimisationLevel: OptimisationLevel;
+    public readonly targetPlatform: TargetPlatform;
 
     constructor (argv?: string[])
     {
@@ -58,6 +61,10 @@ export default class ProcessArguments
 
         command.addOption(optimisationOption);
 
+        const targetOption = new Option('-t, --target <platform>', 'Set the compilation target platform');
+
+        command.addOption(targetOption);
+
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
         const options = command.opts() as OptionValues;
@@ -68,5 +75,6 @@ export default class ProcessArguments
 
         this.standardLibraryPath = options.standardLibrary;
         this.optimisationLevel = options.optimisation;
+        this.targetPlatform = options.target;
     }
 }

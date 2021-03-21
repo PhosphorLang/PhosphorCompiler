@@ -1,5 +1,6 @@
 import 'mocha';
 import { assert } from 'chai';
+import OptimisationLevel from '../../src/options/optimisationLevel';
 import ProcessArguments from '../../src/processArguments';
 
 describe('ProcessArguments',
@@ -32,6 +33,21 @@ describe('ProcessArguments',
                 const processArguments = new ProcessArguments(argv);
 
                 assert.deepStrictEqual(processArguments.standardLibraryPath, 'standardLibrary');
+            }
+        );
+
+        it('recognises optimisation.',
+            function ()
+            {
+                const argv: string[] = [
+                    '--optimisation', OptimisationLevel.Balanced,
+                    'inFile',
+                    'outFile',
+                ];
+
+                const processArguments = new ProcessArguments(argv);
+
+                assert.equal(processArguments.optimisationLevel, OptimisationLevel.Balanced);
             }
         );
 
@@ -72,6 +88,25 @@ describe('ProcessArguments',
             {
                 const argv: string[] = [
                     '--standardLibrary',
+                    'inFile',
+                    'outFile',
+                ];
+
+                assert.throws(
+                    (): void =>
+                    {
+                        new ProcessArguments(argv);
+                    }
+                );
+
+            }
+        );
+
+        it('throws when optimisation option is set to an unknown value.',
+            function ()
+            {
+                const argv: string[] = [
+                    '--optimisation',
                     'inFile',
                     'outFile',
                 ];

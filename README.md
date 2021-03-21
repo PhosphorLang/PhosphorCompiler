@@ -78,7 +78,7 @@ node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard li
 2. Parser (Frontend)
     - Converts a token list into a syntax tree by syntactical analysis.
 3. Connector (Frontend)
-    - Converts a syntax tree into an semantic tree by semantic analysis.
+    - Converts a syntax tree into a semantic tree by semantic analysis.
 4. Lowerer (Middleend)
     - Lowers complex semantic nodes into simpler ones (e.g. if/else into multiple gotos and labels).
 5. Transpiler (Backend)

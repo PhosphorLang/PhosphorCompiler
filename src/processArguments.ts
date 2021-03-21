@@ -1,14 +1,7 @@
 import { Command, CommanderError, Option } from 'commander';
+import OptimisationLevel from './options/optimisationLevel';
 
 export type ProcessArgumentsError = CommanderError;
-
-export enum OptimisationLevel
-{
-    None = 'none',
-    Balanced = 'balanced',
-    Performance = 'performance',
-    Size = 'size',
-}
 
 export default class ProcessArguments
 {

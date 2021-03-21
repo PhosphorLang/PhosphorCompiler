@@ -16,8 +16,8 @@ describe('ProcessArguments',
 
                 const processArguments = new ProcessArguments(argv);
 
-                assert.deepStrictEqual(processArguments.filePath, 'inFile');
-                assert.deepStrictEqual(processArguments.outputPath, 'outFile');
+                assert.strictEqual(processArguments.filePath, 'inFile');
+                assert.strictEqual(processArguments.outputPath, 'outFile');
             }
         );
 
@@ -32,7 +32,7 @@ describe('ProcessArguments',
 
                 const processArguments = new ProcessArguments(argv);
 
-                assert.deepStrictEqual(processArguments.standardLibraryPath, 'standardLibrary');
+                assert.strictEqual(processArguments.standardLibraryPath, 'standardLibrary');
             }
         );
 

@@ -28,7 +28,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -57,7 +57,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -93,7 +93,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -133,7 +133,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -175,7 +175,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -213,7 +213,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -253,7 +253,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -303,7 +303,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -340,7 +340,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -390,7 +390,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -440,7 +440,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
 
@@ -484,7 +484,7 @@ describe('TranspilerAmd64Linux',
 
                 const result = transpiler.run(input);
 
-                assert.deepStrictEqual(result, expectedResult);
+                assert.strictEqual(result, expectedResult);
             }
         );
     }

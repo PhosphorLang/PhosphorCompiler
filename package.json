@@ -47,7 +47,7 @@
     "main": "bin/main.js",
     "scripts": {
         "build": "npx tsc",
-        "clean": "rm -r bin && rm -r tmp && rm -r coverage",
+        "clean": "rm -rf bin && rm -rf tmp && rm -rf coverage",
         "coverage": "npx nyc npm run test",
         "coverage:coveralls": "npx nyc --reporter=lcov npm run test",
         "coverage:text": "npx nyc --reporter=text npm run test",

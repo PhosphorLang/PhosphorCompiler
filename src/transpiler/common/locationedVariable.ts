@@ -1,5 +1,5 @@
 import * as SemanticSymbols from "../../connector/semanticSymbols";
-import Register64 from "./register64";
+import Register64 from "./registers/register64";
 
 export default class LocationedVariable
 {

@@ -1,4 +1,4 @@
-import Register64 from "../../common/register64";
+import Register64 from "../../common/registers/register64";
 import RegistersAmd64 from "../registersAmd64";
 
 export default abstract class RegistersAmd64Linux

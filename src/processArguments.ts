@@ -46,10 +46,12 @@ export default class ProcessArguments
 
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
-        // If the following would still be empty, the command parsing would have been thrown an error.
+        const options = command.opts();
+
+        // If the following were still empty, the command parsing would have thrown an error.
         this.filePath = filePath;
         this.outputPath = outputPath;
 
-        this.standardLibraryPath = command.standardLibrary as string;
+        this.standardLibraryPath = options.standardLibrary;
     }
 }

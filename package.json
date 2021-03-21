@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "chalk": "4.1.0",
-        "commander": "5.1.0"
+        "commander": "7.1.0"
     },
     "devDependencies": {
         "@types/chai": "4.2.11",

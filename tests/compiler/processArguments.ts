@@ -62,7 +62,6 @@ describe('ProcessArguments',
                         new ProcessArguments(argv);
                     }
                 );
-
             }
         );
 
@@ -79,7 +78,6 @@ describe('ProcessArguments',
                         new ProcessArguments(argv);
                     }
                 );
-
             }
         );
 
@@ -98,7 +96,6 @@ describe('ProcessArguments',
                         new ProcessArguments(argv);
                     }
                 );
-
             }
         );
 
@@ -117,7 +114,6 @@ describe('ProcessArguments',
                         new ProcessArguments(argv);
                     }
                 );
-
             }
         );
     }

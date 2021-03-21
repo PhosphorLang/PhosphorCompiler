@@ -1,12 +1,21 @@
-import { Command, CommanderError } from 'commander';
+import { Command, CommanderError, Option } from 'commander';
 
 export type ProcessArgumentsError = CommanderError;
+
+export enum OptimisationLevel
+{
+    None = 'none',
+    Balanced = 'balanced',
+    Performance = 'performance',
+    Size = 'size',
+}
 
 export default class ProcessArguments
 {
     public readonly filePath: string;
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
+    public readonly optimisationLevel: OptimisationLevel;
 
     constructor (argv?: string[])
     {
@@ -44,6 +53,11 @@ export default class ProcessArguments
                 'standardLibrary.a',
             );
 
+        const optimisationOption = new Option('-o, --optimisation <level>', 'Set the optimisation level');
+        optimisationOption.choices(Object.values(OptimisationLevel));
+
+        command.addOption(optimisationOption);
+
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
         const options = command.opts();
@@ -53,5 +67,6 @@ export default class ProcessArguments
         this.outputPath = outputPath;
 
         this.standardLibraryPath = options.standardLibrary;
+        this.optimisationLevel = options.optimisation;
     }
 }

@@ -2,6 +2,7 @@ import 'mocha';
 import { assert } from 'chai';
 import OptimisationLevel from '../../src/options/optimisationLevel';
 import ProcessArguments from '../../src/processArguments';
+import TargetPlatform from '../../src/options/targetPlatform';
 
 describe('ProcessArguments',
     function ()
@@ -48,6 +49,21 @@ describe('ProcessArguments',
                 const processArguments = new ProcessArguments(argv);
 
                 assert.equal(processArguments.optimisationLevel, OptimisationLevel.Balanced);
+            }
+        );
+
+        it('recognises target.',
+            function ()
+            {
+                const argv: string[] = [
+                    '--target', TargetPlatform.LinuxAmd64,
+                    'inFile',
+                    'outFile',
+                ];
+
+                const processArguments = new ProcessArguments(argv);
+
+                assert.equal(processArguments.targetPlatform, TargetPlatform.LinuxAmd64);
             }
         );
 
@@ -104,6 +120,24 @@ describe('ProcessArguments',
             {
                 const argv: string[] = [
                     '--optimisation invalidValue',
+                    'inFile',
+                    'outFile',
+                ];
+
+                assert.throws(
+                    (): void =>
+                    {
+                        new ProcessArguments(argv);
+                    }
+                );
+            }
+        );
+
+        it('throws when target option is set to an unknown value.',
+            function ()
+            {
+                const argv: string[] = [
+                    '--target invalidValue',
                     'inFile',
                     'outFile',
                 ];

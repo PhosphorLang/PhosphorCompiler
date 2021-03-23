@@ -38,9 +38,14 @@ function main ()
 
 You need the following present on your system:
 
-- [Node.js](https://nodejs.org/) >= 12.0.0
-- [NASM](https://nasm.us/) >= 2.13
-- [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
+- For all target platforms:
+    - [Node.js](https://nodejs.org/) >= 12.14.0
+- Linux Amd64:
+    - [NASM](https://nasm.us/) >= 2.13
+    - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
+- AVR:
+    - [GNU avr-as](https://www.gnu.org/software/binutils/) >= 2.26
+    - [GNU avr-ld](https://www.gnu.org/software/binutils/) >= 2.26
 
 ### **Compile the compiler**
 

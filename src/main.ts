@@ -9,9 +9,11 @@ import DiagnosticException from './diagnostic/diagnosticException';
 import fs from 'fs';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
+import LinkerAmd64Linux from './linker/amd64/linux/linkerAmd64Linux';
 import Lowerer from './lowerer/lowerer';
 import os from 'os';
 import Parser from './parser/parser';
+import TargetPlatform from './options/targetPlatform';
 import Transpiler from './transpiler/transpiler';
 import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
 
@@ -40,10 +42,21 @@ class Main
         const lexer = new Lexer(diagnostic);
         const parser = new Parser(diagnostic);
         const connector = new Connector(diagnostic);
-        const transpiler: Transpiler = new TranspilerAmd64Linux();
         const lowerer = new Lowerer();
-        const assembler: Assembler = new AssemblerAmd64Linux();
-        const linker = new Linker();
+        let transpiler: Transpiler;
+        let assembler: Assembler;
+        let linker: Linker;
+
+        switch (this.arguments.targetPlatform)
+        {
+            case TargetPlatform.LinuxAmd64:
+                transpiler = new TranspilerAmd64Linux();
+                assembler = new AssemblerAmd64Linux();
+                linker = new LinkerAmd64Linux();
+                break;
+            default:
+                throw new Error(`Unknown target platform: "${this.arguments.targetPlatform}"`);
+        }
 
         const fileContent = fs.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
 
@@ -93,7 +106,7 @@ class Main
 
         fs.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
 
-        assembler.run('tmp/test.asm');
+        assembler.run('tmp/test.asm', 'tmp/test.o');
 
         linker.run(this.arguments.outputPath, ['tmp/test.o', this.arguments.standardLibraryPath]);
     }

@@ -1,11 +1,10 @@
 import Assembler from '../../assembler';
+import childProcess from 'child_process';
 
-export default class AssemblerAmd64Linux extends Assembler
+export default class AssemblerAmd64Linux implements Assembler
 {
-    constructor ()
+    public run (assemblyPath: string, outputPath: string): void
     {
-        super();
-
-        this.format = 'elf64';
+        childProcess.execSync('nasm -a -f elf64 -o ' + outputPath + ' "' + assemblyPath + '"');
     }
 }

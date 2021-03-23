@@ -3,6 +3,7 @@
 import ProcessArguments, { ProcessArgumentsError } from './processArguments';
 import Assembler from './assembler/assembler';
 import AssemblerAmd64Linux from './assembler/amd64/linux/assemblerAmd64Linux';
+import AssemblerAvr from './assembler/avr/assemblerAvr';
 import Connector from './connector/connector';
 import Diagnostic from './diagnostic/diagnostic';
 import DiagnosticException from './diagnostic/diagnosticException';
@@ -10,12 +11,14 @@ import fs from 'fs';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
 import LinkerAmd64Linux from './linker/amd64/linux/linkerAmd64Linux';
+import LinkerAvr from './linker/avr/linkerAvr';
 import Lowerer from './lowerer/lowerer';
 import os from 'os';
 import Parser from './parser/parser';
 import TargetPlatform from './options/targetPlatform';
 import Transpiler from './transpiler/transpiler';
 import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
+import TranspilerAvr from './transpiler/avr/transpilerAvr';
 
 class Main
 {
@@ -54,8 +57,11 @@ class Main
                 assembler = new AssemblerAmd64Linux();
                 linker = new LinkerAmd64Linux();
                 break;
-            default:
-                throw new Error(`Unknown target platform: "${this.arguments.targetPlatform}"`);
+            case TargetPlatform.Avr:
+                transpiler = new TranspilerAvr();
+                assembler = new AssemblerAvr();
+                linker = new LinkerAvr();
+                break;
         }
 
         const fileContent = fs.readFileSync(this.arguments.filePath, {encoding: 'utf8'});

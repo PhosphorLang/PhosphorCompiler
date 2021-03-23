@@ -26,6 +26,7 @@ function main ()
         - [**Compile the compiler**](#compile-the-compiler)
         - [**Get the standard library**](#get-the-standard-library)
         - [**Compile your code**](#compile-your-code)
+        - [**Compilation targets**](#compilation-targets)
     - [**Description**](#description)
         - [**Components**](#components)
         - [**Examples**](#examples)
@@ -71,6 +72,14 @@ the git repository of the standard library next to the repository of the compile
 ```bash
 node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard library>/bin/standardLibrary.a
 ```
+
+### **Compilation targets**
+
+You can compile from any supported platform to any target platform.
+
+Target Platforms:
+- Linux on x86_64: linux_amd64
+- AVR (not working yet): avr
 
 <hr>
 

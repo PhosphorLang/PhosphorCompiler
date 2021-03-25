@@ -1,14 +1,12 @@
+import * as Instructions from "../common/instructions";
 import * as SemanticNodes from "../../connector/semanticNodes";
-import Instruction from "../common/instructions/instruction";
-import LabelInstruction from "../common/instructions/labelInstruction";
 import LocationManagerAvr from "./locationManagerAvr";
-import SingleOperandInstruction from "../common/instructions/singleOperandInstruction";
 import Transpiler from "../transpiler";
 
 export default class TranspilerAvr implements Transpiler
 {
-    private instructions: Instruction[];
-    private constants: Instruction[];
+    private instructions: Instructions.Instruction[];
+    private constants: Instructions.Instruction[];
 
     private locationManager: LocationManagerAvr;
 
@@ -63,7 +61,7 @@ export default class TranspilerAvr implements Transpiler
         return fileAssembly;
     }
 
-    private convertInstructionsToAssembly (instructions: Instruction[]): string
+    private convertInstructionsToAssembly (instructions: Instructions.Instruction[]): string
     {
         let assembly = '';
 
@@ -75,9 +73,9 @@ export default class TranspilerAvr implements Transpiler
         return assembly;
     }
 
-    private transpileFile (fileNode: SemanticNodes.File): Instruction[]
+    private transpileFile (fileNode: SemanticNodes.File): Instructions.Instruction[]
     {
-        const fileInstructions: Instruction[] = [];
+        const fileInstructions: Instructions.Instruction[] = [];
 
         for (const functionNode of fileNode.functions)
         {
@@ -86,9 +84,9 @@ export default class TranspilerAvr implements Transpiler
 
         fileInstructions.push(
             // Start the programme with calling the main function:
-            new SingleOperandInstruction('call', 'f_main'),
+            new Instructions.SingleOperand('call', 'main'),
             // Then exit it properly:
-            new SingleOperandInstruction('jmp', 'exit'),
+            new Instructions.SingleOperand('jmp', 'exit'),
         );
 
         fileInstructions.push(...this.constants);
@@ -96,9 +94,9 @@ export default class TranspilerAvr implements Transpiler
         fileInstructions.push(...this.instructions);
 
         fileInstructions.push(
-            new LabelInstruction('exit'), // Exit function -> TODO: This should be part of the standard library!
-            new Instruction('cli'), // Disable all interrupts.
-            new Instruction('sleep'), // Put the microcontroller into sleep mode.
+            new Instructions.Label('exit'), // Exit function -> TODO: This should be part of the standard library!
+            new Instructions.Instruction('cli'), // Disable all interrupts.
+            new Instructions.Instruction('sleep'), // Put the microcontroller into sleep mode.
         );
 
         return fileInstructions;

@@ -66,7 +66,7 @@ export default class ProcessArguments
 
         command.addOption(targetOption);
 
-        command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
+        command = command.parse(argv, { from: 'user' });
 
         const options = command.opts() as OptionValues;
 

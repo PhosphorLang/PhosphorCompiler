@@ -10,7 +10,7 @@ export default class DoubleOperandInstruction extends Instruction
 
     public get text (): string
     {
-        return this._command + this.commandOperandSplitter + this.firstOperand + this.operandSplitter + this.secondOperand;
+        return this.commandString + this.commandOperandSplitter + this.firstOperand + this.operandSplitter + this.secondOperand;
     }
 
     constructor (command: string, firstOperand: string, secondOperand: string)

@@ -8,7 +8,7 @@ export default class SingleOperandInstruction extends Instruction
 
     public get text (): string
     {
-        return this._command + this.commandOperandSplitter + this.operand;
+        return this.commandString + this.commandOperandSplitter + this.operand;
     }
 
     constructor (command: string, operand: string)

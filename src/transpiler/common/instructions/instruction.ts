@@ -1,19 +1,19 @@
 export default class Instruction
 {
-    protected _command: string;
+    protected commandString: string;
 
     public get text (): string
     {
-        return this._command;
+        return this.commandString;
     }
 
     public set command (command: string)
     {
-        this._command = command;
+        this.commandString = command;
     }
 
     constructor (command: string)
     {
-        this._command = command;
+        this.commandString = command;
     }
 }

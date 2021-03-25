@@ -6,6 +6,6 @@ export default class LabelInstruction extends Instruction
 
     public get text (): string
     {
-        return this._command + this.postfix;
+        return this.commandString + this.postfix;
     }
 }

@@ -62,6 +62,7 @@ export default class ProcessArguments
         command.addOption(optimisationOption);
 
         const targetOption = new Option('-t, --target <platform>', 'Set the compilation target platform');
+        optimisationOption.choices(Object.values(TargetPlatform));
 
         command.addOption(targetOption);
 

@@ -8,8 +8,8 @@ export type ProcessArgumentsError = CommanderError;
 interface OptionValues
 {
     standardLibrary: string;
-    optimisation: OptimisationLevel;
-    target: TargetPlatform;
+    optimisation?: OptimisationLevel;
+    target?: TargetPlatform;
 }
 
 export default class ProcessArguments
@@ -72,9 +72,9 @@ export default class ProcessArguments
         // If the following were still empty, the command parsing would have thrown an error.
         this.filePath = filePath;
         this.outputPath = outputPath;
-
         this.standardLibraryPath = options.standardLibrary;
-        this.optimisationLevel = options.optimisation;
-        this.targetPlatform = options.target;
+
+        this.optimisationLevel = options.optimisation ?? OptimisationLevel.None;
+        this.targetPlatform = options.target ?? TargetPlatform.LinuxAmd64; // TODO: Use the platform the compiler runs on as default.
     }
 }

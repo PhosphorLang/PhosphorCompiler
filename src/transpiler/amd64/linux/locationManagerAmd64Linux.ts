@@ -5,6 +5,9 @@ import RegistersAmd64Linux from "./registersAmd64Linux";
 
 type VariableStack = Map<SemanticSymbols.Variable, LocationedVariable>;
 
+// TODO: This must be reworked.
+//       We need a very simple location manager that puts everything onto the stack for debugging.
+//       And then use, when compiling in optimised mode, this smart approach.
 export default abstract class LocationManagerAmd64Linux
 {
     protected abstract code: string[];

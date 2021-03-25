@@ -54,6 +54,9 @@ export default class TranspilerAvr implements Transpiler
         this.localLabelCounter = 0;
         this.locationManager.instructions = this.instructions;
 
+        /* TODO: It is a bit confusing that transpileFile() returns the instructions while there is this.instructions which is used inside
+                 transpileFile() and the functions it calls but reset by run(). It seems that you could run transpileFile() twice at this
+                 point and get the same result but that is not the case as this.instructions is not reset. */
         const fileInstructions = this.transpileFile(semanticTree);
 
         const fileAssembly = this.convertInstructionsToAssembly(fileInstructions);

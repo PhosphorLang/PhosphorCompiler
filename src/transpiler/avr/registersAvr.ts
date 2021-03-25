@@ -48,11 +48,7 @@ export default abstract class RegistersAvr
 
     // Register classes
 
-    public static readonly callerSaved: Register8[] = [];
-
-    public static readonly calleeSaved: Register8[] = [
-        RegistersAvr.r1,
-        RegistersAvr.r2,
+    public static readonly freeUse: Register8[] = [
         RegistersAvr.r3,
         RegistersAvr.r4,
         RegistersAvr.r5,
@@ -76,12 +72,6 @@ export default abstract class RegistersAvr
         RegistersAvr.r23,
         RegistersAvr.r24,
         RegistersAvr.r25,
-        RegistersAvr.r26,
-        RegistersAvr.r27,
-        RegistersAvr.r28,
-        RegistersAvr.r29,
-        RegistersAvr.r30,
-        RegistersAvr.r31,
     ];
 
     public static readonly argumentValues: Register8[] = [
@@ -120,7 +110,21 @@ export default abstract class RegistersAvr
         RegistersAvr.z,
     ];
 
-    public static readonly zero: Register8 = RegistersAvr.r0;
+    public static readonly flashAccessPointers: Register16[] = [
+        RegistersAvr.z,
+    ];
+
+    public static readonly ramDisplacedAccessPointers: Register16[] = [
+        RegistersAvr.y,
+        RegistersAvr.z,
+    ];
+
+    public static readonly multiplication: Register16 = new Register16(
+        RegistersAvr.r1.bit8,
+        RegistersAvr.r0.bit8,
+    );
+
+    public static readonly zero: Register8 = RegistersAvr.r2;
 
     public static readonly stackPointer: Register16 = RegistersAvr.sp;
 }

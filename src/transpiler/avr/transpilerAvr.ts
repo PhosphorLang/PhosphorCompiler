@@ -107,6 +107,11 @@ export default class TranspilerAvr implements Transpiler
 
     private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void
     {
-        return;
+        this.instructions.push(
+            // Function name:
+            new Instructions.Label(functionNode.symbol.name),
+        );
+
+
     }
 }

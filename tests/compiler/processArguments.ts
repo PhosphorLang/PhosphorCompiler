@@ -119,7 +119,8 @@ describe('ProcessArguments',
             function ()
             {
                 const argv: string[] = [
-                    '--optimisation invalidValue',
+                    '--standardLibrary', 'standardLibrary',
+                    '--optimisation', 'invalidValue',
                     'inFile',
                     'outFile',
                 ];
@@ -137,7 +138,8 @@ describe('ProcessArguments',
             function ()
             {
                 const argv: string[] = [
-                    '--target invalidValue',
+                    '--standardLibrary', 'standardLibrary',
+                    '--target', 'invalidValue',
                     'inFile',
                     'outFile',
                 ];

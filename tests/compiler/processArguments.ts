@@ -97,24 +97,6 @@ describe('ProcessArguments',
             }
         );
 
-        it('throws when standardLibrary option is set without any value.',
-            function ()
-            {
-                const argv: string[] = [
-                    '--standardLibrary',
-                    'inFile',
-                    'outFile',
-                ];
-
-                assert.throws(
-                    (): void =>
-                    {
-                        new ProcessArguments(argv);
-                    }
-                );
-            }
-        );
-
         it('throws when optimisation option is set to an unknown value.',
             function ()
             {

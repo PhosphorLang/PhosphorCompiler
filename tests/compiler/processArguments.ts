@@ -76,7 +76,8 @@ describe('ProcessArguments',
                     (): void =>
                     {
                         new ProcessArguments(argv);
-                    }
+                    },
+                    "error: missing required argument 'inputFile'"
                 );
             }
         );
@@ -92,7 +93,8 @@ describe('ProcessArguments',
                     (): void =>
                     {
                         new ProcessArguments(argv);
-                    }
+                    },
+                    "error: missing required argument 'outputFile'"
                 );
             }
         );
@@ -111,7 +113,8 @@ describe('ProcessArguments',
                     (): void =>
                     {
                         new ProcessArguments(argv);
-                    }
+                    },
+                    /error.+-o, --optimisation.+'invalidValue' is invalid.*/i
                 );
             }
         );
@@ -130,7 +133,8 @@ describe('ProcessArguments',
                     (): void =>
                     {
                         new ProcessArguments(argv);
-                    }
+                    },
+                    /error.+-t, --target.+'invalidValue' is invalid.*/i
                 );
             }
         );

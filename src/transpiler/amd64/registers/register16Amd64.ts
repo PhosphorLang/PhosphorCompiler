@@ -1,6 +1,6 @@
-import Register8 from "./register8";
+import Register8Amd64 from "./register8Amd64";
 
-export default class Register16 extends Register8
+export default class Register16Amd64 extends Register8Amd64
 {
     public readonly bit16: string;
 

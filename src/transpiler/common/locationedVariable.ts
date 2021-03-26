@@ -1,16 +1,16 @@
 import * as SemanticSymbols from "../../connector/semanticSymbols";
-import Register64 from "./registers/register64";
+import Register64Amd64 from "../amd64/registers/register64Amd64";
 
 export default class LocationedVariable
 {
     public readonly variable: SemanticSymbols.Variable;
-    public location: Register64|string;
+    public location: Register64Amd64|string;
 
     public get locationString (): string
     {
         // TODO: Both register and stack location must not have a fixed size but the actual type size.
 
-        if (this.location instanceof Register64)
+        if (this.location instanceof Register64Amd64)
         {
             return this.location.bit64;
         }
@@ -20,7 +20,7 @@ export default class LocationedVariable
         }
     }
 
-    constructor (variable: SemanticSymbols.Variable, location: Register64|string)
+    constructor (variable: SemanticSymbols.Variable, location: Register64Amd64|string)
     {
         this.variable = variable;
         this.location = location;

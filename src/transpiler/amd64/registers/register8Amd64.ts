@@ -1,4 +1,4 @@
-export default class Register8
+export default class Register8Amd64
 {
     public readonly bit8: string;
 

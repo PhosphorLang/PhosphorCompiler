@@ -1,6 +1,6 @@
 import * as SemanticSymbols from "../../../connector/semanticSymbols";
 import LocationedVariable from "../../common/locationedVariable";
-import Register64 from "../../common/registers/register64";
+import Register64Amd64 from "../registers/register64Amd64";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 
 type VariableStack = Map<SemanticSymbols.Variable, LocationedVariable>;
@@ -22,17 +22,17 @@ export default abstract class LocationManagerAmd64Linux
     /**
      * The set of registers currently in use.
      */
-    private registersInUse: Set<Register64>;
+    private registersInUse: Set<Register64Amd64>;
 
     /**
      * The map of used callee saved registers (to their stack location) that must be restored at the end of the function.
      */
-    private usedCalleeSavedRegisters: Map<Register64, string>;
+    private usedCalleeSavedRegisters: Map<Register64Amd64, string>;
 
     /**
      * A list of currently saved register lists. Before a function call a list is added and filled, after it is removed again.
      */
-    private currentlySavedRegistersList: Register64[][];
+    private currentlySavedRegistersList: Register64Amd64[][];
 
     /**
      * The current offset of the base pointer, equivalent to the current stack frame size.
@@ -59,8 +59,8 @@ export default abstract class LocationManagerAmd64Linux
     constructor ()
     {
         this.variableStacks = [];
-        this.registersInUse = new Set<Register64>();
-        this.usedCalleeSavedRegisters = new Map<Register64, string>();
+        this.registersInUse = new Set<Register64Amd64>();
+        this.usedCalleeSavedRegisters = new Map<Register64Amd64, string>();
         this.currentlySavedRegistersList = [];
         this.currentBasePointerOffset = 0;
     }
@@ -105,9 +105,9 @@ export default abstract class LocationManagerAmd64Linux
      * @param saveToMemoryWhenInUse If true and the location is in use, the content will be moved to the memory and not to a free register.
      *                              This can be used to keep the registers free, e.g. before a function call.
      */
-    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64|string, saveToMemoryWhenInUse = false): LocationedVariable
+    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64Amd64|string, saveToMemoryWhenInUse = false): LocationedVariable
     {
-        let targetLocation: Register64|string;
+        let targetLocation: Register64Amd64|string;
 
         if (location === undefined)
         {
@@ -117,7 +117,7 @@ export default abstract class LocationManagerAmd64Linux
         {
             // If the location is a register in use we must free it before we can use it.
 
-            if ((location instanceof Register64) && (this.registersInUse.has(location)))
+            if ((location instanceof Register64Amd64) && (this.registersInUse.has(location)))
             {
                 const locationedVariable = this.getVariableForLocation(location);
 
@@ -141,7 +141,7 @@ export default abstract class LocationManagerAmd64Linux
         return locationedVariable;
     }
 
-    private getVariableForLocation (location: Register64|string): LocationedVariable
+    private getVariableForLocation (location: Register64Amd64|string): LocationedVariable
     {
         for (const variableStack of this.variableStacks)
         {
@@ -155,7 +155,7 @@ export default abstract class LocationManagerAmd64Linux
         }
 
         let locationAsString: string;
-        if (location instanceof Register64)
+        if (location instanceof Register64Amd64)
         {
             locationAsString = location.bit64;
         }
@@ -167,7 +167,7 @@ export default abstract class LocationManagerAmd64Linux
         throw new Error(`Transpiler error: For the given location "${locationAsString}" there is no variable known.`);
     }
 
-    private getNextLocation (): Register64|string
+    private getNextLocation (): Register64Amd64|string
     {
         const register = this.getNextFreeRegister();
 
@@ -183,7 +183,7 @@ export default abstract class LocationManagerAmd64Linux
         }
     }
 
-    private getNextFreeRegister (): Register64|null
+    private getNextFreeRegister (): Register64Amd64|null
     {
         // Priority of registers: Caller saved, arguments, callee saved.
         // FIXME: We must save callee saved registers before use and restore them after it or at the end of the function!
@@ -222,7 +222,7 @@ export default abstract class LocationManagerAmd64Linux
             {
                 variableStack.delete(variable);
 
-                if (variableLocation.location instanceof Register64)
+                if (variableLocation.location instanceof Register64Amd64)
                 {
                     this.registersInUse.delete(variableLocation.location);
                 }
@@ -251,7 +251,7 @@ export default abstract class LocationManagerAmd64Linux
 
     protected moveVariableToRegister (locationedVariable: LocationedVariable): LocationedVariable
     {
-        if (!(locationedVariable.location instanceof Register64))
+        if (!(locationedVariable.location instanceof Register64Amd64))
         {
             const register = this.makeAnyRegisterFree();
 
@@ -264,7 +264,7 @@ export default abstract class LocationManagerAmd64Linux
         return locationedVariable;
     }
 
-    private makeAnyRegisterFree (): Register64
+    private makeAnyRegisterFree (): Register64Amd64
     {
         let register = this.getNextFreeRegister();
 
@@ -272,7 +272,7 @@ export default abstract class LocationManagerAmd64Linux
         {
             const locationedVariableInRegister = this.getAnyVariableInRegister();
 
-            register = locationedVariableInRegister.location as Register64;
+            register = locationedVariableInRegister.location as Register64Amd64;
 
             const stackLocation = this.nextStackLocation;
 
@@ -290,7 +290,7 @@ export default abstract class LocationManagerAmd64Linux
         {
             for (const locationedVariable of stack.values())
             {
-                if (locationedVariable.location instanceof Register64)
+                if (locationedVariable.location instanceof Register64Amd64)
                 {
                     return locationedVariable;
                 }
@@ -307,7 +307,7 @@ export default abstract class LocationManagerAmd64Linux
      */
     protected saveRegistersForFunctionCall (targetLocation: LocationedVariable|undefined, isSystemCall = false): void
     {
-        const registersToSave: Set<Register64> = new Set<Register64>();
+        const registersToSave: Set<Register64Amd64> = new Set<Register64Amd64>();
 
         // NOTE: The order of the registers (i.e. the reverse of the restore registers function) is important!
         if (isSystemCall)
@@ -328,12 +328,12 @@ export default abstract class LocationManagerAmd64Linux
         }
 
         // Do not save the target location if it is a register:
-        if (targetLocation?.location instanceof Register64)
+        if (targetLocation?.location instanceof Register64Amd64)
         {
             registersToSave.delete(targetLocation.location);
         }
 
-        const currentlySavedRegisters: Register64[] = [];
+        const currentlySavedRegisters: Register64Amd64[] = [];
 
         for (const register of registersToSave)
         {

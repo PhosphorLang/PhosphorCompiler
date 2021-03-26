@@ -1,6 +1,6 @@
-import Register32 from "./register32";
+import Register32Amd64 from "./register32Amd64";
 
-export default class Register64 extends Register32
+export default class Register64Amd64 extends Register32Amd64
 {
     public readonly bit64: string;
 

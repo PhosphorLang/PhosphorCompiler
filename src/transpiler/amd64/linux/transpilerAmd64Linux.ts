@@ -3,7 +3,7 @@ import * as SemanticSymbols from "../../../connector/semanticSymbols";
 import BuildInFunctions from "../../../definitions/buildInFunctions";
 import BuildInOperators from "../../../definitions/buildInOperators";
 import BuildInTypes from "../../../definitions/buildInTypes";
-import LocationedVariable from "../../common/locationedVariable";
+import LocationedVariableAmd64 from "../locationedVariableAmd64";
 import LocationManagerAmd64Linux from "./locationManagerAmd64Linux";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 import SemanticKind from "../../../connector/semanticKind";
@@ -180,7 +180,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         if (returnStatementNode.expression !== null)
         {
             const temporaryVariable = new SemanticSymbols.Variable('return', returnStatementNode.expression.type, false);
-            const temporaryLocationedVariable = new LocationedVariable(temporaryVariable, RegistersAmd64Linux.integerReturn);
+            const temporaryLocationedVariable = new LocationedVariableAmd64(temporaryVariable, RegistersAmd64Linux.integerReturn);
 
             // TODO: Replace hard coded return register with actual type and size:
             this.transpileExpression(returnStatementNode.expression, temporaryLocationedVariable);
@@ -232,7 +232,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         this.freeVariable(conditionResultTemporaryVariable);
     }
 
-    private transpileExpression (expressionNode: SemanticNodes.Expression, targetLocation?: LocationedVariable): void
+    private transpileExpression (expressionNode: SemanticNodes.Expression, targetLocation?: LocationedVariableAmd64): void
     {
         if (targetLocation === undefined)
         {
@@ -272,7 +272,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         }
     }
 
-    private transpileLiteralExpression (literalExpression: SemanticNodes.LiteralExpression, targetLocation: LocationedVariable): void
+    private transpileLiteralExpression (literalExpression: SemanticNodes.LiteralExpression, targetLocation: LocationedVariableAmd64): void
     {
         switch (literalExpression.type)
         {
@@ -329,7 +329,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         }
     }
 
-    private transpileVariableExpression (variableExpression: SemanticNodes.VariableExpression, targetLocation: LocationedVariable): void
+    private transpileVariableExpression (variableExpression: SemanticNodes.VariableExpression, targetLocation: LocationedVariableAmd64): void
     {
         const variableLocation = this.getVariableLocation(variableExpression.variable);
 
@@ -339,7 +339,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         }
     }
 
-    private transpileCallExpression (callExpression: SemanticNodes.CallExpression, targetLocation?: LocationedVariable): void
+    private transpileCallExpression (callExpression: SemanticNodes.CallExpression, targetLocation?: LocationedVariableAmd64): void
     {
         this.saveRegistersForFunctionCall(targetLocation);
 
@@ -384,7 +384,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         }
     }
 
-    private transpileUnaryExpression (unaryExpression: SemanticNodes.UnaryExpression, targetLocation: LocationedVariable): void
+    private transpileUnaryExpression (unaryExpression: SemanticNodes.UnaryExpression, targetLocation: LocationedVariableAmd64): void
     {
         this.transpileExpression(unaryExpression.operand, targetLocation);
 
@@ -407,7 +407,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         }
     }
 
-    private transpileBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression, targetLocation: LocationedVariable): void
+    private transpileBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression, targetLocation: LocationedVariableAmd64): void
     {
         const operator = binaryExpression.operator;
 

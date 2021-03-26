@@ -1,9 +1,9 @@
 import * as SemanticSymbols from "../../../connector/semanticSymbols";
-import LocationedVariable from "../../common/locationedVariable";
+import LocationedVariableAmd64 from "../locationedVariableAmd64";
 import Register64Amd64 from "../registers/register64Amd64";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 
-type VariableStack = Map<SemanticSymbols.Variable, LocationedVariable>;
+type VariableStack = Map<SemanticSymbols.Variable, LocationedVariableAmd64>;
 
 // TODO: This must be reworked.
 //       We need a very simple location manager that puts everything onto the stack for debugging.
@@ -67,7 +67,7 @@ export default abstract class LocationManagerAmd64Linux
 
     protected addNewVariableStack (isFunctionInitialisation = false): void
     {
-        const newStack = new Map<SemanticSymbols.Variable, LocationedVariable>();
+        const newStack = new Map<SemanticSymbols.Variable, LocationedVariableAmd64>();
 
         this.variableStacks.push(newStack);
 
@@ -105,7 +105,7 @@ export default abstract class LocationManagerAmd64Linux
      * @param saveToMemoryWhenInUse If true and the location is in use, the content will be moved to the memory and not to a free register.
      *                              This can be used to keep the registers free, e.g. before a function call.
      */
-    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64Amd64|string, saveToMemoryWhenInUse = false): LocationedVariable
+    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64Amd64|string, saveToMemoryWhenInUse = false): LocationedVariableAmd64
     {
         let targetLocation: Register64Amd64|string;
 
@@ -134,14 +134,14 @@ export default abstract class LocationManagerAmd64Linux
             targetLocation = location;
         }
 
-        const locationedVariable = new LocationedVariable(variable, targetLocation);
+        const locationedVariable = new LocationedVariableAmd64(variable, targetLocation);
 
         this.lastVariableStack.set(variable, locationedVariable);
 
         return locationedVariable;
     }
 
-    private getVariableForLocation (location: Register64Amd64|string): LocationedVariable
+    private getVariableForLocation (location: Register64Amd64|string): LocationedVariableAmd64
     {
         for (const variableStack of this.variableStacks)
         {
@@ -234,7 +234,7 @@ export default abstract class LocationManagerAmd64Linux
         throw new Error(`Transpiler error: The given variable "${variable.name}" cannot be freed because it is unknown.`);
     }
 
-    protected getVariableLocation (variable: SemanticSymbols.Variable): LocationedVariable
+    protected getVariableLocation (variable: SemanticSymbols.Variable): LocationedVariableAmd64
     {
         for (const variableStack of this.variableStacks.slice().reverse())
         {
@@ -249,7 +249,7 @@ export default abstract class LocationManagerAmd64Linux
         throw new Error(`Transpiler error: The given variable "${variable.name}" has no location.`);
     }
 
-    protected moveVariableToRegister (locationedVariable: LocationedVariable): LocationedVariable
+    protected moveVariableToRegister (locationedVariable: LocationedVariableAmd64): LocationedVariableAmd64
     {
         if (!(locationedVariable.location instanceof Register64Amd64))
         {
@@ -284,7 +284,7 @@ export default abstract class LocationManagerAmd64Linux
         return register;
     }
 
-    private getAnyVariableInRegister (): LocationedVariable
+    private getAnyVariableInRegister (): LocationedVariableAmd64
     {
         for (const stack of this.variableStacks)
         {
@@ -305,7 +305,7 @@ export default abstract class LocationManagerAmd64Linux
      * @param targetLocation The target location of the function call, for it to be ignored instead of saved.
      * @param isSystemCall If true, the registers for a system call are saved instead of a normal function call.
      */
-    protected saveRegistersForFunctionCall (targetLocation: LocationedVariable|undefined, isSystemCall = false): void
+    protected saveRegistersForFunctionCall (targetLocation: LocationedVariableAmd64|undefined, isSystemCall = false): void
     {
         const registersToSave: Set<Register64Amd64> = new Set<Register64Amd64>();
 

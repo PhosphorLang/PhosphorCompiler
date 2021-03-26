@@ -105,6 +105,23 @@ export default abstract class RegistersAvr
         RegistersAvr.r18,
     ];
 
+    /**
+     * Registers into which constants can be loaded.
+     * Only includes the free use registers.
+     */
+    public static readonly constantLoadable: RegisterAvr[] = [
+        RegistersAvr.r25,
+        RegistersAvr.r24,
+        RegistersAvr.r23,
+        RegistersAvr.r22,
+        RegistersAvr.r21,
+        RegistersAvr.r20,
+        RegistersAvr.r19,
+        RegistersAvr.r18,
+        RegistersAvr.r17,
+        RegistersAvr.r16,
+    ];
+
     public static readonly pointers: AddressRegisterAvr[] = [
         RegistersAvr.x,
         RegistersAvr.y,

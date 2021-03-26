@@ -7,6 +7,7 @@ export default class AssemblerAvr implements Assembler
     {
         childProcess.execSync(
             'avr-as ' +
+            '--mlink-relax ' + // Automatically replace jmp/call instructions with rjmp/rcall.
             '-o "' + outputPath + '" ' +
             '"' + assemblyPath + '"'
         );

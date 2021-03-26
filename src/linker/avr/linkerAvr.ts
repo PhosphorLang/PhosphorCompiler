@@ -11,6 +11,7 @@ export default class LinkerAvr implements Linker
             'avr-ld ' +
             '-s --gc-sections ' +
             '-nostdlib -nolibc ' +
+            '--relax' + // Automatically replace jmp/call instructions with rjmp/rcall.
             '-o "' + outputPath + '" ' +
             '"' + filesAsString + '"'
         );

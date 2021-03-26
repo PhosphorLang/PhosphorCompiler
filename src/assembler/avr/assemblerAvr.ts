@@ -5,6 +5,10 @@ export default class AssemblerAvr implements Assembler
 {
     public run (assemblyPath: string, outputPath: string): void
     {
-        childProcess.execSync(`avr-as -o "${outputPath}" ${assemblyPath}`);
+        childProcess.execSync(
+            'avr-as ' +
+            '-o "' + outputPath + '" ' +
+            '"' + assemblyPath + '"'
+        );
     }
 }

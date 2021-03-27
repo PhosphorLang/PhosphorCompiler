@@ -1,0 +1,35 @@
+name: "CodeQL"
+
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: '25 23 * * 0'
+
+jobs:
+  analyse:
+    name: Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - name: Install npm dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build
+
+    - name: Initialise CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: 'javascript'
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1

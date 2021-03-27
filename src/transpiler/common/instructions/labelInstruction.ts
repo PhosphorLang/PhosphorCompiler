@@ -8,4 +8,9 @@ export default class LabelInstruction extends Instruction
     {
         return this.commandString + this.postfix;
     }
+
+    constructor (text: string)
+    {
+        super(text);
+    }
 }

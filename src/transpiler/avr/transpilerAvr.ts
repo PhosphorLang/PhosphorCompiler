@@ -223,11 +223,11 @@ export default class TranspilerAvr implements Transpiler
 
     private transpileVariableDeclaration (variableDeclarationNode: SemanticNodes.VariableDeclaration): void
     {
-        const variableRegisters = this.locationManager.createVariable(variableDeclarationNode.symbol);
+        const variableLocation = this.locationManager.createVariable(variableDeclarationNode.symbol);
 
         if (variableDeclarationNode.initialiser !== null)
         {
-            this.transpileExpression(variableDeclarationNode.initialiser, variableRegisters);
+            this.transpileExpression(variableDeclarationNode.initialiser, variableLocation);
         }
     }
 
@@ -261,9 +261,9 @@ export default class TranspilerAvr implements Transpiler
 
     private transpileAssignment (assignmentNode: SemanticNodes.Assignment): void
     {
-        const variableRegisters = this.locationManager.getVariableLocation(assignmentNode.variable);
+        const variableLocation = this.locationManager.getVariableLocation(assignmentNode.variable);
 
-        this.transpileExpression(assignmentNode.expression, variableRegisters);
+        this.transpileExpression(assignmentNode.expression, variableLocation);
     }
 
     private transpileLabel (labelNode: SemanticNodes.Label): void

@@ -185,6 +185,8 @@ export default class LocationManagerAvr
 
     public getVariableLocation (variable: SemanticSymbols.Variable): LocationedVariableAvr
     {
+        // Search through the stack upwards (meaning: in reverse order).
+        // NOTE: We must call slice() first to copy the array as reverse() changes the given one.
         for (const variableStack of this.variableStacks.slice().reverse())
         {
             const locationedVariable = variableStack.get(variable);

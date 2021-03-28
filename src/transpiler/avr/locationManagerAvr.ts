@@ -83,6 +83,10 @@ export default class LocationManagerAvr
     {
         this.leaveSection();
 
+        // Reverse the array as we have pop the registers in reversed order than they were pushed.
+        // We do not need to copy there array here as we will delete it afterwards anyway.
+        this.savedRegisters.reverse();
+
         // Restore all saved registers:
         for (const register of this.savedRegisters)
         {

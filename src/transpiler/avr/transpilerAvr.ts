@@ -19,6 +19,11 @@ export default class TranspilerAvr implements Transpiler
 
     private localLabelCounter: number;
 
+    /**
+     * Label that leads to the end of the current function before epilogue and return point.
+     */
+    private returnLabel: string;
+
     private get nextLocalLabel (): string
     {
         const newLocalLabel = `l_${this.localLabelCounter}`;
@@ -32,6 +37,7 @@ export default class TranspilerAvr implements Transpiler
     {
         this.instructions = [];
         this.localLabelCounter = 0;
+        this.returnLabel = '';
         this.locationManager = new LocationManagerAvr(this.instructions);
     }
 
@@ -39,6 +45,7 @@ export default class TranspilerAvr implements Transpiler
     {
         this.instructions = [];
         this.localLabelCounter = 0;
+        this.returnLabel = '';
         this.locationManager.instructions = this.instructions;
 
         /* TODO: It is a bit confusing that transpileFile() returns the instructions while there is this.instructions which is used inside
@@ -121,6 +128,8 @@ export default class TranspilerAvr implements Transpiler
             new Instructions.Label(functionNode.symbol.name),
         );
 
+        this.returnLabel = this.nextLocalLabel;
+
         this.locationManager.enterFunction();
 
         let parametersSize = 0;
@@ -151,7 +160,16 @@ export default class TranspilerAvr implements Transpiler
 
         this.transpileSection(functionNode.section);
 
+        this.instructions.push(
+            // Insert the return label before the function epilogue begins:
+            new Instructions.Label(this.returnLabel),
+        );
+
         this.locationManager.leaveFunction();
+
+        this.instructions.push(
+            new Instructions.Instruction('ret'),
+        );
     }
 
     private transpileSection (sectionNode: SemanticNodes.Section): void
@@ -236,7 +254,8 @@ export default class TranspilerAvr implements Transpiler
         }
 
         this.instructions.push(
-            new Instructions.Instruction('ret'),
+            // Return by jumping to the return label at the end of the function after which the epiogue starts:
+            new Instructions.SingleOperand('rjmp', this.returnLabel),
         );
     }
 

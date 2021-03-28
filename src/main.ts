@@ -114,7 +114,15 @@ class Main
 
         assembler.run('tmp/test.asm', 'tmp/test.o');
 
-        linker.run(this.arguments.outputPath, ['tmp/test.o', this.arguments.standardLibraryPath]);
+        const linkerFiles = ['tmp/test.o'];
+
+        // Add the standard library for the platforms which need one:
+        if (this.arguments.targetPlatform == TargetPlatform.LinuxAmd64)
+        {
+            linkerFiles.push(this.arguments.standardLibraryPath);
+        }
+
+        linker.run(this.arguments.outputPath, linkerFiles);
     }
 }
 

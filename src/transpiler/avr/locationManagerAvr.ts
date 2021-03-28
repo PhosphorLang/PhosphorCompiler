@@ -24,6 +24,7 @@ export default class LocationManagerAvr
      */
     private registersInUse: Map<RegisterAvr, LocationedVariableAvr>;
 
+    // TODO: As we make a lookup on this array, it should become a set:
     private savedRegisters: RegisterAvr[];
 
     private get lastVariableStack (): VariableStack

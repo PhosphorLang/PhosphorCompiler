@@ -94,9 +94,10 @@ export default class TranspilerAvr implements Transpiler
         }
 
         fileInstructions.push(
-            // Start the programme with calling the main function:
+            // The start routine calls main and then exits properly:
+            new Instructions.SingleOperand('.global', '_start'),
+            new Instructions.Label('_start'),
             new Instructions.SingleOperand('rcall', 'main'),
-            // Then exit it properly:
             new Instructions.SingleOperand('rcall', 'exit'),
         );
 

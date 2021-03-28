@@ -9,6 +9,7 @@ export default class LinkerAvr implements Linker
 
         childProcess.execSync(
             'avr-ld ' +
+            '-e _start ' +
             '-s --gc-sections ' +
             '-nostdlib -nolibc ' +
             '--relax ' + // Automatically replace jmp/call instructions with rjmp/rcall.

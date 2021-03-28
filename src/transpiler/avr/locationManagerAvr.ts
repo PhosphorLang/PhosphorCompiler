@@ -52,24 +52,26 @@ export default class LocationManagerAvr
             if (!this.registersInUse.has(register))
             {
                 /* FIXME: It is very bad that this function is half-destructive.
-                          It pushes the register but you have to put it into registersInUse manually... */
-
-                if (!this.savedRegisters.includes(register))
-                {
-
-                    this.instructions.push(
-                        // Save register:
-                        new Instructions.SingleOperand('push', register.name),
-                    );
-
-                    this.savedRegisters.push(register);
-                }
+                          It saves the register but you have to put it into registersInUse manually... */
+                this.saveRegisterIfNeeded(register);
 
                 return register;
             }
         }
 
         return null;
+    }
+
+    private saveRegisterIfNeeded (register: RegisterAvr): void
+    {
+        if (!this.savedRegisters.includes(register))
+        {
+            this.instructions.push(
+                new Instructions.SingleOperand('push', register.name),
+            );
+
+            this.savedRegisters.push(register);
+        }
     }
 
     public enterFunction (): void
@@ -247,6 +249,8 @@ export default class LocationManagerAvr
         {
             if (!this.registersInUse.has(register))
             {
+                this.saveRegisterIfNeeded(register);
+
                 continue;
             }
 

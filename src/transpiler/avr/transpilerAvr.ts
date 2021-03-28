@@ -95,9 +95,9 @@ export default class TranspilerAvr implements Transpiler
 
         fileInstructions.push(
             // Start the programme with calling the main function:
-            new Instructions.SingleOperand('call', 'main'),
+            new Instructions.SingleOperand('rcall', 'main'),
             // Then exit it properly:
-            new Instructions.SingleOperand('jmp', 'exit'),
+            new Instructions.SingleOperand('rcall', 'exit'),
         );
 
         // TODO: What about constants?
@@ -256,7 +256,7 @@ export default class TranspilerAvr implements Transpiler
     private transpileGotoStatement (gotoStatementNode: SemanticNodes.GotoStatement): void
     {
         this.instructions.push(
-            new Instructions.SingleOperand('jmp', gotoStatementNode.labelSymbol.name),
+            new Instructions.SingleOperand('rjmp', gotoStatementNode.labelSymbol.name),
         );
     }
 
@@ -435,7 +435,7 @@ export default class TranspilerAvr implements Transpiler
         // TODO: Check if any of the locations has changed and restore their position.
 
         this.instructions.push(
-            new Instructions.SingleOperand('call', callExpression.functionSymbol.name),
+            new Instructions.SingleOperand('rcall', callExpression.functionSymbol.name),
         );
 
         for (const argumentLocation of argumentLocations)
@@ -558,7 +558,7 @@ export default class TranspilerAvr implements Transpiler
                     new Instructions.DoubleOperand('cp', locationA.location[0].name, locationB.location[0].name),
                     new Instructions.SingleOperand(operatorInstruction, trueLabel),
                     new Instructions.DoubleOperand('mov', targetLocation.location[0].name, RegistersAvr.zero.name),
-                    new Instructions.SingleOperand('jmp', endLabel),
+                    new Instructions.SingleOperand('rjmp', endLabel),
                     new Instructions.Label(trueLabel),
                     // FIXME: We need to go sure that targetLocation is a constant loadable register!
                     new Instructions.DoubleOperand('ldi', targetLocation.location[0].name, '1'),

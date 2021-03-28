@@ -123,7 +123,7 @@ export default class TranspilerAvr implements Transpiler
 
         this.locationManager.enterFunction();
 
-        let parameterCounter = 0;
+        let parametersSize = 0;
         for (const parameter of functionNode.symbol.parameters)
         {
             const parameterSize = TypesAvr.getTypeSizeInBytes(parameter.type);
@@ -133,7 +133,7 @@ export default class TranspilerAvr implements Transpiler
                 throw new Error(`Transpiler error: The parameter type "${parameter.type.name}" is not supported.`);
             }
 
-            if (parameterCounter + parameterSize >= RegistersAvr.argumentValues.length)
+            if (parametersSize + parameterSize >= RegistersAvr.argumentValues.length)
             {
                 throw new Error('Transpiler error: Too many function arguments (Stack parameters are not supported).');
             }
@@ -142,8 +142,8 @@ export default class TranspilerAvr implements Transpiler
 
             for (let i = 0; i < parameterSize; i++)
             {
-                registers.push(RegistersAvr.argumentValues[parameterCounter]);
-                parameterCounter++;
+                registers.push(RegistersAvr.argumentValues[parametersSize]);
+                parametersSize++;
             }
 
             this.locationManager.registerParameter(parameter, registers);

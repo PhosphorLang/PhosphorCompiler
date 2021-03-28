@@ -240,10 +240,18 @@ export default class LocationManagerAvr
 
     private freeRegistersIfNeeded (registers: RegisterAvr[]): void
     {
+        const registersToFree: RegisterAvr[] = [];
         const freeRegisters: RegisterAvr[] = [];
 
-        for (let i = 0; i < registers.length; i++)
+        for (const register of registers)
         {
+            if (!this.registersInUse.has(register))
+            {
+                continue;
+            }
+
+            registersToFree.push(register);
+
             const freeRegister = this.getNextFreeRegister();
 
             if (freeRegister === null)
@@ -254,9 +262,9 @@ export default class LocationManagerAvr
             freeRegisters.push(freeRegister);
         }
 
-        for (let i = 0; i < registers.length; i++)
+        for (let i = 0; i < registersToFree.length; i++)
         {
-            const oldRegister = registers[i];
+            const oldRegister = registersToFree[i];
             const newRegister = freeRegisters[i];
 
             const locationedVariable = this.registersInUse.get(oldRegister);

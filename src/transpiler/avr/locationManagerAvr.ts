@@ -53,12 +53,16 @@ export default class LocationManagerAvr
                 /* FIXME: It is very bad that this function is half-destructive.
                           It pushes the register but you have to put it into registersInUse manually... */
 
-                this.instructions.push(
-                    // Save register:
-                    new Instructions.SingleOperand('push', register.name),
-                );
+                if (!this.savedRegisters.includes(register))
+                {
 
-                this.savedRegisters.push(register);
+                    this.instructions.push(
+                        // Save register:
+                        new Instructions.SingleOperand('push', register.name),
+                    );
+
+                    this.savedRegisters.push(register);
+                }
 
                 return register;
             }

@@ -112,12 +112,6 @@ export default class TranspilerAvr implements Transpiler
 
         fileInstructions.push(...this.instructions);
 
-        fileInstructions.push(
-            new Instructions.Label('exit'), // Exit function -> TODO: This should be part of the standard library!
-            new Instructions.Instruction('cli'), // Disable all interrupts.
-            new Instructions.Instruction('sleep'), // Put the microcontroller into sleep mode.
-        );
-
         return fileInstructions;
     }
 

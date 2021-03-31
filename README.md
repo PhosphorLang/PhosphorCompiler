@@ -66,11 +66,12 @@ Follow the instructions there to compile the standard library.
 Important: Note that the only currently supported platform by now is Linux on x86_64.
 
 For compiling the hello world example, execute the following command: \
-(You have to replace `<path to standard library>` with the actual path, possibly `../StandardLibrary` if you have cloned
-the git repository of the standard library next to the repository of the compiler.)
+(You have to replace `<path to standard library>` with the actual path, possibly `../StandardLibrary/bin` if you have cloned
+the git repository of the standard library next to the repository of the compiler; and `<platform>` with the target platform,
+e.g. `linuxAmd64`.)
 
 ```bash
-node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard library>/bin/standardLibrary.a
+node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard library>/standardLibrary_<platform>.a
 ```
 
 ### **Compilation targets**
@@ -78,7 +79,7 @@ node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard li
 You can compile from any supported platform to any target platform.
 
 Target Platforms:
-- Linux on x86_64: linux_amd64
+- Linux on x86_64: linuxAmd64
 - AVR (not working yet): avr
 
 <hr>

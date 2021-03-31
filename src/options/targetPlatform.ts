@@ -1,6 +1,6 @@
 enum TargetPlatform
 {
-    LinuxAmd64 = 'linux_amd64',
+    LinuxAmd64 = 'linuxAmd64',
     Avr = 'avr',
 }
 

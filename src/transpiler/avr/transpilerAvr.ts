@@ -408,7 +408,7 @@ export default class TranspilerAvr implements Transpiler
             argumentsSize += argumentSize;
 
             const argumentVariable = new SemanticSymbols.Variable('argument', argument.type, false);
-            argumentVariablesAndSizes.push({variable: argumentVariable, size: argumentsSize});
+            argumentVariablesAndSizes.push({variable: argumentVariable, size: argumentSize});
         }
 
         if (argumentsSize > RegistersAvr.argumentValues.length)

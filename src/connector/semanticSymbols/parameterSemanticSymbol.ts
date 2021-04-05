@@ -10,7 +10,7 @@ export default class ParameterSemanticSymbol extends VariableSemanticSymbol
 
         // The readonly property "kind" must be set in this child constructor but not setable somewhere else, so we cannot use a protected
         // setter or something similiar. And sadly the readonly modifier makes it read only in child constructors, too.
-        // @ts-expect-error
+        // @ts-expect-error Reason: See above.
         this.kind = SemanticSymbolKind.Parameter;
     }
 }

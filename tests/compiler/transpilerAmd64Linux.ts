@@ -61,6 +61,43 @@ describe('TranspilerAmd64Linux',
             }
         );
 
+        it('can transpile a function declaration with parameters.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            undefined,
+                            SemanticCreator.newFunctionSymbol(
+                                [
+                                    SemanticCreator.newFunctionParameter()
+                                ],
+                                BuildInTypes.int
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
         it('can transpile a call statement.',
             function ()
             {
@@ -128,6 +165,47 @@ describe('TranspilerAmd64Linux',
                     "push rbp\n" +
                     "mov rbp, rsp\n" +
                     "call readLine\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a call statement with parameters.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newFunctionCall(
+                                        [SemanticCreator.newIntegerLiteral()],
+                                        BuildInFunctions.getRandom
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern getRandom]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `mov rdi, ${Defaults.integer}\n` +
+                    "call getRandom\n";
 
                 const transpiler = new TranspilerAmd64Linux();
 
@@ -208,6 +286,217 @@ describe('TranspilerAmd64Linux',
                     "push rbp\n" +
                     "mov rbp, rsp\n" +
                     `mov r10, ${Defaults.integer}\n`;
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a variable expression.',
+            function ()
+            {
+                const variable = SemanticCreator.newVariableSymbol(
+                    BuildInTypes.int,
+                    Defaults.variableName + '1'
+                );
+
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newIntegerLiteral(),
+                                        variable
+                                    ),
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newVariableExpression(variable)
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `mov r10, ${Defaults.integer}\n` +
+                    "mov r11, r10\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a string literal.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newStringLiteral()
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "c#0:\n" +
+                    "dq 11\n" +
+                    "db 'Test string'\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    "mov r10, c#0\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a call expression.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newFunctionCall()
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `call ${Defaults.identifier}\n` +
+                    "mov r10, rax\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile an unary addition.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newUnaryExpression(
+                                            SemanticCreator.newIntegerLiteral(),
+                                            BuildInOperators.unaryIntAddition
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `mov r10, ${Defaults.integer}\n`;
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile an unary subtraction.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newUnaryExpression(
+                                            SemanticCreator.newIntegerLiteral(),
+                                            BuildInOperators.unaryIntSubtraction
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `mov r10, ${Defaults.integer}\n` +
+                    "neg r10\n";
 
                 const transpiler = new TranspilerAmd64Linux();
 
@@ -479,6 +768,116 @@ describe('TranspilerAmd64Linux',
                     `mov rax, ${Defaults.integer}\n` +
                     "leave\n" +
                     "ret\n";
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a label statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newLabel(),
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `${Defaults.labelName}:\n`;
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a goto statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newGotoStatement(),
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    `jmp ${Defaults.labelName}\n`;
+
+                const transpiler = new TranspilerAmd64Linux();
+
+                const result = transpiler.run(input);
+
+                assert.strictEqual(result, expectedResult);
+            }
+        );
+
+        it('can transpile a conditional goto statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newConditionalGotoStatement(),
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult =
+                    "[section .rodata]\n" +
+                    "[section .text]\n" +
+                    "[extern exit]\n" +
+                    "[global _start]\n" +
+                    "_start:\n" +
+                    "call main\n" +
+                    "call exit\n" +
+                    `${Defaults.identifier}:\n` +
+                    "push rbp\n" +
+                    "mov rbp, rsp\n" +
+                    "mov r10, 1\n" +
+                    "cmp r10, 1\n" +
+                    `je ${Defaults.labelName}\n`;
 
                 const transpiler = new TranspilerAmd64Linux();
 

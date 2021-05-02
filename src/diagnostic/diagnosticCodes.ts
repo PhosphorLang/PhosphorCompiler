@@ -28,6 +28,9 @@ enum DiagnosticCodes
     NoLowererImplementationForExpressionError = 'E1026',
     UnexpectedNonBooleanExpressionInIfStatement = 'E1027',
     UnexpectedNonBooleanExpressionInWhileStatement = 'E1028',
+    MissingSectionInIfStatementError = 'E1030',
+    MissingSectionInElseClauseError = 'E1031',
+    MissingSectionInWhileStatementError = 'E1032',
 }
 
 export default DiagnosticCodes;

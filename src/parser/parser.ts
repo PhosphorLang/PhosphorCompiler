@@ -95,7 +95,13 @@ export default class Parser
             {
                 case TokenKind.FunctionKeyword:
                 {
-                    const functionDeclaration = this.parseFunctionDeclaration();
+                    const functionDeclaration = this.parseFunctionDeclaration(false);
+                    functions.push(functionDeclaration);
+                    break;
+                }
+                case TokenKind.ExternalKeyword:
+                {
+                    const functionDeclaration = this.parseFunctionModifier();
                     functions.push(functionDeclaration);
                     break;
                 }
@@ -115,7 +121,40 @@ export default class Parser
         return fileRoot;
     }
 
-    private parseFunctionDeclaration (): SyntaxNodes.FunctionDeclaration
+    private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration
+    {
+        const newModifier = this.getNextToken();
+        modifiers.push(newModifier);
+
+        let functionDeclaration: SyntaxNodes.FunctionDeclaration;
+
+        if (this.getCurrentToken().kind == TokenKind.FunctionKeyword)
+        {
+            let isExternal = false;
+
+            for (const modifier of modifiers)
+            {
+                switch (modifier.kind)
+                {
+                    case TokenKind.ExternalKeyword:
+                        isExternal = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            functionDeclaration = this.parseFunctionDeclaration(isExternal);
+        }
+        else
+        {
+            functionDeclaration = this.parseFunctionModifier(modifiers);
+        }
+
+        return functionDeclaration;
+    }
+
+    private parseFunctionDeclaration (isExternal: boolean): SyntaxNodes.FunctionDeclaration
     {
         const keyword = this.getNextToken();
         const identifier = this.getNextToken();
@@ -125,7 +164,13 @@ export default class Parser
         const type = this.parseTypeClause();
         const body = this.parseSection();
 
-        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body);
+        if (isExternal)
+        {
+            // The semicolon:
+            this.getNextToken();
+        }
+
+        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isExternal);
     }
 
     private parseFunctionParameters (): FunctionParametersList
@@ -185,8 +230,13 @@ export default class Parser
         }
     }
 
-    private parseSection (): SyntaxNodes.Section
+    private parseSection (): SyntaxNodes.Section|null
     {
+        if (this.getCurrentToken().kind != TokenKind.OpeningBraceToken)
+        {
+            return null;
+        }
+
         const opening = this.getNextToken();
 
         const statements: SyntaxNode[] = [];
@@ -303,6 +353,18 @@ export default class Parser
         const keyword = this.getNextToken();
         const condition = this.parseExpression();
         const section = this.parseSection();
+
+        if (section === null)
+        {
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    'Missing section in if statement.',
+                    DiagnosticCodes.MissingSectionInIfStatementError,
+                    keyword
+                )
+            );
+        }
+
         let elseClause: SyntaxNodes.ElseClause|null = null;
 
         if (this.getCurrentToken().kind == TokenKind.ElseKeyword)
@@ -324,7 +386,20 @@ export default class Parser
         }
         else
         {
-            followUp = this.parseSection();
+            const section = this.parseSection();
+
+            if (section === null)
+            {
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        'Missing section in else clause.',
+                        DiagnosticCodes.MissingSectionInElseClauseError,
+                        keyword
+                    )
+                );
+            }
+
+            followUp = section;
         }
 
         return new SyntaxNodes.ElseClause(keyword, followUp);
@@ -335,6 +410,17 @@ export default class Parser
         const keyword = this.getNextToken();
         const condition = this.parseExpression();
         const section = this.parseSection();
+
+        if (section === null)
+        {
+            this.diagnostic.throw(
+                new DiagnosticError(
+                    'Missing section in while statement.',
+                    DiagnosticCodes.MissingSectionInWhileStatementError,
+                    keyword
+                )
+            );
+        }
 
         return new SyntaxNodes.WhileStatement(keyword, condition, section);
     }

@@ -17,6 +17,7 @@ export default abstract class SyntaxCreator
         parameters = SyntaxCreator.newFunctionParametersList(),
         type: SyntaxNodes.TypeClause|null = null,
         identifier = TokenCreator.newIdentifier(),
+        isExternal = false,
     ): SyntaxNodes.FunctionDeclaration
     {
         return new SyntaxNodes.FunctionDeclaration(
@@ -26,7 +27,8 @@ export default abstract class SyntaxCreator
             parameters,
             TokenCreator.newClosingParenthesis(),
             type,
-            section
+            section,
+            isExternal
         );
     }
 

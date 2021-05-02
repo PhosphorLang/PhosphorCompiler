@@ -25,6 +25,7 @@ enum TokenKind
     VarKeyword,
     FunctionKeyword,
     ReturnKeyword,
+    ExternalKeyword,
     IfKeyword,
     ElseKeyword,
     WhileKeyword,

@@ -213,9 +213,6 @@ export default class Parser
             case TokenKind.VarKeyword:
                 result = this.parseVariableDeclaration();
                 break;
-            case TokenKind.OpeningBraceToken:
-                result = this.parseSection();
-                break;
             case TokenKind.ReturnKeyword:
                 result = this.parseReturnStatement();
                 break;

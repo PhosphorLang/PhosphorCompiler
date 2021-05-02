@@ -53,9 +53,17 @@ export default class Lowerer
 
     private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
     {
-        const loweredSection = this.lowerSection(functionDeclaration.section);
+        if (!functionDeclaration.symbol.isExternal)
+        {
+            if (functionDeclaration.section === null)
+            {
+                throw new Error(`Lowerer error: The section of a non-external function is null."`);
+            }
 
-        functionDeclaration.section = loweredSection;
+            const loweredSection = this.lowerSection(functionDeclaration.section);
+
+            functionDeclaration.section = loweredSection;
+        }
 
         return functionDeclaration;
     }

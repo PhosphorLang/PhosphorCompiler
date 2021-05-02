@@ -117,6 +117,11 @@ export default class TranspilerAvr implements Transpiler
 
     private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void
     {
+        if (functionNode.symbol.isExternal)
+        {
+            return;
+        }
+
         this.instructions.push(
             // Function name:
             new Instructions.Label(functionNode.symbol.name),
@@ -150,6 +155,11 @@ export default class TranspilerAvr implements Transpiler
             }
 
             this.locationManager.registerParameter(parameter, registers);
+        }
+
+        if (functionNode.section === null)
+        {
+            throw new Error('Transpiler error: The section of a non-external function is null.');
         }
 
         this.transpileSection(functionNode.section);

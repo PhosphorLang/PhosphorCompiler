@@ -835,7 +835,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input); },
-                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatement
+                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatementError
                 );
             }
         );

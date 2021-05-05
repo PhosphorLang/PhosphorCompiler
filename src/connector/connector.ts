@@ -365,7 +365,7 @@ export default class Connector
             this.diagnostic.throw(
                 new DiagnosticError(
                     'The return type of the condition in an if statement must be Bool.',
-                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatement,
+                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatementError,
                     ifStatement.condition.token
                 )
             );
@@ -407,7 +407,7 @@ export default class Connector
             this.diagnostic.throw(
                 new DiagnosticError(
                     'The return type of the condition in an while statement must be Bool.',
-                    DiagnosticCodes.UnexpectedNonBooleanExpressionInWhileStatement,
+                    DiagnosticCodes.UnexpectedNonBooleanExpressionInWhileStatementError,
                     whileStatement.condition.token
                 )
             );

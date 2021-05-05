@@ -48,7 +48,7 @@ export default class Parser
         return result;
     }
 
-    private getNextToken (): Token
+    private consumeNextToken (): Token
     {
         return this.getToken(0, true);
     }
@@ -108,7 +108,7 @@ export default class Parser
                 default:
                     this.diagnostic.throw(
                         new DiagnosticError(
-                            `A token "${this.getCurrentToken().content}" is not allowed in the file scope.`,
+                            `The token "${this.getCurrentToken().content}" is not allowed in the file scope.`,
                             DiagnosticCodes.InvalidTokenInFileScopeError,
                             this.getCurrentToken()
                         )
@@ -129,7 +129,7 @@ export default class Parser
         {
             case TokenKind.ExternalKeyword:
             {
-                const newModifier = this.getNextToken();
+                const newModifier = this.consumeNextToken();
                 modifiers.push(newModifier);
 
                 functionDeclaration = this.parseFunctionModifier(modifiers);
@@ -171,18 +171,18 @@ export default class Parser
 
     private parseFunctionDeclaration (isExternal: boolean): SyntaxNodes.FunctionDeclaration
     {
-        const keyword = this.getNextToken();
-        const identifier = this.getNextToken();
-        const opening = this.getNextToken();
+        const keyword = this.consumeNextToken();
+        const identifier = this.consumeNextToken();
+        const opening = this.consumeNextToken();
         const parameters = this.parseFunctionParameters();
-        const closing = this.getNextToken();
+        const closing = this.consumeNextToken();
         const type = this.parseTypeClause();
         const body = this.parseSection();
 
         if (isExternal)
         {
             // The semicolon:
-            this.getNextToken();
+            this.consumeNextToken();
         }
 
         return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isExternal);
@@ -200,7 +200,7 @@ export default class Parser
 
             if (this.getCurrentToken().kind == TokenKind.CommaToken)
             {
-                separators.push(this.getNextToken());
+                separators.push(this.consumeNextToken());
             }
             else
             {
@@ -213,7 +213,7 @@ export default class Parser
 
     private parseFunctionParameter (): SyntaxNodes.FunctionParameter
     {
-        const identifier = this.getNextToken();
+        const identifier = this.consumeNextToken();
         const type = this.parseTypeClause();
 
         if (type === null)
@@ -238,8 +238,8 @@ export default class Parser
         }
         else
         {
-            const colon = this.getNextToken();
-            const identifier = this.getNextToken();
+            const colon = this.consumeNextToken();
+            const identifier = this.consumeNextToken();
 
             return new SyntaxNodes.TypeClause(colon, identifier);
         }
@@ -252,7 +252,7 @@ export default class Parser
             return null;
         }
 
-        const opening = this.getNextToken();
+        const opening = this.consumeNextToken();
 
         const statements: SyntaxNode[] = [];
 
@@ -264,7 +264,7 @@ export default class Parser
             // TODO: Prevent an infinite loop when there is a syntax error.
         }
 
-        const closing = this.getNextToken();
+        const closing = this.consumeNextToken();
 
         return new SyntaxNodes.Section(opening, statements, closing);
     }
@@ -303,7 +303,7 @@ export default class Parser
         if (this.getCurrentToken().kind == TokenKind.SemicolonToken)
         {
             // Remove the correct token:
-            this.getNextToken();
+            this.consumeNextToken();
         }
         else if (this.getPreviousToken().kind != TokenKind.ClosingBraceToken) // No semicolon needed after a closing brace (often a section).
         {
@@ -321,7 +321,7 @@ export default class Parser
 
     private parseReturnStatement (): SyntaxNodes.ReturnStatement
     {
-        const keyword = this.getNextToken();
+        const keyword = this.consumeNextToken();
 
         let expression: SyntaxNodes.Expression|null = null;
 
@@ -335,8 +335,8 @@ export default class Parser
 
     private parseVariableDeclaration (): SyntaxNodes.VariableDeclaration
     {
-        const keyword = this.getNextToken();
-        const identifier = this.getNextToken();
+        const keyword = this.consumeNextToken();
+        const identifier = this.consumeNextToken();
         let type: SyntaxNodes.TypeClause|null = null;
         let assignment: Token|null = null;
         let initialiser: SyntaxNodes.Expression|null = null;
@@ -344,7 +344,7 @@ export default class Parser
         switch (this.getCurrentToken().kind)
         {
             case TokenKind.AssignmentOperator:
-                assignment = this.getNextToken();
+                assignment = this.consumeNextToken();
                 initialiser = this.parseExpression();
                 break;
             case TokenKind.ColonToken:
@@ -365,7 +365,7 @@ export default class Parser
 
     private parseIfStatement (): SyntaxNodes.IfStatement
     {
-        const keyword = this.getNextToken();
+        const keyword = this.consumeNextToken();
         const condition = this.parseExpression();
         const section = this.parseSection();
 
@@ -392,7 +392,7 @@ export default class Parser
 
     private parseElseClause (): SyntaxNodes.ElseClause
     {
-        const keyword = this.getNextToken();
+        const keyword = this.consumeNextToken();
         let followUp: SyntaxNodes.Section | SyntaxNodes.IfStatement;
 
         if (this.getCurrentToken().kind == TokenKind.IfKeyword)
@@ -422,7 +422,7 @@ export default class Parser
 
     private parseWhileStatement (): SyntaxNodes.WhileStatement
     {
-        const keyword = this.getNextToken();
+        const keyword = this.consumeNextToken();
         const condition = this.parseExpression();
         const section = this.parseSection();
 
@@ -449,8 +449,8 @@ export default class Parser
 
     private parseAssignment (): SyntaxNodes.Assignment
     {
-        const identifierToken = this.getNextToken();
-        const operatorToken = this.getNextToken();
+        const identifierToken = this.consumeNextToken();
+        const operatorToken = this.consumeNextToken();
         const rightSide = this.parseExpression();
 
         const result = new SyntaxNodes.Assignment(identifierToken, operatorToken, rightSide);
@@ -499,7 +499,7 @@ export default class Parser
 
     private parseUnaryExpression (): SyntaxNodes.UnaryExpression
     {
-        const operator = this.getNextToken();
+        const operator = this.consumeNextToken();
         const operatorPriority = OperatorOrder.getUnaryPriority(operator);
         const operand = this.parseExpression(operatorPriority);
 
@@ -508,7 +508,7 @@ export default class Parser
 
     private parseBinaryExpression (left: SyntaxNodes.Expression): SyntaxNodes.BinaryExpression
     {
-        const operator = this.getNextToken();
+        const operator = this.consumeNextToken();
         const operatorPriority = OperatorOrder.getBinaryPriority(operator);
         const right = this.parseExpression(operatorPriority);
 
@@ -541,16 +541,16 @@ export default class Parser
 
     private parseParenthesizedExpression (): SyntaxNodes.ParenthesizedExpression
     {
-        const opening = this.getNextToken();
+        const opening = this.consumeNextToken();
         const expression = this.parseExpression();
-        const closing = this.getNextToken();
+        const closing = this.consumeNextToken();
 
         return new SyntaxNodes.ParenthesizedExpression(opening, expression, closing);
     }
 
     private parseLiteralExpression (): SyntaxNodes.LiteralExpression
     {
-        const literal = this.getNextToken();
+        const literal = this.consumeNextToken();
 
         return new SyntaxNodes.LiteralExpression(literal);
     }
@@ -569,10 +569,10 @@ export default class Parser
 
     private parseCallExpression (): SyntaxNodes.CallExpression
     {
-        const identifier = this.getNextToken();
-        const opening = this.getNextToken();
+        const identifier = this.consumeNextToken();
+        const opening = this.consumeNextToken();
         const callArguments = this.parseArguments();
-        const closing = this.getNextToken();
+        const closing = this.consumeNextToken();
 
         return new SyntaxNodes.CallExpression(identifier, opening, callArguments, closing);
     }
@@ -589,7 +589,7 @@ export default class Parser
 
             if (this.getCurrentToken().kind == TokenKind.CommaToken)
             {
-                separators.push(this.getNextToken());
+                separators.push(this.consumeNextToken());
             }
             else
             {
@@ -602,7 +602,7 @@ export default class Parser
 
     private parseVariableExpression (): SyntaxNodes.VariableExpression
     {
-        const identifier = this.getNextToken();
+        const identifier = this.consumeNextToken();
 
         return new SyntaxNodes.VariableExpression(identifier);
     }

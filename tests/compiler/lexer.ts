@@ -58,7 +58,6 @@ describe('Lexer',
             }
         );
 
-
         // A list of inputs to their resulting token kind to automatically create combination tests out of that.
         // This list only includes the tokens that do not need any delimiters to other tokens (e.g. spaces).
         const nonDelimitedInputToTokenKindList: InputToTokenKind[] = [

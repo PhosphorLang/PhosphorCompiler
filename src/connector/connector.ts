@@ -107,8 +107,9 @@ export default class Connector
         const name = functionDeclaration.identifier.content;
         const returnType = this.connectType(functionDeclaration.type) ?? BuildInTypes.noType;
         const parameters = this.connectParameters(functionDeclaration.parameters);
+        const isExternal = functionDeclaration.isExternal;
 
-        return new SemanticSymbols.Function(name, returnType, parameters);
+        return new SemanticSymbols.Function(name, returnType, parameters, isExternal);
     }
 
     private connectType (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.Type|null
@@ -197,7 +198,11 @@ export default class Connector
             this.pushVariable(parameter);
         }
 
-        const section = this.connectSection(functionDeclaration.body);
+        let section: SemanticNodes.Section|null = null;
+        if (functionDeclaration.body !== null)
+        {
+            section = this.connectSection(functionDeclaration.body);
+        }
 
         // Remove the list of variables from the variable stack:
         this.variableStacks.pop();

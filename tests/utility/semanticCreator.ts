@@ -29,10 +29,11 @@ export default abstract class SemanticCreator
     public static newFunctionSymbol (
         parameters: SemanticSymbols.Parameter[] = [],
         returnType = BuildInTypes.noType,
-        name = Defaults.identifier
+        name = Defaults.identifier,
+        isExternal = false,
     ): SemanticSymbols.Function
     {
-        return new SemanticSymbols.Function(name, returnType, parameters);
+        return new SemanticSymbols.Function(name, returnType, parameters, isExternal);
     }
 
     public static newFunctionParameter (type = BuildInTypes.int, name = Defaults.variableName): SemanticSymbols.Parameter

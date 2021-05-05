@@ -6,9 +6,9 @@ import SemanticNode from "./semanticNode";
 export default class FunctionDeclarationSemanticNode extends SemanticNode
 {
     public readonly symbol: FunctionSemanticSymbol;
-    public section: SectionSemanticNode;
+    public section: SectionSemanticNode|null;
 
-    constructor (symbol: FunctionSemanticSymbol, section: SectionSemanticNode)
+    constructor (symbol: FunctionSemanticSymbol, section: SectionSemanticNode|null)
     {
         super(SemanticKind.Function);
 

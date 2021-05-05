@@ -264,6 +264,9 @@ export default class Lexer
             case 'return':
                 kind = TokenKind.ReturnKeyword;
                 break;
+            case 'external':
+                kind = TokenKind.ExternalKeyword;
+                break;
             case 'if':
                 kind = TokenKind.IfKeyword;
                 break;

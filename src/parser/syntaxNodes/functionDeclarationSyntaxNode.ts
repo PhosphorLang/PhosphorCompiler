@@ -13,7 +13,8 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
     public readonly parameters: FunctionParametersList;
     public readonly closing: Token;
     public readonly type: TypeClauseSyntaxNode|null;
-    public readonly body: SectionSyntaxNode;
+    public readonly body: SectionSyntaxNode|null;
+    public readonly isExternal: boolean;
 
     public get children (): Iterable<SyntaxNode>
     {
@@ -27,7 +28,8 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
         parameters: FunctionParametersList,
         closing: Token,
         type: TypeClauseSyntaxNode|null,
-        body: SectionSyntaxNode)
+        body: SectionSyntaxNode|null,
+        isExternal: boolean)
     {
         super(SyntaxKind.FunctionDeclaration);
 
@@ -38,5 +40,6 @@ export default class FunctionDeclarationSyntaxNode extends SyntaxNode
         this.closing = closing;
         this.type = type;
         this.body = body;
+        this.isExternal = isExternal;
     }
 }

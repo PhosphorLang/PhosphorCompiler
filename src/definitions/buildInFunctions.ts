@@ -9,19 +9,22 @@ export default abstract class BuildInFunctions
     public static readonly writeLine = new FunctionSemanticSymbol(
         'writeLine',
         BuildInTypes.noType,
-        [new ParameterSemanticSymbol('text', BuildInTypes.string)]
+        [new ParameterSemanticSymbol('text', BuildInTypes.string)],
+        true
     );
-    public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, []);
+    public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, [], true);
 
     public static readonly stringToInt = new FunctionSemanticSymbol(
         'stringToInt',
         BuildInTypes.int,
-        [new ParameterSemanticSymbol('string', BuildInTypes.string)]
+        [new ParameterSemanticSymbol('string', BuildInTypes.string)],
+        true
     );
     public static readonly intToString = new FunctionSemanticSymbol(
         'intToString',
         BuildInTypes.string,
-        [new ParameterSemanticSymbol('integer', BuildInTypes.int)]
+        [new ParameterSemanticSymbol('integer', BuildInTypes.int)],
+        true
     );
 
     public static readonly stringsAreEqual = new FunctionSemanticSymbol(
@@ -30,14 +33,16 @@ export default abstract class BuildInFunctions
         [
             new ParameterSemanticSymbol('string1', BuildInTypes.string),
             new ParameterSemanticSymbol('string2', BuildInTypes.string)
-        ]
+        ],
+        true
     );
 
-    public static readonly randomise = new FunctionSemanticSymbol('randomise', BuildInTypes.noType, []);
+    public static readonly randomise = new FunctionSemanticSymbol('randomise', BuildInTypes.noType, [], true);
     public static readonly getRandom = new FunctionSemanticSymbol(
         'getRandom',
         BuildInTypes.int,
-        [new ParameterSemanticSymbol('range', BuildInTypes.int)]
+        [new ParameterSemanticSymbol('range', BuildInTypes.int)],
+        true
     );
 
     public static functions: FunctionSemanticSymbol[] = [

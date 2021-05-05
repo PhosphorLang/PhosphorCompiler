@@ -95,6 +95,11 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
 
     private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void
     {
+        if (functionNode.symbol.isExternal)
+        {
+            return;
+        }
+
         this.code.push(functionNode.symbol.name + ':'); // Function name
 
         // Save base pointer:
@@ -116,6 +121,11 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             parameterCounter++;
 
             this.pushVariable(parameter, register);
+        }
+
+        if (functionNode.section === null)
+        {
+            throw new Error('Transpiler error: The section of a non-external function is null.');
         }
 
         this.transpileSection(functionNode.section);

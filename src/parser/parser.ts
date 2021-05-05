@@ -123,32 +123,47 @@ export default class Parser
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration
     {
-        const newModifier = this.getNextToken();
-        modifiers.push(newModifier);
-
         let functionDeclaration: SyntaxNodes.FunctionDeclaration;
 
-        if (this.getCurrentToken().kind == TokenKind.FunctionKeyword)
+        switch (this.getCurrentToken().kind)
         {
-            let isExternal = false;
-
-            for (const modifier of modifiers)
+            case TokenKind.ExternalKeyword:
             {
-                switch (modifier.kind)
-                {
-                    case TokenKind.ExternalKeyword:
-                        isExternal = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
+                const newModifier = this.getNextToken();
+                modifiers.push(newModifier);
 
-            functionDeclaration = this.parseFunctionDeclaration(isExternal);
-        }
-        else
-        {
-            functionDeclaration = this.parseFunctionModifier(modifiers);
+                functionDeclaration = this.parseFunctionModifier(modifiers);
+
+                break;
+            }
+            case TokenKind.FunctionKeyword:
+            {
+                let isExternal = false;
+
+                for (const modifier of modifiers)
+                {
+                    switch (modifier.kind)
+                    {
+                        case TokenKind.ExternalKeyword:
+                            isExternal = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                functionDeclaration = this.parseFunctionDeclaration(isExternal);
+
+                break;
+            }
+            default:
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Unknown function modifier "${this.getCurrentToken().content}"`,
+                        DiagnosticCodes.UnknownFunctionModifierError,
+                        this.getCurrentToken()
+                    )
+                );
         }
 
         return functionDeclaration;

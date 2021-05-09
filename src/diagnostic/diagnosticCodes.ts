@@ -32,6 +32,7 @@ enum DiagnosticCodes
     MissingSectionInIfStatementError = 'E1030',
     MissingSectionInElseClauseError = 'E1031',
     MissingSectionInWhileStatementError = 'E1032',
+    MissingStandardLibraryCommandLineParameterError = 'E1033',
 }
 
 export default DiagnosticCodes;

@@ -8,6 +8,7 @@ import Connector from './connector/connector';
 import Diagnostic from './diagnostic/diagnostic';
 import DiagnosticException from './diagnostic/diagnosticException';
 import fs from 'fs';
+import Importer from './importer/importer';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
 import LinkerAmd64Linux from './linker/amd64/linux/linkerAmd64Linux';
@@ -44,6 +45,7 @@ class Main
 
         const lexer = new Lexer(diagnostic);
         const parser = new Parser(diagnostic);
+        const importer = new Importer(diagnostic, lexer, parser, this.arguments.standardLibraryPath);
         const connector = new Connector(diagnostic);
         const lowerer = new Lowerer();
         let transpiler: Transpiler;
@@ -71,7 +73,8 @@ class Main
         {
             const tokens = lexer.run(fileContent, this.arguments.filePath);
             const syntaxTree = parser.run(tokens, this.arguments.filePath);
-            const semanticTree = connector.run(syntaxTree);
+            const importedSyntaxTrees = importer.run(syntaxTree, this.arguments.filePath);
+            const semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
             const loweredSemanticTree = lowerer.run(semanticTree);
             assembly = transpiler.run(loweredSemanticTree);
 

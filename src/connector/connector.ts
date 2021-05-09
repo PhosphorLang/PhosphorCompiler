@@ -8,6 +8,7 @@ import Diagnostic from "../diagnostic/diagnostic";
 import DiagnosticCodes from "../diagnostic/diagnosticCodes";
 import DiagnosticError from "../diagnostic/diagnosticError";
 import FunctionParametersList from "../parser/functionParametersList";
+import ImportNodeToFileNode from "../importer/importNodeToFileNode";
 import { SemanticNode } from "./semanticNodes";
 import SyntaxKind from "../parser/syntaxKind";
 import { SyntaxNode } from "../parser/syntaxNodes";
@@ -40,7 +41,7 @@ export default class Connector
         this.currentFunction = null;
     }
 
-    public run (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
+    public run (fileSyntaxNode: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
     {
         this.functions.clear();
         this.variableStacks = [];
@@ -51,7 +52,7 @@ export default class Connector
             this.functions.set(buildInFunction.name, buildInFunction);
         }
 
-        const result = this.connectFile(fileSyntaxNode);
+        const result = this.connectFile(fileSyntaxNode, importedSyntaxTrees);
 
         return result;
     }
@@ -79,12 +80,33 @@ export default class Connector
         return null;
     }
 
-    private connectFile (file: SyntaxNodes.File): SemanticNodes.File
+    private connectFile (file: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
     {
         const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
 
+        const functionSyntaxNodes: SyntaxNodes.FunctionDeclaration[] = file.functions;
+
+        for (const importSyntaxNode of file.imports)
+        {
+            const importedFileSyntaxNode = importedSyntaxTrees.get(importSyntaxNode);
+
+            if (importedFileSyntaxNode === undefined)
+            {
+                // FIXME: Throw a proper error via diagnostic.
+                throw new Error('This must never happen.');
+            }
+            else
+            {
+                functionSyntaxNodes.push(...importedFileSyntaxNode.functions);
+
+                /* TODO: This is bad as we lose all information about import statements, the imported files and which functions are
+                         imported. We must represent the import statements in the semantic tree and only later combine them all in one
+                         "flat" tree, maybe in the lowerer. */
+            }
+        }
+
         // Function declarations:
-        for (const functionDeclaration of file.functions)
+        for (const functionDeclaration of functionSyntaxNodes)
         {
             const functionSymbol = this.connectFunctionDeclaration(functionDeclaration);
 
@@ -92,7 +114,7 @@ export default class Connector
         }
 
         // Function bodies:
-        for (const functionDeclaration of file.functions)
+        for (const functionDeclaration of functionSyntaxNodes)
         {
             const functionNode = this.connectFunction(functionDeclaration);
 

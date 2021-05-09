@@ -4,6 +4,7 @@ import BuildInTypes from '../../src/definitions/buildInTypes';
 import Connector from '../../src/connector/connector';
 import Diagnostic from '../../src/diagnostic/diagnostic';
 import DiagnosticCodes from '../../src/diagnostic/diagnosticCodes';
+import ImportNodeToFileNode from '../../src/importer/importNodeToFileNode';
 import SemanticCreator from '../utility/semanticCreator';
 import SyntaxCreator from '../utility/syntaxCreator';
 import TokenCreator from '../utility/tokenCreator';
@@ -30,7 +31,7 @@ describe('Connector',
 
                 const expectedResult = SemanticCreator.newFile();
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -51,7 +52,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -86,7 +87,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -119,7 +120,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -175,7 +176,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -211,7 +212,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -253,7 +254,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -290,7 +291,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -327,7 +328,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -372,7 +373,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -405,7 +406,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -448,7 +449,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -485,7 +486,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -534,7 +535,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -567,7 +568,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -608,7 +609,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -641,7 +642,7 @@ describe('Connector',
                     ]
                 );
 
-                const result = connector.run(input);
+                const result = connector.run(input, new ImportNodeToFileNode());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -663,7 +664,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.UnknownTypeError
                 );
             }
@@ -687,7 +688,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.DuplicateParameterNameError
                 );
             }
@@ -709,7 +710,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.VariableWithoutTypeClauseAndInitialiserError
                 );
             }
@@ -736,7 +737,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.DuplicateVariableDeclarationError
                 );
             }
@@ -760,7 +761,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.NotEmptyReturnInFunctionWithoutReturnTypeError
                 );
             }
@@ -784,7 +785,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.EmptyReturnInFunctionWithReturnTypeError
                 );
             }
@@ -810,7 +811,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.ReturnTypeDoesNotMatchFunctionReturnTypeError
                 );
             }
@@ -834,7 +835,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatementError
                 );
             }
@@ -858,7 +859,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.UnknownVariableError
                 );
             }
@@ -887,7 +888,7 @@ describe('Connector',
                 );
 
                 assert.throws(
-                    (): void => { connector.run(input); },
+                    (): void => { connector.run(input, new ImportNodeToFileNode()); },
                     DiagnosticCodes.ReadonlyAssignmentError
                 );
             }

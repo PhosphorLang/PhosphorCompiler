@@ -31,6 +31,7 @@ enum TokenKind
     WhileKeyword,
     TrueKeyword,
     FalseKeyword,
+    ImportKeyword,
 }
 
 export default TokenKind;

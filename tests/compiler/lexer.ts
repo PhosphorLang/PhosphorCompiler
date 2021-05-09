@@ -96,6 +96,7 @@ describe('Lexer',
             new InputToTokenKind('while', TokenKind.WhileKeyword, 'the while keyword'),
             new InputToTokenKind('true', TokenKind.TrueKeyword, 'the true keyword'),
             new InputToTokenKind('false', TokenKind.FalseKeyword, 'the false keyword'),
+            new InputToTokenKind('import', TokenKind.ImportKeyword, 'the import keyword'),
         ];
 
         describe('can tokenise',

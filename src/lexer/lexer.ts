@@ -282,6 +282,9 @@ export default class Lexer
             case 'false':
                 kind = TokenKind.FalseKeyword;
                 break;
+            case 'import':
+                kind = TokenKind.ImportKeyword;
+                break;
             default:
                 kind = TokenKind.IdentifierToken;
         }

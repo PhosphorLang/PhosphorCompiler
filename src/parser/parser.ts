@@ -87,12 +87,19 @@ export default class Parser
 
     private parseFile (): SyntaxNodes.File
     {
+        const imports: SyntaxNodes.Import[] = [];
         const functions: SyntaxNodes.FunctionDeclaration[] = [];
 
         while (this.getCurrentToken().kind != TokenKind.NoToken)
         {
             switch (this.getCurrentToken().kind)
             {
+                case TokenKind.ImportKeyword:
+                {
+                    const importDeclaration = this.parseImport();
+                    imports.push(importDeclaration);
+                    break;
+                }
                 case TokenKind.FunctionKeyword:
                 {
                     const functionDeclaration = this.parseFunctionDeclaration(false);
@@ -116,9 +123,19 @@ export default class Parser
             }
         }
 
-        const fileRoot = new SyntaxNodes.File(this.fileName, functions);
+        const fileRoot = new SyntaxNodes.File(this.fileName, imports, functions);
 
         return fileRoot;
+    }
+
+    private parseImport (): SyntaxNodes.Import
+    {
+        const keyword = this.consumeNextToken();
+        const path = this.consumeNextToken();
+        // The semicolon:
+        this.consumeNextToken();
+
+        return new SyntaxNodes.Import(keyword, path);
     }
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration

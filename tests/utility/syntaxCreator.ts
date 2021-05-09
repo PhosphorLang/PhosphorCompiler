@@ -7,9 +7,13 @@ import TokenCreator from './tokenCreator';
 
 export default abstract class SyntaxCreator
 {
-    public static newFile (functions: SyntaxNodes.FunctionDeclaration[] = [], fileName = Defaults.fileName): SyntaxNodes.File
+    public static newFile (
+        functions: SyntaxNodes.FunctionDeclaration[] = [],
+        imports: SyntaxNodes.Import[] = [],
+        fileName = Defaults.fileName
+    ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, functions);
+        return new SyntaxNodes.File(fileName, imports, functions);
     }
 
     public static newFunctionDeclaration (

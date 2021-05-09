@@ -3,6 +3,7 @@ enum SyntaxKind
     NoKind = 'NoKind',
     File = 'File',
     Section = 'Section',
+    Import = 'Import',
     FunctionDeclaration = 'FunctionDeclaration',
     FunctionParameter = 'FunctionParameter',
     TypeClause = 'TypeClause',

@@ -48,10 +48,19 @@ export default class TranspilerAvr implements Transpiler
         this.returnLabel = '';
         this.locationManager.instructions = this.instructions;
 
-        /* TODO: It is a bit confusing that transpileFile() returns the instructions while there is this.instructions which is used inside
-                 transpileFile() and the functions it calls but reset by run(). It seems that you could run transpileFile() twice at this
-                 point and get the same result but that is not the case as this.instructions is not reset. */
-        const fileInstructions = this.transpileFile(semanticTree);
+        const fileInstructions: Instructions.Instruction[] = [
+            // The start routine calls main and then exits properly:
+            new Instructions.SingleOperand('.global', '_start'),
+            new Instructions.Label('_start'),
+            new Instructions.SingleOperand('rcall', 'main'),
+            new Instructions.SingleOperand('rcall', 'exit'),
+        ];
+
+        // TODO: What about constants?
+
+        this.transpileFile(semanticTree);
+
+        fileInstructions.push(...this.instructions);
 
         const fileAssembly = this.convertInstructionsToAssembly(fileInstructions);
 
@@ -91,28 +100,17 @@ export default class TranspilerAvr implements Transpiler
         return true;
     }
 
-    private transpileFile (fileNode: SemanticNodes.File): Instructions.Instruction[]
+    private transpileFile (fileNode: SemanticNodes.File): void
     {
-        const fileInstructions: Instructions.Instruction[] = [];
+        for (const importNode of fileNode.imports)
+        {
+            this.transpileFile(importNode.file);
+        }
 
         for (const functionNode of fileNode.functions)
         {
             this.transpileFunction(functionNode);
         }
-
-        fileInstructions.push(
-            // The start routine calls main and then exits properly:
-            new Instructions.SingleOperand('.global', '_start'),
-            new Instructions.Label('_start'),
-            new Instructions.SingleOperand('rcall', 'main'),
-            new Instructions.SingleOperand('rcall', 'exit'),
-        );
-
-        // TODO: What about constants?
-
-        fileInstructions.push(...this.instructions);
-
-        return fileInstructions;
     }
 
     private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void

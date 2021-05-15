@@ -83,8 +83,7 @@ export default class Connector
     private connectFile (file: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
     {
         const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
-
-        const functionSyntaxNodes: SyntaxNodes.FunctionDeclaration[] = file.functions;
+        const importNodes: SemanticNodes.Import[] = [];
 
         for (const importSyntaxNode of file.imports)
         {
@@ -97,16 +96,15 @@ export default class Connector
             }
             else
             {
-                functionSyntaxNodes.push(...importedFileSyntaxNode.functions);
+                const importedFileNode = this.connectFile(importedFileSyntaxNode, importedSyntaxTrees);
 
-                /* TODO: This is bad as we lose all information about import statements, the imported files and which functions are
-                         imported. We must represent the import statements in the semantic tree and only later combine them all in one
-                         "flat" tree, maybe in the lowerer. */
+                const importNode = new SemanticNodes.Import(importSyntaxNode.path.content, importedFileNode);
+                importNodes.push(importNode);
             }
         }
 
         // Function declarations:
-        for (const functionDeclaration of functionSyntaxNodes)
+        for (const functionDeclaration of file.functions)
         {
             const functionSymbol = this.connectFunctionDeclaration(functionDeclaration);
 
@@ -114,14 +112,14 @@ export default class Connector
         }
 
         // Function bodies:
-        for (const functionDeclaration of functionSyntaxNodes)
+        for (const functionDeclaration of file.functions)
         {
             const functionNode = this.connectFunction(functionDeclaration);
 
             functionNodes.push(functionNode);
         }
 
-        return new SemanticNodes.File(file.name, functionNodes);
+        return new SemanticNodes.File(file.name, importNodes, functionNodes);
     }
 
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function

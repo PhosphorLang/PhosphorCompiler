@@ -100,6 +100,8 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
     {
         if (functionNode.symbol.isExternal)
         {
+            this.importedFunctions.add(functionNode.symbol);
+
             return;
         }
 

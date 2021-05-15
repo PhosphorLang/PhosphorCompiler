@@ -16,7 +16,7 @@ export default abstract class DiagnosticMessage
             chalk.yellowBright(this.lineInformation.lineNumber) + ':' +
             chalk.yellowBright(this.lineInformation.columnNumber) + ' - ' +
             this.type + ' ' +
-            chalk.gray(this.code) + ': ' +
+            chalk.magenta(this.code) + ': ' +
             this.text;
 
         return result;

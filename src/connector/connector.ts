@@ -91,8 +91,13 @@ export default class Connector
 
             if (importedFileSyntaxNode === undefined)
             {
-                // FIXME: Throw a proper error via diagnostic.
-                throw new Error('This must never happen.');
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Could not find file "${importSyntaxNode.path.content}" for import.`,
+                        DiagnosticCodes.CannotFindImportFileError,
+                        importSyntaxNode.path
+                    )
+                );
             }
             else
             {

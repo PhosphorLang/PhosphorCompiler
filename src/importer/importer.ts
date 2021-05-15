@@ -77,7 +77,22 @@ export default class Importer
 
             if (existingFileNode === undefined)
             {
-                const fileContent = FileSystem.readFileSync(filePath, {encoding: 'utf8'});
+                let fileContent: string;
+
+                try
+                {
+                    fileContent = FileSystem.readFileSync(filePath, {encoding: 'utf8'});
+                }
+                catch
+                {
+                    this.diagnostic.throw(
+                        new DiagnosticError(
+                            `Could not find file "${filePath}" for import.`,
+                            DiagnosticCodes.CannotFindImportFileError,
+                            importNode.path
+                        )
+                    );
+                }
 
                 const tokens = this.lexer.run(fileContent, filePath);
                 const fileNode = this.parser.run(tokens, filePath);

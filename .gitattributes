@@ -1,2 +1,5 @@
+# Language definitions:
+*.ph linguist-language=Phosphor
+
 # Prevent that the main.ts file is recognised as Javascript because of the shebang:
 src/main.ts linguist-language=Typescript

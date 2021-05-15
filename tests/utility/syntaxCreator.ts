@@ -95,7 +95,6 @@ export default abstract class SyntaxCreator
         initialiser: SyntaxNodes.Expression|null = null,
         typeClause: SyntaxNodes.TypeClause|null = null,
         identifier = TokenCreator.newVariableIdentifier(),
-
     ): SyntaxNodes.VariableDeclaration
     {
         const assignment = initialiser === null ? null : TokenCreator.newAssignment();

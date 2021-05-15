@@ -7,7 +7,7 @@ import AssemblerAvr from './assembler/avr/assemblerAvr';
 import Connector from './connector/connector';
 import Diagnostic from './diagnostic/diagnostic';
 import DiagnosticException from './diagnostic/diagnosticException';
-import fs from 'fs';
+import FileSystem from 'fs';
 import Importer from './importer/importer';
 import Lexer from './lexer/lexer';
 import Linker from './linker/linker';
@@ -66,7 +66,7 @@ class Main
                 break;
         }
 
-        const fileContent = fs.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
+        const fileContent = FileSystem.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
 
         let assembly: string;
         try
@@ -113,7 +113,7 @@ class Main
             return;
         }
 
-        fs.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
+        FileSystem.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
 
         assembler.run('tmp/test.asm', 'tmp/test.o');
 

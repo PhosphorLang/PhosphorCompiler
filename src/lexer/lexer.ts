@@ -221,10 +221,7 @@ export default class Lexer
                             }
                         )
                     );
-                // The ESLint rule "no-fallthrough" shows a false positive here because it does not know that the
-                // function "this.diagnostic.throw" throws and never returns.
-                // One should make a proposal to adjust the ESLint Typescript parser package for this.
-                // eslint-disable-next-line no-fallthrough
+                // Does not fall through as this.diagnostic.throw never returns.
                 case "'":
                     continueReading = false;
                     break;

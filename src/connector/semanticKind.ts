@@ -4,6 +4,7 @@ enum SemanticKind {
     Function = 'Function',
     Label = 'Label',
     Section = 'Section',
+    Import = 'Import',
     // Statements
     Assignment = 'Assignment',
     ConditionalGotoStatement = 'ConditionalGotoStatement',

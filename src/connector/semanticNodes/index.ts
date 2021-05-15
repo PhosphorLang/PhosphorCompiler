@@ -10,6 +10,7 @@ export { default as File } from "./fileSemanticNode";
 export { default as FunctionDeclaration } from "./functionDeclarationSemanticNode";
 export { default as GotoStatement } from "./gotoStatementSemanticNode";
 export { default as IfStatement } from "./ifStatementSemanticNode";
+export { default as Import } from "./importSemanticNode";
 export { default as Label } from "./labelSemanticNode";
 export { default as LiteralExpression } from "./literalExpressionSemanticNode";
 export { default as ReturnStatement } from "./returnStatementSemanticNode";

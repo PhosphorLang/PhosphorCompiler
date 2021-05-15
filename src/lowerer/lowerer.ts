@@ -37,7 +37,15 @@ export default class Lowerer
 
     private lowerFile (file: SemanticNodes.File): SemanticNodes.File
     {
+        const loweredImports: SemanticNodes.Import[] = [];
         const loweredFunctions: SemanticNodes.FunctionDeclaration[] = [];
+
+        for (const importNode of file.imports)
+        {
+            const loweredImport = this.lowerImport(importNode);
+
+            loweredImports.push(loweredImport);
+        }
 
         for (const functionNode of file.functions)
         {
@@ -46,9 +54,19 @@ export default class Lowerer
             loweredFunctions.push(loweredFunction);
         }
 
+        file.imports = loweredImports;
         file.functions = loweredFunctions;
 
         return file;
+    }
+
+    private lowerImport (importNode: SemanticNodes.Import): SemanticNodes.Import
+    {
+        const loweredFiles = this.lowerFile(importNode.file);
+
+        importNode.file = loweredFiles;
+
+        return importNode;
     }
 
     private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration

@@ -32,6 +32,8 @@ enum DiagnosticCodes
     MissingSectionInIfStatementError = 'E1030',
     MissingSectionInElseClauseError = 'E1031',
     MissingSectionInWhileStatementError = 'E1032',
+    MissingStandardLibraryCommandLineParameterError = 'E1033',
+    CannotFindImportFileError = 'E1034',
 }
 
 export default DiagnosticCodes;

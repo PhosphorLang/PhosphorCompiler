@@ -9,6 +9,7 @@ export { default as File } from "./fileSyntaxNode";
 export { default as FunctionDeclaration } from "./functionDeclarationSyntaxNode";
 export { default as FunctionParameter } from "./functionParameterSyntaxNode";
 export { default as IfStatement } from "./ifStatementSyntaxNode";
+export { default as Import } from "./importSyntaxNode";
 export { default as LiteralExpression } from "./literalExpressionSyntaxNode";
 export { default as ParenthesizedExpression } from "./parenthesizedExpressionSyntaxNode";
 export { default as ReturnStatement } from "./returnStatementSyntaxNode";

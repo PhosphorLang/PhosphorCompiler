@@ -7,9 +7,13 @@ import TokenCreator from './tokenCreator';
 
 export default abstract class SyntaxCreator
 {
-    public static newFile (functions: SyntaxNodes.FunctionDeclaration[] = [], fileName = Defaults.fileName): SyntaxNodes.File
+    public static newFile (
+        functions: SyntaxNodes.FunctionDeclaration[] = [],
+        imports: SyntaxNodes.Import[] = [],
+        fileName = Defaults.fileName
+    ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, functions);
+        return new SyntaxNodes.File(fileName, imports, functions);
     }
 
     public static newFunctionDeclaration (
@@ -202,5 +206,10 @@ export default abstract class SyntaxCreator
     ): SyntaxNodes.WhileStatement
     {
         return new SyntaxNodes.WhileStatement(TokenCreator.newWhileKeyword(), condition, section);
+    }
+
+    public static newImport (path = TokenCreator.newString(Defaults.importFileName)): SyntaxNodes.Import
+    {
+        return new SyntaxNodes.Import(TokenCreator.newImportKeyword(), path);
     }
 }

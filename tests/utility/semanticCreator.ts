@@ -8,9 +8,13 @@ import UnarySemanticOperator from "../../src/connector/semanticOperators/unarySe
 
 export default abstract class SemanticCreator
 {
-    public static newFile (functions: SemanticNodes.FunctionDeclaration[] = [], fileName = Defaults.fileName): SemanticNodes.File
+    public static newFile (
+        functions: SemanticNodes.FunctionDeclaration[] = [],
+        imports: SemanticNodes.Import[] = [],
+        fileName = Defaults.fileName
+    ): SemanticNodes.File
     {
-        return new SemanticNodes.File(fileName, functions);
+        return new SemanticNodes.File(fileName, imports, functions);
     }
 
     public static newFunctionDeclaration (

@@ -8,6 +8,7 @@ import Diagnostic from "../diagnostic/diagnostic";
 import DiagnosticCodes from "../diagnostic/diagnosticCodes";
 import DiagnosticError from "../diagnostic/diagnosticError";
 import FunctionParametersList from "../parser/functionParametersList";
+import ImportNodeToFileNode from "../importer/importNodeToFileNode";
 import { SemanticNode } from "./semanticNodes";
 import SyntaxKind from "../parser/syntaxKind";
 import { SyntaxNode } from "../parser/syntaxNodes";
@@ -40,7 +41,7 @@ export default class Connector
         this.currentFunction = null;
     }
 
-    public run (fileSyntaxNode: SyntaxNodes.File): SemanticNodes.File
+    public run (fileSyntaxNode: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
     {
         this.functions.clear();
         this.variableStacks = [];
@@ -51,7 +52,7 @@ export default class Connector
             this.functions.set(buildInFunction.name, buildInFunction);
         }
 
-        const result = this.connectFile(fileSyntaxNode);
+        const result = this.connectFile(fileSyntaxNode, importedSyntaxTrees);
 
         return result;
     }
@@ -79,9 +80,33 @@ export default class Connector
         return null;
     }
 
-    private connectFile (file: SyntaxNodes.File): SemanticNodes.File
+    private connectFile (file: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
     {
         const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
+        const importNodes: SemanticNodes.Import[] = [];
+
+        for (const importSyntaxNode of file.imports)
+        {
+            const importedFileSyntaxNode = importedSyntaxTrees.get(importSyntaxNode);
+
+            if (importedFileSyntaxNode === undefined)
+            {
+                this.diagnostic.throw(
+                    new DiagnosticError(
+                        `Could not find file "${importSyntaxNode.path.content}" for import.`,
+                        DiagnosticCodes.CannotFindImportFileError,
+                        importSyntaxNode.path
+                    )
+                );
+            }
+            else
+            {
+                const importedFileNode = this.connectFile(importedFileSyntaxNode, importedSyntaxTrees);
+
+                const importNode = new SemanticNodes.Import(importSyntaxNode.path.content, importedFileNode);
+                importNodes.push(importNode);
+            }
+        }
 
         // Function declarations:
         for (const functionDeclaration of file.functions)
@@ -99,7 +124,7 @@ export default class Connector
             functionNodes.push(functionNode);
         }
 
-        return new SemanticNodes.File(file.name, functionNodes);
+        return new SemanticNodes.File(file.name, importNodes, functionNodes);
     }
 
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function

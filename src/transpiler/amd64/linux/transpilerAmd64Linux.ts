@@ -51,21 +51,9 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
         this.localLabelCounter = 0;
         this.importedFunctions.clear();
 
-        const fileAssembly = this.transpileFile(semanticTree);
-
-        const result = fileAssembly.join("\n") + "\n";
-
-        return result;
-    }
-
-    private transpileFile (fileNode: SemanticNodes.File): string[]
-    {
         const assembly: string[] = [];
 
-        for (const functionNode of fileNode.functions)
-        {
-            this.transpileFunction(functionNode);
-        }
+        this.transpileFile(semanticTree);
 
         assembly.push('[section .rodata]');
 
@@ -90,7 +78,22 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
 
         assembly.push(...this.code);
 
-        return assembly;
+        const result = assembly.join("\n") + "\n";
+
+        return result;
+    }
+
+    private transpileFile (fileNode: SemanticNodes.File): void
+    {
+        for (const importNode of fileNode.imports)
+        {
+            this.transpileFile(importNode.file);
+        }
+
+        for (const functionNode of fileNode.functions)
+        {
+            this.transpileFunction(functionNode);
+        }
     }
 
     private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void

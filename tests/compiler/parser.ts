@@ -712,6 +712,44 @@ describe('Parser',
             }
         );
 
+        it('can parse a import statement.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newImportKeyword(),
+                    TokenCreator.newString(Defaults.importFileName),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newReturnKeyword(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newReturn()
+                                ]
+                            )
+                        )
+                    ],
+                    [
+                        SyntaxCreator.newImport()
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('throws an exception if there is no semicolon after a statement.',
             function ()
             {

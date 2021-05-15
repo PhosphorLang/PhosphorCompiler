@@ -144,4 +144,9 @@ export default abstract class TokenCreator
     {
         return new Token(TokenKind.WhileKeyword, 'while');
     }
+
+    public static newImportKeyword (): Token
+    {
+        return new Token(TokenKind.ImportKeyword, 'import');
+    }
 }

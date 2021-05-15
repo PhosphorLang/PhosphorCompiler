@@ -207,4 +207,9 @@ export default abstract class SyntaxCreator
     {
         return new SyntaxNodes.WhileStatement(TokenCreator.newWhileKeyword(), condition, section);
     }
+
+    public static newImport (path = TokenCreator.newString(Defaults.importFileName)): SyntaxNodes.Import
+    {
+        return new SyntaxNodes.Import(TokenCreator.newImportKeyword(), path);
+    }
 }

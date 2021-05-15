@@ -9,7 +9,7 @@ export default class Diagnostic
     public readonly warnings: string[];
     public readonly info: string[];
 
-    private lastDiagnosticCode: string;
+    private lastDiagnosticMessage: string;
 
     constructor ()
     {
@@ -17,7 +17,7 @@ export default class Diagnostic
         this.warnings = [];
         this.info = [];
 
-        this.lastDiagnosticCode = '';
+        this.lastDiagnosticMessage = '';
     }
 
     /**
@@ -32,7 +32,7 @@ export default class Diagnostic
         {
             this.errors.push(message);
 
-            this.lastDiagnosticCode = diagnosticMessage.code;
+            this.lastDiagnosticMessage = diagnosticMessage.message;
         }
         else if (diagnosticMessage instanceof DiagnosticWarning)
         {
@@ -55,7 +55,7 @@ export default class Diagnostic
     {
         this.add(diagnosticMessage);
 
-        throw new DiagnosticException(diagnosticMessage.code);
+        throw new DiagnosticException(diagnosticMessage.message);
     }
 
     /**
@@ -66,7 +66,7 @@ export default class Diagnostic
     {
         if (this.errors.length != 0)
         {
-            throw new DiagnosticException(this.lastDiagnosticCode);
+            throw new DiagnosticException(this.lastDiagnosticMessage);
         }
     }
 }

@@ -1,6 +1,5 @@
 import * as SemanticNodes from "../../../connector/semanticNodes";
 import * as SemanticSymbols from "../../../connector/semanticSymbols";
-import BuildInFunctions from "../../../definitions/buildInFunctions";
 import BuildInOperators from "../../../definitions/buildInOperators";
 import BuildInTypes from "../../../definitions/buildInTypes";
 import LocationedVariableAmd64 from "../locationedVariableAmd64";
@@ -100,8 +99,6 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
     {
         if (functionNode.symbol.isExternal)
         {
-            this.importedFunctions.add(functionNode.symbol);
-
             return;
         }
 
@@ -393,7 +390,7 @@ export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux impl
             this.code.push(`mov ${targetLocation.locationString}, ${RegistersAmd64Linux.integerReturn.bit64}`);
         }
 
-        if (BuildInFunctions.functions.includes(callExpression.functionSymbol))
+        if (callExpression.functionSymbol.isExternal)
         {
             this.importedFunctions.add(callExpression.functionSymbol);
         }

@@ -1,6 +1,5 @@
 import 'mocha';
 import { assert } from 'chai';
-import BuildInFunctions from '../../src/definitions/buildInFunctions';
 import BuildInOperators from '../../src/definitions/buildInOperators';
 import BuildInTypes from '../../src/definitions/buildInTypes';
 import Defaults from '../utility/defaults';
@@ -134,49 +133,15 @@ describe('TranspilerAmd64Linux',
             }
         );
 
-        it('can transpile a call statement of a build in function.',
+        it('can transpile a call statement with a parameter.',
             function ()
             {
-                const input = SemanticCreator.newFile(
+                const functionSymbol = SemanticCreator.newFunctionSymbol(
                     [
-                        SemanticCreator.newFunctionDeclaration(
-                            SemanticCreator.newSection(
-                                [
-                                    SemanticCreator.newFunctionCall(
-                                        undefined,
-                                        BuildInFunctions.readLine
-                                    )
-                                ]
-                            )
-                        )
+                        SemanticCreator.newFunctionParameter(BuildInTypes.int)
                     ]
                 );
 
-                const expectedResult =
-                    "[section .rodata]\n" +
-                    "[section .text]\n" +
-                    "[extern readLine]\n" +
-                    "[extern exit]\n" +
-                    "[global _start]\n" +
-                    "_start:\n" +
-                    "call main\n" +
-                    "call exit\n" +
-                    `${Defaults.identifier}:\n` +
-                    "push rbp\n" +
-                    "mov rbp, rsp\n" +
-                    "call readLine\n";
-
-                const transpiler = new TranspilerAmd64Linux();
-
-                const result = transpiler.run(input);
-
-                assert.strictEqual(result, expectedResult);
-            }
-        );
-
-        it('can transpile a call statement with parameters.',
-            function ()
-            {
                 const input = SemanticCreator.newFile(
                     [
                         SemanticCreator.newFunctionDeclaration(
@@ -184,10 +149,11 @@ describe('TranspilerAmd64Linux',
                                 [
                                     SemanticCreator.newFunctionCall(
                                         [SemanticCreator.newIntegerLiteral()],
-                                        BuildInFunctions.getRandom
+                                        functionSymbol
                                     )
                                 ]
-                            )
+                            ),
+                            functionSymbol
                         )
                     ]
                 );
@@ -195,7 +161,6 @@ describe('TranspilerAmd64Linux',
                 const expectedResult =
                     "[section .rodata]\n" +
                     "[section .text]\n" +
-                    "[extern getRandom]\n" +
                     "[extern exit]\n" +
                     "[global _start]\n" +
                     "_start:\n" +
@@ -205,7 +170,7 @@ describe('TranspilerAmd64Linux',
                     "push rbp\n" +
                     "mov rbp, rsp\n" +
                     `mov rdi, ${Defaults.integer}\n` +
-                    "call getRandom\n";
+                    `call ${Defaults.identifier}\n`;
 
                 const transpiler = new TranspilerAmd64Linux();
 

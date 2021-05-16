@@ -1,7 +1,6 @@
 import * as SemanticNodes from "./semanticNodes";
 import * as SemanticSymbols from "./semanticSymbols";
 import * as SyntaxNodes from "../parser/syntaxNodes";
-import BuildInFunctions from "../definitions/buildInFunctions";
 import BuildInOperators from "../definitions/buildInOperators";
 import BuildInTypes from "../definitions/buildInTypes";
 import Diagnostic from "../diagnostic/diagnostic";
@@ -46,11 +45,6 @@ export default class Connector
         this.functions.clear();
         this.variableStacks = [];
         this.currentFunction = null;
-
-        for (const buildInFunction of BuildInFunctions.functions)
-        {
-            this.functions.set(buildInFunction.name, buildInFunction);
-        }
 
         const result = this.connectFile(fileSyntaxNode, importedSyntaxTrees);
 

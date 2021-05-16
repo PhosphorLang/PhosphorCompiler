@@ -2,31 +2,17 @@ import BuildInTypes from "./buildInTypes";
 import FunctionSemanticSymbol from "../connector/semanticSymbols/functionSemanticSymbol";
 import ParameterSemanticSymbol from "../connector/semanticSymbols/parameterSemanticSymbol";
 
+/**
+ * This class contains all functions that the compiler may insert and thus expects them to be present. These are especially functions
+ * that are provided by the standard library but may be not exposed to the user in the header files.
+ *
+ * NOTE: This is NOT a full list of all functions that must be present for the compiler to work. In later stages of the compilation,
+ *       such as in the transpiling phase, calls to other functions (most notably "exit") can be inserted that have no reference here.
+ *
+ * TODO: It would be great if this would indeed be an exhaustive list of all expected functions.
+ */
 export default abstract class BuildInFunctions
 {
-    // TODO: In the long run, this will be replaced by the Standard Library. It will contain definitions for these functions.
-
-    public static readonly writeLine = new FunctionSemanticSymbol(
-        'writeLine',
-        BuildInTypes.noType,
-        [new ParameterSemanticSymbol('text', BuildInTypes.string)],
-        true
-    );
-    public static readonly readLine = new FunctionSemanticSymbol('readLine', BuildInTypes.string, [], true);
-
-    public static readonly stringToInt = new FunctionSemanticSymbol(
-        'stringToInt',
-        BuildInTypes.int,
-        [new ParameterSemanticSymbol('string', BuildInTypes.string)],
-        true
-    );
-    public static readonly intToString = new FunctionSemanticSymbol(
-        'intToString',
-        BuildInTypes.string,
-        [new ParameterSemanticSymbol('integer', BuildInTypes.int)],
-        true
-    );
-
     public static readonly stringsAreEqual = new FunctionSemanticSymbol(
         'stringsAreEqual',
         BuildInTypes.bool,
@@ -36,22 +22,4 @@ export default abstract class BuildInFunctions
         ],
         true
     );
-
-    public static readonly randomise = new FunctionSemanticSymbol('randomise', BuildInTypes.noType, [], true);
-    public static readonly getRandom = new FunctionSemanticSymbol(
-        'getRandom',
-        BuildInTypes.int,
-        [new ParameterSemanticSymbol('range', BuildInTypes.int)],
-        true
-    );
-
-    public static functions: FunctionSemanticSymbol[] = [
-        BuildInFunctions.writeLine,
-        BuildInFunctions.readLine,
-        BuildInFunctions.stringToInt,
-        BuildInFunctions.intToString,
-        BuildInFunctions.randomise,
-        BuildInFunctions.getRandom,
-        BuildInFunctions.stringsAreEqual,
-    ];
 }

@@ -1,3 +1,6 @@
+import 'io';
+import 'string';
+
 function main ()
 {
     var a := 1;

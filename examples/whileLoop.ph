@@ -1,3 +1,5 @@
+import 'io';
+
 function main ()
 {
     var counter := 0;

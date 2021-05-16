@@ -1,3 +1,5 @@
+import 'io';
+
 function main ()
 {
     if 2 = 2

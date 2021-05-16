@@ -1,3 +1,7 @@
+import 'io';
+import 'random';
+import 'string';
+
 function main ()
 {
     randomise();

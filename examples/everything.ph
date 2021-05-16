@@ -1,3 +1,5 @@
+import 'io';
+
 function add (a: Int, b: Int): Int
 {
     var result := a + b;
@@ -7,7 +9,7 @@ function add (a: Int, b: Int): Int
 
 function getHelloWorld (): String
 {
-    return 'Hello world?';
+    return 'Hello world!';
 }
 
 function main ()

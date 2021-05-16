@@ -16,6 +16,7 @@ import LinkerAvr from './linker/avr/linkerAvr';
 import Lowerer from './lowerer/lowerer';
 import os from 'os';
 import Parser from './parser/parser';
+import Path from "path";
 import TargetPlatform from './options/targetPlatform';
 import Transpiler from './transpiler/transpiler';
 import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
@@ -41,11 +42,13 @@ class Main
 
     public run (): void
     {
+        const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, this.arguments.targetPlatform);
+
         const diagnostic = new Diagnostic();
 
         const lexer = new Lexer(diagnostic);
         const parser = new Parser(diagnostic);
-        const importer = new Importer(diagnostic, lexer, parser, this.arguments.standardLibraryPath);
+        const importer = new Importer(diagnostic, lexer, parser, standardLibraryTargetPath);
         const connector = new Connector(diagnostic);
         const lowerer = new Lowerer();
         let transpiler: Transpiler;
@@ -117,7 +120,9 @@ class Main
 
         assembler.run('tmp/test.asm', 'tmp/test.o');
 
-        const linkerFiles = ['tmp/test.o', this.arguments.standardLibraryPath];
+        const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
+
+        const linkerFiles = ['tmp/test.o', standardLibraryFilePath];
 
         linker.run(this.arguments.outputPath, linkerFiles);
     }

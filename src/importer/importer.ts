@@ -31,7 +31,7 @@ export default class Importer
         this.diagnostic = diagnostic;
         this.lexer = lexer;
         this.parser = parser;
-        this.standardLibraryPath = standardLibrayPath === undefined ? null : Path.dirname(standardLibrayPath);
+        this.standardLibraryPath = standardLibrayPath === undefined ? null : standardLibrayPath;
         this.rootPath = '/';
     }
 
@@ -145,7 +145,7 @@ export default class Importer
             }
             else
             {
-                return Path.join(this.standardLibraryPath, importPath + '.ph');
+                return Path.join(this.standardLibraryPath, 'headers', importPath + '.ph');
             }
         }
     }

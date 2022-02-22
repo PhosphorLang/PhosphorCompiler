@@ -68,7 +68,8 @@ export default class ProcessArguments
 
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
-        const options = command.opts() as OptionValues;
+        // TODO: Check how the typing changed here (in the whole commander library):
+        const options = command.opts<OptionValues>();
 
         // If the following were still empty, the command parsing would have thrown an error.
         this.filePath = filePath;

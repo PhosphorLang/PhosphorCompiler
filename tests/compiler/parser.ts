@@ -592,7 +592,7 @@ describe('Parser',
             }
         );
 
-        it('can parse an else statement.',
+        it('can parse an if else statement.',
             function ()
             {
                 const input = [

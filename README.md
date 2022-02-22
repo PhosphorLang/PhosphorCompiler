@@ -71,16 +71,19 @@ the git repository of the standard library next to the repository of the compile
 e.g. `linuxAmd64`.)
 
 ```bash
-node bin/main.js -f examples/helloWorld.ph -o helloWorld -s <path to standard library>/standardLibrary_<platform>.a
+node bin/main.js -f examples/helloWorld.ph -o helloWorld -t <platform> -s <path to standard library>
 ```
 
 ### **Compilation targets**
 
-You can compile from any supported platform to any target platform.
+You can compile to any target platform from any supported platform.
 
-Target Platforms:
+Target platforms:
 - Linux on x86_64: linuxAmd64
 - AVR (not working yet): avr
+
+Supported platforms:
+- Linux on x86_64
 
 <hr>
 

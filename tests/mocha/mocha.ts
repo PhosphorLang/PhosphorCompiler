@@ -1,13 +1,13 @@
 import 'mocha';
-import { equal } from 'assert';
+import { strictEqual } from 'assert';
 
-describe('Mocha', // The space is there for this test to be alphabetically sorted at the top.
+describe('Mocha',
     function ()
     {
         it('is working.',
             function ()
             {
-                equal(true, true);
+                strictEqual(true, true);
             }
         );
     }

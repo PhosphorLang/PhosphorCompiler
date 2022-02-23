@@ -1,15 +1,13 @@
 {
+    "root": true,
     "env": {
         "browser": false,
-        "es6": true,
         "node": true,
         "mocha": true
     },
-    "root": true,
     "parserOptions": {
         "project": "./tsconfig.json",
-        "sourceType": "module",
-        "ecmaVersion": 2021
+        "sourceType": "module"
     },
     "extends": [
         "../.eslintrc.json"

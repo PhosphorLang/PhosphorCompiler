@@ -2,123 +2,17 @@
     "root": true,
     "env": {
         "browser": false,
-        "es6": true,
         "node": true
     },
-    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": "./tsconfig.json",
-        "sourceType": "module",
-        "ecmaVersion": 2021
+        "sourceType": "module"
     },
-    "plugins": [
-        "@typescript-eslint"
-    ],
     "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+        "eslint-config-phosphor"
     ],
     "rules": {
-        "spaced-comment": "warn",
-        "no-multi-spaces": "warn",
-        "no-whitespace-before-property": "warn",
-        "sort-imports": [
-            "warn",
-            {
-                "ignoreCase": true
-            }
-        ],
-        "no-warning-comments": [
-            "warn",
-            {
-                "terms": [
-                    "TODO:",
-                    "FIXME:"
-                ],
-                "location": "anywhere"
-            }
-        ],
-        "capitalized-comments": [
-            "warn",
-            "always",
-            {
-                "ignoreConsecutiveComments": true
-            }
-        ],
-        "indent": [
-            "warn",
-            4,
-            {
-                "SwitchCase": 1
-            }
-        ],
-        "no-extra-semi": "error",
-        "no-throw-literal": "error",
-        "no-cond-assign": "error",
-        "no-param-reassign": "error",
-        "guard-for-in": "error",
-        "curly": "error",
-        "prefer-promise-reject-errors": "error",
-        "prefer-const": [
-            "error",
-            {
-                "ignoreReadBeforeAssign": true
-            }
-        ],
-        "no-constant-condition": [
-            "error",
-            {
-                "checkLoops": false
-            }
-        ],
         "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/no-unused-vars": "off", // Provided by the tsconfig.json
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-unused-expressions": "warn",
-        "@typescript-eslint/no-floating-promises": "warn",
-        "@typescript-eslint/no-misused-promises": "warn",
-        "@typescript-eslint/space-before-function-paren": [
-            "warn",
-            "always"
-        ],
-        "@typescript-eslint/promise-function-async": "error",
-        "@typescript-eslint/switch-exhaustiveness-check": "error",
-        "@typescript-eslint/restrict-plus-operands": "error",
-        "@typescript-eslint/semi": [
-            "error",
-            "always"
-        ],
-        "@typescript-eslint/explicit-member-accessibility": [
-            "error",
-            {
-                "accessibility": "explicit",
-                "overrides": {
-                    "constructors": "off"
-                }
-            }
-        ],
-        "@typescript-eslint/naming-convention": [
-            "error",
-            {
-                "selector": "default",
-                "format": ["camelCase"],
-                "leadingUnderscore": "forbid",
-                "trailingUnderscore": "forbid"
-            },
-            {
-                "selector": "typeLike",
-                "format": ["PascalCase"],
-                "leadingUnderscore": "forbid",
-                "trailingUnderscore": "forbid"
-            },
-            {
-                "selector": "enumMember",
-                "format": ["PascalCase"],
-                "leadingUnderscore": "forbid",
-                "trailingUnderscore": "forbid"
-            }
-        ],
-        "@typescript-eslint/explicit-function-return-type": "error"
+        "@typescript-eslint/no-explicit-any": "off"
     }
 }

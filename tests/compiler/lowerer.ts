@@ -244,6 +244,126 @@ describe('Lowerer',
             }
         );
 
+        it('can lower an empty return statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newReturn()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, input); // An empty return statement stays unchanged.
+            }
+        );
+
+        it('can lower an if statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newIfStatement()
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newConditionalGotoStatement(
+                                        SemanticCreator.newLabelSymbol('l#0'),
+                                        undefined,
+                                        false
+                                    ),
+                                    SemanticCreator.newSection(),
+                                    SemanticCreator.newLabel(
+                                        SemanticCreator.newLabelSymbol('l#0')
+                                    ),
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can lower an if else statement.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newIfStatement(
+                                        SemanticCreator.newFalseBooleanLiteral(),
+                                        undefined,
+                                        SemanticCreator.newElseClause()
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newConditionalGotoStatement(
+                                        SemanticCreator.newLabelSymbol('l#1'), // Goto else label
+                                        SemanticCreator.newFalseBooleanLiteral(),
+                                        false
+                                    ),
+                                    SemanticCreator.newSection(),
+                                    SemanticCreator.newGotoStatement(
+                                        SemanticCreator.newLabelSymbol('l#0') // Goto end label
+                                    ),
+                                    SemanticCreator.newLabel(
+                                        SemanticCreator.newLabelSymbol('l#1') // Else label
+                                    ),
+                                    SemanticCreator.newSection(),
+                                    SemanticCreator.newLabel(
+                                        SemanticCreator.newLabelSymbol('l#0') // End label
+                                    ),
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can lower a while statement.',
             function ()
             {

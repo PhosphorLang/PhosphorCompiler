@@ -8,7 +8,7 @@ export default class DoubleOperandInstruction extends Instruction
     public firstOperand: string;
     public secondOperand: string;
 
-    public get text (): string
+    public override get text (): string
     {
         return this.commandString + this.commandOperandSplitter + this.firstOperand + this.operandSplitter + this.secondOperand;
     }

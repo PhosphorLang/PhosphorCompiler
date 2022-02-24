@@ -6,7 +6,7 @@ export default class SingleOperandInstruction extends Instruction
 
     protected operand: string;
 
-    public get text (): string
+    public override get text (): string
     {
         return this.commandString + this.commandOperandSplitter + this.operand;
     }

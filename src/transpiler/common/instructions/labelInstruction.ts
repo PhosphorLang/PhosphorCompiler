@@ -4,7 +4,7 @@ export default class LabelInstruction extends Instruction
 {
     protected readonly postfix = ':';
 
-    public get text (): string
+    public override get text (): string
     {
         return this.commandString + this.postfix;
     }

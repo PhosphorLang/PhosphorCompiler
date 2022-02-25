@@ -23,7 +23,7 @@ export default class LinkerAmd64Linux implements Linker
             'ld ' +
             '-e _start ' +
             '-s --gc-sections ' +
-            '-nostdlib -nolibc ' +
+            '-nostdlib ' +
             '-o "' + outputPath + '" ' +
             '"' + filesAsString + '" ' +
             libraryImports

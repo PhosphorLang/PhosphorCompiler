@@ -122,9 +122,10 @@ class Main
 
         const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
 
-        const linkerFiles = ['tmp/test.o', standardLibraryFilePath];
+        const linkerFiles = ['tmp/test.o'];
+        const libraryFiles = [standardLibraryFilePath];
 
-        linker.run(this.arguments.outputPath, linkerFiles);
+        linker.run(this.arguments.outputPath, linkerFiles, libraryFiles);
     }
 }
 

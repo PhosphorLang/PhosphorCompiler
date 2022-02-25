@@ -22,7 +22,7 @@ export default class LinkerAmd64Linux implements Linker
         childProcess.execSync(
             'ld ' +
             '-e _start ' +
-            '-s --gc-sections ' +
+            '-s --gc-sections -n ' +
             '-nostdlib ' +
             '-o "' + outputPath + '" ' +
             '"' + filesAsString + '" ' +

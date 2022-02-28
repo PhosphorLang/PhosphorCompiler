@@ -40,7 +40,7 @@ function main ()
 You need the following present on your system:
 
 - For all target platforms:
-    - [Node.js](https://nodejs.org/) >= 12.14.0
+    - [Node.js](https://nodejs.org/) >= 16.3.0
 - Linux Amd64:
     - [NASM](https://nasm.us/) >= 2.13
     - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
@@ -71,7 +71,7 @@ the git repository of the standard library next to the repository of the compile
 e.g. `linuxAmd64`.)
 
 ```bash
-node bin/main.js -f examples/helloWorld.ph -o helloWorld -t <platform> -s <path to standard library>
+node bin/main.js -t <platform> -s <path to standard library> examples/helloWorld.ph helloWorld
 ```
 
 ### **Compilation targets**
@@ -103,7 +103,7 @@ Supported platforms:
     - Transpiles the semantic tree into platform specific Assembly.
 6. Assembler (Backend)
     - Creates an object file from the Assembly.
-7. Linker
+7. Linker (Backend)
     - Links the object files into an executable.
 
 ### **Examples**

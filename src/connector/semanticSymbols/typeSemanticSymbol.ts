@@ -7,4 +7,9 @@ export default class TypeSemanticSymbol extends SemanticSymbol
     {
         super(SemanticSymbolKind.Type, name);
     }
+
+    public equals (type: TypeSemanticSymbol): boolean
+    {
+        return this === type;
+    }
 }

@@ -335,7 +335,7 @@ export default class Connector
             expression = this.connectExpression(returnStatement.expression);
         }
 
-        if (this.currentFunction.returnType == BuildInTypes.noType)
+        if (this.currentFunction.returnType.equals(BuildInTypes.noType))
         {
             if (expression !== null)
             {
@@ -360,7 +360,7 @@ export default class Connector
                     )
                 );
             }
-            else if (expression.type != this.currentFunction.returnType)
+            else if (!expression.type.equals(this.currentFunction.returnType))
             {
                 this.diagnostic.throw(
                     new DiagnosticError(
@@ -379,7 +379,7 @@ export default class Connector
     {
         const condition = this.connectExpression(ifStatement.condition);
 
-        if (condition.type !== BuildInTypes.bool)
+        if (!condition.type.equals(BuildInTypes.bool))
         {
             this.diagnostic.throw(
                 new DiagnosticError(
@@ -421,7 +421,7 @@ export default class Connector
     {
         const condition = this.connectExpression(whileStatement.condition);
 
-        if (condition.type !== BuildInTypes.bool)
+        if (!condition.type.equals(BuildInTypes.bool))
         {
             this.diagnostic.throw(
                 new DiagnosticError(
@@ -572,7 +572,7 @@ export default class Connector
 
         for (let i = 0; i < callArguments.length; i++)
         {
-            if (callArguments[i].type !== functionSymbol.parameters[i].type)
+            if (!callArguments[i].type.equals(functionSymbol.parameters[i].type))
             {
                 this.diagnostic.throw(
                     new DiagnosticError(

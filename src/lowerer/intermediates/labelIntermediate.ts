@@ -1,6 +1,9 @@
 import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
+/**
+ * Define a label by the given label symbol.
+ */
 export class LabelIntermediate
 {
     public readonly kind: IntermediateKind.Label;

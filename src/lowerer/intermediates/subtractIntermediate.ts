@@ -1,6 +1,10 @@
 import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
+/**
+ * Subtract two operands. \
+ * The right operand is subtracted from the left operand.
+ */
 export class SubtractIntermediate
 {
     public readonly kind: IntermediateKind.Subtract;

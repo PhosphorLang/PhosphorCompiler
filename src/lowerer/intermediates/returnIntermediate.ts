@@ -1,6 +1,9 @@
 import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
+/**
+ * Return the given value from the current function.
+ */
 export class ReturnIntermediate
 {
     public readonly kind: IntermediateKind.Return;

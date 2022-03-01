@@ -1,6 +1,9 @@
 import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
+/**
+ * Jump instruction to the given target label symbol.
+ */
 export class GotoIntermediate
 {
     public readonly kind: IntermediateKind.Goto;

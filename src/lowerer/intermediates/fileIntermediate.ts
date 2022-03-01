@@ -3,6 +3,9 @@ import { ExternalIntermediate } from './externalIntermediate';
 import { FunctionIntermediate } from './functionIntermediate';
 import { IntermediateKind } from '../intermediateKind';
 
+/**
+ * The main intermediate class that contains/wraps all other intermediates.
+ */
 export class FileIntermediate
 {
     public readonly kind: IntermediateKind.File;

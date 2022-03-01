@@ -1,6 +1,9 @@
 import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
+/**
+ * Define a constant by the given constant symbol.
+ */
 export class ConstantIntermediate
 {
     public readonly kind: IntermediateKind.Constant;

@@ -5,12 +5,12 @@ export class GotoIntermediate
 {
     public readonly kind: IntermediateKind.Goto;
 
-    public labelSymbol: IntermediateSymbols.Label;
+    public target: IntermediateSymbols.Label;
 
-    constructor (labelSymbol: IntermediateSymbols.Label)
+    constructor (target: IntermediateSymbols.Label)
     {
         this.kind = IntermediateKind.Goto;
 
-        this.labelSymbol = labelSymbol;
+        this.target = target;
     }
 }

@@ -73,7 +73,7 @@ export default class TranspilerAvr implements Transpiler
 
         for (const instruction of instructions)
         {
-            assembly += instruction.text + "\n";
+            assembly += instruction.render() + "\n";
         }
 
         return assembly;

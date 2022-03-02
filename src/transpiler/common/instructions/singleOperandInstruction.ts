@@ -1,20 +1,10 @@
-import Instruction from "./instruction";
+import { Instruction } from "./instruction";
 
+// TODO: This class should be fully replaced by Instruction.
 export default class SingleOperandInstruction extends Instruction
 {
-    protected readonly commandOperandSplitter = ' ';
-
-    protected operand: string;
-
-    public override get text (): string
-    {
-        return this.commandString + this.commandOperandSplitter + this.operand;
-    }
-
     constructor (command: string, operand: string)
     {
-        super(command);
-
-        this.operand = operand;
+        super(command, operand);
     }
 }

@@ -1,5 +1,5 @@
+import * as Intermediates from '.';
 import * as IntermediateSymbols from '../intermediateSymbols';
-import { Intermediate } from '.';
 import { IntermediateKind } from '../intermediateKind';
 
 /**
@@ -11,9 +11,9 @@ export class FunctionIntermediate
 
     public readonly symbol: IntermediateSymbols.Function;
 
-    public body: Intermediate[];
+    public body: Intermediates.Statement[];
 
-    constructor (symbol: IntermediateSymbols.Function, body: Intermediate[])
+    constructor (symbol: IntermediateSymbols.Function, body: Intermediates.Statement[])
     {
         this.kind = IntermediateKind.Function;
 

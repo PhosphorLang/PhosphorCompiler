@@ -46,3 +46,7 @@ export type Intermediate =
     | JumpIfGreaterIntermediate | JumpIfLessIntermediate | LabelIntermediate | MoveIntermediate | NegateIntermediate
     | ParameteriseIntermediate | ReceiveIntermediate | ReturnIntermediate | SubtractIntermediate;
 
+export type Statement =
+    AddIntermediate | CallIntermediate | CompareIntermediate | DismissIntermediate | GotoIntermediate | IntroduceIntermediate
+    | JumpIfEqualIntermediate | JumpIfGreaterIntermediate | JumpIfLessIntermediate | LabelIntermediate | MoveIntermediate
+    | NegateIntermediate | ParameteriseIntermediate | ReceiveIntermediate | ReturnIntermediate | SubtractIntermediate;

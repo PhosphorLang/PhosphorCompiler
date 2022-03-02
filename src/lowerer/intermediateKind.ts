@@ -5,7 +5,6 @@ export enum IntermediateKind
     Function = 'Function',
     Constant = 'Constant',
     External = 'External',
-    Label = 'Label',
     // Statements:
     Add = 'Add',
     Call = 'Call',
@@ -16,6 +15,7 @@ export enum IntermediateKind
     JumpIfEqual = 'JumpIfEqual',
     JumpIfGreater = 'JumpIfGreater',
     JumpIfLess = 'JumpIfLess',
+    Label = 'Label',
     Move = 'Move',
     Negate = 'Negate',
     Parameterise = 'Parameterise',

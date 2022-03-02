@@ -15,6 +15,7 @@ export { LabelIntermediate as Label } from './labelIntermediate';
 export { MoveIntermediate as Move } from './moveIntermediate';
 export { NegateIntermediate as Negate } from './negateIntermediate';
 export { ParameteriseIntermediate as Parameterise } from './parameteriseIntermediate';
+export { ReceiveIntermediate as Receive } from './receiveIntermediate';
 export { ReturnIntermediate as Return } from './returnIntermediate';
 export { SubtractIntermediate as Subtract } from './subtractIntermediate';
 
@@ -35,6 +36,7 @@ import { LabelIntermediate } from './labelIntermediate';
 import { MoveIntermediate } from './moveIntermediate';
 import { NegateIntermediate } from './negateIntermediate';
 import { ParameteriseIntermediate } from './parameteriseIntermediate';
+import { ReceiveIntermediate } from './receiveIntermediate';
 import { ReturnIntermediate } from './returnIntermediate';
 import { SubtractIntermediate } from './subtractIntermediate';
 
@@ -42,5 +44,5 @@ export type Intermediate =
     AddIntermediate | CallIntermediate | CompareIntermediate | ConstantIntermediate | DismissIntermediate | ExternalIntermediate
     | FileIntermediate | FunctionIntermediate | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate
     | JumpIfGreaterIntermediate | JumpIfLessIntermediate | LabelIntermediate | MoveIntermediate | NegateIntermediate
-    | ParameteriseIntermediate | ReturnIntermediate | SubtractIntermediate;
+    | ParameteriseIntermediate | ReceiveIntermediate | ReturnIntermediate | SubtractIntermediate;
 

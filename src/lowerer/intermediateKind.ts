@@ -19,6 +19,7 @@ export enum IntermediateKind
     Move = 'Move',
     Negate = 'Negate',
     Parameterise = 'Parameterise',
+    Receive = 'Receive',
     Return = 'Return',
     Subtract = 'Subtract',
 }

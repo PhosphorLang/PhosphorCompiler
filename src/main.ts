@@ -17,6 +17,7 @@ import Lowerer from './lowerer/lowerer';
 import os from 'os';
 import Parser from './parser/parser';
 import Path from "path";
+import SemanticTreeTranspiler from './transpiler/semanticTreeTranspiler';
 import TargetPlatform from './options/targetPlatform';
 import Transpiler from './transpiler/transpiler';
 import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
@@ -51,7 +52,7 @@ class Main
         const importer = new Importer(diagnostic, lexer, parser, standardLibraryTargetPath);
         const connector = new Connector(diagnostic);
         const lowerer = new Lowerer();
-        let transpiler: Transpiler;
+        let transpiler: Transpiler|SemanticTreeTranspiler;
         let assembler: Assembler;
         let linker: Linker;
 
@@ -78,8 +79,9 @@ class Main
             const syntaxTree = parser.run(tokens, this.arguments.filePath);
             const importedSyntaxTrees = importer.run(syntaxTree, this.arguments.filePath);
             const semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
-            const loweredSemanticTree = lowerer.run(semanticTree);
-            assembly = transpiler.run(loweredSemanticTree);
+            const intermediateLanguage = lowerer.run(semanticTree);
+
+            assembly = transpiler.run(semanticTree);
 
             diagnostic.end();
         }

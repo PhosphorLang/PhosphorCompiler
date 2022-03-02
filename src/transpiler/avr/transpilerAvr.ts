@@ -8,10 +8,10 @@ import LocationManagerAvr from "./locationManagerAvr";
 import RegisterAvr from "./registers/registerAvr";
 import RegistersAvr from "./registersAvr";
 import SemanticKind from "../../connector/semanticKind";
-import Transpiler from "../transpiler";
+import SemanticTreeTranspiler from "../semanticTreeTranspiler";
 import TypesAvr from "./typesAvr";
 
-export default class TranspilerAvr implements Transpiler
+export default class TranspilerAvr implements SemanticTreeTranspiler
 {
     private instructions: Instructions.Instruction[];
 

@@ -8,4 +8,6 @@ export enum IntermediateSize
     Native = 'Native',
     /** The pointer size of the processor, generally the same as the word size (but can be different, for example on microprocessors). */
     Pointer = 'Pointer',
+    /** Void is the size of "NoType", i.e. zero. */
+    Void = 'Void',
 }

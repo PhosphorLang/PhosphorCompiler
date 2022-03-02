@@ -5,5 +5,6 @@ export enum IntermediateSymbolKind
     Label = 'Label',
     Literal = 'Literal',
     Parameter = 'Parameter',
+    ReturnValue = 'ReturnValue',
     Variable = 'Variable',
 }

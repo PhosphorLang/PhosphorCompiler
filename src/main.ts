@@ -22,6 +22,7 @@ import TargetPlatform from './options/targetPlatform';
 import Transpiler from './transpiler/transpiler';
 import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
 import TranspilerAvr from './transpiler/avr/transpilerAvr';
+import TranspilerIntermediate from './transpiler/intermediate/transpilerIntermediate';
 
 class Main
 {
@@ -80,6 +81,14 @@ class Main
             const importedSyntaxTrees = importer.run(syntaxTree, this.arguments.filePath);
             const semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
             const intermediateLanguage = lowerer.run(semanticTree);
+
+            if (this.arguments.intermediate)
+            {
+                const intermediateTranspiler = new TranspilerIntermediate();
+                const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
+
+                FileSystem.writeFileSync('tmp/test.phi', intermediateCode, {encoding: 'utf8'});
+            }
 
             assembly = transpiler.run(semanticTree);
 

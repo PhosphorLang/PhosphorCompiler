@@ -6,14 +6,16 @@ export class ConstantIntermediateSymbol extends IntermediateSymbolBase
 {
     public readonly kind: IntermediateSymbolKind.Constant;
 
-    public readonly size: IntermediateSize;
+    public readonly size: IntermediateSize.Pointer;
+    public readonly value: string;
 
-    constructor (name: string, size: IntermediateSize)
+    constructor (name: string, value: string)
     {
         super(name);
 
         this.kind = IntermediateSymbolKind.Constant;
+        this.size = IntermediateSize.Pointer;
 
-        this.size = size;
+        this.value = value;
     }
 }

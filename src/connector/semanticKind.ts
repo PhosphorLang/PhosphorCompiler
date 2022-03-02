@@ -1,4 +1,5 @@
-enum SemanticKind {
+enum SemanticKind
+{
     ElseClause = 'ElseClause',
     File = 'File',
     Function = 'Function',

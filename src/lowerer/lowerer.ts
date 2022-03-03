@@ -100,29 +100,35 @@ export default class Lowerer
         return newParameter;
     }
 
-    private generateVariable (size: IntermediateSize): IntermediateSymbols.Variable
+    private generateVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.Variable
     {
         const newVariable = new IntermediateSymbols.Variable(`v#${this.variableCounter}`, size);
 
         this.variableCounter += 1;
 
+        if (symbol !== undefined)
+        {
+            if (this.variableSymbolMap.has(symbol))
+            {
+                throw new Error(`Lowerer error: Variable for symbol "${symbol.name}" already exists.`);
+            }
+
+            this.variableSymbolMap.set(symbol, newVariable);
+        }
+
         return newVariable;
     }
 
-    private getOrGenerateVariableFromSymbol (symbol: SemanticSymbols.Variable): IntermediateSymbols.Variable
+    private getVariableFromSymbol (symbol: SemanticSymbols.Variable): IntermediateSymbols.Variable
     {
         const existingVariable = this.variableSymbolMap.get(symbol);
 
-        if (existingVariable !== undefined)
+        if (existingVariable === undefined)
         {
-            return existingVariable;
+            throw new Error(`Lowerer error: Variable for symbol "${symbol.name}" does not exist.`);
         }
 
-        const newVariable = this.generateVariable(this.typeToSize(symbol.type));
-
-        this.variableSymbolMap.set(symbol, newVariable);
-
-        return newVariable;
+        return existingVariable;
     }
 
     private typeToSize (type: SemanticSymbols.Type): IntermediateSize
@@ -198,9 +204,10 @@ export default class Lowerer
                 const parameterSymbol = this.generateParameter(this.typeToSize(parameter.type), parameterCounter);
                 parameterCounter += 1;
 
-                const parameterVariable = this.getOrGenerateVariableFromSymbol(parameter);
+                const parameterVariable = this.generateVariable(parameterSymbol.size, parameter);
 
                 functionBody.push(
+                    new Intermediates.Introduce(parameterVariable),
                     new Intermediates.Receive(parameterVariable, parameterSymbol)
                 );
             }
@@ -264,18 +271,23 @@ export default class Lowerer
         intermediates: Intermediates.Intermediate[]
     ): void
     {
-        const variable = this.getOrGenerateVariableFromSymbol(variableDeclaration.symbol);
+        let initialisation: IntermediateSymbols.ReadableValue|null = null;
+
+        if (variableDeclaration.initialiser !== null)
+        {
+            initialisation = this.lowerExpression(variableDeclaration.initialiser, intermediates);
+        }
+
+        const variable = this.generateVariable(this.typeToSize(variableDeclaration.symbol.type), variableDeclaration.symbol);
 
         intermediates.push(
             new Intermediates.Introduce(variable),
         );
 
-        if (variableDeclaration.initialiser !== null)
+        if (initialisation !== null)
         {
-            const loweredExpressionResult = this.lowerExpression(variableDeclaration.initialiser, intermediates);
-
             intermediates.push(
-                new Intermediates.Move(variable, loweredExpressionResult),
+                new Intermediates.Move(variable, initialisation),
             );
         }
     }
@@ -363,11 +375,7 @@ export default class Lowerer
 
     private lowerAssignment (assignment: SemanticNodes.Assignment, intermediates: Intermediates.Intermediate[]): void
     {
-        const variable = this.getOrGenerateVariableFromSymbol(assignment.variable);
-
-        intermediates.push(
-            new Intermediates.Introduce(variable),
-        );
+        const variable = this.getVariableFromSymbol(assignment.variable);
 
         if (assignment.expression !== null)
         {
@@ -504,6 +512,7 @@ export default class Lowerer
             const temporaryVariable = this.generateVariable(functionSymbol.returnSize);
 
             intermediates.push(
+                new Intermediates.Introduce(temporaryVariable),
                 new Intermediates.Receive(temporaryVariable, returnValue),
             );
 

@@ -419,17 +419,40 @@ export default class Lowerer
         literalExpression: SemanticNodes.LiteralExpression
     ): IntermediateSymbols.Literal | IntermediateSymbols.Constant
     {
-        if (literalExpression.type == BuildInTypes.string)
+        switch (literalExpression.type)
         {
-            const constant = this.getOrGenerateConstant(literalExpression.value);
+            case BuildInTypes.int:
+                {
+                    const literal = new IntermediateSymbols.Literal(literalExpression.value, this.typeToSize(literalExpression.type));
+                    return literal;
+                }
+            case BuildInTypes.bool:
+                {
+                    let value: string;
 
-            return constant;
-        }
-        else
-        {
-            const literal = new IntermediateSymbols.Literal(literalExpression.value, this.typeToSize(literalExpression.type));
+                    if (literalExpression.value === 'true')
+                    {
+                        value = '1';
+                    }
+                    else if (literalExpression.value === 'false')
+                    {
+                        value = '0';
+                    }
+                    else
+                    {
+                        throw new Error(`Lowerer error: Unknown Bool value of "${literalExpression.value}"`);
+                    }
 
-            return literal;
+                    const literal = new IntermediateSymbols.Literal(value, this.typeToSize(literalExpression.type));
+                    return literal;
+                }
+            case BuildInTypes.string:
+                {
+                    const constant = this.getOrGenerateConstant(literalExpression.value);
+                    return constant;
+                }
+            default:
+                throw new Error(`Lowerer error: Unknown literal of type "${literalExpression.type.name}"`);
         }
     }
 

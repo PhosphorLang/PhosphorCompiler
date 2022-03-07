@@ -121,6 +121,13 @@ export default class TranspilerIntermediate implements Transpiler
         for (const functionNode of fileIntermediate.functions)
         {
             this.transpileFunction(functionNode);
+
+            if (functionNode !== fileIntermediate.functions.at(-1))
+            {
+                this.instructions.push(
+                    new Instructions.Instruction('') // Empty line
+                );
+            }
         }
     }
 

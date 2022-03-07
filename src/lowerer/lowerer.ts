@@ -29,6 +29,14 @@ export default class Lowerer
     private functionSymbolMap: Map<SemanticSymbols.Function, IntermediateSymbols.Function>;
     private variableSymbolMap: Map<SemanticSymbols.Variable, IntermediateSymbols.Variable>;
     private valueToConstantMap: Map<string, IntermediateSymbols.Constant>;
+    /**
+     * Maps an intermediate variable to the index of its last use. \
+     * The index is only valid inside a function and applies to the intermediates of the function. \
+     * TODO: It is a bit ugly to have this here (globally). Is there a better way without sacrificing convenience?
+     */
+    private variableLastUseMap: Map<IntermediateSymbols.Variable, number>;
+
+    private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
 
     constructor ()
     {
@@ -43,6 +51,9 @@ export default class Lowerer
         this.functionSymbolMap = new Map();
         this.variableSymbolMap = new Map();
         this.valueToConstantMap = new Map();
+        this.variableLastUseMap = new Map();
+
+        this.variableIntroducedSet = new Set();
     }
 
     public run (fileSemanticNode: SemanticNodes.File): Intermediates.File
@@ -58,6 +69,9 @@ export default class Lowerer
         this.functionSymbolMap.clear();
         this.variableSymbolMap.clear();
         this.valueToConstantMap.clear();
+        this.variableLastUseMap.clear();
+
+        this.variableIntroducedSet.clear();
 
         this.lowerFile(fileSemanticNode);
 
@@ -130,6 +144,18 @@ export default class Lowerer
         }
 
         return existingVariable;
+    }
+
+    protected markUseTimeIfVariable (readableValue: IntermediateSymbols.ReadableValue, intermediates: Intermediate[]): void
+    {
+        if (readableValue.kind != IntermediateSymbolKind.Variable)
+        {
+            return;
+        }
+
+        const index = intermediates.length - 1;
+
+        this.variableLastUseMap.set(readableValue, index);
     }
 
     private typeToSize (type: SemanticSymbols.Type): IntermediateSize
@@ -271,10 +297,6 @@ export default class Lowerer
     {
         const variable = this.generateVariable(this.typeToSize(variableDeclaration.symbol.type), variableDeclaration.symbol);
 
-        intermediates.push(
-            new Intermediates.Introduce(variable),
-        );
-
         if (variableDeclaration.initialiser !== null)
         {
             this.lowerExpression(variableDeclaration.initialiser, intermediates, variable);
@@ -287,10 +309,6 @@ export default class Lowerer
         {
             const returnSymbol = new IntermediateSymbols.ReturnValue(this.typeToSize(returnStatement.expression.type));
             const temporaryVariable = this.generateVariable(returnSymbol.size);
-
-            intermediates.push(
-                new Intermediates.Introduce(temporaryVariable),
-            );
 
             this.lowerExpression(returnStatement.expression, intermediates, temporaryVariable);
 
@@ -307,10 +325,6 @@ export default class Lowerer
     private lowerIfStatement (ifStatement: SemanticNodes.IfStatement, intermediates: Intermediate[]): void
     {
         const condition = this.generateVariable(this.typeToSize(ifStatement.condition.type));
-
-        intermediates.push(
-            new Intermediates.Introduce(condition),
-        );
 
         this.lowerExpression(ifStatement.condition, intermediates, condition);
 
@@ -357,10 +371,6 @@ export default class Lowerer
     private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement, intermediates: Intermediate[]): void
     {
         const condition = this.generateVariable(this.typeToSize(whileStatement.condition.type));
-
-        intermediates.push(
-            new Intermediates.Introduce(condition),
-        );
 
         this.lowerExpression(whileStatement.condition, intermediates, condition);
 
@@ -468,6 +478,15 @@ export default class Lowerer
                 throw new Error(`Lowerer error: Unknown literal of type "${literalExpression.type.name}"`);
         }
 
+        if (!this.variableIntroducedSet.has(targetLocation))
+        {
+            intermediates.push(
+                new Intermediates.Introduce(targetLocation),
+            );
+
+            this.variableIntroducedSet.add(targetLocation);
+        }
+
         intermediates.push(
             new Intermediates.Move(targetLocation, literalOrConstant),
         );
@@ -488,6 +507,15 @@ export default class Lowerer
 
         if (variable !== targetLocation)
         {
+            if (!this.variableIntroducedSet.has(targetLocation))
+            {
+                intermediates.push(
+                    new Intermediates.Introduce(targetLocation),
+                );
+
+                this.variableIntroducedSet.add(targetLocation);
+            }
+
             intermediates.push(
                 new Intermediates.Move(targetLocation, variable),
             );
@@ -505,10 +533,6 @@ export default class Lowerer
         for (const argumentExpression of callExpression.arguments)
         {
             const temporaryVariable = this.generateVariable(this.typeToSize(argumentExpression.type));
-
-            intermediates.push(
-                new Intermediates.Introduce(temporaryVariable),
-            );
 
             this.lowerExpression(argumentExpression, intermediates, temporaryVariable);
 
@@ -540,6 +564,15 @@ export default class Lowerer
                 );
             }
 
+            if (!this.variableIntroducedSet.has(targetLocation))
+            {
+                intermediates.push(
+                    new Intermediates.Introduce(targetLocation),
+                );
+
+                this.variableIntroducedSet.add(targetLocation);
+            }
+
             const returnValue = new IntermediateSymbols.ReturnValue(functionSymbol.returnSize);
 
             intermediates.push(
@@ -565,6 +598,15 @@ export default class Lowerer
                 break;
             case BuildInOperators.unaryIntSubtraction:
                 {
+                    if (!this.variableIntroducedSet.has(targetLocation))
+                    {
+                        intermediates.push(
+                            new Intermediates.Introduce(targetLocation),
+                        );
+
+                        this.variableIntroducedSet.add(targetLocation);
+                    }
+
                     intermediates.push(
                         new Intermediates.Negate(targetLocation),
                     );
@@ -605,11 +647,16 @@ export default class Lowerer
 
             const temporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
 
-            intermediates.push(
-                new Intermediates.Introduce(temporaryVariable),
-            );
-
             this.lowerExpression(binaryExpression.rightOperand, intermediates, temporaryVariable);
+
+            if (!this.variableIntroducedSet.has(targetLocation))
+            {
+                intermediates.push(
+                    new Intermediates.Introduce(targetLocation),
+                );
+
+                this.variableIntroducedSet.add(targetLocation);
+            }
 
             const operator = binaryExpression.operator;
 

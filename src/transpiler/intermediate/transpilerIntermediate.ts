@@ -226,7 +226,7 @@ export default class TranspilerIntermediate implements Transpiler
             case IntermediateKind.Give:
                 parameters = [
                     statementIntermediate.targetSymbol.name,
-                    statementIntermediate.readableValue.name,
+                    statementIntermediate.variable.name,
                 ];
                 break;
             case IntermediateKind.Take:

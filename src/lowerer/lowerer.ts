@@ -269,51 +269,50 @@ export default class Lowerer
 
     private lowerVariableDeclaration (variableDeclaration: SemanticNodes.VariableDeclaration, intermediates: Intermediate[]): void
     {
-        let initialisation: IntermediateSymbols.ReadableValue|null = null;
-
-        if (variableDeclaration.initialiser !== null)
-        {
-            initialisation = this.lowerExpression(variableDeclaration.initialiser, intermediates);
-        }
-
         const variable = this.generateVariable(this.typeToSize(variableDeclaration.symbol.type), variableDeclaration.symbol);
 
         intermediates.push(
             new Intermediates.Introduce(variable),
         );
 
-        if (initialisation !== null)
+        if (variableDeclaration.initialiser !== null)
         {
-            intermediates.push(
-                new Intermediates.Move(variable, initialisation),
-            );
+            this.lowerExpression(variableDeclaration.initialiser, intermediates, variable);
         }
     }
 
     private lowerReturnStatement (returnStatement: SemanticNodes.ReturnStatement, intermediates: Intermediate[]): void
     {
-        let returnValue: IntermediateSymbols.ReadableValue | null = null;
-
         if (returnStatement.expression !== null)
         {
-            returnValue = this.lowerExpression(returnStatement.expression, intermediates);
-
-            const returnSymbol = new IntermediateSymbols.ReturnValue(returnValue.size);
+            const returnSymbol = new IntermediateSymbols.ReturnValue(this.typeToSize(returnStatement.expression.type));
+            const temporaryVariable = this.generateVariable(returnSymbol.size);
 
             intermediates.push(
-                new Intermediates.Give(returnSymbol, returnValue),
+                new Intermediates.Introduce(temporaryVariable),
+            );
+
+            this.lowerExpression(returnStatement.expression, intermediates, temporaryVariable);
+
+            intermediates.push(
+                new Intermediates.Give(returnSymbol, temporaryVariable),
             );
         }
 
         intermediates.push(
-
             new Intermediates.Return(),
         );
     }
 
     private lowerIfStatement (ifStatement: SemanticNodes.IfStatement, intermediates: Intermediate[]): void
     {
-        const condition = this.lowerExpression(ifStatement.condition, intermediates);
+        const condition = this.generateVariable(this.typeToSize(ifStatement.condition.type));
+
+        intermediates.push(
+            new Intermediates.Introduce(condition),
+        );
+
+        this.lowerExpression(ifStatement.condition, intermediates, condition);
 
         const endLabelSymbol = this.generateLabel();
         const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
@@ -357,7 +356,13 @@ export default class Lowerer
 
     private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement, intermediates: Intermediate[]): void
     {
-        const condition = this.lowerExpression(whileStatement.condition, intermediates);
+        const condition = this.generateVariable(this.typeToSize(whileStatement.condition.type));
+
+        intermediates.push(
+            new Intermediates.Introduce(condition),
+        );
+
+        this.lowerExpression(whileStatement.condition, intermediates, condition);
 
         const startLabelSymbol = this.generateLabel();
         const endLabelSymbol = this.generateLabel();
@@ -384,57 +389,53 @@ export default class Lowerer
 
         if (assignment.expression !== null)
         {
-            const loweredExpressionValue = this.lowerExpression(assignment.expression, intermediates);
-
-            intermediates.push(
-                new Intermediates.Move(variable, loweredExpressionValue),
-            );
+            this.lowerExpression(assignment.expression, intermediates, variable);
         }
     }
 
-    private lowerExpression (expression: SemanticNodes.Expression, intermediates: Intermediate[]): IntermediateSymbols.ReadableValue
+    private lowerExpression (
+        expression: SemanticNodes.Expression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
     {
         switch (expression.kind)
         {
             case SemanticKind.LiteralExpression:
-                return this.lowerLiteralExpression(expression as SemanticNodes.LiteralExpression);
+                this.lowerLiteralExpression(expression as SemanticNodes.LiteralExpression, intermediates, targetLocation);
+                break;
             case SemanticKind.VariableExpression:
-                return this.lowerVariableExpression(expression as SemanticNodes.VariableExpression);
+                this.lowerVariableExpression(expression as SemanticNodes.VariableExpression, intermediates, targetLocation);
+                break;
             case SemanticKind.CallExpression:
-                {
-                    const callExpression = expression as SemanticNodes.CallExpression;
-
-                    const callResult = this.lowerCallExpression(callExpression, intermediates);
-
-                    if (callResult === null)
-                    {
-                        throw new Error(
-                            `Lowerer error: The function "${callExpression.functionSymbol.name}" has no return value `
-                            + `but is used as an expression.`
-                        );
-                    }
-
-                    return callResult;
-                }
+                this.lowerCallExpression(expression as SemanticNodes.CallExpression, intermediates, targetLocation);
+                break;
             case SemanticKind.UnaryExpression:
-                return this.lowerUnaryExpression(expression as SemanticNodes.UnaryExpression, intermediates);
+                this.lowerUnaryExpression(expression as SemanticNodes.UnaryExpression, intermediates, targetLocation);
+                break;
             case SemanticKind.BinaryExpression:
-                return this.lowerBinaryExpression(expression as SemanticNodes.BinaryExpression, intermediates);
+                this.lowerBinaryExpression(expression as SemanticNodes.BinaryExpression, intermediates, targetLocation);
+                break;
             default:
                 throw new Error(`Lowerer error: No implementation for expression of kind "${expression.kind}"`);
         }
     }
 
     private lowerLiteralExpression (
-        literalExpression: SemanticNodes.LiteralExpression
-    ): IntermediateSymbols.Literal | IntermediateSymbols.Constant
+        literalExpression: SemanticNodes.LiteralExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
     {
+        let literalOrConstant: IntermediateSymbols.Literal | IntermediateSymbols.Constant;
+
         switch (literalExpression.type)
         {
             case BuildInTypes.int:
                 {
-                    const literal = new IntermediateSymbols.Literal(literalExpression.value, this.typeToSize(literalExpression.type));
-                    return literal;
+                    literalOrConstant = new IntermediateSymbols.Literal(literalExpression.value, this.typeToSize(literalExpression.type));
+
+                    break;
                 }
             case BuildInTypes.bool:
                 {
@@ -453,20 +454,30 @@ export default class Lowerer
                         throw new Error(`Lowerer error: Unknown Bool value of "${literalExpression.value}"`);
                     }
 
-                    const literal = new IntermediateSymbols.Literal(value, this.typeToSize(literalExpression.type));
-                    return literal;
+                    literalOrConstant = new IntermediateSymbols.Literal(value, this.typeToSize(literalExpression.type));
+
+                    break;
                 }
             case BuildInTypes.string:
                 {
-                    const constant = this.getOrGenerateConstant(literalExpression.value);
-                    return constant;
+                    literalOrConstant = this.getOrGenerateConstant(literalExpression.value);
+
+                    break;
                 }
             default:
                 throw new Error(`Lowerer error: Unknown literal of type "${literalExpression.type.name}"`);
         }
+
+        intermediates.push(
+            new Intermediates.Move(targetLocation, literalOrConstant),
+        );
     }
 
-    private lowerVariableExpression (variableExpression: SemanticNodes.VariableExpression): IntermediateSymbols.Variable
+    private lowerVariableExpression (
+        variableExpression: SemanticNodes.VariableExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
     {
         const variable = this.variableSymbolMap.get(variableExpression.variable);
 
@@ -475,25 +486,37 @@ export default class Lowerer
             throw new Error(`Lowerer error: Variable "${variableExpression.variable.name}" used before declaration.`);
         }
 
-        return variable;
+        if (variable !== targetLocation)
+        {
+            intermediates.push(
+                new Intermediates.Move(targetLocation, variable),
+            );
+        }
     }
 
     private lowerCallExpression (
         callExpression: SemanticNodes.CallExpression,
-        intermediates: Intermediate[]
-    ): IntermediateSymbols.Variable|null
+        intermediates: Intermediate[],
+        targetLocation?: IntermediateSymbols.Variable
+    ): void
     {
         let parameterCounter = 0;
 
         for (const argumentExpression of callExpression.arguments)
         {
-            const loweredArgument = this.lowerExpression(argumentExpression, intermediates);
+            const temporaryVariable = this.generateVariable(this.typeToSize(argumentExpression.type));
 
-            const parameter = this.generateParameter(this.typeToSize(argumentExpression.type), parameterCounter);
+            intermediates.push(
+                new Intermediates.Introduce(temporaryVariable),
+            );
+
+            this.lowerExpression(argumentExpression, intermediates, temporaryVariable);
+
+            const parameter = this.generateParameter(temporaryVariable.size, parameterCounter);
             parameterCounter += 1;
 
             intermediates.push(
-                new Intermediates.Give(parameter, loweredArgument),
+                new Intermediates.Give(parameter, temporaryVariable),
             );
         }
 
@@ -508,28 +531,30 @@ export default class Lowerer
             new Intermediates.Call(functionSymbol),
         );
 
-        if (functionSymbol.returnSize != IntermediateSize.Void)
+        if (targetLocation !== undefined)
         {
+            if (functionSymbol.returnSize == IntermediateSize.Void)
+            {
+                throw new Error(
+                    `Lowerer error: Function "${callExpression.functionSymbol.name}" has no return value but is used as an expression.`
+                );
+            }
+
             const returnValue = new IntermediateSymbols.ReturnValue(functionSymbol.returnSize);
-            const temporaryVariable = this.generateVariable(functionSymbol.returnSize);
 
             intermediates.push(
-                new Intermediates.Introduce(temporaryVariable),
-                new Intermediates.Take(temporaryVariable, returnValue),
+                new Intermediates.Take(targetLocation, returnValue),
             );
-
-            return temporaryVariable;
         }
-
-        return null;
     }
 
     private lowerUnaryExpression (
         unaryExpression: SemanticNodes.UnaryExpression,
-        intermediates: Intermediate[]
-    ): IntermediateSymbols.ReadableValue
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
     {
-        const loweredOperandValue = this.lowerExpression(unaryExpression.operand, intermediates);
+        this.lowerExpression(unaryExpression.operand, intermediates, targetLocation);
 
         const operator = unaryExpression.operator;
 
@@ -540,22 +565,9 @@ export default class Lowerer
                 break;
             case BuildInOperators.unaryIntSubtraction:
                 {
-                    if (loweredOperandValue.kind === IntermediateSymbolKind.Variable)
-                    {
-                        intermediates.push(
-                            new Intermediates.Negate(loweredOperandValue),
-                        );
-                    }
-                    else
-                    {
-                        const temporaryVariable = this.generateVariable(loweredOperandValue.size);
-
-                        intermediates.push(
-                            new Intermediates.Introduce(temporaryVariable),
-                            new Intermediates.Move(temporaryVariable, loweredOperandValue),
-                            new Intermediates.Negate(temporaryVariable),
-                        );
-                    }
+                    intermediates.push(
+                        new Intermediates.Negate(targetLocation),
+                    );
 
                     break;
                 }
@@ -565,14 +577,13 @@ export default class Lowerer
                     `result of "${operator.resultType.name}" is not implemented.`
                 );
         }
-
-        return loweredOperandValue;
     }
 
     private lowerBinaryExpression (
         binaryExpression: SemanticNodes.BinaryExpression,
-        intermediates: Intermediate[]
-    ): IntermediateSymbols.ReadableValue
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
     {
         if (binaryExpression.operator == BuildInOperators.binaryStringEqual)
         {
@@ -586,32 +597,19 @@ export default class Lowerer
                 ]
             );
 
-            const loweredCallExpression = this.lowerCallExpression(callExpression, intermediates);
-
-            if (loweredCallExpression === null)
-            {
-                throw new Error(`Lowerer error: The buildin function "${BuildInFunctions.stringsAreEqual.name}" has no return value.`);
-            }
-
-            return loweredCallExpression;
+            this.lowerCallExpression(callExpression, intermediates, targetLocation);
         }
         else
         {
-            let loweredLeftOperand = this.lowerExpression(binaryExpression.leftOperand, intermediates);
-            const loweredRightOperand = this.lowerExpression(binaryExpression.rightOperand, intermediates);
+            this.lowerExpression(binaryExpression.leftOperand, intermediates, targetLocation);
 
-            // Make sure the left operand is a variable:
-            if (loweredLeftOperand.kind !== IntermediateSymbolKind.Variable)
-            {
-                const temporaryVariable = this.generateVariable(loweredLeftOperand.size);
+            const temporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
 
-                intermediates.push(
-                    new Intermediates.Introduce(temporaryVariable),
-                    new Intermediates.Move(temporaryVariable, loweredLeftOperand),
-                );
+            intermediates.push(
+                new Intermediates.Introduce(temporaryVariable),
+            );
 
-                loweredLeftOperand = temporaryVariable;
-            }
+            this.lowerExpression(binaryExpression.rightOperand, intermediates, temporaryVariable);
 
             const operator = binaryExpression.operator;
 
@@ -619,12 +617,12 @@ export default class Lowerer
             {
                 case BuildInOperators.binaryIntAddition:
                     intermediates.push(
-                        new Intermediates.Add(loweredLeftOperand, loweredRightOperand),
+                        new Intermediates.Add(targetLocation, temporaryVariable),
                     );
                     break;
                 case BuildInOperators.binaryIntSubtraction:
                     intermediates.push(
-                        new Intermediates.Subtract(loweredLeftOperand, loweredRightOperand),
+                        new Intermediates.Subtract(targetLocation, temporaryVariable),
                     );
                     break;
                 case BuildInOperators.binaryIntEqual:
@@ -632,7 +630,7 @@ export default class Lowerer
                 case BuildInOperators.binaryIntGreater:
                 {
                     intermediates.push(
-                        new Intermediates.Compare(loweredLeftOperand, loweredRightOperand),
+                        new Intermediates.Compare(targetLocation, temporaryVariable),
                     );
 
                     const trueLabel = this.generateLabel();
@@ -661,10 +659,10 @@ export default class Lowerer
                     const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
                     intermediates.push(
-                        new Intermediates.Move(loweredLeftOperand, falseLiteral),
+                        new Intermediates.Move(targetLocation, falseLiteral),
                         new Intermediates.Goto(endLabel),
                         new Intermediates.Label(trueLabel),
-                        new Intermediates.Move(loweredLeftOperand, trueLiteral),
+                        new Intermediates.Move(targetLocation, trueLiteral),
                         new Intermediates.Label(endLabel),
                     );
 
@@ -676,8 +674,6 @@ export default class Lowerer
                         `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                     );
             }
-
-            return loweredLeftOperand;
         }
     }
 }

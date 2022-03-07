@@ -10,6 +10,7 @@ export enum IntermediateKind
     Call = 'Call',
     Compare = 'Compare',
     Dismiss = 'Dismiss',
+    Give = 'Give',
     Goto = 'Goto',
     Introduce = 'Introduce',
     JumpIfEqual = 'JumpIfEqual',
@@ -18,8 +19,7 @@ export enum IntermediateKind
     Label = 'Label',
     Move = 'Move',
     Negate = 'Negate',
-    Parameterise = 'Parameterise',
-    Receive = 'Receive',
     Return = 'Return',
     Subtract = 'Subtract',
+    Take = 'Take',
 }

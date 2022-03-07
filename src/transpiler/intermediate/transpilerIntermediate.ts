@@ -78,10 +78,10 @@ export default class TranspilerIntermediate implements Transpiler
                 return 'move';
             case IntermediateKind.Negate:
                 return 'negate';
-            case IntermediateKind.Parameterise:
-                return 'parameterise';
-            case IntermediateKind.Receive:
-                return 'receive';
+            case IntermediateKind.Give:
+                return 'give';
+            case IntermediateKind.Take:
+                return 'take';
             case IntermediateKind.Return:
                 return 'return';
             case IntermediateKind.Subtract:
@@ -216,29 +216,20 @@ export default class TranspilerIntermediate implements Transpiler
                     statementIntermediate.operand.name,
                 ];
                 break;
-            case IntermediateKind.Parameterise:
+            case IntermediateKind.Give:
                 parameters = [
-                    statementIntermediate.parameterSymbol.name,
+                    statementIntermediate.targetSymbol.name,
                     statementIntermediate.readableValue.name,
                 ];
                 break;
-            case IntermediateKind.Receive:
+            case IntermediateKind.Take:
                 parameters = [
                     statementIntermediate.variableSymbol.name,
-                    statementIntermediate.receivableValue.name,
+                    statementIntermediate.takableValue.name,
                 ];
                 break;
             case IntermediateKind.Return:
-                if (statementIntermediate.value === null)
-                {
-                    parameters = [];
-                }
-                else
-                {
-                    parameters = [
-                        statementIntermediate.value.name,
-                    ];
-                }
+                parameters = [];
                 break;
 
             case IntermediateKind.Label:

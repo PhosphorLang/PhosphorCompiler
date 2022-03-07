@@ -2,7 +2,8 @@ import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
 /**
- * Call the function defined by the function symbol.
+ * Call the function defined by the function symbol. \
+ * All parameters must previously be given.
  */
 export class CallIntermediate
 {

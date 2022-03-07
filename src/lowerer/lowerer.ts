@@ -208,7 +208,7 @@ export default class Lowerer
 
                 functionBody.push(
                     new Intermediates.Introduce(parameterVariable),
-                    new Intermediates.Receive(parameterVariable, parameterSymbol)
+                    new Intermediates.Take(parameterVariable, parameterSymbol)
                 );
             }
 
@@ -218,7 +218,7 @@ export default class Lowerer
             if ((functionBody.at(-1)?.kind !== IntermediateKind.Return))
             {
                 functionBody.push(
-                    new Intermediates.Return(null)
+                    new Intermediates.Return()
                 );
             }
 
@@ -299,10 +299,17 @@ export default class Lowerer
         if (returnStatement.expression !== null)
         {
             returnValue = this.lowerExpression(returnStatement.expression, intermediates);
+
+            const returnSymbol = new IntermediateSymbols.ReturnValue(returnValue.size);
+
+            intermediates.push(
+                new Intermediates.Give(returnSymbol, returnValue),
+            );
         }
 
         intermediates.push(
-            new Intermediates.Return(returnValue),
+
+            new Intermediates.Return(),
         );
     }
 
@@ -491,7 +498,7 @@ export default class Lowerer
             parameterCounter += 1;
 
             intermediates.push(
-                new Intermediates.Parameterise(parameter, loweredArgument),
+                new Intermediates.Give(parameter, loweredArgument),
             );
         }
 
@@ -513,7 +520,7 @@ export default class Lowerer
 
             intermediates.push(
                 new Intermediates.Introduce(temporaryVariable),
-                new Intermediates.Receive(temporaryVariable, returnValue),
+                new Intermediates.Take(temporaryVariable, returnValue),
             );
 
             return temporaryVariable;

@@ -5,6 +5,7 @@ import * as SemanticSymbols from '../connector/semanticSymbols';
 import BuildInFunctions from '../definitions/buildInFunctions';
 import BuildInOperators from '../definitions/buildInOperators';
 import BuildInTypes from '../definitions/buildInTypes';
+import { Intermediate } from './intermediates';
 import { IntermediateKind } from './intermediateKind';
 import { IntermediateSize } from './intermediateSize';
 import { IntermediateSymbolKind } from './intermediateSymbolKind';
@@ -228,7 +229,7 @@ export default class Lowerer
         }
     }
 
-    private lowerSection (section: SemanticNodes.Section, intermediates: Intermediates.Intermediate[]): void
+    private lowerSection (section: SemanticNodes.Section, intermediates: Intermediate[]): void
     {
         for (const statement of section.statements)
         {
@@ -236,7 +237,7 @@ export default class Lowerer
         }
     }
 
-    private lowerStatement (statement: SemanticNodes.SemanticNode, intermediates: Intermediates.Intermediate[]): void
+    private lowerStatement (statement: SemanticNodes.SemanticNode, intermediates: Intermediate[]): void
     {
         switch (statement.kind)
         {
@@ -266,10 +267,7 @@ export default class Lowerer
         }
     }
 
-    private lowerVariableDeclaration (
-        variableDeclaration: SemanticNodes.VariableDeclaration,
-        intermediates: Intermediates.Intermediate[]
-    ): void
+    private lowerVariableDeclaration (variableDeclaration: SemanticNodes.VariableDeclaration, intermediates: Intermediate[]): void
     {
         let initialisation: IntermediateSymbols.ReadableValue|null = null;
 
@@ -292,7 +290,7 @@ export default class Lowerer
         }
     }
 
-    private lowerReturnStatement (returnStatement: SemanticNodes.ReturnStatement, intermediates: Intermediates.Intermediate[]): void
+    private lowerReturnStatement (returnStatement: SemanticNodes.ReturnStatement, intermediates: Intermediate[]): void
     {
         let returnValue: IntermediateSymbols.ReadableValue | null = null;
 
@@ -313,7 +311,7 @@ export default class Lowerer
         );
     }
 
-    private lowerIfStatement (ifStatement: SemanticNodes.IfStatement, intermediates: Intermediates.Intermediate[]): void
+    private lowerIfStatement (ifStatement: SemanticNodes.IfStatement, intermediates: Intermediate[]): void
     {
         const condition = this.lowerExpression(ifStatement.condition, intermediates);
 
@@ -357,7 +355,7 @@ export default class Lowerer
         }
     }
 
-    private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement, intermediates: Intermediates.Intermediate[]): void
+    private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement, intermediates: Intermediate[]): void
     {
         const condition = this.lowerExpression(whileStatement.condition, intermediates);
 
@@ -380,7 +378,7 @@ export default class Lowerer
         );
     }
 
-    private lowerAssignment (assignment: SemanticNodes.Assignment, intermediates: Intermediates.Intermediate[]): void
+    private lowerAssignment (assignment: SemanticNodes.Assignment, intermediates: Intermediate[]): void
     {
         const variable = this.getVariableFromSymbol(assignment.variable);
 
@@ -394,10 +392,7 @@ export default class Lowerer
         }
     }
 
-    private lowerExpression (
-        expression: SemanticNodes.Expression,
-        intermediates: Intermediates.Intermediate[]
-    ): IntermediateSymbols.ReadableValue
+    private lowerExpression (expression: SemanticNodes.Expression, intermediates: Intermediate[]): IntermediateSymbols.ReadableValue
     {
         switch (expression.kind)
         {
@@ -485,7 +480,7 @@ export default class Lowerer
 
     private lowerCallExpression (
         callExpression: SemanticNodes.CallExpression,
-        intermediates: Intermediates.Intermediate[]
+        intermediates: Intermediate[]
     ): IntermediateSymbols.Variable|null
     {
         let parameterCounter = 0;
@@ -531,7 +526,7 @@ export default class Lowerer
 
     private lowerUnaryExpression (
         unaryExpression: SemanticNodes.UnaryExpression,
-        intermediates: Intermediates.Intermediate[]
+        intermediates: Intermediate[]
     ): IntermediateSymbols.ReadableValue
     {
         const loweredOperandValue = this.lowerExpression(unaryExpression.operand, intermediates);
@@ -576,7 +571,7 @@ export default class Lowerer
 
     private lowerBinaryExpression (
         binaryExpression: SemanticNodes.BinaryExpression,
-        intermediates: Intermediates.Intermediate[]
+        intermediates: Intermediate[]
     ): IntermediateSymbols.ReadableValue
     {
         if (binaryExpression.operator == BuildInOperators.binaryStringEqual)

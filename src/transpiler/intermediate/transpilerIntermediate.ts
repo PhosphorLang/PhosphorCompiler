@@ -1,6 +1,8 @@
 import * as Instructions from '../common/instructions';
 import * as Intermediates from '../../lowerer/intermediates';
 import { IntermediateKind } from '../../lowerer/intermediateKind';
+import { IntermediateSymbol } from '../../lowerer/intermediateSymbols';
+import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
 import Transpiler from '../transpiler';
 
 export default class TranspilerIntermediate implements Transpiler
@@ -89,6 +91,20 @@ export default class TranspilerIntermediate implements Transpiler
             case IntermediateKind.File:
             case IntermediateKind.Label:
                 throw new Error(`Transpiler error: Intermediate kind "${intermediate.kind}" is not supported or has no instruction string.`);
+        }
+    }
+
+    private getIntermediateSymbolString (intermediateSymbol: IntermediateSymbol): string
+    {
+        if (intermediateSymbol.kind == IntermediateSymbolKind.Literal)
+        {
+            const symbolString = `${intermediateSymbol.size}(${intermediateSymbol.name})`;
+
+            return symbolString;
+        }
+        else
+        {
+            return intermediateSymbol.name;
         }
     }
 
@@ -189,19 +205,19 @@ export default class TranspilerIntermediate implements Transpiler
             case IntermediateKind.Compare:
             case IntermediateKind.Subtract:
                 parameters = [
-                    statementIntermediate.leftOperand.name,
-                    statementIntermediate.rightOperand.name,
+                    this.getIntermediateSymbolString(statementIntermediate.leftOperand),
+                    this.getIntermediateSymbolString(statementIntermediate.rightOperand),
                 ];
                 break;
             case IntermediateKind.Call:
                 parameters = [
-                    statementIntermediate.functionSymbol.name,
+                    this.getIntermediateSymbolString(statementIntermediate.functionSymbol),
                 ];
                 break;
             case IntermediateKind.Dismiss:
             case IntermediateKind.Introduce:
                 parameters = [
-                    statementIntermediate.variableSymbol.name,
+                    this.getIntermediateSymbolString(statementIntermediate.variableSymbol),
                 ];
                 break;
             case IntermediateKind.Goto:
@@ -209,30 +225,30 @@ export default class TranspilerIntermediate implements Transpiler
             case IntermediateKind.JumpIfGreater:
             case IntermediateKind.JumpIfLess:
                 parameters = [
-                    statementIntermediate.target.name,
+                    this.getIntermediateSymbolString(statementIntermediate.target),
                 ];
                 break;
             case IntermediateKind.Move:
                 parameters = [
-                    statementIntermediate.to.name,
-                    statementIntermediate.from.name,
+                    this.getIntermediateSymbolString(statementIntermediate.to),
+                    this.getIntermediateSymbolString(statementIntermediate.from),
                 ];
                 break;
             case IntermediateKind.Negate:
                 parameters = [
-                    statementIntermediate.operand.name,
+                    this.getIntermediateSymbolString(statementIntermediate.operand),
                 ];
                 break;
             case IntermediateKind.Give:
                 parameters = [
-                    statementIntermediate.targetSymbol.name,
-                    statementIntermediate.variable.name,
+                    this.getIntermediateSymbolString(statementIntermediate.targetSymbol),
+                    this.getIntermediateSymbolString(statementIntermediate.variable),
                 ];
                 break;
             case IntermediateKind.Take:
                 parameters = [
-                    statementIntermediate.variableSymbol.name,
-                    statementIntermediate.takableValue.name,
+                    this.getIntermediateSymbolString(statementIntermediate.variableSymbol),
+                    this.getIntermediateSymbolString(statementIntermediate.takableValue),
                 ];
                 break;
             case IntermediateKind.Return:
@@ -242,7 +258,7 @@ export default class TranspilerIntermediate implements Transpiler
             case IntermediateKind.Label:
                 this.instructions.push(
                     new Instructions.Label(
-                        statementIntermediate.symbol.name,
+                        this.getIntermediateSymbolString(statementIntermediate.symbol),
                     ),
                 );
                 return;

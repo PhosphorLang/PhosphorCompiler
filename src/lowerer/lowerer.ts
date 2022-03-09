@@ -8,7 +8,6 @@ import BuildInTypes from '../definitions/buildInTypes';
 import { Intermediate } from './intermediates';
 import { IntermediateKind } from './intermediateKind';
 import { IntermediateSize } from './intermediateSize';
-import { IntermediateSymbolKind } from './intermediateSymbolKind';
 import SemanticKind from '../connector/semanticKind';
 
 /**
@@ -30,11 +29,11 @@ export default class Lowerer
     private variableSymbolMap: Map<SemanticSymbols.Variable, IntermediateSymbols.Variable>;
     private valueToConstantMap: Map<string, IntermediateSymbols.Constant>;
     /**
-     * Maps an intermediate variable to the index of its last use. \
+     * Maps an intermediate variable to the index after its last use (where it must be dismissed). \
      * The index is only valid inside a function and applies to the intermediates of the function. \
      * TODO: It is a bit ugly to have this here (globally). Is there a better way without sacrificing convenience?
      */
-    private variableLastUseMap: Map<IntermediateSymbols.Variable, number>;
+    private variableDismissIndexMap: Map<IntermediateSymbols.Variable, number>;
 
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
 
@@ -51,7 +50,7 @@ export default class Lowerer
         this.functionSymbolMap = new Map();
         this.variableSymbolMap = new Map();
         this.valueToConstantMap = new Map();
-        this.variableLastUseMap = new Map();
+        this.variableDismissIndexMap = new Map();
 
         this.variableIntroducedSet = new Set();
     }
@@ -69,7 +68,7 @@ export default class Lowerer
         this.functionSymbolMap.clear();
         this.variableSymbolMap.clear();
         this.valueToConstantMap.clear();
-        this.variableLastUseMap.clear();
+        this.variableDismissIndexMap.clear();
 
         this.variableIntroducedSet.clear();
 
@@ -146,18 +145,6 @@ export default class Lowerer
         return existingVariable;
     }
 
-    protected markUseTimeIfVariable (readableValue: IntermediateSymbols.ReadableValue, intermediates: Intermediate[]): void
-    {
-        if (readableValue.kind != IntermediateSymbolKind.Variable)
-        {
-            return;
-        }
-
-        const index = intermediates.length - 1;
-
-        this.variableLastUseMap.set(readableValue, index);
-    }
-
     private typeToSize (type: SemanticSymbols.Type): IntermediateSize
     {
         switch (type)
@@ -222,6 +209,8 @@ export default class Lowerer
                 throw new Error(`Lowerer error: The section of a non-external function is null."`);
             }
 
+            this.variableDismissIndexMap.clear();
+
             const functionBody: Intermediates.Statement[] = [];
             let parameterCounter = 0;
 
@@ -237,6 +226,8 @@ export default class Lowerer
                     new Intermediates.Introduce(parameterVariable),
                     new Intermediates.Take(parameterVariable, parameterSymbol)
                 );
+
+                this.variableDismissIndexMap.set(parameterVariable, functionBody.length);
             }
 
             this.lowerSection(functionDeclaration.section, functionBody);
@@ -247,6 +238,18 @@ export default class Lowerer
                 functionBody.push(
                     new Intermediates.Return()
                 );
+            }
+
+            // I hate this magic, but sorting shouldn't be a ten-liner either, so here an explanation:
+            // We need the indices for the dismisses be sorted descending because they need to be inserted backwards into the function body,
+            // otherwise all following indices would be invalidated.
+            // This one-liner does that: Create a new map from the old map by sorting the entries descendingly by the value (the index).
+            const sortedDismissIndexes = new Map([...this.variableDismissIndexMap.entries()].sort((a, b) => b[1] - a[1]));
+
+            // Insert Dismiss statements for each variable's last use:
+            for (const [variable, lastUse] of sortedDismissIndexes)
+            {
+                functionBody.splice(lastUse, 0, new Intermediates.Dismiss(variable));
             }
 
             const functionIntermediate = new Intermediates.Function(functionSymbol, functionBody);
@@ -315,6 +318,8 @@ export default class Lowerer
             intermediates.push(
                 new Intermediates.Give(returnSymbol, temporaryVariable),
             );
+
+            this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
         }
 
         intermediates.push(
@@ -335,6 +340,11 @@ export default class Lowerer
         {
             intermediates.push(
                 new Intermediates.Compare(condition, falseLiteral),
+            );
+
+            this.variableDismissIndexMap.set(condition, intermediates.length);
+
+            intermediates.push(
                 new Intermediates.JumpIfEqual(endLabelSymbol),
             );
 
@@ -350,6 +360,11 @@ export default class Lowerer
 
             intermediates.push(
                 new Intermediates.Compare(condition, falseLiteral),
+            );
+
+            this.variableDismissIndexMap.set(condition, intermediates.length);
+
+            intermediates.push(
                 new Intermediates.JumpIfEqual(elseLabelSymbol),
             );
 
@@ -382,6 +397,11 @@ export default class Lowerer
         intermediates.push(
             new Intermediates.Label(startLabelSymbol),
             new Intermediates.Compare(condition, falseLiteral),
+        );
+
+        this.variableDismissIndexMap.set(condition, intermediates.length);
+
+        intermediates.push(
             new Intermediates.Goto(endLabelSymbol),
         );
 
@@ -490,6 +510,8 @@ export default class Lowerer
         intermediates.push(
             new Intermediates.Move(targetLocation, literalOrConstant),
         );
+
+        this.variableDismissIndexMap.set(targetLocation, intermediates.length);
     }
 
     private lowerVariableExpression (
@@ -519,6 +541,9 @@ export default class Lowerer
             intermediates.push(
                 new Intermediates.Move(targetLocation, variable),
             );
+
+            this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+            this.variableDismissIndexMap.set(variable, intermediates.length);
         }
     }
 
@@ -542,6 +567,8 @@ export default class Lowerer
             intermediates.push(
                 new Intermediates.Give(parameter, temporaryVariable),
             );
+
+            this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
         }
 
         const functionSymbol = this.functionSymbolMap.get(callExpression.functionSymbol);
@@ -578,6 +605,8 @@ export default class Lowerer
             intermediates.push(
                 new Intermediates.Take(targetLocation, returnValue),
             );
+
+            this.variableDismissIndexMap.set(targetLocation, intermediates.length);
         }
     }
 
@@ -610,6 +639,8 @@ export default class Lowerer
                     intermediates.push(
                         new Intermediates.Negate(targetLocation),
                     );
+
+                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
 
                     break;
                 }
@@ -666,11 +697,15 @@ export default class Lowerer
                     intermediates.push(
                         new Intermediates.Add(targetLocation, temporaryVariable),
                     );
+                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+                    this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
                     break;
                 case BuildInOperators.binaryIntSubtraction:
                     intermediates.push(
                         new Intermediates.Subtract(targetLocation, temporaryVariable),
                     );
+                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+                    this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
                     break;
                 case BuildInOperators.binaryIntEqual:
                 case BuildInOperators.binaryIntLess:
@@ -679,6 +714,8 @@ export default class Lowerer
                     intermediates.push(
                         new Intermediates.Compare(targetLocation, temporaryVariable),
                     );
+
+                    this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
 
                     const trueLabel = this.generateLabel();
                     const endLabel = this.generateLabel();
@@ -710,6 +747,11 @@ export default class Lowerer
                         new Intermediates.Goto(endLabel),
                         new Intermediates.Label(trueLabel),
                         new Intermediates.Move(targetLocation, trueLiteral),
+                    );
+
+                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+
+                    intermediates.push(
                         new Intermediates.Label(endLabel),
                     );
 

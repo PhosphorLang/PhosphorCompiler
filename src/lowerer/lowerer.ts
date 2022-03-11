@@ -36,6 +36,7 @@ export default class Lowerer
     private variableDismissIndexMap: Map<IntermediateSymbols.Variable, number>;
 
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
+    private buildInFunctionLoweredSet: Set<SemanticSymbols.Function>;
 
     constructor ()
     {
@@ -53,6 +54,7 @@ export default class Lowerer
         this.variableDismissIndexMap = new Map();
 
         this.variableIntroducedSet = new Set();
+        this.buildInFunctionLoweredSet = new Set();
     }
 
     public run (fileSemanticNode: SemanticNodes.File): Intermediates.File
@@ -71,6 +73,7 @@ export default class Lowerer
         this.variableDismissIndexMap.clear();
 
         this.variableIntroducedSet.clear();
+        this.buildInFunctionLoweredSet.clear();
 
         this.lowerFile(fileSemanticNode);
 
@@ -178,6 +181,28 @@ export default class Lowerer
     private lowerImport (importNode: SemanticNodes.Import): void
     {
         this.lowerFile(importNode.file);
+    }
+
+    /**
+     * Lower a build-in function if not already lowered. \
+     * Note that this must only be used for build-in functions (which are all external by definition).
+     * Will not check if the function really is build-in but will throw if it is not external.
+     */
+    private lowerBuildInFunctionIfNeeded (functionSymbol: SemanticSymbols.Function): void
+    {
+        if (!functionSymbol.isExternal)
+        {
+            throw new Error(`Lowerer error: Tried to lower build-in function "${functionSymbol.name}" which is not external.`);
+        }
+
+        if (!this.buildInFunctionLoweredSet.has(functionSymbol))
+        {
+            const buildInFunctionDeclaration = new SemanticNodes.FunctionDeclaration(functionSymbol, null);
+
+            this.lowerFunction(buildInFunctionDeclaration);
+
+            this.buildInFunctionLoweredSet.add(functionSymbol);
+        }
     }
 
     private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): void
@@ -661,6 +686,8 @@ export default class Lowerer
         if (binaryExpression.operator == BuildInOperators.binaryStringEqual)
         {
             // NOTE: Compiler magic: The comparison of a string is call to the build in function "stringsAreEqual".
+
+            this.lowerBuildInFunctionIfNeeded(BuildInFunctions.stringsAreEqual);
 
             const callExpression = new SemanticNodes.CallExpression(
                 BuildInFunctions.stringsAreEqual,

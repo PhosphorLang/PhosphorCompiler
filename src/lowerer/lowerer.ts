@@ -427,7 +427,7 @@ export default class Lowerer
         this.variableDismissIndexMap.set(condition, intermediates.length);
 
         intermediates.push(
-            new Intermediates.Goto(endLabelSymbol),
+            new Intermediates.JumpIfEqual(endLabelSymbol),
         );
 
         this.lowerSection(whileStatement.section, intermediates);

@@ -224,6 +224,60 @@ describe('Lowerer',
             }
         );
 
+        it('can lower a variable expression.',
+            function ()
+            {
+                const semanticVariableSymbol = SemanticCreator.newVariableSymbol();
+
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newIntegerLiteral(),
+                                        semanticVariableSymbol
+                                    ),
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newVariableExpression(semanticVariableSymbol),
+                                        SemanticCreator.newVariableSymbol(
+                                            undefined,
+                                            'variableB'
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const variableSymbol0 = IntermediateCreator.newVariableSymbol('v#0');
+                const variableSymbol1 = IntermediateCreator.newVariableSymbol('v#1');
+
+                const expectedResult = IntermediateCreator.newFile(
+                    [
+                        IntermediateCreator.newFunction(
+                            [
+                                IntermediateCreator.newIntroduce(variableSymbol0),
+                                IntermediateCreator.newMove(variableSymbol0),
+                                IntermediateCreator.newIntroduce(variableSymbol1),
+                                IntermediateCreator.newMove(variableSymbol1, variableSymbol0),
+                                IntermediateCreator.newDismiss(variableSymbol1),
+                                IntermediateCreator.newDismiss(variableSymbol0),
+                                IntermediateCreator.newReturn(),
+                            ]
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can lower an integer addition.',
             function ()
             {
@@ -255,6 +309,74 @@ describe('Lowerer',
                                 IntermediateCreator.newAdd(variableSymbol0, variableSymbol1),
                                 IntermediateCreator.newDismiss(variableSymbol1),
                                 IntermediateCreator.newDismiss(variableSymbol0),
+                                IntermediateCreator.newReturn(),
+                            ]
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can lower an integer comparison.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newVariableDeclaration(
+                                        SemanticCreator.newBinaryExpression(
+                                            SemanticCreator.newIntegerLiteral(),
+                                            BuildInOperators.binaryIntEqual,
+                                            SemanticCreator.newIntegerLiteral(),
+                                        ),
+                                        SemanticCreator.newVariableSymbol(BuildInTypes.bool)
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const resultVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
+                const leftOperandVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Native);
+                const rightOperandVariableSymbol = IntermediateCreator.newVariableSymbol('v#2', IntermediateSize.Native);
+
+                const equalLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
+                const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
+
+                const expectedResult = IntermediateCreator.newFile(
+                    [
+                        IntermediateCreator.newFunction(
+                            [
+                                IntermediateCreator.newIntroduce(leftOperandVariableSymbol),
+                                IntermediateCreator.newMove(leftOperandVariableSymbol),
+                                IntermediateCreator.newIntroduce(rightOperandVariableSymbol),
+                                IntermediateCreator.newMove(rightOperandVariableSymbol),
+                                IntermediateCreator.newCompare(leftOperandVariableSymbol, rightOperandVariableSymbol),
+                                IntermediateCreator.newDismiss(rightOperandVariableSymbol),
+                                IntermediateCreator.newDismiss(leftOperandVariableSymbol),
+                                IntermediateCreator.newJumpIfEqual(equalLabelSymbol),
+                                IntermediateCreator.newIntroduce(resultVariableSymbol),
+                                IntermediateCreator.newMove(
+                                    resultVariableSymbol,
+                                    IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
+                                ),
+                                IntermediateCreator.newGoto(endLabelSymbol),
+                                IntermediateCreator.newLabel(equalLabelSymbol),
+                                IntermediateCreator.newMove(
+                                    resultVariableSymbol,
+                                    IntermediateCreator.newLiteralSymbol('1', IntermediateSize.Int8)
+                                ),
+                                IntermediateCreator.newLabel(endLabelSymbol),
+                                IntermediateCreator.newDismiss(resultVariableSymbol),
                                 IntermediateCreator.newReturn(),
                             ]
                         )
@@ -375,6 +497,52 @@ describe('Lowerer',
                             [
                                 IntermediateCreator.newReturn(),
                             ]
+                        )
+                    ]
+                );
+
+                const lowerer = new Lowerer();
+
+                const result = lowerer.run(input);
+
+                assert.deepStrictEqual(result, expectedResult); // An empty return statement stays unchanged.
+            }
+        );
+
+        it('can lower a function returning a value.',
+            function ()
+            {
+                const input = SemanticCreator.newFile(
+                    [
+                        SemanticCreator.newFunctionDeclaration(
+                            SemanticCreator.newSection(
+                                [
+                                    SemanticCreator.newReturn(
+                                        SemanticCreator.newIntegerLiteral()
+                                    )
+                                ]
+                            ),
+                            SemanticCreator.newFunctionSymbol(
+                                undefined,
+                                BuildInTypes.int
+                            )
+                        )
+                    ]
+                );
+
+                const expectedResult = IntermediateCreator.newFile(
+                    [
+                        IntermediateCreator.newFunction(
+                            [
+                                IntermediateCreator.newIntroduce(),
+                                IntermediateCreator.newMove(),
+                                IntermediateCreator.newGive(
+                                    IntermediateCreator.newReturnSymbol(),
+                                ),
+                                IntermediateCreator.newDismiss(),
+                                IntermediateCreator.newReturn(),
+                            ],
+                            IntermediateCreator.newFunctionSymbol(undefined, IntermediateSize.Native),
                         )
                     ]
                 );

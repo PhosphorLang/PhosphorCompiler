@@ -680,6 +680,84 @@ export default class Lowerer
         targetLocation: IntermediateSymbols.Variable
     ): void
     {
+        // We differentiate between size-retaining operations, where the result has the same size as the left operand, and size-changing
+        // operations, where the result has a different size than the left operand.
+        // This is done because when the size change, we need one temporary variable for each operand and write the result to the target
+        // variable. This is typical for operations where the result needs to be written to a different location anyway.
+        // When the size is retained, we can use the target location as the temporary variable for the left operand. This is handy because
+        // it is typically the case for operations that return the result in the same location as the left operand, thus we save an extra
+        // move instruction.
+        // One could argue that this is optimisation, but as it makes the code easier to follow, it makes sense to do that here.
+
+        if (this.typeToSize(binaryExpression.operator.leftType) == this.typeToSize(binaryExpression.operator.resultType))
+        {
+            this.lowerSizeRetainingBinaryExpression(binaryExpression, intermediates, targetLocation);
+        }
+        else
+        {
+            this.lowerSizeChangingBinaryExpression(binaryExpression, intermediates, targetLocation);
+        }
+    }
+
+    /**
+     * Lower a binary expression where the result type has the same as the left type.
+     */
+    private lowerSizeRetainingBinaryExpression (
+        binaryExpression: SemanticNodes.BinaryExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
+    {
+        this.lowerExpression(binaryExpression.leftOperand, intermediates, targetLocation);
+
+        const temporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
+
+        this.lowerExpression(binaryExpression.rightOperand, intermediates, temporaryVariable);
+
+        if (!this.variableIntroducedSet.has(targetLocation))
+        {
+            intermediates.push(
+                new Intermediates.Introduce(targetLocation),
+            );
+
+            this.variableIntroducedSet.add(targetLocation);
+        }
+
+        const operator = binaryExpression.operator;
+
+        switch (operator)
+        {
+            case BuildInOperators.binaryIntAddition:
+                intermediates.push(
+                    new Intermediates.Add(targetLocation, temporaryVariable),
+                );
+                this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+                this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
+                break;
+            case BuildInOperators.binaryIntSubtraction:
+                intermediates.push(
+                    new Intermediates.Subtract(targetLocation, temporaryVariable),
+                );
+                this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+                this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
+                break;
+            default:
+                throw new Error(
+                    `Lowerer error: The size-retaining operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
+                    `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
+                );
+        }
+    }
+
+    /**
+     * Lower a binary expression where the result type has the same as the left type.
+     */
+    private lowerSizeChangingBinaryExpression (
+        binaryExpression: SemanticNodes.BinaryExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
+    {
         if (binaryExpression.operator == BuildInOperators.binaryStringEqual)
         {
             // NOTE: Compiler magic: The comparison of a string is call to the build in function "stringsAreEqual".
@@ -698,48 +776,28 @@ export default class Lowerer
         }
         else
         {
-            this.lowerExpression(binaryExpression.leftOperand, intermediates, targetLocation);
+            const leftTemporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.leftOperand.type));
 
-            const temporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
+            this.lowerExpression(binaryExpression.leftOperand, intermediates, leftTemporaryVariable);
 
-            this.lowerExpression(binaryExpression.rightOperand, intermediates, temporaryVariable);
+            const rightTemporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
 
-            if (!this.variableIntroducedSet.has(targetLocation))
-            {
-                intermediates.push(
-                    new Intermediates.Introduce(targetLocation),
-                );
-
-                this.variableIntroducedSet.add(targetLocation);
-            }
+            this.lowerExpression(binaryExpression.rightOperand, intermediates, rightTemporaryVariable);
 
             const operator = binaryExpression.operator;
 
             switch (operator)
             {
-                case BuildInOperators.binaryIntAddition:
-                    intermediates.push(
-                        new Intermediates.Add(targetLocation, temporaryVariable),
-                    );
-                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-                    this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
-                    break;
-                case BuildInOperators.binaryIntSubtraction:
-                    intermediates.push(
-                        new Intermediates.Subtract(targetLocation, temporaryVariable),
-                    );
-                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-                    this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
-                    break;
                 case BuildInOperators.binaryIntEqual:
                 case BuildInOperators.binaryIntLess:
                 case BuildInOperators.binaryIntGreater:
                 {
                     intermediates.push(
-                        new Intermediates.Compare(targetLocation, temporaryVariable),
+                        new Intermediates.Compare(leftTemporaryVariable, rightTemporaryVariable),
                     );
 
-                    this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
+                    this.variableDismissIndexMap.set(leftTemporaryVariable, intermediates.length);
+                    this.variableDismissIndexMap.set(rightTemporaryVariable, intermediates.length);
 
                     const trueLabel = this.generateLabel();
                     const endLabel = this.generateLabel();
@@ -766,6 +824,15 @@ export default class Lowerer
                     const trueLiteral = new IntermediateSymbols.Literal('1', IntermediateSize.Int8);
                     const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
+                    if (!this.variableIntroducedSet.has(targetLocation))
+                    {
+                        intermediates.push(
+                            new Intermediates.Introduce(targetLocation),
+                        );
+
+                        this.variableIntroducedSet.add(targetLocation);
+                    }
+
                     intermediates.push(
                         new Intermediates.Move(targetLocation, falseLiteral),
                         new Intermediates.Goto(endLabel),
@@ -780,8 +847,8 @@ export default class Lowerer
                 }
                 default:
                     throw new Error(
-                        `Lowerer error: The operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
-                        `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
+                        `Lowerer error: The size-changing operator "${operator.kind}" for the operands of "${operator.leftType.name}" ` +
+                        `and "${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                     );
             }
         }

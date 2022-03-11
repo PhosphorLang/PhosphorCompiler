@@ -422,11 +422,6 @@ export default class Lowerer
         intermediates.push(
             new Intermediates.Label(startLabelSymbol),
             new Intermediates.Compare(condition, falseLiteral),
-        );
-
-        this.variableDismissIndexMap.set(condition, intermediates.length);
-
-        intermediates.push(
             new Intermediates.JumpIfEqual(endLabelSymbol),
         );
 
@@ -436,6 +431,8 @@ export default class Lowerer
             new Intermediates.Goto(startLabelSymbol),
             new Intermediates.Label(endLabelSymbol),
         );
+
+        this.variableDismissIndexMap.set(condition, intermediates.length);
     }
 
     private lowerAssignment (assignment: SemanticNodes.Assignment, intermediates: Intermediate[]): void
@@ -774,13 +771,10 @@ export default class Lowerer
                         new Intermediates.Goto(endLabel),
                         new Intermediates.Label(trueLabel),
                         new Intermediates.Move(targetLocation, trueLiteral),
+                        new Intermediates.Label(endLabel),
                     );
 
                     this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-
-                    intermediates.push(
-                        new Intermediates.Label(endLabel),
-                    );
 
                     break;
                 }

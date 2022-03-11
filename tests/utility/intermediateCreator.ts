@@ -46,7 +46,7 @@ export abstract class IntermediateCreator
         return new Intermediates.Introduce(symbol);
     }
 
-    public static newVariableSymbol (name = Defaults.variableName, size = IntermediateSize.Native): IntermediateSymbols.Variable
+    public static newVariableSymbol (name = 'v#0', size = IntermediateSize.Native): IntermediateSymbols.Variable
     {
         return new IntermediateSymbols.Variable(name, size);
     }

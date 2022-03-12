@@ -1,17 +1,17 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2021",
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2021",
 
-		"noImplicitThis": true,
+        "noImplicitThis": true,
 
         "allowJs": false,
         "esModuleInterop": true,
 
-		"sourceMap": true
-	},
-	"include": [
-		"./**/*.ts",
-		"../src/**/*.ts"
-	]
+        "sourceMap": true
+    },
+    "include": [
+        "./**/*.ts",
+        "../src/**/*.ts"
+    ]
 }

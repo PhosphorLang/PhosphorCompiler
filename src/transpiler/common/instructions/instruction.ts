@@ -23,10 +23,10 @@ export class Instruction
      * per-instruction settings.
      */
     public render (
-        commandOperandSplitter: string = ' ',
-        operandSplitter: string = ', ',
-        postfix: string = '',
-        indentation: string = ''
+        commandOperandSplitter = ' ',
+        operandSplitter = ', ',
+        postfix = '',
+        indentation = ''
     ): string
     {
         const actualCommandOperandSplitter = this.commandOperandSplitter ?? commandOperandSplitter;

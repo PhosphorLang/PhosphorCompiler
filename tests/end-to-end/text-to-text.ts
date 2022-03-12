@@ -23,14 +23,7 @@ describe('End-to-end, the compiler',
 
         function readInputFile (fileName: string): string
         {
-            let input = FileSystem.readFileSync(Path.join(__dirname, 'inputs', fileName), {encoding: 'utf8'});
-
-            // The compiler only emits Unix line endings ("\n"). To be immune against changed line endings in the test files (e.g. by
-            // using Git on Windows with enabled line ending conversion), we convert all line endings to Unix line endings.
-            input = input.replaceAll('\r\n', '\n');
-            input = input.replaceAll('\r', '\n');
-
-            return input;
+            return FileSystem.readFileSync(Path.join(__dirname, 'inputs', fileName), {encoding: 'utf8'});
         }
 
         function readOutputFile (fileName: string): string

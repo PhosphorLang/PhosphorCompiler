@@ -1,0 +1,94 @@
+function testIfElse (): Int8
+{
+    introduce v#1
+    move v#1 Native(2)
+    introduce v#2
+    move v#2 Native(2)
+    compare v#1 v#2
+    dismiss v#2
+    dismiss v#1
+    jumpIfEqual l#0
+    introduce v#0
+    move v#0 Int8(0)
+    goto l#1
+    l#0:
+    move v#0 Int8(1)
+    l#1:
+    compare v#0 Int8(0)
+    dismiss v#0
+    jumpIfEqual l#2
+    introduce v#3
+    move v#3 Int8(1)
+    give r#0 v#3
+    dismiss v#3
+    return
+    l#2:
+    introduce v#5
+    move v#5 Native(4)
+    introduce v#6
+    move v#6 Native(3)
+    compare v#5 v#6
+    dismiss v#6
+    dismiss v#5
+    jumpIfEqual l#3
+    introduce v#4
+    move v#4 Int8(0)
+    goto l#4
+    l#3:
+    move v#4 Int8(1)
+    l#4:
+    compare v#4 Int8(0)
+    dismiss v#4
+    jumpIfEqual l#6
+    introduce v#7
+    move v#7 Int8(1)
+    give r#0 v#7
+    dismiss v#7
+    return
+    goto l#5
+    l#6:
+    introduce v#8
+    move v#8 Int8(0)
+    give r#0 v#8
+    dismiss v#8
+    return
+    l#5:
+    introduce v#9
+    move v#9 Int8(0)
+    compare v#9 Int8(0)
+    dismiss v#9
+    jumpIfEqual l#8
+    introduce v#10
+    move v#10 Int8(0)
+    give r#0 v#10
+    dismiss v#10
+    return
+    goto l#7
+    l#8:
+    introduce v#11
+    move v#11 Int8(1)
+    compare v#11 Int8(0)
+    dismiss v#11
+    jumpIfEqual l#10
+    introduce v#12
+    move v#12 Int8(1)
+    give r#0 v#12
+    dismiss v#12
+    return
+    goto l#9
+    l#10:
+    introduce v#13
+    move v#13 Int8(0)
+    give r#0 v#13
+    dismiss v#13
+    return
+    l#9:
+    l#7:
+    return
+}
+
+function main (): Void
+{
+    call testIfElse
+    return
+}

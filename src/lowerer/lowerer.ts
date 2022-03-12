@@ -59,6 +59,9 @@ export default class Lowerer
 
     public run (fileSemanticNode: SemanticNodes.File): Intermediates.File
     {
+        /* TODO: Because this is already initialised in the constructor, we should clear everything after the run not before.
+         * This will also reduce the RAM usage because all the things are currently hold onto even if they are never used again. */
+
         this.constantCounter = 0;
         this.labelCounter = 0;
         this.variableCounter = 0;

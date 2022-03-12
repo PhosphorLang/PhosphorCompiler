@@ -10,4 +10,5 @@ export enum IntermediateSize
     Pointer = 'Pointer',
     /** Void is the size of "NoType", i.e. zero. */
     Void = 'Void',
+    // TODO: What about unsigned types (UIntX, UNative)?
 }

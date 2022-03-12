@@ -337,7 +337,7 @@ export default class TranspilerAvr implements SemanticTreeTranspiler
         }
 
         const temporaryRegisters = this.locationManager.getFreeConstantLoadableRegisters(literalSize);
-        const temporaryVariable = new SemanticSymbols.Variable('return', literalExpression.type, false);
+        const temporaryVariable = new SemanticSymbols.Variable('literal', literalExpression.type, false);
         const temporaryLocation = this.locationManager.registerVariable(temporaryVariable, temporaryRegisters);
 
         switch (literalExpression.type)

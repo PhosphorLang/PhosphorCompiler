@@ -413,17 +413,20 @@ export default class Lowerer
 
     private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement, intermediates: Intermediate[]): void
     {
+        const startLabelSymbol = this.generateLabel();
+        const endLabelSymbol = this.generateLabel();
+
+        intermediates.push(
+            new Intermediates.Label(startLabelSymbol),
+        );
+
         const condition = this.generateVariable(this.typeToSize(whileStatement.condition.type));
 
         this.lowerExpression(whileStatement.condition, intermediates, condition);
 
-        const startLabelSymbol = this.generateLabel();
-        const endLabelSymbol = this.generateLabel();
-
         const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
         intermediates.push(
-            new Intermediates.Label(startLabelSymbol),
             new Intermediates.Compare(condition, falseLiteral),
             new Intermediates.JumpIfEqual(endLabelSymbol),
         );

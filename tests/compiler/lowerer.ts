@@ -681,20 +681,20 @@ describe('Lowerer',
                     [
                         IntermediateCreator.newFunction(
                             [
+                                IntermediateCreator.newLabel(startLabelSymbol),
                                 IntermediateCreator.newIntroduce(conditionVariableSymbol),
                                 IntermediateCreator.newMove(
                                     conditionVariableSymbol,
                                     IntermediateCreator.newLiteralSymbol('1', IntermediateSize.Int8)
                                 ),
-                                IntermediateCreator.newLabel(startLabelSymbol),
                                 IntermediateCreator.newCompare(
                                     conditionVariableSymbol,
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
+                                IntermediateCreator.newDismiss(conditionVariableSymbol),
                                 IntermediateCreator.newJumpIfEqual(endLabelSymbol),
                                 IntermediateCreator.newGoto(startLabelSymbol),
                                 IntermediateCreator.newLabel(endLabelSymbol),
-                                IntermediateCreator.newDismiss(conditionVariableSymbol),
                                 IntermediateCreator.newReturn(),
                             ]
                         )

@@ -1,6 +1,6 @@
-import FileSemanticNode from "./fileSemanticNode";
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import FileSemanticNode from './fileSemanticNode';
+import SemanticKind from '../semanticKind';
+import SemanticNode from './semanticNode';
 
 export default class ImportSemanticNode extends SemanticNode
 {

@@ -1,5 +1,5 @@
-import TokenKind from "../lexer/tokenKind";
-import TypeSemanticSymbol from "../connector/semanticSymbols/typeSemanticSymbol";
+import TokenKind from '../lexer/tokenKind';
+import TypeSemanticSymbol from '../connector/semanticSymbols/typeSemanticSymbol';
 
 export default abstract class BuildInTypes
 {

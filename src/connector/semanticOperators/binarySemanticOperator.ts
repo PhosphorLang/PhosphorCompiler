@@ -1,6 +1,6 @@
-import SemanticOperator from "./semanticOperator";
-import SemanticOperatorKind from "../semanticOperatorKind";
-import TypeSemanticSymbol from "../semanticSymbols/typeSemanticSymbol";
+import SemanticOperator from './semanticOperator';
+import SemanticOperatorKind from '../semanticOperatorKind';
+import TypeSemanticSymbol from '../semanticSymbols/typeSemanticSymbol';
 
 export default class BinarySemanticOperator extends SemanticOperator
 {

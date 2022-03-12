@@ -1,8 +1,8 @@
-import ExpressionSyntaxNode from "./expressionSyntaxNode";
-import SectionSyntaxNode from "./sectionSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import ExpressionSyntaxNode from './expressionSyntaxNode';
+import SectionSyntaxNode from './sectionSyntaxNode';
+import SyntaxKind from '../syntaxKind';
+import SyntaxNode from './syntaxNode';
+import Token from '../../lexer/token';
 
 export default class WhileStatementSyntaxNode extends SyntaxNode
 {

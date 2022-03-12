@@ -1,4 +1,4 @@
-import SemanticSymbolKind from "../semanticSymbolKind";
+import SemanticSymbolKind from '../semanticSymbolKind';
 
 export default abstract class SemanticSymbol
 {

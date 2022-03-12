@@ -1,8 +1,8 @@
-import CallArgumentsList from "../callArgumentsList";
-import ExpressionSyntaxNode from "./expressionSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import CallArgumentsList from '../callArgumentsList';
+import ExpressionSyntaxNode from './expressionSyntaxNode';
+import SyntaxKind from '../syntaxKind';
+import SyntaxNode from './syntaxNode';
+import Token from '../../lexer/token';
 
 export default class CallExpressionSyntaxNode extends ExpressionSyntaxNode
 {

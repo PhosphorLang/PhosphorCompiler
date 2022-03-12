@@ -1,6 +1,6 @@
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import SyntaxKind from '../syntaxKind';
+import SyntaxNode from './syntaxNode';
+import Token from '../../lexer/token';
 
 export default class SectionSyntaxNode extends SyntaxNode
 {

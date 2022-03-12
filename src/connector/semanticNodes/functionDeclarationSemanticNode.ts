@@ -1,7 +1,7 @@
-import FunctionSemanticSymbol from "../semanticSymbols/functionSemanticSymbol";
-import SectionSemanticNode from "./sectionSemanticNode";
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import FunctionSemanticSymbol from '../semanticSymbols/functionSemanticSymbol';
+import SectionSemanticNode from './sectionSemanticNode';
+import SemanticKind from '../semanticKind';
+import SemanticNode from './semanticNode';
 
 export default class FunctionDeclarationSemanticNode extends SemanticNode
 {

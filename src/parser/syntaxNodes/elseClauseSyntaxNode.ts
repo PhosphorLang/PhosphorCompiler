@@ -1,8 +1,8 @@
-import IfStatementSyntaxNode from "./ifStatementSyntaxNode";
-import SectionSyntaxNode from "./sectionSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import IfStatementSyntaxNode from './ifStatementSyntaxNode';
+import SectionSyntaxNode from './sectionSyntaxNode';
+import SyntaxKind from '../syntaxKind';
+import SyntaxNode from './syntaxNode';
+import Token from '../../lexer/token';
 
 export default class ElseClauseSyntaxNode extends SyntaxNode
 {

@@ -1,7 +1,7 @@
-import ParameterSemanticSymbol from "./parameterSemanticSymbol";
-import SemanticSymbol from "./semanticSymbol";
-import SemanticSymbolKind from "../semanticSymbolKind";
-import TypeSemanticSymbol from "./typeSemanticSymbol";
+import ParameterSemanticSymbol from './parameterSemanticSymbol';
+import SemanticSymbol from './semanticSymbol';
+import SemanticSymbolKind from '../semanticSymbolKind';
+import TypeSemanticSymbol from './typeSemanticSymbol';
 
 export default class FunctionSemanticSymbol extends SemanticSymbol
 {

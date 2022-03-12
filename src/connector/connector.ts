@@ -1,16 +1,16 @@
-import * as SemanticNodes from "./semanticNodes";
-import * as SemanticSymbols from "./semanticSymbols";
-import * as SyntaxNodes from "../parser/syntaxNodes";
-import BuildInOperators from "../definitions/buildInOperators";
-import BuildInTypes from "../definitions/buildInTypes";
-import Diagnostic from "../diagnostic/diagnostic";
-import DiagnosticCodes from "../diagnostic/diagnosticCodes";
-import DiagnosticError from "../diagnostic/diagnosticError";
-import FunctionParametersList from "../parser/functionParametersList";
-import ImportNodeToFileNode from "../importer/importNodeToFileNode";
-import { SemanticNode } from "./semanticNodes";
-import SyntaxKind from "../parser/syntaxKind";
-import { SyntaxNode } from "../parser/syntaxNodes";
+import * as SemanticNodes from './semanticNodes';
+import * as SemanticSymbols from './semanticSymbols';
+import * as SyntaxNodes from '../parser/syntaxNodes';
+import BuildInOperators from '../definitions/buildInOperators';
+import BuildInTypes from '../definitions/buildInTypes';
+import Diagnostic from '../diagnostic/diagnostic';
+import DiagnosticCodes from '../diagnostic/diagnosticCodes';
+import DiagnosticError from '../diagnostic/diagnosticError';
+import FunctionParametersList from '../parser/functionParametersList';
+import ImportNodeToFileNode from '../importer/importNodeToFileNode';
+import { SemanticNode } from './semanticNodes';
+import SyntaxKind from '../parser/syntaxKind';
+import { SyntaxNode } from '../parser/syntaxNodes';
 
 export default class Connector
 {

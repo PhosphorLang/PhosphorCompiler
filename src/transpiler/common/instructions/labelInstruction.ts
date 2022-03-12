@@ -1,4 +1,4 @@
-import { Instruction } from "./instruction";
+import { Instruction } from './instruction';
 
 export default class LabelInstruction extends Instruction
 {

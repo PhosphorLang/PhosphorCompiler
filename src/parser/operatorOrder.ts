@@ -1,5 +1,5 @@
-import Token from "../lexer/token";
-import TokenKind from "../lexer/tokenKind";
+import Token from '../lexer/token';
+import TokenKind from '../lexer/tokenKind';
 
 export default abstract class OperatorOrder
 {

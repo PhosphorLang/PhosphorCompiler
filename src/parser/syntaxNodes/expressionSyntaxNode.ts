@@ -1,5 +1,5 @@
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import SyntaxNode from './syntaxNode';
+import Token from '../../lexer/token';
 
 export default abstract class ExpressionSyntaxNode extends SyntaxNode
 {

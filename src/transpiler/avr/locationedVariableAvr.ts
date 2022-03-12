@@ -1,5 +1,5 @@
-import * as SemanticSymbols from "../../connector/semanticSymbols";
-import RegisterAvr from "./registers/registerAvr";
+import * as SemanticSymbols from '../../connector/semanticSymbols';
+import RegisterAvr from './registers/registerAvr';
 
 export default class LocationedVariableAvr
 {

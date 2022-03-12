@@ -1,6 +1,6 @@
-import ExpressionSemanticNode from "./expressionSemanticNode";
-import SemanticKind from "../semanticKind";
-import UnarySemanticOperator from "../semanticOperators/unarySemanticOperator";
+import ExpressionSemanticNode from './expressionSemanticNode';
+import SemanticKind from '../semanticKind';
+import UnarySemanticOperator from '../semanticOperators/unarySemanticOperator';
 
 export default class UnaryExpressionSemanticNode extends ExpressionSemanticNode
 {

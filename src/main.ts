@@ -16,7 +16,7 @@ import LinkerAvr from './linker/avr/linkerAvr';
 import Lowerer from './lowerer/lowerer';
 import os from 'os';
 import Parser from './parser/parser';
-import Path from "path";
+import Path from 'path';
 import SemanticTreeTranspiler from './transpiler/semanticTreeTranspiler';
 import TargetPlatform from './options/targetPlatform';
 import Transpiler from './transpiler/transpiler';

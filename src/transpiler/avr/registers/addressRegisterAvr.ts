@@ -1,4 +1,4 @@
-import RegisterPairAvr from "./registerPairAvr";
+import RegisterPairAvr from './registerPairAvr';
 
 export default class AddressRegister extends RegisterPairAvr
 {

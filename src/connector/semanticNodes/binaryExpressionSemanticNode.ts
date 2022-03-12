@@ -1,6 +1,6 @@
-import BinarySemanticOperator from "../semanticOperators/binarySemanticOperator";
-import ExpressionSemanticNode from "./expressionSemanticNode";
-import SemanticKind from "../semanticKind";
+import BinarySemanticOperator from '../semanticOperators/binarySemanticOperator';
+import ExpressionSemanticNode from './expressionSemanticNode';
+import SemanticKind from '../semanticKind';
 
 export default class BinaryExpressionSemanticNode extends ExpressionSemanticNode
 {

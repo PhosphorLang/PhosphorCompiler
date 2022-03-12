@@ -1,7 +1,7 @@
-import * as SemanticSymbols from "../../../connector/semanticSymbols";
-import LocationedVariableAmd64 from "../locationedVariableAmd64";
-import Register64Amd64 from "../registers/register64Amd64";
-import RegistersAmd64Linux from "./registersAmd64Linux";
+import * as SemanticSymbols from '../../../connector/semanticSymbols';
+import LocationedVariableAmd64 from '../locationedVariableAmd64';
+import Register64Amd64 from '../registers/register64Amd64';
+import RegistersAmd64Linux from './registersAmd64Linux';
 
 type VariableStack = Map<SemanticSymbols.Variable, LocationedVariableAmd64>;
 

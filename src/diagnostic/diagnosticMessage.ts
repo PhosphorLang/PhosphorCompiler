@@ -1,5 +1,5 @@
-import chalk from "chalk";
-import LineInformation from "../definitions/lineInformation";
+import chalk from 'chalk';
+import LineInformation from '../definitions/lineInformation';
 
 export default abstract class DiagnosticMessage
 {

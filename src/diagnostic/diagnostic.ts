@@ -1,7 +1,7 @@
-import DiagnosticError from "./diagnosticError";
-import DiagnosticException from "./diagnosticException";
-import DiagnosticMessage from "./diagnosticMessage";
-import DiagnosticWarning from "./diagnosticWarning";
+import DiagnosticError from './diagnosticError';
+import DiagnosticException from './diagnosticException';
+import DiagnosticMessage from './diagnosticMessage';
+import DiagnosticWarning from './diagnosticWarning';
 
 export default class Diagnostic
 {

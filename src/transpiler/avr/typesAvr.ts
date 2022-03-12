@@ -1,5 +1,5 @@
-import BuildInTypes from "../../definitions/buildInTypes";
-import TypeSemanticSymbol from "../../connector/semanticSymbols/typeSemanticSymbol";
+import BuildInTypes from '../../definitions/buildInTypes';
+import TypeSemanticSymbol from '../../connector/semanticSymbols/typeSemanticSymbol';
 
 export default abstract class TypesAvr
 {

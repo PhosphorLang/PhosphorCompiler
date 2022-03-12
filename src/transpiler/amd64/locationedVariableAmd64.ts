@@ -1,5 +1,5 @@
-import * as SemanticSymbols from "../../connector/semanticSymbols";
-import Register64Amd64 from "./registers/register64Amd64";
+import * as SemanticSymbols from '../../connector/semanticSymbols';
+import Register64Amd64 from './registers/register64Amd64';
 
 export default class LocationedVariableAmd64
 {

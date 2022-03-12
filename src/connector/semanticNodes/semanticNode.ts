@@ -1,4 +1,4 @@
-import SemanticKind from "../semanticKind";
+import SemanticKind from '../semanticKind';
 
 export default abstract class SemanticNode
 {

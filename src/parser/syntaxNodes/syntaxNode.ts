@@ -1,4 +1,4 @@
-import SyntaxKind from "../syntaxKind";
+import SyntaxKind from '../syntaxKind';
 
 export default abstract class SyntaxNode
 {

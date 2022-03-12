@@ -1,10 +1,10 @@
-import * as SemanticNodes from "../../src/connector/semanticNodes";
-import * as SemanticSymbols from "../../src/connector/semanticSymbols";
-import BinarySemanticOperator from "../../src/connector/semanticOperators/binarySemanticOperator";
-import BuildInOperators from "../../src/definitions/buildInOperators";
-import BuildInTypes from "../../src/definitions/buildInTypes";
-import Defaults from "./defaults";
-import UnarySemanticOperator from "../../src/connector/semanticOperators/unarySemanticOperator";
+import * as SemanticNodes from '../../src/connector/semanticNodes';
+import * as SemanticSymbols from '../../src/connector/semanticSymbols';
+import BinarySemanticOperator from '../../src/connector/semanticOperators/binarySemanticOperator';
+import BuildInOperators from '../../src/definitions/buildInOperators';
+import BuildInTypes from '../../src/definitions/buildInTypes';
+import Defaults from './defaults';
+import UnarySemanticOperator from '../../src/connector/semanticOperators/unarySemanticOperator';
 
 export default abstract class SemanticCreator
 {

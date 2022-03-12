@@ -1,9 +1,9 @@
-import BinarySemanticOperator from "../connector/semanticOperators/binarySemanticOperator";
-import BuildInTypes from "./buildInTypes";
-import SemanticOperatorKind from "../connector/semanticOperatorKind";
-import TokenKind from "../lexer/tokenKind";
-import TypeSemanticSymbol from "../connector/semanticSymbols/typeSemanticSymbol";
-import UnarySemanticOperator from "../connector/semanticOperators/unarySemanticOperator";
+import BinarySemanticOperator from '../connector/semanticOperators/binarySemanticOperator';
+import BuildInTypes from './buildInTypes';
+import SemanticOperatorKind from '../connector/semanticOperatorKind';
+import TokenKind from '../lexer/tokenKind';
+import TypeSemanticSymbol from '../connector/semanticSymbols/typeSemanticSymbol';
+import UnarySemanticOperator from '../connector/semanticOperators/unarySemanticOperator';
 
 export default abstract class BuildInOperators
 {

@@ -1,6 +1,6 @@
-import SemanticSymbol from "./semanticSymbol";
-import SemanticSymbolKind from "../semanticSymbolKind";
-import TypeSemanticSymbol from "./typeSemanticSymbol";
+import SemanticSymbol from './semanticSymbol';
+import SemanticSymbolKind from '../semanticSymbolKind';
+import TypeSemanticSymbol from './typeSemanticSymbol';
 
 export default class VariableSemanticSymbol extends SemanticSymbol
 {

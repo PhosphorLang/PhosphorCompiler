@@ -1,6 +1,6 @@
-import AddressRegisterAvr from "./registers/addressRegisterAvr";
-import RegisterAvr from "./registers/registerAvr";
-import RegisterPairAvr from "./registers/registerPairAvr";
+import AddressRegisterAvr from './registers/addressRegisterAvr';
+import RegisterAvr from './registers/registerAvr';
+import RegisterPairAvr from './registers/registerPairAvr';
 
 export default abstract class RegistersAvr
 {

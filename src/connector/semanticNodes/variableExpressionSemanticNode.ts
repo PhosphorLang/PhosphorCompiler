@@ -1,6 +1,6 @@
-import ExpressionSemanticNode from "./expressionSemanticNode";
-import SemanticKind from "../semanticKind";
-import VariableSemanticSymbol from "../semanticSymbols/variableSemanticSymbol";
+import ExpressionSemanticNode from './expressionSemanticNode';
+import SemanticKind from '../semanticKind';
+import VariableSemanticSymbol from '../semanticSymbols/variableSemanticSymbol';
 
 export default class VariableExpressionSemanticNode extends ExpressionSemanticNode
 {

@@ -1,6 +1,6 @@
-import BuildInTypes from "./buildInTypes";
-import FunctionSemanticSymbol from "../connector/semanticSymbols/functionSemanticSymbol";
-import ParameterSemanticSymbol from "../connector/semanticSymbols/parameterSemanticSymbol";
+import BuildInTypes from './buildInTypes';
+import FunctionSemanticSymbol from '../connector/semanticSymbols/functionSemanticSymbol';
+import ParameterSemanticSymbol from '../connector/semanticSymbols/parameterSemanticSymbol';
 
 /**
  * This class contains all functions that the compiler may insert and thus expects them to be present. These are especially functions

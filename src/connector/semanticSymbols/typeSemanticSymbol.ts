@@ -1,5 +1,5 @@
-import SemanticSymbol from "./semanticSymbol";
-import SemanticSymbolKind from "../semanticSymbolKind";
+import SemanticSymbol from './semanticSymbol';
+import SemanticSymbolKind from '../semanticSymbolKind';
 
 export default class TypeSemanticSymbol extends SemanticSymbol
 {

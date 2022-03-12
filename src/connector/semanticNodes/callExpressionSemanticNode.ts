@@ -1,6 +1,6 @@
-import ExpressionSemanticNode from "./expressionSemanticNode";
-import FunctionSemanticSymbol from "../semanticSymbols/functionSemanticSymbol";
-import SemanticKind from "../semanticKind";
+import ExpressionSemanticNode from './expressionSemanticNode';
+import FunctionSemanticSymbol from '../semanticSymbols/functionSemanticSymbol';
+import SemanticKind from '../semanticKind';
 
 export default class CallExpressionSemanticNode extends ExpressionSemanticNode
 {

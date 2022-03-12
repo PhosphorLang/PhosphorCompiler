@@ -1,4 +1,4 @@
-import Register64Amd64 from "./registers/register64Amd64";
+import Register64Amd64 from './registers/register64Amd64';
 
 export default abstract class RegistersAmd64
 {

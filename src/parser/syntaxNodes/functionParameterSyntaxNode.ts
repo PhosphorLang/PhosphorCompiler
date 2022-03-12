@@ -1,7 +1,7 @@
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
-import TypeClauseSyntaxNode from "./typeClauseSyntaxNode";
+import SyntaxKind from '../syntaxKind';
+import SyntaxNode from './syntaxNode';
+import Token from '../../lexer/token';
+import TypeClauseSyntaxNode from './typeClauseSyntaxNode';
 
 export default class FunctionParameterSyntaxNode extends SyntaxNode
 {

@@ -1,5 +1,5 @@
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import SemanticKind from '../semanticKind';
+import SemanticNode from './semanticNode';
 
 export default class SectionSemanticNode extends SemanticNode
 {

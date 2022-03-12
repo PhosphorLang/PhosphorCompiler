@@ -1,5 +1,5 @@
 import * as IntermediateSymbols from '../intermediateSymbols';
-import { IntermediateKind } from "../intermediateKind";
+import { IntermediateKind } from '../intermediateKind';
 
 /**
  * Declares the function (of the given function symbol) as external, which means that it is defined in an separate linked library.

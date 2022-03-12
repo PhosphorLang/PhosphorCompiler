@@ -1,12 +1,12 @@
-import * as SyntaxNodes from "../parser/syntaxNodes";
-import Diagnostic from "../diagnostic/diagnostic";
-import DiagnosticCodes from "../diagnostic/diagnosticCodes";
-import DiagnosticError from "../diagnostic/diagnosticError";
+import * as SyntaxNodes from '../parser/syntaxNodes';
+import Diagnostic from '../diagnostic/diagnostic';
+import DiagnosticCodes from '../diagnostic/diagnosticCodes';
+import DiagnosticError from '../diagnostic/diagnosticError';
 import FileSystem from 'fs';
-import ImportNodeToFileNode from "./importNodeToFileNode";
-import Lexer from "../lexer/lexer";
-import Parser from "../parser/parser";
-import Path from "path";
+import ImportNodeToFileNode from './importNodeToFileNode';
+import Lexer from '../lexer/lexer';
+import Parser from '../parser/parser';
+import Path from 'path';
 
 class PathToFileNode extends Map<string, SyntaxNodes.File> {}
 

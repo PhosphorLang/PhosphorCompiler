@@ -1,6 +1,6 @@
-import * as SemanticNodes from "../connector/semanticNodes";
+import * as Intermediates from '../lowerer/intermediates';
 
 export default interface Transpiler
 {
-    run (semanticTree: SemanticNodes.File): string;
+    run (fileIntermediate: Intermediates.File): string;
 }

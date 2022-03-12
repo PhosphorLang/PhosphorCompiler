@@ -1,6 +1,6 @@
 import * as Instructions from "../common/instructions";
 import * as SemanticSymbols from "../../connector/semanticSymbols";
-import Instruction from "../common/instructions/instruction";
+import { Instruction } from "../common/instructions/instruction";
 import LocationedVariableAvr from "./locationedVariableAvr";
 import RegisterAvr from "./registers/registerAvr";
 import RegistersAvr from "./registersAvr";

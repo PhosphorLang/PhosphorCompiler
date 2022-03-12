@@ -98,9 +98,9 @@ Supported platforms:
 3. Connector (Frontend)
     - Converts a syntax tree into a semantic tree by semantic analysis.
 4. Lowerer (Middleend)
-    - Lowers complex semantic nodes into simpler ones (e.g. if/else into multiple gotos and labels).
+    - Lowers a complex semantic tree into intermediate code which consists of much simpler instructions.
 5. Transpiler (Backend)
-    - Transpiles the semantic tree into platform specific Assembly.
+    - Transpiles the intermediate code into platform specific Assembly.
 6. Assembler (Backend)
     - Creates an object file from the Assembly.
 7. Linker (Backend)

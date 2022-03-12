@@ -168,6 +168,57 @@ export default class Lowerer
         }
     }
 
+    /**
+     * Generate a list of all referenced variables in an expression.
+     */
+    private getVariablesFromExpression (expression: SemanticNodes.Expression): IntermediateSymbols.Variable[]
+    {
+        const variables: IntermediateSymbols.Variable[] = [];
+
+        switch (expression.kind)
+        {
+            case SemanticKind.LiteralExpression:
+                // Nothing to do.
+                break;
+            case SemanticKind.VariableExpression:
+                {
+                    const variableExpression = expression as SemanticNodes.VariableExpression;
+                    variables.push(this.getVariableFromSymbol(variableExpression.variable));
+
+                    break;
+                }
+            case SemanticKind.CallExpression:
+                {
+                    const callExpression = expression as SemanticNodes.CallExpression;
+                    for (const argument of callExpression.arguments)
+                    {
+                        variables.push(...this.getVariablesFromExpression(argument));
+                    }
+
+                    break;
+                }
+            case SemanticKind.UnaryExpression:
+                {
+                    const unaryExpression = expression as SemanticNodes.UnaryExpression;
+                    variables.push(...this.getVariablesFromExpression(unaryExpression.operand));
+
+                    break;
+                }
+            case SemanticKind.BinaryExpression:
+                {
+                    const binaryExpression = expression as SemanticNodes.BinaryExpression;
+                    variables.push(...this.getVariablesFromExpression(binaryExpression.leftOperand));
+                    variables.push(...this.getVariablesFromExpression(binaryExpression.rightOperand));
+
+                    break;
+                }
+            default:
+                throw new Error(`Lowerer error: Cannot get variables from expression of kind "${expression.kind}"`);
+        }
+
+        return variables;
+    }
+
     private lowerFile (file: SemanticNodes.File): void
     {
         for (const importNode of file.imports)
@@ -428,6 +479,11 @@ export default class Lowerer
 
         intermediates.push(
             new Intermediates.Compare(condition, falseLiteral),
+        );
+
+        this.variableDismissIndexMap.set(condition, intermediates.length);
+
+        intermediates.push(
             new Intermediates.JumpIfEqual(endLabelSymbol),
         );
 
@@ -438,7 +494,12 @@ export default class Lowerer
             new Intermediates.Label(endLabelSymbol),
         );
 
-        this.variableDismissIndexMap.set(condition, intermediates.length);
+        // All variables used in the while statement's condition must only be freed after the while loop has finished:
+        const variablesInContidion = this.getVariablesFromExpression(whileStatement.condition);
+        for (const variable of variablesInContidion)
+        {
+            this.variableDismissIndexMap.set(variable, intermediates.length);
+        }
     }
 
     private lowerAssignment (assignment: SemanticNodes.Assignment, intermediates: Intermediate[]): void

@@ -87,6 +87,12 @@ export default class Lexer
 
         switch (content)
         {
+            case "\r":
+                if (this.getNextChar() !== "\n")
+                {
+                    this.position--;
+                }
+                // Fallthrough, because "\r" (Mac) and "\r\n" (Windows) must be treated as "\n" (Linux, Unix).
             case "\n":
                 this.line++;
                 this.column = 1;

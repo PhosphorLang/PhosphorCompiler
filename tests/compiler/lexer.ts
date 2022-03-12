@@ -50,7 +50,7 @@ describe('Lexer',
         it('ignores new lines.',
             function ()
             {
-                const input = '\n\n\n\n';
+                const input = '\n\n\n\r\n\r';
 
                 const result = lexer.run(input, Defaults.fileName, false);
 

@@ -7,6 +7,7 @@ import LocationManagerAmd64Linux from "./locationManagerAmd64Linux";
 import RegistersAmd64Linux from "./registersAmd64Linux";
 import SemanticKind from "../../../connector/semanticKind";
 import SemanticTreeTranspiler from "../../semanticTreeTranspiler";
+import { TextEncoder } from 'node:util';
 
 export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements SemanticTreeTranspiler
 {

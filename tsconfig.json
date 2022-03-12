@@ -1,7 +1,11 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "moduleResolution": "node",
         "target": "es2021",
+        "lib": [
+            "ES2021"
+        ],
 
         "outDir": "bin",
 

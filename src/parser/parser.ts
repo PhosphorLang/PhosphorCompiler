@@ -1,15 +1,15 @@
 import * as SyntaxNodes from './syntaxNodes';
-import CallArgumentsList from './callArgumentsList';
-import Diagnostic from '../diagnostic/diagnostic';
-import DiagnosticCodes from '../diagnostic/diagnosticCodes';
-import DiagnosticError from '../diagnostic/diagnosticError';
-import FunctionParametersList from './functionParametersList';
-import OperatorOrder from './operatorOrder';
+import { CallArgumentsList } from './callArgumentsList';
+import { Diagnostic } from '../diagnostic/diagnostic';
+import { DiagnosticCodes } from '../diagnostic/diagnosticCodes';
+import { DiagnosticError } from '../diagnostic/diagnosticError';
+import { FunctionParametersList } from './functionParametersList';
+import { OperatorOrder } from './operatorOrder';
 import { SyntaxNode } from './syntaxNodes';
-import Token from '../lexer/token';
-import TokenKind from '../lexer/tokenKind';
+import { Token } from '../lexer/token';
+import { TokenKind } from '../lexer/tokenKind';
 
-export default class Parser
+export class Parser
 {
     private readonly diagnostic: Diagnostic;
 

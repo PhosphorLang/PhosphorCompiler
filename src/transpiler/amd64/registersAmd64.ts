@@ -1,6 +1,6 @@
-import Register64Amd64 from './registers/register64Amd64';
+import { Register64Amd64 } from './registers/register64Amd64';
 
-export default abstract class RegistersAmd64
+export abstract class RegistersAmd64
 {
     public static readonly a: Register64Amd64 = new Register64Amd64('rax', 'eax', 'ax', 'al');
     public static readonly b: Register64Amd64 = new Register64Amd64('rbx', 'ebx', 'bx', 'bl');

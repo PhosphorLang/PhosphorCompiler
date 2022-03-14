@@ -1,6 +1,6 @@
 import { Instruction } from './instruction';
 
-export default class FunctionInstruction extends Instruction
+export class FunctionInstruction extends Instruction
 {
     constructor (keyword: string, name: string, parameters: string[], returnType: string)
     {

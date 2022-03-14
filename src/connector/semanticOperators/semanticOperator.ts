@@ -1,7 +1,7 @@
-import SemanticOperatorKind from '../semanticOperatorKind';
-import TypeSemanticSymbol from '../semanticSymbols/typeSemanticSymbol';
+import { SemanticOperatorKind } from '../semanticOperatorKind';
+import { TypeSemanticSymbol } from '../semanticSymbols/typeSemanticSymbol';
 
-export default abstract class SemanticOperator
+export abstract class SemanticOperator
 {
     public readonly kind: SemanticOperatorKind;
     public readonly resultType: TypeSemanticSymbol;

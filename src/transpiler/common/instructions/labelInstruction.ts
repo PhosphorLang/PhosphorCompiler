@@ -1,6 +1,6 @@
 import { Instruction } from './instruction';
 
-export default class LabelInstruction extends Instruction
+export class LabelInstruction extends Instruction
 {
     constructor (text: string)
     {

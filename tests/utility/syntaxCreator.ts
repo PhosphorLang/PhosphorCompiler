@@ -1,11 +1,11 @@
 import * as SyntaxNodes from '../../src/parser/syntaxNodes';
-import CallArgumentsList from '../../src/parser/callArgumentsList';
-import Defaults from './defaults';
-import FunctionParametersList from '../../src/parser/functionParametersList';
-import Token from '../../src/lexer/token';
-import TokenCreator from './tokenCreator';
+import { CallArgumentsList } from '../../src/parser/callArgumentsList';
+import { Defaults } from './defaults';
+import { FunctionParametersList } from '../../src/parser/functionParametersList';
+import { Token } from '../../src/lexer/token';
+import { TokenCreator } from './tokenCreator';
 
-export default abstract class SyntaxCreator
+export abstract class SyntaxCreator
 {
     public static newFile (
         functions: SyntaxNodes.FunctionDeclaration[] = [],

@@ -1,7 +1,7 @@
 import { Instruction } from './instruction';
 
 // TODO: This class should be fully replaced by Instruction.
-export default class DoubleOperandInstruction extends Instruction
+export class DoubleOperandInstruction extends Instruction
 {
     constructor (command: string, firstOperand: string, secondOperand: string)
     {

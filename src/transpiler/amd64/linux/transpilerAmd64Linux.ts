@@ -1,15 +1,15 @@
 import * as SemanticNodes from '../../../connector/semanticNodes';
 import * as SemanticSymbols from '../../../connector/semanticSymbols';
-import BuildInOperators from '../../../definitions/buildInOperators';
-import BuildInTypes from '../../../definitions/buildInTypes';
-import LocationedVariableAmd64 from '../locationedVariableAmd64';
-import LocationManagerAmd64Linux from './locationManagerAmd64Linux';
-import RegistersAmd64Linux from './registersAmd64Linux';
-import SemanticKind from '../../../connector/semanticKind';
-import SemanticTreeTranspiler from '../../semanticTreeTranspiler';
+import { BuildInOperators } from '../../../definitions/buildInOperators';
+import { BuildInTypes } from '../../../definitions/buildInTypes';
+import { LocationedVariableAmd64 } from '../locationedVariableAmd64';
+import { LocationManagerAmd64Linux } from './locationManagerAmd64Linux';
+import { RegistersAmd64Linux } from './registersAmd64Linux';
+import { SemanticKind } from '../../../connector/semanticKind';
+import { SemanticTreeTranspiler } from '../../semanticTreeTranspiler';
 import { TextEncoder } from 'node:util';
 
-export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements SemanticTreeTranspiler
+export class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements SemanticTreeTranspiler
 {
     protected code: string[];
     private constantCode: string[];

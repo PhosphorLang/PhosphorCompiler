@@ -1,6 +1,6 @@
-import SyntaxKind from '../syntaxKind';
+import { SyntaxKind } from '../syntaxKind';
 
-export default abstract class SyntaxNode
+export abstract class SyntaxNode
 {
     public readonly kind: SyntaxKind;
 

@@ -1,10 +1,10 @@
 import 'mocha';
 import { assert } from 'chai';
-import BuildInOperators from '../../src/definitions/buildInOperators';
-import BuildInTypes from '../../src/definitions/buildInTypes';
-import Defaults from '../utility/defaults';
-import SemanticCreator from '../utility/semanticCreator';
-import TranspilerAmd64Linux from '../../src/transpiler/amd64/linux/transpilerAmd64Linux';
+import { BuildInOperators } from '../../src/definitions/buildInOperators';
+import { BuildInTypes } from '../../src/definitions/buildInTypes';
+import { Defaults } from '../utility/defaults';
+import { SemanticCreator } from '../utility/semanticCreator';
+import { TranspilerAmd64Linux } from '../../src/transpiler/amd64/linux/transpilerAmd64Linux';
 
 describe('TranspilerAmd64Linux',
     function ()

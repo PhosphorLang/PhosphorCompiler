@@ -1,12 +1,12 @@
 import 'mocha';
 import { assert } from 'chai';
-import BuildInFunctions from '../../src/definitions/buildInFunctions';
-import BuildInOperators from '../../src/definitions/buildInOperators';
-import BuildInTypes from '../../src/definitions/buildInTypes';
+import { BuildInFunctions } from '../../src/definitions/buildInFunctions';
+import { BuildInOperators } from '../../src/definitions/buildInOperators';
+import { BuildInTypes } from '../../src/definitions/buildInTypes';
 import { IntermediateCreator } from '../utility/intermediateCreator';
 import { IntermediateSize } from '../../src/lowerer/intermediateSize';
-import Lowerer from '../../src/lowerer/lowerer';
-import SemanticCreator from '../utility/semanticCreator';
+import { Lowerer } from '../../src/lowerer/lowerer';
+import { SemanticCreator } from '../utility/semanticCreator';
 
 describe('Lowerer',
     function ()

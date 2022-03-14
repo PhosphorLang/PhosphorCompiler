@@ -1,4 +1,4 @@
-export default interface LineInformation
+export interface LineInformation
 {
     fileName: string;
     lineNumber: number;

@@ -1,11 +1,11 @@
-import BinarySemanticOperator from '../connector/semanticOperators/binarySemanticOperator';
-import BuildInTypes from './buildInTypes';
-import SemanticOperatorKind from '../connector/semanticOperatorKind';
-import TokenKind from '../lexer/tokenKind';
-import TypeSemanticSymbol from '../connector/semanticSymbols/typeSemanticSymbol';
-import UnarySemanticOperator from '../connector/semanticOperators/unarySemanticOperator';
+import { BinarySemanticOperator } from '../connector/semanticOperators/binarySemanticOperator';
+import { BuildInTypes } from './buildInTypes';
+import { SemanticOperatorKind } from '../connector/semanticOperatorKind';
+import { TokenKind } from '../lexer/tokenKind';
+import { TypeSemanticSymbol } from '../connector/semanticSymbols/typeSemanticSymbol';
+import { UnarySemanticOperator } from '../connector/semanticOperators/unarySemanticOperator';
 
-export default abstract class BuildInOperators
+export abstract class BuildInOperators
 {
     public static readonly unaryIntAddition = new UnarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int);
     public static readonly unaryIntSubtraction = new UnarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int);

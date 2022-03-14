@@ -1,11 +1,11 @@
-import FunctionParametersList from '../functionParametersList';
-import SectionSyntaxNode from './sectionSyntaxNode';
-import SyntaxKind from '../syntaxKind';
-import SyntaxNode from './syntaxNode';
-import Token from '../../lexer/token';
-import TypeClauseSyntaxNode from './typeClauseSyntaxNode';
+import { FunctionParametersList } from '../functionParametersList';
+import { SectionSyntaxNode } from './sectionSyntaxNode';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
+import { TypeClauseSyntaxNode } from './typeClauseSyntaxNode';
 
-export default class FunctionDeclarationSyntaxNode extends SyntaxNode
+export class FunctionDeclarationSyntaxNode extends SyntaxNode
 {
     public readonly keyword: Token;
     public readonly identifier: Token;

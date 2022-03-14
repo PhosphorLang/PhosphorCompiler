@@ -1,8 +1,8 @@
 import childProcess from 'child_process';
-import Linker from '../../linker';
+import { Linker } from '../../linker';
 import path from 'path';
 
-export default class LinkerAmd64Linux implements Linker
+export class LinkerAmd64Linux implements Linker
 {
     public run (outputPath: string, files: string[], libraries: string[]): void
     {

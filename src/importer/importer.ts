@@ -1,11 +1,11 @@
 import * as SyntaxNodes from '../parser/syntaxNodes';
-import Diagnostic from '../diagnostic/diagnostic';
-import DiagnosticCodes from '../diagnostic/diagnosticCodes';
-import DiagnosticError from '../diagnostic/diagnosticError';
+import { Diagnostic } from '../diagnostic/diagnostic';
+import { DiagnosticCodes } from '../diagnostic/diagnosticCodes';
+import { DiagnosticError } from '../diagnostic/diagnosticError';
 import FileSystem from 'fs';
-import ImportNodeToFileNode from './importNodeToFileNode';
-import Lexer from '../lexer/lexer';
-import Parser from '../parser/parser';
+import { ImportNodeToFileNode } from './importNodeToFileNode';
+import { Lexer } from '../lexer/lexer';
+import { Parser } from '../parser/parser';
 import Path from 'path';
 
 class PathToFileNode extends Map<string, SyntaxNodes.File> {}
@@ -16,7 +16,7 @@ class PathToFileNode extends Map<string, SyntaxNodes.File> {}
  * files to the import statements that reference them. Every file is parsed only once but can be connected to multiple import statements
  * if they all reference the same file.
  */
-export default class Importer
+export class Importer
 {
     private readonly diagnostic: Diagnostic;
 

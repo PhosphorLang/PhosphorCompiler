@@ -1,4 +1,4 @@
-enum SyntaxKind
+export enum SyntaxKind
 {
     NoKind = 'NoKind',
     File = 'File',
@@ -22,5 +22,3 @@ enum SyntaxKind
     VariableExpression = 'VariableExpression',
     CallExpression = 'CallExpression',
 }
-
-export default SyntaxKind;

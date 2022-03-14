@@ -1,4 +1,4 @@
-enum SemanticOperatorKind
+export enum SemanticOperatorKind
 {
     Addition = '+',
     Subtraction = '-',
@@ -8,5 +8,3 @@ enum SemanticOperatorKind
     Less = '<',
     Greater = '>',
 }
-
-export default SemanticOperatorKind;

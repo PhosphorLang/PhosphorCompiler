@@ -1,9 +1,9 @@
-import ExpressionSemanticNode from './expressionSemanticNode';
-import SemanticKind from '../semanticKind';
-import SemanticNode from './semanticNode';
-import VariableSemanticSymbol from '../semanticSymbols/variableSemanticSymbol';
+import { ExpressionSemanticNode } from './expressionSemanticNode';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
+import { VariableSemanticSymbol } from '../semanticSymbols/variableSemanticSymbol';
 
-export default class VariableDeclarationSemanticNode extends SemanticNode
+export class VariableDeclarationSemanticNode extends SemanticNode
 {
     public readonly symbol: VariableSemanticSymbol;
     public initialiser: ExpressionSemanticNode|null;

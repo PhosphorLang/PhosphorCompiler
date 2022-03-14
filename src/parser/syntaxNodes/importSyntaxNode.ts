@@ -1,8 +1,8 @@
-import SyntaxKind from '../syntaxKind';
-import SyntaxNode from './syntaxNode';
-import Token from '../../lexer/token';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
 
-export default class ImportSyntaxNode extends SyntaxNode
+export class ImportSyntaxNode extends SyntaxNode
 {
     public readonly keyword: Token;
     public readonly path: Token;

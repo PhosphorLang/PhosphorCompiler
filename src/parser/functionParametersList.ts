@@ -1,7 +1,7 @@
-import FunctionParameterSyntaxNode from './syntaxNodes/functionParameterSyntaxNode';
-import Token from '../lexer/token';
+import { FunctionParameterSyntaxNode } from './syntaxNodes/functionParameterSyntaxNode';
+import { Token } from '../lexer/token';
 
-export default class FunctionParametersList
+export class FunctionParametersList
 {
     public readonly parameters: FunctionParameterSyntaxNode[];
     public readonly separators: Token[];

@@ -1,7 +1,7 @@
-import Token from '../lexer/token';
-import TokenKind from '../lexer/tokenKind';
+import { Token } from '../lexer/token';
+import { TokenKind } from '../lexer/tokenKind';
 
-export default abstract class OperatorOrder
+export abstract class OperatorOrder
 {
     /**
      * Get the unary token priority for a given token. \

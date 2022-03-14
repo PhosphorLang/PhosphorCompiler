@@ -1,6 +1,6 @@
-import Register16Amd64 from './register16Amd64';
+import { Register16Amd64 } from './register16Amd64';
 
-export default class Register32Amd64 extends Register16Amd64
+export class Register32Amd64 extends Register16Amd64
 {
     public readonly bit32: string;
 

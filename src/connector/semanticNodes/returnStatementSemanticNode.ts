@@ -1,8 +1,8 @@
-import ExpressionSemanticNode from './expressionSemanticNode';
-import SemanticKind from '../semanticKind';
-import SemanticNode from './semanticNode';
+import { ExpressionSemanticNode } from './expressionSemanticNode';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class ReturnStatementSemanticNode extends SemanticNode
+export class ReturnStatementSemanticNode extends SemanticNode
 {
     public expression: ExpressionSemanticNode|null;
 

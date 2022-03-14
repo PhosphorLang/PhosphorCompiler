@@ -1,11 +1,11 @@
 import 'mocha';
 import { assert } from 'chai';
-import Defaults from '../utility/defaults';
-import Diagnostic from '../../src/diagnostic/diagnostic';
-import DiagnosticCodes from '../../src/diagnostic/diagnosticCodes';
-import Lexer from '../../src/lexer/lexer';
-import TokenCreator from '../utility/tokenCreator';
-import TokenKind from '../../src/lexer/tokenKind';
+import { Defaults } from '../utility/defaults';
+import { Diagnostic } from '../../src/diagnostic/diagnostic';
+import { DiagnosticCodes } from '../../src/diagnostic/diagnosticCodes';
+import { Lexer } from '../../src/lexer/lexer';
+import { TokenCreator } from '../utility/tokenCreator';
+import { TokenKind } from '../../src/lexer/tokenKind';
 
 class InputToTokenKind
 {

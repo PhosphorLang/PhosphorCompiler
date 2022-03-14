@@ -1,7 +1,7 @@
-import TokenKind from '../lexer/tokenKind';
-import TypeSemanticSymbol from '../connector/semanticSymbols/typeSemanticSymbol';
+import { TokenKind } from '../lexer/tokenKind';
+import { TypeSemanticSymbol } from '../connector/semanticSymbols/typeSemanticSymbol';
 
-export default abstract class BuildInTypes
+export abstract class BuildInTypes
 {
     public static readonly noType = new TypeSemanticSymbol('NoType');
     public static readonly int = new TypeSemanticSymbol('Int');

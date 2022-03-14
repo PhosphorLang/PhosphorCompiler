@@ -1,4 +1,4 @@
-enum SemanticKind
+export enum SemanticKind
 {
     ElseClause = 'ElseClause',
     File = 'File',
@@ -22,5 +22,3 @@ enum SemanticKind
     BinaryExpression = 'BinaryExpression',
     // TODO: Sort groups alphabetically.
 }
-
-export default SemanticKind;

@@ -1,7 +1,7 @@
-export { default as SemanticSymbol } from './semanticSymbol';
+export { SemanticSymbol } from './semanticSymbol';
 
-export { default as Function } from './functionSemanticSymbol';
-export { default as Label } from './labelSemanticSymbol';
-export { default as Parameter } from './parameterSemanticSymbol';
-export { default as Type } from './typeSemanticSymbol';
-export { default as Variable } from './variableSemanticSymbol';
+export { FunctionSemanticSymbol as Function } from './functionSemanticSymbol';
+export { LabelSemanticSymbol as Label } from './labelSemanticSymbol';
+export { ParameterSemanticSymbol as Parameter } from './parameterSemanticSymbol';
+export { TypeSemanticSymbol as Type } from './typeSemanticSymbol';
+export { VariableSemanticSymbol as Variable } from './variableSemanticSymbol';

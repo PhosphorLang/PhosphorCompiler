@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
-import ProcessArguments, { ProcessArgumentsError } from './processArguments';
-import Assembler from './assembler/assembler';
-import AssemblerAmd64Linux from './assembler/amd64/linux/assemblerAmd64Linux';
-import AssemblerAvr from './assembler/avr/assemblerAvr';
-import Connector from './connector/connector';
-import Diagnostic from './diagnostic/diagnostic';
-import DiagnosticException from './diagnostic/diagnosticException';
+import { ProcessArguments,ProcessArgumentsError } from './processArguments';
+import { Assembler } from './assembler/assembler';
+import { AssemblerAmd64Linux } from './assembler/amd64/linux/assemblerAmd64Linux';
+import { AssemblerAvr } from './assembler/avr/assemblerAvr';
+import { Connector } from './connector/connector';
+import { Diagnostic } from './diagnostic/diagnostic';
+import { DiagnosticException } from './diagnostic/diagnosticException';
 import FileSystem from 'fs';
-import Importer from './importer/importer';
-import Lexer from './lexer/lexer';
-import Linker from './linker/linker';
-import LinkerAmd64Linux from './linker/amd64/linux/linkerAmd64Linux';
-import LinkerAvr from './linker/avr/linkerAvr';
-import Lowerer from './lowerer/lowerer';
+import { Importer } from './importer/importer';
+import { Lexer } from './lexer/lexer';
+import { Linker } from './linker/linker';
+import { LinkerAmd64Linux } from './linker/amd64/linux/linkerAmd64Linux';
+import { LinkerAvr } from './linker/avr/linkerAvr';
+import { Lowerer } from './lowerer/lowerer';
 import os from 'os';
-import Parser from './parser/parser';
+import { Parser } from './parser/parser';
 import Path from 'path';
-import SemanticTreeTranspiler from './transpiler/semanticTreeTranspiler';
-import TargetPlatform from './options/targetPlatform';
-import Transpiler from './transpiler/transpiler';
-import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
-import TranspilerAvr from './transpiler/avr/transpilerAvr';
-import TranspilerIntermediate from './transpiler/intermediate/transpilerIntermediate';
+import { SemanticTreeTranspiler } from './transpiler/semanticTreeTranspiler';
+import { TargetPlatform } from './options/targetPlatform';
+import { Transpiler } from './transpiler/transpiler';
+import { TranspilerAmd64Linux } from './transpiler/amd64/linux/transpilerAmd64Linux';
+import { TranspilerAvr } from './transpiler/avr/transpilerAvr';
+import { TranspilerIntermediate } from './transpiler/intermediate/transpilerIntermediate';
 
 class Main
 {

@@ -1,9 +1,9 @@
-import ExpressionSyntaxNode from './expressionSyntaxNode';
-import SyntaxKind from '../syntaxKind';
-import SyntaxNode from './syntaxNode';
-import Token from '../../lexer/token';
+import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
 
-export default class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode
+export class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly openingToken: Token;
     public readonly expression: ExpressionSyntaxNode;

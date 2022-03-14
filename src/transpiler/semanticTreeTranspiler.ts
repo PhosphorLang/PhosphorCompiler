@@ -1,6 +1,6 @@
 import * as SemanticNodes from '../connector/semanticNodes';
 
-export default interface SemanticTreeTranspiler
+export interface SemanticTreeTranspiler
 {
     run (semanticTree: SemanticNodes.File): string;
 }

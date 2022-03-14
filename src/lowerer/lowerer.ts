@@ -2,20 +2,20 @@ import * as Intermediates from './intermediates';
 import * as IntermediateSymbols from './intermediateSymbols';
 import * as SemanticNodes from '../connector/semanticNodes';
 import * as SemanticSymbols from '../connector/semanticSymbols';
-import BuildInFunctions from '../definitions/buildInFunctions';
-import BuildInOperators from '../definitions/buildInOperators';
-import BuildInTypes from '../definitions/buildInTypes';
+import { BuildInFunctions } from '../definitions/buildInFunctions';
+import { BuildInOperators } from '../definitions/buildInOperators';
+import { BuildInTypes } from '../definitions/buildInTypes';
 import { Intermediate } from './intermediates';
 import { IntermediateKind } from './intermediateKind';
 import { IntermediateSize } from './intermediateSize';
-import SemanticKind from '../connector/semanticKind';
+import { SemanticKind } from '../connector/semanticKind';
 
 /**
  * The lowerer "lowers" semantic by breaking up abstracted structures (like an if statement) into simpler components (e.g. multiple goto
  * statements). This makes implementing a backend much easier because the resulting intermediate code is much simpler and closer to
  * real machine code.
  */
-export default class Lowerer
+export class Lowerer
 {
     private constantCounter: number;
     private labelCounter: number;

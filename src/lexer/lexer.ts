@@ -1,8 +1,8 @@
-import Diagnostic from '../diagnostic/diagnostic';
-import DiagnosticCodes from '../diagnostic/diagnosticCodes';
-import DiagnosticError from '../diagnostic/diagnosticError';
-import Token from './token';
-import TokenKind from './tokenKind';
+import { Diagnostic } from '../diagnostic/diagnostic';
+import { DiagnosticCodes } from '../diagnostic/diagnosticCodes';
+import { DiagnosticError } from '../diagnostic/diagnosticError';
+import { Token } from './token';
+import { TokenKind } from './tokenKind';
 
 interface ContentAndKind
 {
@@ -10,7 +10,7 @@ interface ContentAndKind
     kind: TokenKind;
 }
 
-export default class Lexer
+export class Lexer
 {
     private readonly diagnostic: Diagnostic;
 

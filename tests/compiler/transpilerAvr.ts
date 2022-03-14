@@ -1,7 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
-import SemanticCreator from '../utility/semanticCreator';
-import TranspilerAvr from '../../src/transpiler/avr/transpilerAvr';
+import { SemanticCreator } from '../utility/semanticCreator';
+import { TranspilerAvr } from '../../src/transpiler/avr/transpilerAvr';
 
 describe('TranspilerAvr',
     function ()

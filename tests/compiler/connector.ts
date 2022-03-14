@@ -1,13 +1,13 @@
 import 'mocha';
 import { assert } from 'chai';
-import BuildInTypes from '../../src/definitions/buildInTypes';
-import Connector from '../../src/connector/connector';
-import Diagnostic from '../../src/diagnostic/diagnostic';
-import DiagnosticCodes from '../../src/diagnostic/diagnosticCodes';
-import ImportNodeToFileNode from '../../src/importer/importNodeToFileNode';
-import SemanticCreator from '../utility/semanticCreator';
-import SyntaxCreator from '../utility/syntaxCreator';
-import TokenCreator from '../utility/tokenCreator';
+import { BuildInTypes } from '../../src/definitions/buildInTypes';
+import { Connector } from '../../src/connector/connector';
+import { Diagnostic } from '../../src/diagnostic/diagnostic';
+import { DiagnosticCodes } from '../../src/diagnostic/diagnosticCodes';
+import { ImportNodeToFileNode } from '../../src/importer/importNodeToFileNode';
+import { SemanticCreator } from '../utility/semanticCreator';
+import { SyntaxCreator } from '../utility/syntaxCreator';
+import { TokenCreator } from '../utility/tokenCreator';
 
 describe('Connector',
     function ()

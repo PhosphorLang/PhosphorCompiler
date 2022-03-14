@@ -1,11 +1,11 @@
 import 'mocha';
 import { assert } from 'chai';
-import Defaults from '../utility/defaults';
-import Diagnostic from '../../src/diagnostic/diagnostic';
-import DiagnosticCodes from '../../src/diagnostic/diagnosticCodes';
-import Parser from '../../src/parser/parser';
-import SyntaxCreator from '../utility/syntaxCreator';
-import TokenCreator from '../utility/tokenCreator';
+import { Defaults } from '../utility/defaults';
+import { Diagnostic } from '../../src/diagnostic/diagnostic';
+import { DiagnosticCodes } from '../../src/diagnostic/diagnosticCodes';
+import { Parser } from '../../src/parser/parser';
+import { SyntaxCreator } from '../utility/syntaxCreator';
+import { TokenCreator } from '../utility/tokenCreator';
 
 describe('Parser',
     function ()

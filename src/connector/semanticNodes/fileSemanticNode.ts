@@ -1,9 +1,9 @@
-import FunctionDeclarationSemanticNode from './functionDeclarationSemanticNode';
-import ImportSemanticNode from './importSemanticNode';
-import SemanticKind from '../semanticKind';
-import SemanticNode from './semanticNode';
+import { FunctionDeclarationSemanticNode } from './functionDeclarationSemanticNode';
+import { ImportSemanticNode } from './importSemanticNode';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class FileSemanticNode extends SemanticNode
+export class FileSemanticNode extends SemanticNode
 {
     public readonly name: string;
     public imports: ImportSemanticNode[];

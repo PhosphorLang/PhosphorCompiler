@@ -1,9 +1,9 @@
-import IfStatementSemanticNode from './ifStatementSemanticNode';
-import SectionSemanticNode from './sectionSemanticNode';
-import SemanticKind from '../semanticKind';
-import SemanticNode from './semanticNode';
+import { IfStatementSemanticNode } from './ifStatementSemanticNode';
+import { SectionSemanticNode } from './sectionSemanticNode';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class ElseClauseSemanticNode extends SemanticNode
+export class ElseClauseSemanticNode extends SemanticNode
 {
     public followUp: SectionSemanticNode|IfStatementSemanticNode;
 

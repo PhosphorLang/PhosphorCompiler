@@ -1,7 +1,7 @@
-import SyntaxNode from './syntaxNode';
-import Token from '../../lexer/token';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
 
-export default abstract class ExpressionSyntaxNode extends SyntaxNode
+export abstract class ExpressionSyntaxNode extends SyntaxNode
 {
     // @ts-expect-error Workaround to enable static typing for this class.
     private staticTyping = true;

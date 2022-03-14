@@ -1,12 +1,12 @@
 import * as SemanticNodes from '../../src/connector/semanticNodes';
 import * as SemanticSymbols from '../../src/connector/semanticSymbols';
-import BinarySemanticOperator from '../../src/connector/semanticOperators/binarySemanticOperator';
-import BuildInOperators from '../../src/definitions/buildInOperators';
-import BuildInTypes from '../../src/definitions/buildInTypes';
-import Defaults from './defaults';
-import UnarySemanticOperator from '../../src/connector/semanticOperators/unarySemanticOperator';
+import { BinarySemanticOperator } from '../../src/connector/semanticOperators/binarySemanticOperator';
+import { BuildInOperators } from '../../src/definitions/buildInOperators';
+import { BuildInTypes } from '../../src/definitions/buildInTypes';
+import { Defaults } from './defaults';
+import { UnarySemanticOperator } from '../../src/connector/semanticOperators/unarySemanticOperator';
 
-export default abstract class SemanticCreator
+export abstract class SemanticCreator
 {
     public static newFile (
         functions: SemanticNodes.FunctionDeclaration[] = [],

@@ -1,6 +1,6 @@
 import { Command, CommanderError, Option } from 'commander';
-import OptimisationLevel from './options/optimisationLevel';
-import TargetPlatform from './options/targetPlatform';
+import { OptimisationLevel } from './options/optimisationLevel';
+import { TargetPlatform } from './options/targetPlatform';
 
 export type ProcessArgumentsError = CommanderError;
 
@@ -13,7 +13,7 @@ interface OptionValues
     intermediate?: boolean;
 }
 
-export default class ProcessArguments
+export class ProcessArguments
 {
     public readonly filePath: string;
     public readonly outputPath: string;

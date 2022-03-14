@@ -1,15 +1,15 @@
 import 'mocha';
 import { assert } from 'chai';
-import Connector from '../../src/connector/connector';
-import Diagnostic from '../../src/diagnostic/diagnostic';
+import { Connector } from '../../src/connector/connector';
+import { Diagnostic } from '../../src/diagnostic/diagnostic';
 import FileSystem from 'fs';
-import ImportNodeToFileNode from '../../src/importer/importNodeToFileNode';
-import Lexer from '../../src/lexer/lexer';
-import Lowerer from '../../src/lowerer/lowerer';
-import Parser from '../../src/parser/parser';
+import { ImportNodeToFileNode } from '../../src/importer/importNodeToFileNode';
+import { Lexer } from '../../src/lexer/lexer';
+import { Lowerer } from '../../src/lowerer/lowerer';
+import { Parser } from '../../src/parser/parser';
 import Path from 'path';
-import Transpiler from '../../src/transpiler/transpiler';
-import TranspilerIntermediate from '../../src/transpiler/intermediate/transpilerIntermediate';
+import { Transpiler } from '../../src/transpiler/transpiler';
+import { TranspilerIntermediate } from '../../src/transpiler/intermediate/transpilerIntermediate';
 
 describe('End-to-end, the compiler',
     function ()

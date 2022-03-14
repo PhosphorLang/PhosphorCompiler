@@ -1,9 +1,9 @@
-import ExpressionSyntaxNode from './expressionSyntaxNode';
-import SyntaxKind from '../syntaxKind';
-import SyntaxNode from './syntaxNode';
-import Token from '../../lexer/token';
+import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
 
-export default class BinaryExpressionSyntaxNode extends ExpressionSyntaxNode
+export class BinaryExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly leftSide: ExpressionSyntaxNode;
     public readonly operator: Token;

@@ -1,6 +1,6 @@
 import * as Intermediates from '../../src/lowerer/intermediates';
 import * as IntermediateSymbols from '../../src/lowerer/intermediateSymbols';
-import Defaults from './defaults';
+import { Defaults } from './defaults';
 import { IntermediateSize } from '../../src/lowerer/intermediateSize';
 
 export abstract class IntermediateCreator

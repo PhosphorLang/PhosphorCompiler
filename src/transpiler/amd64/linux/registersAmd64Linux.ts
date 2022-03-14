@@ -1,7 +1,7 @@
-import Register64Amd64 from '../registers/register64Amd64';
-import RegistersAmd64 from '../registersAmd64';
+import { Register64Amd64 } from '../registers/register64Amd64';
+import { RegistersAmd64 } from '../registersAmd64';
 
-export default abstract class RegistersAmd64Linux
+export abstract class RegistersAmd64Linux
 {
     public static readonly integerArguments: Register64Amd64[] = [
         RegistersAmd64.di,

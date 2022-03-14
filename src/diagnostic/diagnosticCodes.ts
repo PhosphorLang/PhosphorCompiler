@@ -1,4 +1,4 @@
-enum DiagnosticCodes
+export enum DiagnosticCodes
 {
     UnknownTokenError = 'E1001',
     UnterminatedStringError = 'E1002',
@@ -35,5 +35,3 @@ enum DiagnosticCodes
     MissingStandardLibraryCommandLineParameterError = 'E1033',
     CannotFindImportFileError = 'E1034',
 }
-
-export default DiagnosticCodes;

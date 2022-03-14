@@ -1,4 +1,4 @@
-export default class RegisterAvr
+export class RegisterAvr
 {
     public readonly name: string;
 

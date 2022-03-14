@@ -1,11 +1,11 @@
 import 'mocha';
 import { assert } from 'chai';
 import chalk from 'chalk';
-import Diagnostic from '../../src/diagnostic/diagnostic';
-import DiagnosticError from '../../src/diagnostic/diagnosticError';
-import DiagnosticInfo from '../../src/diagnostic/diagnosticInfo';
-import DiagnosticWarning from '../../src/diagnostic/diagnosticWarning';
-import LineInformation from '../../src/definitions/lineInformation';
+import { Diagnostic } from '../../src/diagnostic/diagnostic';
+import { DiagnosticError } from '../../src/diagnostic/diagnosticError';
+import { DiagnosticInfo } from '../../src/diagnostic/diagnosticInfo';
+import { DiagnosticWarning } from '../../src/diagnostic/diagnosticWarning';
+import { LineInformation } from '../../src/definitions/lineInformation';
 
 describe('Diagnostic',
     function ()

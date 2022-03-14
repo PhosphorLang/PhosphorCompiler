@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import LineInformation from '../definitions/lineInformation';
+import { LineInformation } from '../definitions/lineInformation';
 
-export default abstract class DiagnosticMessage
+export abstract class DiagnosticMessage
 {
     protected readonly type: string;
     protected readonly text: string;

@@ -3,9 +3,9 @@ import * as Intermediates from '../../lowerer/intermediates';
 import { IntermediateKind } from '../../lowerer/intermediateKind';
 import { IntermediateSymbol } from '../../lowerer/intermediateSymbols';
 import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
-import Transpiler from '../transpiler';
+import { Transpiler } from '../transpiler';
 
-export default class TranspilerIntermediate implements Transpiler
+export class TranspilerIntermediate implements Transpiler
 {
     private instructions: Instructions.Instruction[];
 

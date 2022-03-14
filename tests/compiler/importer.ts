@@ -1,13 +1,13 @@
 import 'mocha';
 import { assert } from 'chai';
-import Diagnostic from '../../src/diagnostic/diagnostic';
-import Importer from '../../src/importer/importer';
-import Lexer from '../../src/lexer/lexer';
-import Parser from '../../src/parser/parser';
+import { Diagnostic } from '../../src/diagnostic/diagnostic';
+import { Importer } from '../../src/importer/importer';
+import { Lexer } from '../../src/lexer/lexer';
+import { Parser } from '../../src/parser/parser';
 import path from 'path';
 import Sinon from 'sinon';
-import SyntaxCreator from '../utility/syntaxCreator';
-import TokenCreator from '../utility/tokenCreator';
+import { SyntaxCreator } from '../utility/syntaxCreator';
+import { TokenCreator } from '../utility/tokenCreator';
 
 describe('Importer',
     function ()

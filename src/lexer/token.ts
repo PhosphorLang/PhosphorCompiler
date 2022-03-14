@@ -1,7 +1,7 @@
-import LineInformation from '../definitions/lineInformation';
-import TokenKind from './tokenKind';
+import { LineInformation } from '../definitions/lineInformation';
+import { TokenKind } from './tokenKind';
 
-export default class Token implements LineInformation
+export class Token implements LineInformation
 {
     public readonly kind: TokenKind;
     public readonly content: string;

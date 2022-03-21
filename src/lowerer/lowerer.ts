@@ -10,6 +10,8 @@ import { IntermediateKind } from './intermediateKind';
 import { IntermediateSize } from './intermediateSize';
 import { SemanticKind } from '../connector/semanticKind';
 
+// TODO: When (if?) the Bool type size is changed from Int8 to UInt8 (i.e. unsigned), the value of true must be changed from -1 to 255.
+
 /**
  * The lowerer "lowers" semantic by breaking up abstracted structures (like an if statement) into simpler components (e.g. multiple goto
  * statements). This makes implementing a backend much easier because the resulting intermediate code is much simpler and closer to
@@ -562,7 +564,7 @@ export class Lowerer
 
                     if (literalExpression.value === 'true')
                     {
-                        value = '1';
+                        value = '-1';
                     }
                     else if (literalExpression.value === 'false')
                     {
@@ -888,7 +890,7 @@ export class Lowerer
                             break;
                     }
 
-                    const trueLiteral = new IntermediateSymbols.Literal('1', IntermediateSize.Int8);
+                    const trueLiteral = new IntermediateSymbols.Literal('-1', IntermediateSize.Int8);
                     const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
                     if (!this.variableIntroducedSet.has(targetLocation))

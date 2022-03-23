@@ -367,13 +367,15 @@ describe('Lowerer',
                                 IntermediateCreator.newIntroduce(resultVariableSymbol),
                                 IntermediateCreator.newMove(
                                     resultVariableSymbol,
+                                    // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newGoto(endLabelSymbol),
                                 IntermediateCreator.newLabel(equalLabelSymbol),
                                 IntermediateCreator.newMove(
                                     resultVariableSymbol,
-                                    IntermediateCreator.newLiteralSymbol('1', IntermediateSize.Int8)
+                                    // TODO: Replace the literal with a global definition.
+                                    IntermediateCreator.newLiteralSymbol('-1', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newLabel(endLabelSymbol),
                                 IntermediateCreator.newDismiss(resultVariableSymbol),
@@ -580,10 +582,12 @@ describe('Lowerer',
                                 IntermediateCreator.newIntroduce(compareVariableSymbol),
                                 IntermediateCreator.newMove(
                                     compareVariableSymbol,
-                                    IntermediateCreator.newLiteralSymbol('1', IntermediateSize.Int8)
+                                    // TODO: Replace the literal with a global definition.
+                                    IntermediateCreator.newLiteralSymbol('-1', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newCompare(
                                     compareVariableSymbol,
+                                    // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newDismiss(compareVariableSymbol),
@@ -685,10 +689,12 @@ describe('Lowerer',
                                 IntermediateCreator.newIntroduce(conditionVariableSymbol),
                                 IntermediateCreator.newMove(
                                     conditionVariableSymbol,
-                                    IntermediateCreator.newLiteralSymbol('1', IntermediateSize.Int8)
+                                    // TODO: Replace the literal with a global definition.
+                                    IntermediateCreator.newLiteralSymbol('-1', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newCompare(
                                     conditionVariableSymbol,
+                                    // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newDismiss(conditionVariableSymbol),

@@ -12,13 +12,13 @@ function testIfElse (): Int8
     move v#0 Int8(0)
     goto l#1
     l#0:
-    move v#0 Int8(1)
+    move v#0 Int8(-1)
     l#1:
     compare v#0 Int8(0)
     dismiss v#0
     jumpIfEqual l#2
     introduce v#3
-    move v#3 Int8(1)
+    move v#3 Int8(-1)
     give r#0 v#3
     dismiss v#3
     return
@@ -35,13 +35,13 @@ function testIfElse (): Int8
     move v#4 Int8(0)
     goto l#4
     l#3:
-    move v#4 Int8(1)
+    move v#4 Int8(-1)
     l#4:
     compare v#4 Int8(0)
     dismiss v#4
     jumpIfEqual l#6
     introduce v#7
-    move v#7 Int8(1)
+    move v#7 Int8(-1)
     give r#0 v#7
     dismiss v#7
     return
@@ -66,12 +66,12 @@ function testIfElse (): Int8
     goto l#7
     l#8:
     introduce v#11
-    move v#11 Int8(1)
+    move v#11 Int8(-1)
     compare v#11 Int8(0)
     dismiss v#11
     jumpIfEqual l#10
     introduce v#12
-    move v#12 Int8(1)
+    move v#12 Int8(-1)
     give r#0 v#12
     dismiss v#12
     return

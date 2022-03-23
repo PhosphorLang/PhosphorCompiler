@@ -25,7 +25,7 @@ function testWhileLoop (): Int8
     move v#2 Int8(0)
     goto l#3
     l#2:
-    move v#2 Int8(1)
+    move v#2 Int8(-1)
     l#3:
     compare v#2 Int8(0)
     dismiss v#2
@@ -38,7 +38,7 @@ function testWhileLoop (): Int8
     l#1:
     dismiss v#1
     introduce v#6
-    move v#6 Int8(1)
+    move v#6 Int8(-1)
     give r#0 v#6
     dismiss v#6
     return

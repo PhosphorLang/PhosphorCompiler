@@ -417,10 +417,19 @@ export class Lowerer
         const endLabelSymbol = this.generateLabel();
         const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
+        // NOTE: This temporary variable will be dismissed manually after the compares instead of using variableDismissIndexMap.
+        const falseLiteralVariable = this.generateVariable(falseLiteral.size);
+
+        intermediates.push(
+            new Intermediates.Introduce(falseLiteralVariable),
+            new Intermediates.Move(falseLiteralVariable, falseLiteral),
+        );
+
         if (ifStatement.elseClause === null)
         {
             intermediates.push(
-                new Intermediates.Compare(condition, falseLiteral),
+                new Intermediates.Compare(condition, falseLiteralVariable),
+                new Intermediates.Dismiss(falseLiteralVariable),
             );
 
             this.variableDismissIndexMap.set(condition, intermediates.length);
@@ -440,7 +449,8 @@ export class Lowerer
             const elseLabelSymbol = this.generateLabel();
 
             intermediates.push(
-                new Intermediates.Compare(condition, falseLiteral),
+                new Intermediates.Compare(condition, falseLiteralVariable),
+                new Intermediates.Dismiss(falseLiteralVariable),
             );
 
             this.variableDismissIndexMap.set(condition, intermediates.length);
@@ -478,9 +488,13 @@ export class Lowerer
         this.lowerExpression(whileStatement.condition, intermediates, condition);
 
         const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
+        const falseLiteralVariable = this.generateVariable(falseLiteral.size);
 
         intermediates.push(
-            new Intermediates.Compare(condition, falseLiteral),
+            new Intermediates.Introduce(falseLiteralVariable),
+            new Intermediates.Move(falseLiteralVariable, falseLiteral),
+            new Intermediates.Compare(condition, falseLiteralVariable),
+            new Intermediates.Dismiss(falseLiteralVariable),
         );
 
         this.variableDismissIndexMap.set(condition, intermediates.length);

@@ -71,7 +71,7 @@ export abstract class IntermediateCreator
 
     public static newAdd (
         leftOperand = IntermediateCreator.newVariableSymbol(),
-        rightOperand: IntermediateSymbols.ReadableValue = IntermediateCreator.newLiteralSymbol()
+        rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newVariableSymbol()
     ): Intermediates.Add
     {
         return new Intermediates.Add(leftOperand, rightOperand);
@@ -119,8 +119,8 @@ export abstract class IntermediateCreator
     }
 
     public static newCompare (
-        leftOperand: IntermediateSymbols.ReadableValue = IntermediateCreator.newLiteralSymbol(),
-        rightOperand: IntermediateSymbols.ReadableValue = IntermediateCreator.newLiteralSymbol()
+        leftOperand: IntermediateSymbols.Variable = IntermediateCreator.newVariableSymbol(),
+        rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newVariableSymbol()
     ): Intermediates.Compare
     {
         return new Intermediates.Compare(leftOperand, rightOperand);

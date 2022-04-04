@@ -10,9 +10,9 @@ export class SubtractIntermediate
     public readonly kind: IntermediateKind.Subtract;
 
     public leftOperand: IntermediateSymbols.Variable;
-    public rightOperand: IntermediateSymbols.ReadableValue;
+    public rightOperand: IntermediateSymbols.Variable;
 
-    constructor (leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.ReadableValue)
+    constructor (leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable)
     {
         this.kind = IntermediateKind.Subtract;
 

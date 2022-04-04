@@ -573,6 +573,7 @@ describe('Lowerer',
                 );
 
                 const compareVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Int8);
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
 
                 const expectedResult = IntermediateCreator.newFile(
@@ -585,11 +586,17 @@ describe('Lowerer',
                                     // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('-1', IntermediateSize.Int8)
                                 ),
-                                IntermediateCreator.newCompare(
-                                    compareVariableSymbol,
+                                IntermediateCreator.newIntroduce(falseLabelVariableSymbol),
+                                IntermediateCreator.newMove(
+                                    falseLabelVariableSymbol,
                                     // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
+                                IntermediateCreator.newCompare(
+                                    compareVariableSymbol,
+                                    falseLabelVariableSymbol
+                                ),
+                                IntermediateCreator.newDismiss(falseLabelVariableSymbol),
                                 IntermediateCreator.newDismiss(compareVariableSymbol),
                                 IntermediateCreator.newJumpIfEqual(endLabelSymbol),
                                 IntermediateCreator.newLabel(endLabelSymbol),
@@ -627,6 +634,7 @@ describe('Lowerer',
                 );
 
                 const compareVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Int8);
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const elseLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
 
@@ -637,12 +645,20 @@ describe('Lowerer',
                                 IntermediateCreator.newIntroduce(compareVariableSymbol),
                                 IntermediateCreator.newMove(
                                     compareVariableSymbol,
+                                    // TODO: Replace the literal with a global definition.
+                                    IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
+                                ),
+                                IntermediateCreator.newIntroduce(falseLabelVariableSymbol),
+                                IntermediateCreator.newMove(
+                                    falseLabelVariableSymbol,
+                                    // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
                                 IntermediateCreator.newCompare(
                                     compareVariableSymbol,
-                                    IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
+                                    falseLabelVariableSymbol
                                 ),
+                                IntermediateCreator.newDismiss(falseLabelVariableSymbol),
                                 IntermediateCreator.newDismiss(compareVariableSymbol),
                                 IntermediateCreator.newJumpIfEqual(elseLabelSymbol),
                                 IntermediateCreator.newGoto(endLabelSymbol),
@@ -678,6 +694,7 @@ describe('Lowerer',
                 );
 
                 const conditionVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Int8);
                 const startLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
 
@@ -692,11 +709,17 @@ describe('Lowerer',
                                     // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('-1', IntermediateSize.Int8)
                                 ),
-                                IntermediateCreator.newCompare(
-                                    conditionVariableSymbol,
+                                IntermediateCreator.newIntroduce(falseLabelVariableSymbol),
+                                IntermediateCreator.newMove(
+                                    falseLabelVariableSymbol,
                                     // TODO: Replace the literal with a global definition.
                                     IntermediateCreator.newLiteralSymbol('0', IntermediateSize.Int8)
                                 ),
+                                IntermediateCreator.newCompare(
+                                    conditionVariableSymbol,
+                                    falseLabelVariableSymbol
+                                ),
+                                IntermediateCreator.newDismiss(falseLabelVariableSymbol),
                                 IntermediateCreator.newDismiss(conditionVariableSymbol),
                                 IntermediateCreator.newJumpIfEqual(endLabelSymbol),
                                 IntermediateCreator.newGoto(startLabelSymbol),

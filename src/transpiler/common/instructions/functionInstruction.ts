@@ -8,8 +8,12 @@ export class FunctionInstruction extends Instruction
 
         super(keyword, name, parameterString, returnType);
 
-        this.commandOperandSplitter = ' ';
-        this.operandSplitter = ' ';
-        this.postfix = '';
+        this.renderOptions = {
+            commandOperandSplitter: ' ',
+            operandSplitter: ' ',
+            prefix: '',
+            postfix: '',
+        };
+
     }
 }

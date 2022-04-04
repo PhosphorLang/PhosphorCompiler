@@ -6,6 +6,11 @@ export class LabelInstruction extends Instruction
     {
         super(text);
 
-        this.postfix = ':';
+        this.renderOptions = {
+            commandOperandSplitter: '',
+            operandSplitter: '',
+            prefix: '',
+            postfix: ':',
+        };
     }
 }

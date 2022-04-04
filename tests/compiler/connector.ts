@@ -1,9 +1,8 @@
 import 'mocha';
+import * as Diagnostic from '../../src/diagnostic';
 import { assert } from 'chai';
 import { BuildInTypes } from '../../src/definitions/buildInTypes';
 import { Connector } from '../../src/connector/connector';
-import { Diagnostic } from '../../src/diagnostic/diagnostic';
-import { DiagnosticCodes } from '../../src/diagnostic/diagnosticCodes';
 import { ImportNodeToFileNode } from '../../src/importer/importNodeToFileNode';
 import { SemanticCreator } from '../utility/semanticCreator';
 import { SyntaxCreator } from '../utility/syntaxCreator';
@@ -12,13 +11,13 @@ import { TokenCreator } from '../utility/tokenCreator';
 describe('Connector',
     function ()
     {
-        let diagnostic: Diagnostic;
+        let diagnostic: Diagnostic.Diagnostic;
         let connector: Connector;
 
         beforeEach(
             function ()
             {
-                diagnostic = new Diagnostic();
+                diagnostic = new Diagnostic.Diagnostic();
 
                 connector = new Connector(diagnostic);
             }
@@ -665,7 +664,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.UnknownTypeError
+                    Diagnostic.Codes.UnknownTypeError
                 );
             }
         );
@@ -689,7 +688,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.DuplicateParameterNameError
+                    Diagnostic.Codes.DuplicateParameterNameError
                 );
             }
         );
@@ -711,7 +710,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.VariableWithoutTypeClauseAndInitialiserError
+                    Diagnostic.Codes.VariableWithoutTypeClauseAndInitialiserError
                 );
             }
         );
@@ -738,7 +737,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.DuplicateVariableDeclarationError
+                    Diagnostic.Codes.DuplicateVariableDeclarationError
                 );
             }
         );
@@ -762,7 +761,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.NotEmptyReturnInFunctionWithoutReturnTypeError
+                    Diagnostic.Codes.NotEmptyReturnInFunctionWithoutReturnTypeError
                 );
             }
         );
@@ -786,7 +785,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.EmptyReturnInFunctionWithReturnTypeError
+                    Diagnostic.Codes.EmptyReturnInFunctionWithReturnTypeError
                 );
             }
         );
@@ -812,7 +811,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.ReturnTypeDoesNotMatchFunctionReturnTypeError
+                    Diagnostic.Codes.ReturnTypeDoesNotMatchFunctionReturnTypeError
                 );
             }
         );
@@ -836,7 +835,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatementError
+                    Diagnostic.Codes.UnexpectedNonBooleanExpressionInIfStatementError
                 );
             }
         );
@@ -860,7 +859,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.UnknownVariableError
+                    Diagnostic.Codes.UnknownVariableError
                 );
             }
         );
@@ -889,7 +888,7 @@ describe('Connector',
 
                 assert.throws(
                     (): void => { connector.run(input, new ImportNodeToFileNode()); },
-                    DiagnosticCodes.ReadonlyAssignmentError
+                    Diagnostic.Codes.ReadonlyAssignmentError
                 );
             }
         );

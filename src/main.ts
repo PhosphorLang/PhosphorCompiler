@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
+import * as Diagnostic from './diagnostic';
 import { ProcessArguments,ProcessArgumentsError } from './processArguments';
 import { Assembler } from './assembler/assembler';
 import { AssemblerAmd64Linux } from './assembler/amd64/linux/assemblerAmd64Linux';
 import { AssemblerAvr } from './assembler/avr/assemblerAvr';
 import { Connector } from './connector/connector';
-import { Diagnostic } from './diagnostic/diagnostic';
-import { DiagnosticException } from './diagnostic/diagnosticException';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
 import { Lexer } from './lexer/lexer';
@@ -46,7 +45,7 @@ class Main
     {
         const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, this.arguments.targetPlatform);
 
-        const diagnostic = new Diagnostic();
+        const diagnostic = new Diagnostic.Diagnostic();
 
         const lexer = new Lexer(diagnostic);
         const parser = new Parser(diagnostic);
@@ -96,7 +95,7 @@ class Main
         }
         catch (error)
         {
-            if (error instanceof DiagnosticException)
+            if (error instanceof Diagnostic.Exception)
             {
                 return;
             }

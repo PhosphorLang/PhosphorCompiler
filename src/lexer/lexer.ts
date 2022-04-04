@@ -1,6 +1,4 @@
-import { Diagnostic } from '../diagnostic/diagnostic';
-import { DiagnosticCodes } from '../diagnostic/diagnosticCodes';
-import { DiagnosticError } from '../diagnostic/diagnosticError';
+import * as Diagnostic from '../diagnostic';
 import { Token } from './token';
 import { TokenKind } from './tokenKind';
 
@@ -12,7 +10,7 @@ interface ContentAndKind
 
 export class Lexer
 {
-    private readonly diagnostic: Diagnostic;
+    private readonly diagnostic: Diagnostic.Diagnostic;
 
     private fileName: string;
     private text: string;
@@ -23,7 +21,7 @@ export class Lexer
     private readonly numberTestRegex: RegExp;
     private readonly identifierTestRegex: RegExp;
 
-    constructor (diagnostic: Diagnostic)
+    constructor (diagnostic: Diagnostic.Diagnostic)
     {
         this.diagnostic = diagnostic;
 
@@ -173,9 +171,9 @@ export class Lexer
                 else
                 {
                     this.diagnostic.throw(
-                        new DiagnosticError(
+                        new Diagnostic.Error(
                             `Unknown token "${content}"`,
-                            DiagnosticCodes.UnknownTokenError,
+                            Diagnostic.Codes.UnknownTokenError,
                             {
                                 fileName: this.fileName,
                                 lineNumber: this.line,
@@ -217,9 +215,9 @@ export class Lexer
                 case '':
                 case "\n":
                     this.diagnostic.throw(
-                        new DiagnosticError(
+                        new Diagnostic.Error(
                             'Unterminated string',
-                            DiagnosticCodes.UnterminatedStringError,
+                            Diagnostic.Codes.UnterminatedStringError,
                             {
                                 fileName: this.fileName,
                                 lineNumber: this.line,

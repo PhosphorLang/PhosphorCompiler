@@ -1,7 +1,5 @@
+import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from '../parser/syntaxNodes';
-import { Diagnostic } from '../diagnostic/diagnostic';
-import { DiagnosticCodes } from '../diagnostic/diagnosticCodes';
-import { DiagnosticError } from '../diagnostic/diagnosticError';
 import FileSystem from 'fs';
 import { ImportNodeToFileNode } from './importNodeToFileNode';
 import { Lexer } from '../lexer/lexer';
@@ -18,7 +16,7 @@ class PathToFileNode extends Map<string, SyntaxNodes.File> {}
  */
 export class Importer
 {
-    private readonly diagnostic: Diagnostic;
+    private readonly diagnostic: Diagnostic.Diagnostic;
 
     private lexer: Lexer;
     private parser: Parser;
@@ -26,7 +24,7 @@ export class Importer
     private rootPath: string;
     private standardLibraryPath: string | null;
 
-    constructor (diagnostic: Diagnostic, lexer: Lexer, parser: Parser, standardLibrayPath?: string)
+    constructor (diagnostic: Diagnostic.Diagnostic, lexer: Lexer, parser: Parser, standardLibrayPath?: string)
     {
         this.diagnostic = diagnostic;
         this.lexer = lexer;
@@ -86,9 +84,9 @@ export class Importer
                 catch
                 {
                     this.diagnostic.throw(
-                        new DiagnosticError(
+                        new Diagnostic.Error(
                             `Could not find file "${filePath}" for import.`,
-                            DiagnosticCodes.CannotFindImportFileError,
+                            Diagnostic.Codes.CannotFindImportFileError,
                             importNode.path
                         )
                     );
@@ -136,9 +134,9 @@ export class Importer
             if (this.standardLibraryPath === null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Tried to import from the standard library without providing the --standardLibrary command line parameter.`,
-                        DiagnosticCodes.MissingStandardLibraryCommandLineParameterError,
+                        Diagnostic.Codes.MissingStandardLibraryCommandLineParameterError,
                         importNode.path
                     )
                 );

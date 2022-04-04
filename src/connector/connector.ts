@@ -1,11 +1,9 @@
+import * as Diagnostic from '../diagnostic';
 import * as SemanticNodes from './semanticNodes';
 import * as SemanticSymbols from './semanticSymbols';
 import * as SyntaxNodes from '../parser/syntaxNodes';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
-import { Diagnostic } from '../diagnostic/diagnostic';
-import { DiagnosticCodes } from '../diagnostic/diagnosticCodes';
-import { DiagnosticError } from '../diagnostic/diagnosticError';
 import { FunctionParametersList } from '../parser/functionParametersList';
 import { ImportNodeToFileNode } from '../importer/importNodeToFileNode';
 import { SemanticNode } from './semanticNodes';
@@ -14,7 +12,7 @@ import { SyntaxNode } from '../parser/syntaxNodes';
 
 export class Connector
 {
-    private readonly diagnostic: Diagnostic;
+    private readonly diagnostic: Diagnostic.Diagnostic;
 
     /**
      * A list of functions, global to the file.
@@ -31,7 +29,7 @@ export class Connector
 
     private currentFunction: SemanticSymbols.Function|null;
 
-    constructor (diagnostic: Diagnostic)
+    constructor (diagnostic: Diagnostic.Diagnostic)
     {
         this.diagnostic = diagnostic;
 
@@ -86,9 +84,9 @@ export class Connector
             if (importedFileSyntaxNode === undefined)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Could not find file "${importSyntaxNode.path.content}" for import.`,
-                        DiagnosticCodes.CannotFindImportFileError,
+                        Diagnostic.Codes.CannotFindImportFileError,
                         importSyntaxNode.path
                     )
                 );
@@ -144,9 +142,9 @@ export class Connector
             if (type === null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Unknown type "${typeClause.identifier.content}"`,
-                        DiagnosticCodes.UnknownTypeError,
+                        Diagnostic.Codes.UnknownTypeError,
                         typeClause.identifier
                     )
                 );
@@ -169,9 +167,9 @@ export class Connector
             if (names.has(name))
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Duplicate parameter name "${name}"`,
-                        DiagnosticCodes.DuplicateParameterNameError,
+                        Diagnostic.Codes.DuplicateParameterNameError,
                         parameter.identifier
                     )
                 );
@@ -184,9 +182,9 @@ export class Connector
             if (type === null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         'Parameters must have a type clause given.',
-                        DiagnosticCodes.ParameterWithoutTypeClauseError,
+                        Diagnostic.Codes.ParameterWithoutTypeClauseError,
                         parameter.identifier
                     )
                 );
@@ -284,9 +282,9 @@ export class Connector
             if (initialisier === null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `The variable "${name}" must either have a type clause or an initialiser.`,
-                        DiagnosticCodes.VariableWithoutTypeClauseAndInitialiserError,
+                        Diagnostic.Codes.VariableWithoutTypeClauseAndInitialiserError,
                         variableDeclaration.identifier
                     )
                 );
@@ -302,9 +300,9 @@ export class Connector
         if (this.getVariable(name) !== null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Duplicate declaration of variable "${name}".`,
-                    DiagnosticCodes.DuplicateVariableDeclarationError,
+                    Diagnostic.Codes.DuplicateVariableDeclarationError,
                     variableDeclaration.identifier
                 )
             );
@@ -320,9 +318,9 @@ export class Connector
         if (this.currentFunction === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     'Return statements must be placed inside a function body.',
-                    DiagnosticCodes.ReturnStatementOutsideFunctionBodyError,
+                    Diagnostic.Codes.ReturnStatementOutsideFunctionBodyError,
                     returnStatement.keyword
                 )
             );
@@ -340,9 +338,9 @@ export class Connector
             if (expression !== null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         'A function without a return type must return nothing.',
-                        DiagnosticCodes.NotEmptyReturnInFunctionWithoutReturnTypeError,
+                        Diagnostic.Codes.NotEmptyReturnInFunctionWithoutReturnTypeError,
                         returnStatement.keyword
                     )
                 );
@@ -353,9 +351,9 @@ export class Connector
             if (expression === null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         'A function with a return type must not return nothing.',
-                        DiagnosticCodes.EmptyReturnInFunctionWithReturnTypeError,
+                        Diagnostic.Codes.EmptyReturnInFunctionWithReturnTypeError,
                         returnStatement.keyword
                     )
                 );
@@ -363,9 +361,9 @@ export class Connector
             else if (expression.type != this.currentFunction.returnType)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         'The return value type must match the function return type.',
-                        DiagnosticCodes.ReturnTypeDoesNotMatchFunctionReturnTypeError,
+                        Diagnostic.Codes.ReturnTypeDoesNotMatchFunctionReturnTypeError,
                         returnStatement.keyword
                     )
                 );
@@ -382,9 +380,9 @@ export class Connector
         if (condition.type !== BuildInTypes.bool)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     'The return type of the condition in an if statement must be Bool.',
-                    DiagnosticCodes.UnexpectedNonBooleanExpressionInIfStatementError,
+                    Diagnostic.Codes.UnexpectedNonBooleanExpressionInIfStatementError,
                     ifStatement.condition.token
                 )
             );
@@ -424,9 +422,9 @@ export class Connector
         if (condition.type !== BuildInTypes.bool)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     'The return type of the condition in an while statement must be Bool.',
-                    DiagnosticCodes.UnexpectedNonBooleanExpressionInWhileStatementError,
+                    Diagnostic.Codes.UnexpectedNonBooleanExpressionInWhileStatementError,
                     whileStatement.condition.token
                 )
             );
@@ -446,9 +444,9 @@ export class Connector
         if (variable === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Unknown variable "${name}"`,
-                    DiagnosticCodes.UnknownVariableError,
+                    Diagnostic.Codes.UnknownVariableError,
                     assignment.identifier
                 )
             );
@@ -457,9 +455,9 @@ export class Connector
         if (variable.isReadonly)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `"${name}" is readonly, an assignment is not allowed.`,
-                    DiagnosticCodes.ReadonlyAssignmentError,
+                    Diagnostic.Codes.ReadonlyAssignmentError,
                     assignment.identifier
                 )
             );
@@ -488,9 +486,9 @@ export class Connector
                 return this.connectBinaryExpression(expression as SyntaxNodes.BinaryExpression);
             default:
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Unexpected syntax of kind "${expression.kind}".`,
-                        DiagnosticCodes.UnexpectedExpressionSyntaxKindError,
+                        Diagnostic.Codes.UnexpectedExpressionSyntaxKindError,
                         expression.token
                     )
                 );
@@ -505,9 +503,9 @@ export class Connector
         if (type === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Unexpected literal "${expression.literal.content}" of type "${expression.kind}".`,
-                    DiagnosticCodes.UnexpectedLiteralExpressionSyntaxKindError,
+                    Diagnostic.Codes.UnexpectedLiteralExpressionSyntaxKindError,
                     expression.literal
                 )
             );
@@ -525,9 +523,9 @@ export class Connector
         if (variable === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Unknown variable "${name}"`,
-                    DiagnosticCodes.UnknownVariableError,
+                    Diagnostic.Codes.UnknownVariableError,
                     expression.identifier
                 )
             );
@@ -543,9 +541,9 @@ export class Connector
         if (functionSymbol === undefined)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Unknown function "${expression.identifier.content}"`,
-                    DiagnosticCodes.UnknownFunctionError,
+                    Diagnostic.Codes.UnknownFunctionError,
                     expression.identifier
                 )
             );
@@ -562,9 +560,9 @@ export class Connector
         if (functionSymbol.parameters.length !== callArguments.length)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Wrong argument count for function "${expression.identifier.content}"`,
-                    DiagnosticCodes.WrongArgumentCountError,
+                    Diagnostic.Codes.WrongArgumentCountError,
                     expression.identifier
                 )
             );
@@ -575,9 +573,9 @@ export class Connector
             if (callArguments[i].type !== functionSymbol.parameters[i].type)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Wrong type for argument "${functionSymbol.parameters[i].name}".`,
-                        DiagnosticCodes.WrongArgumentTypeError,
+                        Diagnostic.Codes.WrongArgumentTypeError,
                         expression.identifier
                     )
                 );
@@ -601,9 +599,9 @@ export class Connector
         if (operator === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Unknown unary operator "${expression.operator.content}"`,
-                    DiagnosticCodes.UnknownUnaryOperatorError,
+                    Diagnostic.Codes.UnknownUnaryOperatorError,
                     expression.operator
                 )
             );
@@ -622,9 +620,9 @@ export class Connector
         if (operator === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Unknown binary operator "${expression.operator.content}" for "${leftOperand.type.name}" with "${rightOperand.type.name}"`,
-                    DiagnosticCodes.UnknownBinaryOperatorError,
+                    Diagnostic.Codes.UnknownBinaryOperatorError,
                     expression.operator
                 )
             );

@@ -1,8 +1,7 @@
 import 'mocha';
+import * as Diagnostic from '../../src/diagnostic';
 import { assert } from 'chai';
 import { Defaults } from '../utility/defaults';
-import { Diagnostic } from '../../src/diagnostic/diagnostic';
-import { DiagnosticCodes } from '../../src/diagnostic/diagnosticCodes';
 import { Parser } from '../../src/parser/parser';
 import { SyntaxCreator } from '../utility/syntaxCreator';
 import { TokenCreator } from '../utility/tokenCreator';
@@ -10,13 +9,13 @@ import { TokenCreator } from '../utility/tokenCreator';
 describe('Parser',
     function ()
     {
-        let diagnostic: Diagnostic;
+        let diagnostic: Diagnostic.Diagnostic;
         let parser: Parser;
 
         beforeEach(
             function ()
             {
-                diagnostic = new Diagnostic();
+                diagnostic = new Diagnostic.Diagnostic();
 
                 parser = new Parser(diagnostic);
             }
@@ -767,7 +766,7 @@ describe('Parser',
 
                 assert.throws(
                     (): void => { parser.run(input, Defaults.fileName); },
-                    DiagnosticCodes.MissingSemicolonAfterStatementError
+                    Diagnostic.Codes.MissingSemicolonAfterStatementError
                 );
             }
         );
@@ -789,7 +788,7 @@ describe('Parser',
 
                 assert.throws(
                     (): void => { parser.run(input, Defaults.fileName); },
-                    DiagnosticCodes.UnexpectedTokenAfterVariableDeclarationIdentifierError
+                    Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError
                 );
             }
         );
@@ -811,7 +810,7 @@ describe('Parser',
 
                 assert.throws(
                     (): void => { parser.run(input, Defaults.fileName); },
-                    DiagnosticCodes.UnexpectedTokenAfterVariableDeclarationIdentifierError
+                    Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError
                 );
             }
         );

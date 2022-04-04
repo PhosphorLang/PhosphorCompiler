@@ -1,7 +1,7 @@
 import 'mocha';
+import * as Diagnostic from '../../src/diagnostic';
 import { assert } from 'chai';
 import { Connector } from '../../src/connector/connector';
-import { Diagnostic } from '../../src/diagnostic/diagnostic';
 import FileSystem from 'fs';
 import { ImportNodeToFileNode } from '../../src/importer/importNodeToFileNode';
 import { Lexer } from '../../src/lexer/lexer';
@@ -14,7 +14,7 @@ import { TranspilerIntermediate } from '../../src/transpiler/intermediate/transp
 describe('End-to-end, the compiler',
     function ()
     {
-        let diagnostic: Diagnostic;
+        let diagnostic: Diagnostic.Diagnostic;
         let lexer: Lexer;
         let parser: Parser;
         let connector: Connector;
@@ -45,7 +45,7 @@ describe('End-to-end, the compiler',
         beforeEach(
             function ()
             {
-                diagnostic = new Diagnostic();
+                diagnostic = new Diagnostic.Diagnostic();
 
                 lexer = new Lexer(diagnostic);
                 parser = new Parser(diagnostic);

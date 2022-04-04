@@ -1,6 +1,6 @@
 import 'mocha';
+import * as Diagnostic from '../../src/diagnostic';
 import { assert } from 'chai';
-import { Diagnostic } from '../../src/diagnostic/diagnostic';
 import { Importer } from '../../src/importer/importer';
 import { Lexer } from '../../src/lexer/lexer';
 import { Parser } from '../../src/parser/parser';
@@ -12,14 +12,14 @@ import { TokenCreator } from '../utility/tokenCreator';
 describe('Importer',
     function ()
     {
-        let diagnostic: Diagnostic;
+        let diagnostic: Diagnostic.Diagnostic;
         let importer: Importer;
         let parserStub: Sinon.SinonStubbedInstance<Parser>;
 
         beforeEach(
             function ()
             {
-                diagnostic = new Diagnostic();
+                diagnostic = new Diagnostic.Diagnostic();
 
                 const lexerStub = Sinon.createStubInstance(Lexer);
                 lexerStub.run.returns([]);

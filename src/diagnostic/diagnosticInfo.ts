@@ -7,7 +7,7 @@ import { LineInformation } from '../definitions/lineInformation';
  */
 export class DiagnosticInfo extends DiagnosticMessage
 {
-    constructor (text: string, code: string, lineInformation: LineInformation)
+    constructor (text: string, code: string, lineInformation?: LineInformation)
     {
         const type = 'Info';
 

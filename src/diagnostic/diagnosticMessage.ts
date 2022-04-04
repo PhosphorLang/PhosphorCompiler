@@ -5,16 +5,23 @@ export abstract class DiagnosticMessage
 {
     protected readonly type: string;
     protected readonly text: string;
-    protected readonly lineInformation: LineInformation;
+    protected readonly lineInformation?: LineInformation;
 
     public readonly code: string;
 
     public get message (): string
     {
-        const result =
-            chalk.blueBright(this.lineInformation.fileName) + ':' +
-            chalk.yellowBright(this.lineInformation.lineNumber) + ':' +
-            chalk.yellowBright(this.lineInformation.columnNumber) + ' - ' +
+        let result = '';
+
+        if (this.lineInformation)
+        {
+            result +=
+                chalk.blueBright(this.lineInformation.fileName) + ':' +
+                chalk.yellowBright(this.lineInformation.lineNumber) + ':' +
+                chalk.yellowBright(this.lineInformation.columnNumber) + ' - ';
+        }
+
+        result +=
             this.type + ' ' +
             chalk.magenta(this.code) + ': ' +
             this.text;
@@ -28,7 +35,7 @@ export abstract class DiagnosticMessage
      * @param text The text of the message. Should not be coloured.
      * @param lineInformation The line information with the location the message applies to.
      */
-    constructor (type: string, code: string, text: string, lineInformation: LineInformation)
+    constructor (type: string, code: string, text: string, lineInformation?: LineInformation)
     {
         this.type = type;
         this.code = code;

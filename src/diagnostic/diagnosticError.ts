@@ -8,7 +8,7 @@ import { LineInformation } from '../definitions/lineInformation';
  */
 export class DiagnosticError extends DiagnosticMessage
 {
-    constructor (text: string, code: string, lineInformation: LineInformation)
+    constructor (text: string, code: string, lineInformation?: LineInformation)
     {
         const type = chalk.redBright('Error');
 

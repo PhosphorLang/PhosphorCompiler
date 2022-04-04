@@ -71,9 +71,16 @@ export class TranspilerAvr implements SemanticTreeTranspiler
     {
         let assembly = '';
 
+        const renderOptions: Instructions.RenderOptions = {
+            commandOperandSplitter: ' ',
+            operandSplitter: ', ',
+            prefix: '',
+            postfix: '',
+        };
+
         for (const instruction of instructions)
         {
-            assembly += instruction.render() + "\n";
+            assembly += instruction.render(renderOptions) + '\n';
         }
 
         return assembly;

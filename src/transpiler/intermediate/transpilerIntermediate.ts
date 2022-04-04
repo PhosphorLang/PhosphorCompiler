@@ -37,7 +37,14 @@ export class TranspilerIntermediate implements Transpiler
                 indentation = indentation.slice(4);
             }
 
-            text += instruction.render(' ', ' ', '', indentation) + "\n";
+            const renderOptions: Instructions.RenderOptions = {
+                commandOperandSplitter: ' ',
+                operandSplitter: ' ',
+                prefix: '',
+                postfix: '',
+            };
+
+            text += instruction.render(renderOptions, indentation) + '\n';
 
             if (instruction.command == '{')
             {

@@ -19,3 +19,5 @@ export { UnaryExpressionSyntaxNode as UnaryExpression } from './unaryExpressionS
 export { VariableDeclarationSyntaxNode as VariableDeclaration } from './variableDeclarationSyntaxNode';
 export { VariableExpressionSyntaxNode as VariableExpression } from './variableExpressionSyntaxNode';
 export { WhileStatementSyntaxNode as WhileStatement } from './whileStatementSyntaxNode';
+
+// TODO: The syntac nodes should, like the intermediates, have type unions to seperate them instead of the ineffective base clases.

@@ -9,6 +9,7 @@ export class CompareIntermediate
 {
     public readonly kind: IntermediateKind.Compare;
 
+    // TODO: The compare instruction should only be able to operate with variables like everything else besides the move instruction.
     public leftOperand: IntermediateSymbols.ReadableValue;
     public rightOperand: IntermediateSymbols.ReadableValue;
 

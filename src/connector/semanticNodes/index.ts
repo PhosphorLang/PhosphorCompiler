@@ -19,3 +19,5 @@ export { UnaryExpressionSemanticNode as UnaryExpression } from './unaryExpressio
 export { VariableDeclarationSemanticNode as VariableDeclaration } from './variableDeclarationSemanticNode';
 export { VariableExpressionSemanticNode as VariableExpression } from './variableExpressionSemanticNode';
 export { WhileStatementSemanticNode as WhileStatement } from './whileStatementSemanticNode';
+
+// TODO: The semantic nodes should, like the intermediates, have type unions to seperate them instead of the ineffective base clases.

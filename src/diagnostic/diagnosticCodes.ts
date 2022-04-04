@@ -1,5 +1,6 @@
 export enum DiagnosticCodes
 {
+    // Errors:
     UnknownTokenError = 'E1001',
     UnterminatedStringError = 'E1002',
     InvalidTokenInFileScopeError = 'E1003',
@@ -34,4 +35,7 @@ export enum DiagnosticCodes
     MissingSectionInWhileStatementError = 'E1032',
     MissingStandardLibraryCommandLineParameterError = 'E1033',
     CannotFindImportFileError = 'E1034',
+    // Warnings:
+    ExperimentalPlatformWarning = 'W1001',
+    // Infos:
 }

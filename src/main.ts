@@ -64,6 +64,12 @@ class Main
                 linker = new LinkerAmd64Linux();
                 break;
             case TargetPlatform.Avr:
+                diagnostic.add(
+                    new Diagnostic.Warning(
+                        'The AVR target platform is highly experimental and will probably not work.',
+                        Diagnostic.Codes.ExperimentalPlatformWarning
+                    )
+                );
                 transpiler = new TranspilerAvr();
                 assembler = new AssemblerAvr();
                 linker = new LinkerAvr();

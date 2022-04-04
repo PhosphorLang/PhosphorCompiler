@@ -16,7 +16,7 @@ export class LinkerAvr implements Linker
             const libraryFile = path.basename(libraryFilePath);
 
             libraryImports += '-L"' + libraryPath + '" ';
-            libraryImports += '-l"' + libraryFile + '" ';
+            libraryImports += '-l":' + libraryFile + '" ';
         }
 
         childProcess.execSync(

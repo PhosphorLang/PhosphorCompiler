@@ -98,33 +98,35 @@ class Main
         {
             if (error instanceof DiagnosticException)
             {
-                if (diagnostic.errors.length != 0)
-                {
-                    const errorString = diagnostic.errors.join(os.EOL);
-
-                    console.error(errorString);
-                }
-
-                if (diagnostic.warnings.length != 0)
-                {
-                    const warningString = diagnostic.warnings.join(os.EOL);
-
-                    console.error(warningString);
-                }
-
-                if (diagnostic.info.length != 0)
-                {
-                    const infoString = diagnostic.info.join(os.EOL);
-
-                    console.error(infoString);
-                }
+                return;
             }
             else
             {
                 throw error;
             }
+        }
+        finally
+        {
+            if (diagnostic.errors.length != 0)
+            {
+                const errorString = diagnostic.errors.join(os.EOL);
 
-            return;
+                console.error(errorString);
+            }
+
+            if (diagnostic.warnings.length != 0)
+            {
+                const warningString = diagnostic.warnings.join(os.EOL);
+
+                console.error(warningString);
+            }
+
+            if (diagnostic.info.length != 0)
+            {
+                const infoString = diagnostic.info.join(os.EOL);
+
+                console.error(infoString);
+            }
         }
 
         FileSystem.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});

@@ -439,14 +439,14 @@ describe('Lowerer',
                                 IntermediateCreator.newIntroduce(variableSymbol1),
                                 IntermediateCreator.newMove(variableSymbol1, constantSymbol0),
                                 IntermediateCreator.newGive(
-                                    IntermediateCreator.newParameterSymbol('p#0', IntermediateSize.Pointer),
+                                    IntermediateCreator.newParameterSymbol(0, IntermediateSize.Pointer),
                                     variableSymbol1
                                 ),
                                 IntermediateCreator.newDismiss(variableSymbol1),
                                 IntermediateCreator.newIntroduce(variableSymbol2),
                                 IntermediateCreator.newMove(variableSymbol2, constantSymbol1),
                                 IntermediateCreator.newGive(
-                                    IntermediateCreator.newParameterSymbol('p#1', IntermediateSize.Pointer),
+                                    IntermediateCreator.newParameterSymbol(1, IntermediateSize.Pointer),
                                     variableSymbol2
                                 ),
                                 IntermediateCreator.newDismiss(variableSymbol2),

@@ -95,9 +95,9 @@ export abstract class IntermediateCreator
         return new Intermediates.Give(targetSymbol, variable);
     }
 
-    public static newParameterSymbol (name = 'p#0', size = IntermediateSize.Native): IntermediateSymbols.Parameter
+    public static newParameterSymbol (index = 0, size = IntermediateSize.Native): IntermediateSymbols.Parameter
     {
-        return new IntermediateSymbols.Parameter(name, size);
+        return new IntermediateSymbols.Parameter(index, size);
     }
 
     public static newTake (
@@ -108,9 +108,9 @@ export abstract class IntermediateCreator
         return new Intermediates.Take(variableSymbol, takableValue);
     }
 
-    public static newReturnSymbol (size = IntermediateSize.Native): IntermediateSymbols.ReturnValue
+    public static newReturnSymbol (size = IntermediateSize.Native, index = 0): IntermediateSymbols.ReturnValue
     {
-        return new IntermediateSymbols.ReturnValue(size);
+        return new IntermediateSymbols.ReturnValue(index, size);
     }
 
     public static newExternal (functionSymbol = IntermediateCreator.newFunctionSymbol()): Intermediates.External

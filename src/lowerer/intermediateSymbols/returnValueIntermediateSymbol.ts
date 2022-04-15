@@ -8,12 +8,17 @@ export class ReturnValueIntermediateSymbol extends IntermediateSymbolBase
 
     public readonly size: IntermediateSize;
 
-    constructor (size: IntermediateSize)
+    public readonly index: number;
+
+    constructor (index: number, size: IntermediateSize)
     {
-        super('r#0');
+        const name = `r#${index}`;
+
+        super(name);
 
         this.kind = IntermediateSymbolKind.ReturnValue;
 
+        this.index = index;
         this.size = size;
     }
 }

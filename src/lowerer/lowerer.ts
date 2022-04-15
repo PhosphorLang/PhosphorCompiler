@@ -117,7 +117,7 @@ export class Lowerer
 
     private generateParameter (size: IntermediateSize, index: number): IntermediateSymbols.Parameter
     {
-        const newParameter = new IntermediateSymbols.Parameter(`p#${index}`, size);
+        const newParameter = new IntermediateSymbols.Parameter(index, size);
 
         return newParameter;
     }
@@ -391,7 +391,7 @@ export class Lowerer
     {
         if (returnStatement.expression !== null)
         {
-            const returnSymbol = new IntermediateSymbols.ReturnValue(this.typeToSize(returnStatement.expression.type));
+            const returnSymbol = new IntermediateSymbols.ReturnValue(0, this.typeToSize(returnStatement.expression.type));
             const temporaryVariable = this.generateVariable(returnSymbol.size);
 
             this.lowerExpression(returnStatement.expression, intermediates, temporaryVariable);
@@ -705,7 +705,7 @@ export class Lowerer
                 this.variableIntroducedSet.add(targetLocation);
             }
 
-            const returnValue = new IntermediateSymbols.ReturnValue(functionSymbol.returnSize);
+            const returnValue = new IntermediateSymbols.ReturnValue(0, functionSymbol.returnSize);
 
             intermediates.push(
                 new Intermediates.Take(targetLocation, returnValue),

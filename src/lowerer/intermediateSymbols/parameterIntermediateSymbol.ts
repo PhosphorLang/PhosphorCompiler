@@ -8,12 +8,17 @@ export class ParameterIntermediateSymbol extends IntermediateSymbolBase
 
     public readonly size: IntermediateSize;
 
-    constructor (name: string, size: IntermediateSize)
+    public readonly index: number;
+
+    constructor (index: number, size: IntermediateSize)
     {
+        const name = `p#${index}`;
+
         super(name);
 
         this.kind = IntermediateSymbolKind.Parameter;
 
+        this.index = index;
         this.size = size;
     }
 }

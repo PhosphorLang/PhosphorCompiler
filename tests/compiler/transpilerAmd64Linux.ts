@@ -171,10 +171,10 @@ describe('TranspilerAmd64Linux',
                     "push rbp\n" +
                     "mov rbp, rsp\n" +
                     "sub rsp, 8\n" +
-                    "mov rbx, [rbp-0]\n" +
+                    "mov rbx, [rbp-8]\n" +
                     `mov rbx, ${Defaults.integer}\n` +
-                    "mov [rbp-0], rbx\n" +
-                    "mov rdi, [rbp-0]\n" +
+                    "mov [rbp-8], rbx\n" +
+                    "mov rdi, [rbp-8]\n" +
                     `call ${Defaults.identifier}\n` +
                     "leave\n" +
                     "ret\n" +

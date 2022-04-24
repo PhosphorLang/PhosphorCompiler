@@ -93,6 +93,8 @@ export class LocationManagerAmd64LinuxNone
             // Set base pointer to current stack pointer:
             new Instructions.Instruction('mov', RegistersAmd64Linux.stackBasePointer.bit64, RegistersAmd64Linux.stackPointer.bit64),
         );
+
+        this.currentBasePointerOffset += 8; // Push stack base pointer.
     }
 
     public leaveFunction (): void
@@ -100,6 +102,8 @@ export class LocationManagerAmd64LinuxNone
         this.instructions.push(
             new Instructions.Instruction('leave'),
         );
+
+        this.currentBasePointerOffset -= 8; // Pop stack base pointer inside leave.
     }
 
     public introduce (variableSymbol: IntermediateSymbols.Variable): void

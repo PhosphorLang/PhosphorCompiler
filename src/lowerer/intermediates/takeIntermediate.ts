@@ -11,6 +11,7 @@ export class TakeIntermediate
 {
     public readonly kind: IntermediateKind.Take;
 
+    // TODO: Harmonise the naming of the properties for all intermediates!
     public variableSymbol: IntermediateSymbols.Variable;
     public takableValue: IntermediateSymbols.Parameter | IntermediateSymbols.ReturnValue;
 

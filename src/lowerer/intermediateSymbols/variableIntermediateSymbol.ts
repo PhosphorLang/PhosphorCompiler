@@ -8,6 +8,8 @@ export class VariableIntermediateSymbol extends IntermediateSymbolBase
 
     public readonly size: IntermediateSize;
 
+    // TODO: Should variables get an index like parameter and return value?
+
     constructor (name: string, size: IntermediateSize)
     {
         super(name);

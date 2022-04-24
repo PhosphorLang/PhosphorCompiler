@@ -84,6 +84,4 @@ function main ()
     {
         writeLine('not b > c');
     }
-
-    return;
 }

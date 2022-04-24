@@ -32,6 +32,4 @@ function main ()
     {
         writeLine('They are not equal.');
     }
-
-    return;
 }

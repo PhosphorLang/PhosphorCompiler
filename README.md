@@ -10,8 +10,6 @@ A compiler for the Phosphor programming language.
 function main ()
 {
     writeLine('Hello world!');
-
-    return;
 }
 ```
 

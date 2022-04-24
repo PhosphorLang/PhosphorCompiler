@@ -28,6 +28,4 @@ function main ()
     {
         writeLine('This will also never happen.');
     }
-
-    return;
 }

@@ -16,7 +16,6 @@ import { Lowerer } from './lowerer/lowerer';
 import os from 'os';
 import { Parser } from './parser/parser';
 import Path from 'path';
-import { SemanticTreeTranspiler } from './transpiler/semanticTreeTranspiler';
 import { TargetPlatform } from './options/targetPlatform';
 import { Transpiler } from './transpiler/transpiler';
 import { TranspilerAmd64Linux } from './transpiler/amd64/linux/transpilerAmd64Linux';
@@ -52,7 +51,7 @@ class Main
         const importer = new Importer(diagnostic, lexer, parser, standardLibraryTargetPath);
         const connector = new Connector(diagnostic);
         const lowerer = new Lowerer();
-        let transpiler: Transpiler|SemanticTreeTranspiler;
+        let transpiler: Transpiler|TranspilerAvr;
         let assembler: Assembler;
         let linker: Linker;
 
@@ -95,7 +94,14 @@ class Main
                 FileSystem.writeFileSync('tmp/test.phi', intermediateCode, {encoding: 'utf8'});
             }
 
-            assembly = transpiler.run(semanticTree);
+            if (transpiler instanceof TranspilerAvr)
+            {
+                assembly = transpiler.run(semanticTree);
+            }
+            else
+            {
+                assembly = transpiler.run(intermediateLanguage);
+            }
 
             diagnostic.end();
         }

@@ -2,7 +2,7 @@
     "name": "phosphor-compiler",
     "description": "A compiler for the Phosphor programming language.",
     "author": "Benedikt Magnus",
-    "version": "0.2.0-dev",
+    "version": "0.2.0",
     "license": "MIT",
     "keywords": [
         "Phosphor",

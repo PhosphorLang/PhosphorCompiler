@@ -49,16 +49,16 @@
     ],
     "main": "bin/main.js",
     "scripts": {
-        "build": "npx tsc",
+        "build": "tsc",
         "clean": "rm -rf bin && rm -rf tmp && rm -rf coverage",
-        "coverage": "npx nyc npm run test",
-        "coverage:coveralls": "npx nyc --reporter=lcov npm run test",
-        "coverage:text": "npx nyc --reporter=text npm run test",
+        "coverage": "nyc npm run test",
+        "coverage:coveralls": "nyc --reporter=lcov npm run test",
+        "coverage:text": "nyc --reporter=text npm run test",
         "fullCheck": "npm run build && npm run lint && npm test",
-        "lint": "npx eslint \"src/**/*.ts\"",
-        "prepack": "npm run clean && npx tsc -p tsconfig.release.json",
+        "lint": "eslint \"src/**/*.ts\"",
+        "prepack": "npm run clean && tsc -p tsconfig.release.json",
         "start": "node bin/main.js",
-        "test": "npx mocha -r ts-node/register -r 'tests/hooks/hooks.ts' 'tests/**/*.ts'"
+        "test": "mocha -r ts-node/register -r 'tests/hooks/hooks.ts' 'tests/**/*.ts'"
     },
     "private": true
 }

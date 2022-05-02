@@ -7,6 +7,8 @@
 A compiler for the Phosphor programming language.
 
 ```phosphor
+import 'io';
+
 function main ()
 {
     writeLine('Hello world!');

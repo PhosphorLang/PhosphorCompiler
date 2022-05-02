@@ -42,6 +42,10 @@
         "ts-node": "10.7.0",
         "typescript": "4.6.2"
     },
+    "bundledDependencies": [
+        "chalk",
+        "commander"
+    ],
     "files": [
         "bin",
         "LICENSE",

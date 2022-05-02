@@ -75,6 +75,13 @@ class Main
                 break;
         }
 
+        // Create temporary directory for intermediate (IL, ASM, binary etc.) files:
+        // TODO: The temporary directory should be formalised or, if possible, completely removed.
+        if (!FileSystem.existsSync('tmp'))
+        {
+            FileSystem.mkdirSync('tmp');
+        }
+
         const fileContent = FileSystem.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
 
         let assembly: string;

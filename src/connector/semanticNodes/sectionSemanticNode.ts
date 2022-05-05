@@ -1,7 +1,7 @@
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class SectionSemanticNode extends SemanticNode
+export class SectionSemanticNode extends SemanticNode
 {
     public statements: SemanticNode[];
 

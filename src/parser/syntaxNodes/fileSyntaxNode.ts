@@ -1,9 +1,9 @@
-import FunctionDeclarationSyntaxNode from "./functionDeclarationSyntaxNode";
-import ImportSyntaxNode from "./importSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
+import { FunctionDeclarationSyntaxNode } from './functionDeclarationSyntaxNode';
+import { ImportSyntaxNode } from './importSyntaxNode';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
 
-export default class FileSyntaxNode extends SyntaxNode
+export class FileSyntaxNode extends SyntaxNode
 {
     public readonly name: string;
     public readonly imports: ImportSyntaxNode[];

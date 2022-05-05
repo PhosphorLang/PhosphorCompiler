@@ -41,6 +41,4 @@ function main ()
 
     writeLine('Your score:');
     writeLine(score);
-
-    return;
 }

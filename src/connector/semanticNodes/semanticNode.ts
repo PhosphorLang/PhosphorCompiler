@@ -1,6 +1,6 @@
-import SemanticKind from "../semanticKind";
+import { SemanticKind } from '../semanticKind';
 
-export default abstract class SemanticNode
+export abstract class SemanticNode
 {
     public readonly kind: SemanticKind;
 

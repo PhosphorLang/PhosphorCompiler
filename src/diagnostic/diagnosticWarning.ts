@@ -1,14 +1,14 @@
-import chalk from "chalk";
-import DiagnosticMessage from "./diagnosticMessage";
-import LineInformation from "../definitions/lineInformation";
+import chalk from 'chalk';
+import { DiagnosticMessage } from './diagnosticMessage';
+import { LineInformation } from '../definitions/lineInformation';
 
 /**
  * A diagnostic warning is added when a piece of code is not an error but could lead to an undetected error or may be
  * risky.
  */
-export default class DiagnosticWarning extends DiagnosticMessage
+export class DiagnosticWarning extends DiagnosticMessage
 {
-    constructor (text: string, code: string, lineInformation: LineInformation)
+    constructor (text: string, code: string, lineInformation?: LineInformation)
     {
         const type = chalk.yellowBright('Warning');
 

@@ -1,9 +1,9 @@
-import ExpressionSemanticNode from "./expressionSemanticNode";
-import SectionSemanticNode from "./sectionSemanticNode";
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import { ExpressionSemanticNode } from './expressionSemanticNode';
+import { SectionSemanticNode } from './sectionSemanticNode';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class WhileStatementSemanticNode extends SemanticNode
+export class WhileStatementSemanticNode extends SemanticNode
 {
     public condition: ExpressionSemanticNode;
     public section: SectionSemanticNode;

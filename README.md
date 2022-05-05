@@ -7,11 +7,11 @@
 A compiler for the Phosphor programming language.
 
 ```phosphor
+import 'io';
+
 function main ()
 {
     writeLine('Hello world!');
-
-    return;
 }
 ```
 
@@ -40,7 +40,7 @@ function main ()
 You need the following present on your system:
 
 - For all target platforms:
-    - [Node.js](https://nodejs.org/) >= 12.14.0
+    - [Node.js](https://nodejs.org/) >= 16.3.0
 - Linux Amd64:
     - [NASM](https://nasm.us/) >= 2.13
     - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
@@ -71,7 +71,7 @@ the git repository of the standard library next to the repository of the compile
 e.g. `linuxAmd64`.)
 
 ```bash
-node bin/main.js -f examples/helloWorld.ph -o helloWorld -t <platform> -s <path to standard library>
+node bin/main.js -t <platform> -s <path to standard library> examples/helloWorld.ph helloWorld
 ```
 
 ### **Compilation targets**
@@ -98,12 +98,12 @@ Supported platforms:
 3. Connector (Frontend)
     - Converts a syntax tree into a semantic tree by semantic analysis.
 4. Lowerer (Middleend)
-    - Lowers complex semantic nodes into simpler ones (e.g. if/else into multiple gotos and labels).
+    - Lowers a complex semantic tree into intermediate code which consists of much simpler instructions.
 5. Transpiler (Backend)
-    - Transpiles the semantic tree into platform specific Assembly.
+    - Transpiles the intermediate code into platform specific Assembly.
 6. Assembler (Backend)
     - Creates an object file from the Assembly.
-7. Linker
+7. Linker (Backend)
     - Links the object files into an executable.
 
 ### **Examples**

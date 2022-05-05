@@ -1,8 +1,8 @@
-import LabelSemanticSymbol from "../semanticSymbols/labelSemanticSymbol";
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import { LabelSemanticSymbol } from '../semanticSymbols/labelSemanticSymbol';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class LabelSemanticNode extends SemanticNode
+export class LabelSemanticNode extends SemanticNode
 {
     public readonly symbol: LabelSemanticSymbol;
 

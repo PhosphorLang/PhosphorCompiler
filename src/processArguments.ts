@@ -1,6 +1,6 @@
 import { Command, CommanderError, Option } from 'commander';
-import OptimisationLevel from './options/optimisationLevel';
-import TargetPlatform from './options/targetPlatform';
+import { OptimisationLevel } from './options/optimisationLevel';
+import { TargetPlatform } from './options/targetPlatform';
 
 export type ProcessArgumentsError = CommanderError;
 
@@ -10,15 +10,17 @@ interface OptionValues
     standardLibrary: string;
     optimisation?: OptimisationLevel;
     target?: TargetPlatform;
+    intermediate?: boolean;
 }
 
-export default class ProcessArguments
+export class ProcessArguments
 {
     public readonly filePath: string;
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
     public readonly optimisationLevel: OptimisationLevel;
     public readonly targetPlatform: TargetPlatform;
+    public readonly intermediate: boolean;
 
     constructor (argv?: string[])
     {
@@ -58,13 +60,14 @@ export default class ProcessArguments
 
         const optimisationOption = new Option('-o, --optimisation <level>', 'Set the optimisation level');
         optimisationOption.choices(Object.values(OptimisationLevel));
-
         command.addOption(optimisationOption);
 
         const targetOption = new Option('-t, --target <platform>', 'Set the compilation target platform');
         targetOption.choices(Object.values(TargetPlatform));
-
         command.addOption(targetOption);
+
+        const intermediateOption = new Option('-i, --intermediate', 'Generate intermediate code');
+        command.addOption(intermediateOption);
 
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
@@ -78,5 +81,6 @@ export default class ProcessArguments
 
         this.optimisationLevel = options.optimisation ?? OptimisationLevel.None;
         this.targetPlatform = options.target ?? TargetPlatform.LinuxAmd64; // TODO: Use the platform the compiler runs on as default.
+        this.intermediate = options.intermediate ?? false;
     }
 }

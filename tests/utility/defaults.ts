@@ -1,4 +1,4 @@
-export default abstract class Defaults
+export abstract class Defaults
 {
     public static readonly fileName = 'testFile';
     public static readonly importFileName = './testFile';

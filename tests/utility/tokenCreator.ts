@@ -1,9 +1,9 @@
-import BuildInTypes from '../../src/definitions/buildInTypes';
-import Defaults from './defaults';
-import Token from '../../src/lexer/token';
-import TokenKind from '../../src/lexer/tokenKind';
+import { BuildInTypes } from '../../src/definitions/buildInTypes';
+import { Defaults } from './defaults';
+import { Token } from '../../src/lexer/token';
+import { TokenKind } from '../../src/lexer/tokenKind';
 
-export default abstract class TokenCreator
+export abstract class TokenCreator
 {
     public static newIdentifier (identifier = Defaults.identifier, line = 0, column = 0, fileName = Defaults.fileName): Token
     {

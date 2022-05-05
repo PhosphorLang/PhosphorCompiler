@@ -1,24 +1,22 @@
-import * as SyntaxNodes from "./syntaxNodes";
-import CallArgumentsList from "./lists/callArgumentsList";
-import Diagnostic from "../diagnostic/diagnostic";
-import DiagnosticCodes from "../diagnostic/diagnosticCodes";
-import DiagnosticError from "../diagnostic/diagnosticError";
-import FunctionParametersList from "./lists/functionParametersList";
-import OperatorOrder from "./operatorOrder";
-import { SyntaxNode } from "./syntaxNodes";
-import Token from "../lexer/token";
-import TokenKind from "../lexer/tokenKind";
+import * as Diagnostic from '../diagnostic';
+import * as SyntaxNodes from './syntaxNodes';
 import ArrayElementsList from "./lists/arrayElementsList";
+import { CallArgumentsList } from './lists/callArgumentsList';
+import { FunctionParametersList } from './lists/functionParametersList';
+import { OperatorOrder } from './operatorOrder';
+import { SyntaxNode } from './syntaxNodes';
+import { Token } from '../lexer/token';
+import { TokenKind } from '../lexer/tokenKind';
 
-export default class Parser
+export class Parser
 {
-    private readonly diagnostic: Diagnostic;
+    private readonly diagnostic: Diagnostic.Diagnostic;
 
     private fileName: string;
     private tokens: Token[];
     private position: number;
 
-    constructor (diagnostic: Diagnostic)
+    constructor (diagnostic: Diagnostic.Diagnostic)
     {
         this.diagnostic = diagnostic;
 
@@ -115,9 +113,9 @@ export default class Parser
                 }
                 default:
                     this.diagnostic.throw(
-                        new DiagnosticError(
+                        new Diagnostic.Error(
                             `The token "${this.getCurrentToken().content}" is not allowed in the file scope.`,
-                            DiagnosticCodes.InvalidTokenInFileScopeError,
+                            Diagnostic.Codes.InvalidTokenInFileScopeError,
                             this.getCurrentToken()
                         )
                     );
@@ -176,9 +174,9 @@ export default class Parser
             }
             default:
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Unknown function modifier "${this.getCurrentToken().content}"`,
-                        DiagnosticCodes.UnknownFunctionModifierError,
+                        Diagnostic.Codes.UnknownFunctionModifierError,
                         this.getCurrentToken()
                     )
                 );
@@ -237,9 +235,9 @@ export default class Parser
         if (type === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Missing type clause in parameter definition`,
-                    DiagnosticCodes.MissingTypeClauseInParameterDefinitionError,
+                    Diagnostic.Codes.MissingTypeClauseInParameterDefinitionError,
                     identifier
                 )
             );
@@ -326,9 +324,9 @@ export default class Parser
         else if (this.getPreviousToken().kind != TokenKind.ClosingBraceToken) // No semicolon needed after a closing brace (often a section).
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     `Missing semicolon after statement`,
-                    DiagnosticCodes.MissingSemicolonAfterStatementError,
+                    Diagnostic.Codes.MissingSemicolonAfterStatementError,
                     this.getCurrentToken()
                 )
             );
@@ -370,9 +368,9 @@ export default class Parser
                 break;
             default:
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Unexpected token "${this.getFollowerToken().content}" after variable declaration identifier`,
-                        DiagnosticCodes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
+                        Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
                         this.getCurrentToken()
                     )
                 );
@@ -390,9 +388,9 @@ export default class Parser
         if (section === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     'Missing section in if statement.',
-                    DiagnosticCodes.MissingSectionInIfStatementError,
+                    Diagnostic.Codes.MissingSectionInIfStatementError,
                     keyword
                 )
             );
@@ -424,9 +422,9 @@ export default class Parser
             if (section === null)
             {
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         'Missing section in else clause.',
-                        DiagnosticCodes.MissingSectionInElseClauseError,
+                        Diagnostic.Codes.MissingSectionInElseClauseError,
                         keyword
                     )
                 );
@@ -447,9 +445,9 @@ export default class Parser
         if (section === null)
         {
             this.diagnostic.throw(
-                new DiagnosticError(
+                new Diagnostic.Error(
                     'Missing section in while statement.',
-                    DiagnosticCodes.MissingSectionInWhileStatementError,
+                    Diagnostic.Codes.MissingSectionInWhileStatementError,
                     keyword
                 )
             );
@@ -550,9 +548,9 @@ export default class Parser
                 return this.parseIdentifierExpression();
             default:
                 this.diagnostic.throw(
-                    new DiagnosticError(
+                    new Diagnostic.Error(
                         `Unknown expression "${this.getCurrentToken().content}"`,
-                        DiagnosticCodes.UnknownExpressionError,
+                        Diagnostic.Codes.UnknownExpressionError,
                         this.getCurrentToken()
                     )
                 );

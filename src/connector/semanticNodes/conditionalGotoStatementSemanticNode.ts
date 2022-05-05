@@ -1,9 +1,9 @@
-import ExpressionSemanticNode from "./expressionSemanticNode";
-import LabelSemanticSymbol from "../semanticSymbols/labelSemanticSymbol";
-import SemanticKind from "../semanticKind";
-import SemanticNode from "./semanticNode";
+import { ExpressionSemanticNode } from './expressionSemanticNode';
+import { LabelSemanticSymbol } from '../semanticSymbols/labelSemanticSymbol';
+import { SemanticKind } from '../semanticKind';
+import { SemanticNode } from './semanticNode';
 
-export default class ConditionalGotoStatementSemanticNode extends SemanticNode
+export class ConditionalGotoStatementSemanticNode extends SemanticNode
 {
     public readonly labelSymbol: LabelSemanticSymbol;
     public condition: ExpressionSemanticNode;

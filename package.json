@@ -2,7 +2,7 @@
     "name": "phosphor-compiler",
     "description": "A compiler for the Phosphor programming language.",
     "author": "Benedikt Magnus",
-    "version": "0.2.0-dev",
+    "version": "0.2.1-dev",
     "license": "MIT",
     "keywords": [
         "Phosphor",
@@ -29,19 +29,23 @@
     "devDependencies": {
         "@types/chai": "4.3.0",
         "@types/mocha": "9.1.0",
-        "@types/node": "16.11.25",
+        "@types/node": "16.11.26",
         "@types/sinon": "10.0.11",
-        "@typescript-eslint/eslint-plugin": "5.12.1",
-        "@typescript-eslint/parser": "5.12.1",
+        "@typescript-eslint/eslint-plugin": "5.14.0",
+        "@typescript-eslint/parser": "5.14.0",
         "chai": "4.3.6",
-        "eslint": "8.9.0",
-        "eslint-config-phosphor": "^1.0.0",
-        "mocha": "9.2.1",
+        "eslint": "8.11.0",
+        "eslint-config-phosphor": "^1.1.0",
+        "mocha": "9.2.2",
         "nyc": "15.1.0",
         "sinon": "13.0.1",
-        "ts-node": "10.5.0",
-        "typescript": "4.5.5"
+        "ts-node": "10.7.0",
+        "typescript": "4.6.2"
     },
+    "bundledDependencies": [
+        "chalk",
+        "commander"
+    ],
     "files": [
         "bin",
         "LICENSE",
@@ -49,15 +53,16 @@
     ],
     "main": "bin/main.js",
     "scripts": {
-        "build": "npx tsc",
+        "build": "tsc",
         "clean": "rm -rf bin && rm -rf tmp && rm -rf coverage",
-        "coverage": "npx nyc npm run test",
-        "coverage:coveralls": "npx nyc --reporter=lcov npm run test",
-        "coverage:text": "npx nyc --reporter=text npm run test",
-        "lint": "npx eslint \"src/**/*.ts\"",
-        "prepack": "npm run clean && npx tsc -p tsconfig.release.json",
+        "coverage": "nyc npm run test",
+        "coverage:coveralls": "nyc --reporter=lcov npm run test",
+        "coverage:text": "nyc --reporter=text npm run test",
+        "fullCheck": "npm run build && npm run lint && npm test",
+        "lint": "eslint \"src/**/*.ts\"",
+        "prepack": "npm run clean && tsc -p tsconfig.release.json",
         "start": "node bin/main.js",
-        "test": "npx mocha -r ts-node/register -r 'tests/hooks/hooks.ts' 'tests/**/*.ts'"
+        "test": "mocha -r ts-node/register -r 'tests/hooks/hooks.ts' 'tests/**/*.ts'"
     },
     "private": true
 }

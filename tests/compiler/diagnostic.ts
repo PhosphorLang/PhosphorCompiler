@@ -1,11 +1,8 @@
 import 'mocha';
+import * as Diagnostic from '../../src/diagnostic';
 import { assert } from 'chai';
 import chalk from 'chalk';
-import Diagnostic from '../../src/diagnostic/diagnostic';
-import DiagnosticError from '../../src/diagnostic/diagnosticError';
-import DiagnosticInfo from '../../src/diagnostic/diagnosticInfo';
-import DiagnosticWarning from '../../src/diagnostic/diagnosticWarning';
-import LineInformation from '../../src/definitions/lineInformation';
+import { LineInformation } from '../../src/definitions/lineInformation';
 
 describe('Diagnostic',
     function ()
@@ -33,9 +30,9 @@ describe('Diagnostic',
             {
                 const expected = `${testFileName}:${testLineNumber}:${testColumnNumber} - Error ${testCode}: ${testText}`;
 
-                const diagnostic = new Diagnostic();
+                const diagnostic = new Diagnostic.Diagnostic();
 
-                const error = new DiagnosticError(testText, testCode, testLineInformation);
+                const error = new Diagnostic.Error(testText, testCode, testLineInformation);
 
                 diagnostic.add(error);
 
@@ -49,9 +46,9 @@ describe('Diagnostic',
             {
                 const expected = `${testFileName}:${testLineNumber}:${testColumnNumber} - Warning ${testCode}: ${testText}`;
 
-                const diagnostic = new Diagnostic();
+                const diagnostic = new Diagnostic.Diagnostic();
 
-                const warning = new DiagnosticWarning(testText, testCode, testLineInformation);
+                const warning = new Diagnostic.Warning(testText, testCode, testLineInformation);
 
                 diagnostic.add(warning);
 
@@ -65,9 +62,9 @@ describe('Diagnostic',
             {
                 const expected = `${testFileName}:${testLineNumber}:${testColumnNumber} - Info ${testCode}: ${testText}`;
 
-                const diagnostic = new Diagnostic();
+                const diagnostic = new Diagnostic.Diagnostic();
 
-                const info = new DiagnosticInfo(testText, testCode, testLineInformation);
+                const info = new Diagnostic.Info(testText, testCode, testLineInformation);
 
                 diagnostic.add(info);
 
@@ -79,9 +76,9 @@ describe('Diagnostic',
         it('can throw an error.',
             function ()
             {
-                const diagnostic = new Diagnostic();
+                const diagnostic = new Diagnostic.Diagnostic();
 
-                const error = new DiagnosticError(testText, testCode, testLineInformation);
+                const error = new Diagnostic.Error(testText, testCode, testLineInformation);
 
                 assert.throws(
                     (): void => diagnostic.throw(error),
@@ -93,9 +90,9 @@ describe('Diagnostic',
         it('throws when ended with an error added.',
             function ()
             {
-                const diagnostic = new Diagnostic();
+                const diagnostic = new Diagnostic.Diagnostic();
 
-                const error = new DiagnosticError(testText, testCode, testLineInformation);
+                const error = new Diagnostic.Error(testText, testCode, testLineInformation);
 
                 diagnostic.add(error);
 
@@ -109,10 +106,10 @@ describe('Diagnostic',
         it('dows not throw when ended without an error added.',
             function ()
             {
-                const diagnostic = new Diagnostic();
+                const diagnostic = new Diagnostic.Diagnostic();
 
-                const warning = new DiagnosticWarning(testText, testCode, testLineInformation);
-                const info = new DiagnosticInfo(testText, testCode, testLineInformation);
+                const warning = new Diagnostic.Warning(testText, testCode, testLineInformation);
+                const info = new Diagnostic.Info(testText, testCode, testLineInformation);
 
                 diagnostic.add(warning);
                 diagnostic.add(info);

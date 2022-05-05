@@ -1,7 +1,7 @@
-import ExpressionSyntaxNode from "../syntaxNodes/expressionSyntaxNode";
-import Token from "../../lexer/token";
+import { ExpressionSyntaxNode } from '../syntaxNodes/expressionSyntaxNode';
+import { Token } from '../../lexer/token';
 
-export default class CallArgumentsList
+export class CallArgumentsList
 {
     public readonly expressions: ExpressionSyntaxNode[];
     public readonly separators: Token[];

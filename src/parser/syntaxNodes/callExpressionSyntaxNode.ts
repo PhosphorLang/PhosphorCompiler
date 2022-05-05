@@ -1,10 +1,10 @@
-import CallArgumentsList from "../lists/callArgumentsList";
-import ExpressionSyntaxNode from "./expressionSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import { CallArgumentsList } from '../lists/callArgumentsList';
+import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
 
-export default class CallExpressionSyntaxNode extends ExpressionSyntaxNode
+export class CallExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly identifier: Token;
     public readonly opening: Token;

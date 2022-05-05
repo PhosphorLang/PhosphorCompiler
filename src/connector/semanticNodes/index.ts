@@ -1,21 +1,23 @@
-export { default as SemanticNode } from "./semanticNode";
+export { SemanticNode } from './semanticNode';
 
-export { default as Assignment } from"./assignmentSemanticNode";
-export { default as BinaryExpression } from "./binaryExpressionSemanticNode";
-export { default as CallExpression } from "./callExpressionSemanticNode";
-export { default as ConditionalGotoStatement } from "./conditionalGotoStatementSemanticNode";
-export { default as ElseClause } from "./elseClauseSemanticNode";
-export { default as Expression } from "./expressionSemanticNode";
-export { default as File } from "./fileSemanticNode";
-export { default as FunctionDeclaration } from "./functionDeclarationSemanticNode";
-export { default as GotoStatement } from "./gotoStatementSemanticNode";
-export { default as IfStatement } from "./ifStatementSemanticNode";
-export { default as Import } from "./importSemanticNode";
-export { default as Label } from "./labelSemanticNode";
-export { default as LiteralExpression } from "./literalExpressionSemanticNode";
-export { default as ReturnStatement } from "./returnStatementSemanticNode";
-export { default as Section } from "./sectionSemanticNode";
-export { default as UnaryExpression } from "./unaryExpressionSemanticNode";
-export { default as VariableDeclaration } from "./variableDeclarationSemanticNode";
-export { default as VariableExpression } from "./variableExpressionSemanticNode";
-export { default as WhileStatement } from "./whileStatementSemanticNode";
+export { AssignmentSemanticNode as Assignment } from"./assignmentSemanticNode";
+export { BinaryExpressionSemanticNode as BinaryExpression } from './binaryExpressionSemanticNode';
+export { CallExpressionSemanticNode as CallExpression } from './callExpressionSemanticNode';
+export { ConditionalGotoStatementSemanticNode as ConditionalGotoStatement } from './conditionalGotoStatementSemanticNode';
+export { ElseClauseSemanticNode as ElseClause } from './elseClauseSemanticNode';
+export { ExpressionSemanticNode as Expression } from './expressionSemanticNode';
+export { FileSemanticNode as File } from './fileSemanticNode';
+export { FunctionDeclarationSemanticNode as FunctionDeclaration } from './functionDeclarationSemanticNode';
+export { GotoStatementSemanticNode as GotoStatement } from './gotoStatementSemanticNode';
+export { IfStatementSemanticNode as IfStatement } from './ifStatementSemanticNode';
+export { ImportSemanticNode as Import } from './importSemanticNode';
+export { LabelSemanticNode as Label } from './labelSemanticNode';
+export { LiteralExpressionSemanticNode as LiteralExpression } from './literalExpressionSemanticNode';
+export { ReturnStatementSemanticNode as ReturnStatement } from './returnStatementSemanticNode';
+export { SectionSemanticNode as Section } from './sectionSemanticNode';
+export { UnaryExpressionSemanticNode as UnaryExpression } from './unaryExpressionSemanticNode';
+export { VariableDeclarationSemanticNode as VariableDeclaration } from './variableDeclarationSemanticNode';
+export { VariableExpressionSemanticNode as VariableExpression } from './variableExpressionSemanticNode';
+export { WhileStatementSemanticNode as WhileStatement } from './whileStatementSemanticNode';
+
+// TODO: The semantic nodes should, like the intermediates, have type unions to seperate them instead of the ineffective base clases.

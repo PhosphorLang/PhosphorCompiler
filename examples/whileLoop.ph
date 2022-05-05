@@ -16,6 +16,4 @@ function main ()
             continueLoop := false;
         }
     }
-
-    return;
 }

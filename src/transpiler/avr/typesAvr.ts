@@ -1,7 +1,7 @@
-import BuildInTypes from "../../definitions/buildInTypes";
-import TypeSemanticSymbol from "../../connector/semanticSymbols/typeSemanticSymbol";
+import { BuildInTypes } from '../../definitions/buildInTypes';
+import { TypeSemanticSymbol } from '../../connector/semanticSymbols/typeSemanticSymbol';
 
-export default abstract class TypesAvr
+export abstract class TypesAvr
 {
     public static getTypeSizeInBytes (type: TypeSemanticSymbol): number|null
     {

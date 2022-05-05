@@ -1,483 +1,384 @@
-import * as SemanticNodes from "../../../connector/semanticNodes";
-import * as SemanticSymbols from "../../../connector/semanticSymbols";
-import BuildInOperators from "../../../definitions/buildInOperators";
-import BuildInTypes from "../../../definitions/buildInTypes";
-import LocationedVariableAmd64 from "../locationedVariableAmd64";
-import LocationManagerAmd64Linux from "./locationManagerAmd64Linux";
-import RegistersAmd64Linux from "./registersAmd64Linux";
-import SemanticKind from "../../../connector/semanticKind";
-import Transpiler from "../../transpiler";
+import * as Instructions from '../../common/instructions';
+import * as Intermediates from '../../../lowerer/intermediates';
+import { DirectiveInstruction } from './directiveInstruction';
+import { IntermediateKind } from '../../../lowerer/intermediateKind';
+import { IntermediateSymbolKind } from '../../../lowerer/intermediateSymbolKind';
+import { LocationManagerAmd64LinuxNone } from './locationManagerAmd64Linux';
+import { TextEncoder } from 'node:util';
+import { Transpiler } from '../../transpiler';
 
-export default class TranspilerAmd64Linux extends LocationManagerAmd64Linux implements Transpiler
+export class TranspilerAmd64Linux implements Transpiler
 {
-    protected code: string[];
-    private constantCode: string[];
+    private instructions: Instructions.Instruction[];
 
-    private localLabelCounter: number;
-
-    private get nextLocalLabel (): string
-    {
-        const newLocalLabel = `.l#${this.localLabelCounter}`;
-
-        this.localLabelCounter++;
-
-        return newLocalLabel;
-    }
-
-    /**
-     * A counter for generating unqiue constant IDs.
-     */
-    private constantCounter: number;
-
-    private importedFunctions: Set<SemanticSymbols.Function>;
+    private locationManager: LocationManagerAmd64LinuxNone;
 
     constructor ()
     {
-        super();
+        this.instructions = [];
 
-        this.code = [];
-        this.constantCode = [];
-        this.constantCounter = 0;
-        this.localLabelCounter = 0;
-        this.importedFunctions = new Set<SemanticSymbols.Function>();
+        this.locationManager = new LocationManagerAmd64LinuxNone(this.instructions);
     }
 
-    public run (semanticTree: SemanticNodes.File): string
+    public run (fileIntermediate: Intermediates.File): string
     {
-        this.code = [];
-        this.constantCode = [];
-        this.constantCounter = 0;
-        this.localLabelCounter = 0;
-        this.importedFunctions.clear();
+        this.transpileFile(fileIntermediate);
 
-        const assembly: string[] = [];
-
-        this.transpileFile(semanticTree);
-
-        assembly.push('[section .rodata]');
-
-        assembly.push(...this.constantCode);
-
-        assembly.push('[section .text]');
-
-        // All imported functions must be marked as extern to be found by the Assembler:
-        for (const importedFunction of this.importedFunctions)
-        {
-            assembly.push(`[extern ${importedFunction.name}]`);
-        }
-
-        assembly.push(
-            '[extern exit]',
+        this.instructions.push(
+            new DirectiveInstruction('extern', 'exit'),
             // The start routine calls main and then exits properly:
-            '[global _start]',
-            '_start:',
-            'call main',
-            'call exit',
+            new DirectiveInstruction('global', '_start'),
+            new Instructions.Label('_start'),
+            new Instructions.Instruction('call', 'main'),
+            new Instructions.Instruction('call', 'exit'),
         );
 
-        assembly.push(...this.code);
+        const fileAssembly = this.convertInstructionsToAssembly(this.instructions);
 
-        const result = assembly.join("\n") + "\n";
+        this.instructions = [];
 
-        return result;
+        return fileAssembly;
     }
 
-    private transpileFile (fileNode: SemanticNodes.File): void
+    private convertInstructionsToAssembly (instructions: Instructions.Instruction[]): string
     {
-        for (const importNode of fileNode.imports)
+        /** Render options for simple NASM Assembly statements */
+        const statementRenderOptions: Instructions.RenderOptions = {
+            commandOperandSplitter: ' ',
+            operandSplitter: ', ',
+            prefix: '',
+            postfix: '',
+        };
+
+        let assembly = '';
+
+        for (const instruction of instructions)
         {
-            this.transpileFile(importNode.file);
+            assembly += instruction.render(statementRenderOptions) + '\n';
         }
 
-        for (const functionNode of fileNode.functions)
+        return assembly;
+    }
+
+    private transpileFile (fileIntermediate: Intermediates.File): void
+    {
+        this.instructions.push(
+            new DirectiveInstruction('section', '.rodata'),
+        );
+
+        for (const constantIntermediate of fileIntermediate.constants)
         {
-            this.transpileFunction(functionNode);
+            this.transpileConstant(constantIntermediate);
+        }
+
+        this.instructions.push(
+            new DirectiveInstruction('section', '.text'),
+        );
+
+        for (const externalIntermediate of fileIntermediate.externals)
+        {
+            this.transpileExternal(externalIntermediate);
+        }
+
+        for (const functionIntermediate of fileIntermediate.functions)
+        {
+            this.transpileFunction(functionIntermediate);
         }
     }
 
-    private transpileFunction (functionNode: SemanticNodes.FunctionDeclaration): void
+    private transpileConstant (constantIntermediate: Intermediates.Constant): void
     {
-        if (functionNode.symbol.isExternal)
+        // TODO: For now, constants are strings. This might change in the future.
+
+        const constantValue = constantIntermediate.symbol.value;
+
+        // We need an encoded string to get the real byte count:
+        const encoder = new TextEncoder();
+        const encodedString = encoder.encode(constantValue);
+
+        const constantId = constantIntermediate.symbol.name;
+        const constantLength = encodedString.length;
+
+        // The string is a byte array prefixed with it's (platform dependent) length:
+        this.instructions.push(
+            new Instructions.Label(constantId),
+            new Instructions.Instruction('dq', `${constantLength}`),
+            new Instructions.Instruction('db', `'${constantValue}'`),
+        );
+    }
+
+    private transpileExternal (externalIntermediate: Intermediates.External): void
+    {
+        this.instructions.push(
+            new DirectiveInstruction('extern', `${externalIntermediate.symbol.name}`),
+        );
+    }
+
+    private transpileFunction (functionIntermediate: Intermediates.Function): void
+    {
+        this.instructions.push(
+            new Instructions.Label(functionIntermediate.symbol.name),
+        );
+
+        this.locationManager.enterFunction();
+
+        for (const instruction of functionIntermediate.body)
         {
-            return;
+            this.transpileStatement(instruction);
         }
+    }
 
-        this.code.push(functionNode.symbol.name + ':'); // Function name
-
-        // Save base pointer:
-        this.code.push(`push ${RegistersAmd64Linux.stackBasePointer.bit64}`);
-        // Set base pointer to current stack pointer:
-        this.code.push(`mov ${RegistersAmd64Linux.stackBasePointer.bit64}, ${RegistersAmd64Linux.stackPointer.bit64}`);
-
-        this.addNewVariableStack(true);
-
-        let parameterCounter = 0;
-        for (const parameter of functionNode.symbol.parameters)
+    private transpileStatement (statementIntermediate: Intermediates.Statement): void
+    {
+        switch (statementIntermediate.kind)
         {
-            if (parameterCounter >= RegistersAmd64Linux.integerArguments.length)
+            case IntermediateKind.Add:
+                this.transpileAdd(statementIntermediate);
+                break;
+            case IntermediateKind.Call:
+                this.transpileCall(statementIntermediate);
+                break;
+            case IntermediateKind.Compare:
+                this.transpileCompare(statementIntermediate);
+                break;
+            case IntermediateKind.Dismiss:
+                this.transpileDismiss(statementIntermediate);
+                break;
+            case IntermediateKind.Give:
+                this.transpileGive(statementIntermediate);
+                break;
+            case IntermediateKind.Goto:
+                this.transpileGoto(statementIntermediate);
+                break;
+            case IntermediateKind.Introduce:
+                this.transpileIntroduce(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfEqual:
+                this.transpileJumpIfEqual(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfGreater:
+                this.transpileJumpIfGreater(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfLess:
+                this.transpileJumpIfLess(statementIntermediate);
+                break;
+            case IntermediateKind.Label:
+                this.transpileLabel(statementIntermediate);
+                break;
+            case IntermediateKind.Move:
+                this.transpileMove(statementIntermediate);
+                break;
+            case IntermediateKind.Negate:
+                this.transpileNegate(statementIntermediate);
+                break;
+            case IntermediateKind.Return:
+                this.transpileReturn();
+                break;
+            case IntermediateKind.Subtract:
+                this.transpileSubtract(statementIntermediate);
+                break;
+            case IntermediateKind.Take:
+                this.transpileTake(statementIntermediate);
+                break;
+        }
+    }
+
+    private transpileAdd (addIntermediate: Intermediates.Add): void
+    {
+        this.locationManager.pinVariableToRegister(addIntermediate.leftOperand);
+
+        const leftOperandLocation = this.locationManager.getLocation(addIntermediate.leftOperand);
+        const rightOperandLocation = this.locationManager.getLocation(addIntermediate.rightOperand);
+
+        this.instructions.push(
+            new Instructions.Instruction('add', leftOperandLocation, rightOperandLocation),
+        );
+
+        this.locationManager.unpinVariableFromRegister(addIntermediate.leftOperand);
+    }
+
+    private transpileCall (callIntermediate: Intermediates.Call): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction('call', callIntermediate.functionSymbol.name),
+        );
+    }
+
+    private transpileCompare (compareIntermediate: Intermediates.Compare): void
+    {
+        this.locationManager.pinVariableToRegister(compareIntermediate.leftOperand);
+
+        const leftOperandLocation = this.locationManager.getLocation(compareIntermediate.leftOperand);
+        const rightOperandLocation = this.locationManager.getLocation(compareIntermediate.rightOperand);
+
+        this.instructions.push(
+            new Instructions.Instruction('cmp', leftOperandLocation, rightOperandLocation),
+        );
+
+        this.locationManager.unpinVariableFromRegister(compareIntermediate.leftOperand, false);
+    }
+
+    private transpileDismiss (dismissIntermediate: Intermediates.Dismiss): void
+    {
+        this.locationManager.dismiss(dismissIntermediate.variableSymbol);
+    }
+
+    private transpileGive (giveIntermediate: Intermediates.Give): void
+    {
+        switch (giveIntermediate.targetSymbol.kind)
+        {
+            case IntermediateSymbolKind.Parameter:
             {
-                throw new Error('Transpiler error: Stack parameters are not supported.');
+                const parameterLocation = this.locationManager.getParameterLocation(giveIntermediate.targetSymbol);
+                const variableLocation = this.locationManager.getLocation(giveIntermediate.variable);
+
+                this.instructions.push(
+                    new Instructions.Instruction('mov', parameterLocation, variableLocation),
+                );
+
+                break;
             }
+            case IntermediateSymbolKind.ReturnValue:
+            {
+                const returnLocation = this.locationManager.getReturnValueLocation(giveIntermediate.targetSymbol);
+                const variableLocation = this.locationManager.getLocation(giveIntermediate.variable);
 
-            const register = RegistersAmd64Linux.integerArguments[parameterCounter];
-            parameterCounter++;
+                this.instructions.push(
+                    new Instructions.Instruction('mov', returnLocation, variableLocation),
+                );
 
-            this.pushVariable(parameter, register);
-        }
-
-        if (functionNode.section === null)
-        {
-            throw new Error('Transpiler error: The section of a non-external function is null.');
-        }
-
-        this.transpileSection(functionNode.section);
-
-        this.removeLastVariableStack(true);
-    }
-
-    private transpileSection (sectionNode: SemanticNodes.Section): void
-    {
-        this.addNewVariableStack();
-
-        for (const statement of sectionNode.statements)
-        {
-            this.transpileStatement(statement);
-        }
-
-        this.removeLastVariableStack();
-    }
-
-    private transpileStatement (statementNode: SemanticNodes.SemanticNode): void
-    {
-        switch (statementNode.kind)
-        {
-            case SemanticKind.Section:
-                this.transpileSection(statementNode as SemanticNodes.Section);
                 break;
-            case SemanticKind.VariableDeclaration:
-                this.transpileVariableDeclaration(statementNode as SemanticNodes.VariableDeclaration);
-                break;
-            case SemanticKind.ReturnStatement:
-                this.transpileReturnStatement(statementNode as SemanticNodes.ReturnStatement);
-                break;
-            case SemanticKind.Assignment:
-                this.transpileAssignment(statementNode as SemanticNodes.Assignment);
-                break;
-            case SemanticKind.Label:
-                this.transpileLabel(statementNode as SemanticNodes.Label);
-                break;
-            case SemanticKind.GotoStatement:
-                this.transpileGotoStatement(statementNode as SemanticNodes.GotoStatement);
-                break;
-            case SemanticKind.ConditionalGotoStatement:
-                this.transpileConditionalGotoStatement(statementNode as SemanticNodes.ConditionalGotoStatement);
-                break;
-            default:
-                this.transpileExpression(statementNode as SemanticNodes.Expression);
+            }
         }
     }
 
-    private transpileVariableDeclaration (variableDeclarationNode: SemanticNodes.VariableDeclaration): void
+    private transpileGoto (gotoIntermediate: Intermediates.Goto): void
     {
-        const variableLocation = this.pushVariable(variableDeclarationNode.symbol);
-
-        if (variableDeclarationNode.initialiser !== null)
-        {
-            this.transpileExpression(variableDeclarationNode.initialiser, variableLocation);
-        }
-    }
-
-    private transpileReturnStatement (returnStatementNode: SemanticNodes.ReturnStatement): void
-    {
-        if (returnStatementNode.expression !== null)
-        {
-            const temporaryVariable = new SemanticSymbols.Variable('return', returnStatementNode.expression.type, false);
-            const temporaryLocationedVariable = new LocationedVariableAmd64(temporaryVariable, RegistersAmd64Linux.integerReturn);
-
-            // TODO: Replace hard coded return register with actual type and size:
-            this.transpileExpression(returnStatementNode.expression, temporaryLocationedVariable);
-        }
-
-        this.code.push(
-            'leave',
-            'ret',
+        this.instructions.push(
+            new Instructions.Instruction('jmp', gotoIntermediate.target.name),
         );
     }
 
-    private transpileAssignment (assignmentNode: SemanticNodes.Assignment): void
+    private transpileIntroduce (introduceIntermediate: Intermediates.Introduce): void
     {
-        const variableLocation = this.getVariableLocation(assignmentNode.variable);
-
-        this.transpileExpression(assignmentNode.expression, variableLocation);
+        this.locationManager.introduce(introduceIntermediate.variableSymbol);
     }
 
-    private transpileLabel (labelNode: SemanticNodes.Label): void
+    private transpileJumpIfEqual (jumpIfEqualIntermediate: Intermediates.JumpIfEqual): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction('je', jumpIfEqualIntermediate.target.name),
+        );
+    }
+
+    private transpileJumpIfGreater (jumpIfGreaterIntermediate: Intermediates.JumpIfGreater): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction('jg', jumpIfGreaterIntermediate.target.name),
+        );
+    }
+
+    private transpileJumpIfLess (jumpIfLessIntermediate: Intermediates.JumpIfLess): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction('jl', jumpIfLessIntermediate.target.name),
+        );
+    }
+
+    private transpileLabel (labelIntermediate: Intermediates.Label): void
     {
         // TODO: Should we make the labels "local labels" starting with a point?
-        this.code.push(`${labelNode.symbol.name}:`);
+        this.instructions.push(
+            new Instructions.Label(labelIntermediate.symbol.name),
+        );
     }
 
-    private transpileGotoStatement (gotoStatementNode: SemanticNodes.GotoStatement): void
+    private transpileMove (moveIntermediate: Intermediates.Move): void
     {
-        this.code.push(`jmp ${gotoStatementNode.labelSymbol.name}`);
-    }
+        this.locationManager.pinVariableToRegister(moveIntermediate.to);
 
-    private transpileConditionalGotoStatement (conditionalGotoStatement: SemanticNodes.ConditionalGotoStatement): void
-    {
-        const conditionResultTemporaryVariable = new SemanticSymbols.Variable('', conditionalGotoStatement.condition.type, false);
+        let fromLocation: string;
 
-        const conditionResultLocation = this.pushVariable(conditionResultTemporaryVariable);
+        switch (moveIntermediate.from.kind)
+        {
+            case IntermediateSymbolKind.Constant:
+                fromLocation = moveIntermediate.from.name;
+                break;
+            case IntermediateSymbolKind.Literal:
+                fromLocation = moveIntermediate.from.value;
+                break;
+            case IntermediateSymbolKind.Variable:
+                fromLocation = this.locationManager.getLocation(moveIntermediate.from);
+                break;
+        }
 
-        // Transpile the condition with the condition result location as target location:
-        this.transpileExpression(conditionalGotoStatement.condition, conditionResultLocation);
+        const toLocation = this.locationManager.getLocation(moveIntermediate.to);
 
-        // Go sure the variable is on the register because we need a register for comparisons:
-        this.moveVariableToRegister(conditionResultLocation);
-
-        const compareValue = conditionalGotoStatement.conditionResult ? '1' : '0';
-
-        this.code.push(
-            `cmp ${conditionResultLocation.locationString}, ${compareValue}`,
-            `je ${conditionalGotoStatement.labelSymbol.name}`,
+        this.instructions.push(
+            new Instructions.Instruction('mov', toLocation, fromLocation),
         );
 
-        this.freeVariable(conditionResultTemporaryVariable);
+        this.locationManager.unpinVariableFromRegister(moveIntermediate.to);
     }
 
-    private transpileExpression (expressionNode: SemanticNodes.Expression, targetLocation?: LocationedVariableAmd64): void
+    private transpileNegate (negateIntermediate: Intermediates.Negate): void
     {
-        if (targetLocation === undefined)
-        {
-            switch (expressionNode.kind)
-            {
-                // TODO: Move this to the statement transpilation.
+        const operandLocation = this.locationManager.getLocation(negateIntermediate.operand);
 
-                case SemanticKind.CallExpression:
-                    this.transpileCallExpression(expressionNode as SemanticNodes.CallExpression);
-                    break;
-                default:
-                    throw new Error(`Transpile error: The expression of kind "${expressionNode.kind}" cannot be used as a statement.`);
-            }
-        }
-        else
-        {
-            switch (expressionNode.kind)
-            {
-                case SemanticKind.LiteralExpression:
-                    this.transpileLiteralExpression(expressionNode as SemanticNodes.LiteralExpression, targetLocation);
-                    break;
-                case SemanticKind.VariableExpression:
-                    this.transpileVariableExpression(expressionNode as SemanticNodes.VariableExpression, targetLocation);
-                    break;
-                case SemanticKind.CallExpression:
-                    this.transpileCallExpression(expressionNode as SemanticNodes.CallExpression, targetLocation);
-                    break;
-                case SemanticKind.UnaryExpression:
-                    this.transpileUnaryExpression(expressionNode as SemanticNodes.UnaryExpression, targetLocation);
-                    break;
-                case SemanticKind.BinaryExpression:
-                    this.transpileBinaryExpression(expressionNode as SemanticNodes.BinaryExpression, targetLocation);
-                    break;
-                default:
-                    throw new Error(`Transpiler error: No implementation for expression of kind "${expressionNode.kind}"`);
-            }
-        }
+        this.instructions.push(
+            new Instructions.Instruction('neg', operandLocation),
+        );
     }
 
-    private transpileLiteralExpression (literalExpression: SemanticNodes.LiteralExpression, targetLocation: LocationedVariableAmd64): void
+    private transpileReturn (): void
     {
-        switch (literalExpression.type)
+        this.locationManager.leaveFunction();
+
+        this.instructions.push(
+            new Instructions.Instruction('ret'),
+        );
+    }
+
+    private transpileSubtract (subtractIntermediate: Intermediates.Subtract): void
+    {
+        this.locationManager.pinVariableToRegister(subtractIntermediate.leftOperand);
+
+        const leftOperandLocation = this.locationManager.getLocation(subtractIntermediate.leftOperand);
+        const rightOperandLocation = this.locationManager.getLocation(subtractIntermediate.rightOperand);
+
+        this.instructions.push(
+            new Instructions.Instruction('sub', leftOperandLocation, rightOperandLocation),
+        );
+
+        this.locationManager.unpinVariableFromRegister(subtractIntermediate.leftOperand);
+    }
+
+    private transpileTake (takeIntermediate: Intermediates.Take): void
+    {
+        switch (takeIntermediate.takableValue.kind)
         {
-            case BuildInTypes.int:
-                this.code.push(`mov ${targetLocation.locationString}, ${literalExpression.value}`);
-                break;
-            case BuildInTypes.bool:
+            case IntermediateSymbolKind.Parameter:
             {
-                let value: string;
+                const parameterLocation = this.locationManager.getParameterLocation(takeIntermediate.takableValue);
+                const variableLocation = this.locationManager.getLocation(takeIntermediate.variableSymbol);
 
-                if (literalExpression.value === 'true')
-                {
-                    value = '1';
-                }
-                else if (literalExpression.value === 'false')
-                {
-                    value = '0';
-                }
-                else
-                {
-                    throw new Error(`Transpiler error: Unknown Bool value of "${literalExpression.value}"`);
-                }
-
-                this.code.push(`mov ${targetLocation.locationString}, ${value}`);
-
-                break;
-            }
-            case BuildInTypes.string:
-            {
-                // We need an encoded string to get the real byte count:
-                const encoder = new TextEncoder();
-                const encodedString = encoder.encode(literalExpression.value);
-
-                const constantLength = encodedString.length;
-
-                const constantId = `c#${this.constantCounter}`;
-                this.constantCounter++;
-
-                // The string is a byte array prefixed with it's (platform dependent) length:
-                this.constantCode.push(
-                    `${constantId}:`,
-                    `dq ${constantLength}`,
-                    `db '${literalExpression.value}'`,
-                );
-
-                this.code.push(
-                    `mov ${targetLocation.locationString}, ${constantId}`,
+                this.instructions.push(
+                    new Instructions.Instruction('mov', variableLocation, parameterLocation),
                 );
 
                 break;
             }
-            default:
-                throw new Error(`Transpiler error: Unknown literal of type "${literalExpression.type.name}".`);
-        }
-    }
-
-    private transpileVariableExpression (variableExpression: SemanticNodes.VariableExpression, targetLocation: LocationedVariableAmd64): void
-    {
-        const variableLocation = this.getVariableLocation(variableExpression.variable);
-
-        if (targetLocation.location !== variableLocation.location)
-        {
-            this.code.push(`mov ${targetLocation.locationString}, ${variableLocation.locationString}`);
-        }
-    }
-
-    private transpileCallExpression (callExpression: SemanticNodes.CallExpression, targetLocation?: LocationedVariableAmd64): void
-    {
-        this.saveRegistersForFunctionCall(targetLocation);
-
-        let argumentCounter = 0;
-        for (const argument of callExpression.arguments)
-        {
-            if (argumentCounter >= RegistersAmd64Linux.integerArguments.length)
+            case IntermediateSymbolKind.ReturnValue:
             {
-                throw new Error('Transpiler error: Stack arguments are not supported.');
-            }
+                const returnLocation = this.locationManager.getReturnValueLocation(takeIntermediate.takableValue);
+                const variableLocation = this.locationManager.getLocation(takeIntermediate.variableSymbol);
 
-            const register = RegistersAmd64Linux.integerArguments[argumentCounter];
-
-            // The arguments will be treated as temporary variables:
-            const locationedArgument = this.pushVariable(callExpression.functionSymbol.parameters[argumentCounter], register, true);
-
-            // The argument is an expression that must be placed into the register for this parameter:
-            this.transpileExpression(argument, locationedArgument);
-
-            argumentCounter++;
-        }
-
-        this.code.push(`call ${callExpression.functionSymbol.name}`);
-
-        // We must free the temporary variables again after the function call:
-        for (const parameter of callExpression.functionSymbol.parameters)
-        {
-            this.freeVariable(parameter);
-        }
-
-        this.restoreRegistersAfterFunctionCall();
-
-        if ((targetLocation !== undefined) && (targetLocation.location !== RegistersAmd64Linux.integerReturn))
-        {
-            // TODO: Replace hard coded return register with actual type and size:
-            this.code.push(`mov ${targetLocation.locationString}, ${RegistersAmd64Linux.integerReturn.bit64}`);
-        }
-
-        if (callExpression.functionSymbol.isExternal)
-        {
-            this.importedFunctions.add(callExpression.functionSymbol);
-        }
-    }
-
-    private transpileUnaryExpression (unaryExpression: SemanticNodes.UnaryExpression, targetLocation: LocationedVariableAmd64): void
-    {
-        this.transpileExpression(unaryExpression.operand, targetLocation);
-
-        const operator = unaryExpression.operator;
-
-        switch (operator)
-        {
-            case BuildInOperators.unaryIntAddition:
-                // An unary addition has no effect.
-                break;
-            case BuildInOperators.unaryIntSubtraction:
-                this.moveVariableToRegister(targetLocation);
-                this.code.push(`neg ${targetLocation.locationString}`);
-                break;
-            default:
-                throw new Error(
-                    `Transpiler error: The operator "${operator.kind}" for operand of "${operator.operandType.name}" and ` +
-                    `result of "${operator.resultType.name}" is not implemented.`
-                );
-        }
-    }
-
-    private transpileBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression, targetLocation: LocationedVariableAmd64): void
-    {
-        const operator = binaryExpression.operator;
-
-        // Temporary variable for the right operand:
-        const temporaryVariable = new SemanticSymbols.Variable('', binaryExpression.rightOperand.type, false);
-        const temporaryVariableLocation = this.pushVariable(temporaryVariable);
-
-        this.transpileExpression(binaryExpression.leftOperand, targetLocation);
-        this.transpileExpression(binaryExpression.rightOperand, temporaryVariableLocation);
-
-        this.moveVariableToRegister(targetLocation);
-
-        switch (operator)
-        {
-            case BuildInOperators.binaryIntAddition:
-                this.code.push(`add ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`);
-                break;
-            case BuildInOperators.binaryIntSubtraction:
-                this.code.push(`sub ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`);
-                break;
-            case BuildInOperators.binaryIntEqual:
-            case BuildInOperators.binaryIntLess:
-            case BuildInOperators.binaryIntGreater:
-            {
-                let operatorInstruction = 'je'; // BuildInOperators.binaryIntEqual
-
-                switch (operator)
-                {
-                    case BuildInOperators.binaryIntLess:
-                        operatorInstruction = 'jl';
-                        break;
-                    case BuildInOperators.binaryIntGreater:
-                        operatorInstruction = 'jg';
-                        break;
-                }
-
-                const trueLabel = this.nextLocalLabel;
-                const endLabel = this.nextLocalLabel;
-
-                this.code.push(
-                    `cmp ${targetLocation.locationString}, ${temporaryVariableLocation.locationString}`,
-                    `${operatorInstruction} ${trueLabel}`,
-                    `mov ${targetLocation.locationString}, 0`,
-                    `jmp ${endLabel}`,
-                    `${trueLabel}:`,
-                    `mov ${targetLocation.locationString}, 1`,
-                    `${endLabel}:`,
+                this.instructions.push(
+                    new Instructions.Instruction('mov', variableLocation, returnLocation),
                 );
 
                 break;
             }
-            default:
-                throw new Error(
-                    `Transpiler error: The operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
-                    `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
-                );
         }
-
-        this.freeVariable(temporaryVariable);
     }
 }

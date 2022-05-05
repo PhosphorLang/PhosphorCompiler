@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'version/**'
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Pack
+        run: npm pack
+
+      - name: Get release name
+        id: vars
+        run: echo "RELEASE_NAME=Version ${GITHUB_REF#refs/tags/version/}" >> $GITHUB_ENV
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '*.tgz'
+          name: ${{ env.RELEASE_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

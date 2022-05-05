@@ -1,26 +1,26 @@
 #!/usr/bin/env node
 
-import ProcessArguments, { ProcessArgumentsError } from './processArguments';
-import Assembler from './assembler/assembler';
-import AssemblerAmd64Linux from './assembler/amd64/linux/assemblerAmd64Linux';
-import AssemblerAvr from './assembler/avr/assemblerAvr';
-import Connector from './connector/connector';
-import Diagnostic from './diagnostic/diagnostic';
-import DiagnosticException from './diagnostic/diagnosticException';
+import * as Diagnostic from './diagnostic';
+import { ProcessArguments,ProcessArgumentsError } from './processArguments';
+import { Assembler } from './assembler/assembler';
+import { AssemblerAmd64Linux } from './assembler/amd64/linux/assemblerAmd64Linux';
+import { AssemblerAvr } from './assembler/avr/assemblerAvr';
+import { Connector } from './connector/connector';
 import FileSystem from 'fs';
-import Importer from './importer/importer';
-import Lexer from './lexer/lexer';
-import Linker from './linker/linker';
-import LinkerAmd64Linux from './linker/amd64/linux/linkerAmd64Linux';
-import LinkerAvr from './linker/avr/linkerAvr';
-import Lowerer from './lowerer/lowerer';
+import { Importer } from './importer/importer';
+import { Lexer } from './lexer/lexer';
+import { Linker } from './linker/linker';
+import { LinkerAmd64Linux } from './linker/amd64/linux/linkerAmd64Linux';
+import { LinkerAvr } from './linker/avr/linkerAvr';
+import { Lowerer } from './lowerer/lowerer';
 import os from 'os';
-import Parser from './parser/parser';
-import Path from "path";
-import TargetPlatform from './options/targetPlatform';
-import Transpiler from './transpiler/transpiler';
-import TranspilerAmd64Linux from './transpiler/amd64/linux/transpilerAmd64Linux';
-import TranspilerAvr from './transpiler/avr/transpilerAvr';
+import { Parser } from './parser/parser';
+import Path from 'path';
+import { TargetPlatform } from './options/targetPlatform';
+import { Transpiler } from './transpiler/transpiler';
+import { TranspilerAmd64Linux } from './transpiler/amd64/linux/transpilerAmd64Linux';
+import { TranspilerAvr } from './transpiler/avr/transpilerAvr';
+import { TranspilerIntermediate } from './transpiler/intermediate/transpilerIntermediate';
 
 class Main
 {
@@ -44,14 +44,14 @@ class Main
     {
         const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, this.arguments.targetPlatform);
 
-        const diagnostic = new Diagnostic();
+        const diagnostic = new Diagnostic.Diagnostic();
 
         const lexer = new Lexer(diagnostic);
         const parser = new Parser(diagnostic);
         const importer = new Importer(diagnostic, lexer, parser, standardLibraryTargetPath);
         const connector = new Connector(diagnostic);
         const lowerer = new Lowerer();
-        let transpiler: Transpiler;
+        let transpiler: Transpiler|TranspilerAvr;
         let assembler: Assembler;
         let linker: Linker;
 
@@ -63,10 +63,23 @@ class Main
                 linker = new LinkerAmd64Linux();
                 break;
             case TargetPlatform.Avr:
+                diagnostic.add(
+                    new Diagnostic.Warning(
+                        'The AVR target platform is highly experimental and will probably not work.',
+                        Diagnostic.Codes.ExperimentalPlatformWarning
+                    )
+                );
                 transpiler = new TranspilerAvr();
                 assembler = new AssemblerAvr();
                 linker = new LinkerAvr();
                 break;
+        }
+
+        // Create temporary directory for intermediate (IL, ASM, binary etc.) files:
+        // TODO: The temporary directory should be formalised or, if possible, completely removed.
+        if (!FileSystem.existsSync('tmp'))
+        {
+            FileSystem.mkdirSync('tmp');
         }
 
         const fileContent = FileSystem.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
@@ -78,42 +91,60 @@ class Main
             const syntaxTree = parser.run(tokens, this.arguments.filePath);
             const importedSyntaxTrees = importer.run(syntaxTree, this.arguments.filePath);
             const semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
-            const loweredSemanticTree = lowerer.run(semanticTree);
-            assembly = transpiler.run(loweredSemanticTree);
+            const intermediateLanguage = lowerer.run(semanticTree);
+
+            if (this.arguments.intermediate)
+            {
+                const intermediateTranspiler = new TranspilerIntermediate();
+                const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
+
+                FileSystem.writeFileSync('tmp/test.phi', intermediateCode, {encoding: 'utf8'});
+            }
+
+            if (transpiler instanceof TranspilerAvr)
+            {
+                assembly = transpiler.run(semanticTree);
+            }
+            else
+            {
+                assembly = transpiler.run(intermediateLanguage);
+            }
 
             diagnostic.end();
         }
         catch (error)
         {
-            if (error instanceof DiagnosticException)
+            if (error instanceof Diagnostic.Exception)
             {
-                if (diagnostic.errors.length != 0)
-                {
-                    const errorString = diagnostic.errors.join(os.EOL);
-
-                    console.error(errorString);
-                }
-
-                if (diagnostic.warnings.length != 0)
-                {
-                    const warningString = diagnostic.warnings.join(os.EOL);
-
-                    console.error(warningString);
-                }
-
-                if (diagnostic.info.length != 0)
-                {
-                    const infoString = diagnostic.info.join(os.EOL);
-
-                    console.error(infoString);
-                }
+                return;
             }
             else
             {
                 throw error;
             }
+        }
+        finally
+        {
+            if (diagnostic.errors.length != 0)
+            {
+                const errorString = diagnostic.errors.join(os.EOL);
 
-            return;
+                console.error(errorString);
+            }
+
+            if (diagnostic.warnings.length != 0)
+            {
+                const warningString = diagnostic.warnings.join(os.EOL);
+
+                console.error(warningString);
+            }
+
+            if (diagnostic.info.length != 0)
+            {
+                const infoString = diagnostic.info.join(os.EOL);
+
+                console.error(infoString);
+            }
         }
 
         FileSystem.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});

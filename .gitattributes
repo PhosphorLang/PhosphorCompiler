@@ -3,3 +3,6 @@
 
 # Prevent that the main.ts file is recognised as Javascript because of the shebang:
 src/main.ts linguist-language=Typescript
+
+# The compiler only emits Unix line endings ("\n"). This prevents Git to change line endings in the output files used in tests:
+tests/end-to-end/outputs/*.phi text eol=lf

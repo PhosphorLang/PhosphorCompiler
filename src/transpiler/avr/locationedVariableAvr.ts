@@ -1,7 +1,7 @@
-import * as SemanticSymbols from "../../connector/semanticSymbols";
-import RegisterAvr from "./registers/registerAvr";
+import * as SemanticSymbols from '../../connector/semanticSymbols';
+import { RegisterAvr } from './registers/registerAvr';
 
-export default class LocationedVariableAvr
+export class LocationedVariableAvr
 {
     public readonly variable: SemanticSymbols.Variable;
     public location: RegisterAvr[];

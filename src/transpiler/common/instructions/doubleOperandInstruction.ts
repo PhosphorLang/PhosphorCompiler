@@ -1,23 +1,12 @@
-import Instruction from "./instruction";
+import { Instruction } from './instruction';
 
-export default class DoubleOperandInstruction extends Instruction
+export class DoubleOperandInstruction extends Instruction
 {
-    protected readonly commandOperandSplitter = ' ';
-    protected readonly operandSplitter = ', ';
-
-    public firstOperand: string;
-    public secondOperand: string;
-
-    public override get text (): string
-    {
-        return this.commandString + this.commandOperandSplitter + this.firstOperand + this.operandSplitter + this.secondOperand;
-    }
-
+    /**
+     * @deprecated TODO: This class should be fully replaced by Instruction.
+    */
     constructor (command: string, firstOperand: string, secondOperand: string)
     {
-        super(command);
-
-        this.firstOperand = firstOperand;
-        this.secondOperand = secondOperand;
+        super(command, firstOperand, secondOperand);
     }
 }

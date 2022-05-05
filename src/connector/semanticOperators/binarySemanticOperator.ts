@@ -1,8 +1,8 @@
-import SemanticOperator from "./semanticOperator";
-import SemanticOperatorKind from "../semanticOperatorKind";
-import TypeSemanticSymbol from "../semanticSymbols/typeSemanticSymbol";
+import { SemanticOperator } from './semanticOperator';
+import { SemanticOperatorKind } from '../semanticOperatorKind';
+import { TypeSemanticSymbol } from '../semanticSymbols/typeSemanticSymbol';
 
-export default class BinarySemanticOperator extends SemanticOperator
+export class BinarySemanticOperator extends SemanticOperator
 {
     public readonly leftType: TypeSemanticSymbol;
     public readonly rightType: TypeSemanticSymbol;

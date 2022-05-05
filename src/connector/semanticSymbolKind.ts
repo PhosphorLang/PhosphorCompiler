@@ -1,4 +1,4 @@
-enum SemanticSymbolKind
+export enum SemanticSymbolKind
 {
     Function = 'Function',
     Variable = 'Variable',
@@ -8,5 +8,3 @@ enum SemanticSymbolKind
     Label = 'Label',
     // TODO: Sort alphabetically.
 }
-
-export default SemanticSymbolKind;

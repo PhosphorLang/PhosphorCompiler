@@ -1,8 +1,8 @@
-import AddressRegisterAvr from "./registers/addressRegisterAvr";
-import RegisterAvr from "./registers/registerAvr";
-import RegisterPairAvr from "./registers/registerPairAvr";
+import { AddressRegisterAvr } from './registers/addressRegisterAvr';
+import { RegisterAvr } from './registers/registerAvr';
+import { RegisterPairAvr } from './registers/registerPairAvr';
 
-export default abstract class RegistersAvr
+export abstract class RegistersAvr
 {
     // General purpose registers:
     public static readonly r0: RegisterAvr = new RegisterAvr('r0');

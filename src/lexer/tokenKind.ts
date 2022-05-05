@@ -1,4 +1,4 @@
-enum TokenKind
+export enum TokenKind
 {
     NoToken,
     // Tokens
@@ -35,5 +35,3 @@ enum TokenKind
     FalseKeyword,
     ImportKeyword,
 }
-
-export default TokenKind;

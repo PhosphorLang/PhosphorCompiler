@@ -1,4 +1,4 @@
-export default class RegisterPairAvr
+export class RegisterPairAvr
 {
     /** The name of the register with the least significant byte */
     public readonly lowName: string;

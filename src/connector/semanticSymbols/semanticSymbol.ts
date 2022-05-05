@@ -1,6 +1,6 @@
-import SemanticSymbolKind from "../semanticSymbolKind";
+import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export default abstract class SemanticSymbol
+export abstract class SemanticSymbol
 {
     public readonly name: string;
     public readonly kind: SemanticSymbolKind;

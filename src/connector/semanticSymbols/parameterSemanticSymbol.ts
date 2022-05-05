@@ -1,8 +1,8 @@
-import SemanticSymbolKind from "../semanticSymbolKind";
-import TypeSemanticSymbol from "./typeSemanticSymbol";
-import VariableSemanticSymbol from "./variableSemanticSymbol";
+import { SemanticSymbolKind } from '../semanticSymbolKind';
+import { TypeSemanticSymbol } from './typeSemanticSymbol';
+import { VariableSemanticSymbol } from './variableSemanticSymbol';
 
-export default class ParameterSemanticSymbol extends VariableSemanticSymbol
+export class ParameterSemanticSymbol extends VariableSemanticSymbol
 {
     constructor (name: string, type: TypeSemanticSymbol)
     {

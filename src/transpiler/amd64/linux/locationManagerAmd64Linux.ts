@@ -1,372 +1,252 @@
-import * as SemanticSymbols from "../../../connector/semanticSymbols";
-import LocationedVariableAmd64 from "../locationedVariableAmd64";
-import Register64Amd64 from "../registers/register64Amd64";
-import RegistersAmd64Linux from "./registersAmd64Linux";
+import * as Instructions from '../../common/instructions';
+import * as IntermediateSymbols from '../../../lowerer/intermediateSymbols';
+import { IntermediateSize } from '../../../lowerer/intermediateSize';
+import { Register64Amd64 } from '../registers/register64Amd64';
+import { RegistersAmd64Linux } from './registersAmd64Linux';
 
-type VariableStack = Map<SemanticSymbols.Variable, LocationedVariableAmd64>;
-
-// TODO: This must be reworked.
-//       We need a very simple location manager that puts everything onto the stack for debugging.
-//       And then use, when compiling in optimised mode, this smart approach.
-export default abstract class LocationManagerAmd64Linux
+/**
+ * Location manager with optimisation level "none". \
+ * Puts everything onto the stack and only uses registers where needed.
+ */
+export class LocationManagerAmd64LinuxNone
 {
-    protected abstract code: string[];
-
-    /**
-     * A list of variable lists, working as a stack.
-     * At the beginning of each function and section a new list is pushed, at the end of them it is removed.
-     * With this we keep track of which variables are used at which point in the code.
-     */
-    private variableStacks: VariableStack[];
-
-    /**
-     * The set of registers currently in use.
-     */
-    private registersInUse: Set<Register64Amd64>;
-
-    /**
-     * The map of used callee saved registers (to their stack location) that must be restored at the end of the function.
-     */
-    private usedCalleeSavedRegisters: Map<Register64Amd64, string>;
-
-    /**
-     * A list of currently saved register lists. Before a function call a list is added and filled, after it is removed again.
-     */
-    private currentlySavedRegistersList: Register64Amd64[][];
+    private instructions: Instructions.Instruction[];
 
     /**
      * The current offset of the base pointer, equivalent to the current stack frame size.
      */
     private currentBasePointerOffset: number;
 
-    private get lastVariableStack (): VariableStack
+    /* TODO: Should we only use names here instead of symbols?
+             Is it guaranteed that the intermediate variable names are unique (in which scope)? */
+    private variableToStackLocation: Map<IntermediateSymbols.Variable, string>;
+
+    private variableToRegister: Map<IntermediateSymbols.Variable, Register64Amd64>;
+
+    private registersInUse: Set<Register64Amd64>;
+
+    constructor (instructions: Instructions.Instruction[])
     {
-        const lastVariableStack = this.variableStacks[this.variableStacks.length - 1];
+        this.instructions = instructions;
+        this.variableToStackLocation = new Map();
+        this.variableToRegister = new Map();
+        this.registersInUse = new Set();
 
-        return lastVariableStack;
-    }
-
-    private get nextStackLocation (): string
-    {
-        // TODO: Replace the hardcoded size with the real type sizes:
-        const stackLocation = `[${RegistersAmd64Linux.stackBasePointer.bit64}-${this.currentBasePointerOffset}]`;
-        this.currentBasePointerOffset += 8;
-        this.code.push(`sub ${RegistersAmd64Linux.stackPointer.bit64}, 8`);
-
-        return stackLocation;
-    }
-
-    constructor ()
-    {
-        this.variableStacks = [];
-        this.registersInUse = new Set<Register64Amd64>();
-        this.usedCalleeSavedRegisters = new Map<Register64Amd64, string>();
-        this.currentlySavedRegistersList = [];
         this.currentBasePointerOffset = 0;
     }
 
-    protected addNewVariableStack (isFunctionInitialisation = false): void
+    private intermediateSizeToByteSize (intermediateSize: IntermediateSize): 1 | 2 | 4 | 8
     {
-        const newStack = new Map<SemanticSymbols.Variable, LocationedVariableAmd64>();
-
-        this.variableStacks.push(newStack);
-
-        if (isFunctionInitialisation)
+        switch (intermediateSize)
         {
-            this.registersInUse.clear();
-            this.usedCalleeSavedRegisters.clear();
-            this.currentBasePointerOffset = 0;
+            case IntermediateSize.Int8:
+                return 1;
+            case IntermediateSize.Int16:
+                return 2;
+            case IntermediateSize.Int32:
+                return 4;
+            case IntermediateSize.Int64:
+            case IntermediateSize.Native:
+            case IntermediateSize.Pointer:
+                return 8;
+            case IntermediateSize.Void:
+                throw new Error('Transpiler error: Cannot get the byte size of type "Void".');
         }
     }
 
-    protected removeLastVariableStack (isFunctionFinalisation = false): void
+    private getRegisterNameForSize (register: Register64Amd64, intermediateSize: IntermediateSize): string
     {
-        for (const variable of this.lastVariableStack.keys())
+        const byteSize = this.intermediateSizeToByteSize(intermediateSize);
+
+        switch (byteSize)
         {
-            this.freeVariable(variable);
+            case 1:
+                return register.bit8;
+            case 2:
+                return register.bit16;
+            case 4:
+                return register.bit32;
+            case 8:
+                return register.bit64;
+        }
+    }
+
+    public enterFunction (): void
+    {
+        this.currentBasePointerOffset = 0;
+
+        if (this.variableToStackLocation.size > 0)
+        {
+            // TODO: Should this be a diagnostic error? If yes, we would need to know when exactly the variables have not been dismissed.
+            throw new Error('Transpiler error: Not all variables have been dismissed.');
         }
 
-        this.variableStacks.pop();
-
-        if (isFunctionFinalisation)
+        if ((this.variableToRegister.size > 0) || (this.registersInUse.size > 0))
         {
-            // Restore the callee saved registers:
-            for (const [register, location] of this.usedCalleeSavedRegisters)
+            // TODO: Should this be a diagnostic error? If yes, we would need to know when exactly the variables have not been unpinned.
+            throw new Error('Transpiler error: Not all variables have been unpinned.');
+        }
+
+        this.instructions.push(
+            // Save base pointer:
+            new Instructions.Instruction('push', RegistersAmd64Linux.stackBasePointer.bit64),
+            // Set base pointer to current stack pointer:
+            new Instructions.Instruction('mov', RegistersAmd64Linux.stackBasePointer.bit64, RegistersAmd64Linux.stackPointer.bit64),
+        );
+
+        this.currentBasePointerOffset += 8; // Push stack base pointer.
+    }
+
+    public leaveFunction (): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction('leave'),
+        );
+
+        this.currentBasePointerOffset -= 8; // Pop stack base pointer inside leave.
+    }
+
+    public introduce (variableSymbol: IntermediateSymbols.Variable): void
+    {
+        const stackLocation = `[${RegistersAmd64Linux.stackBasePointer.bit64}-${this.currentBasePointerOffset}]`;
+
+        //const variableSizeInBytes = this.intermediateSizeToByteSize(variableSymbol.size);
+        const variableSizeInBytes = 8;
+
+        this.instructions.push(
+            new Instructions.Instruction('sub', RegistersAmd64Linux.stackPointer.bit64, `${variableSizeInBytes}`),
+        );
+
+        this.currentBasePointerOffset += variableSizeInBytes;
+
+        this.variableToStackLocation.set(variableSymbol, stackLocation);
+    }
+
+    public dismiss (variableSymbol: IntermediateSymbols.Variable): void
+    {
+        this.variableToStackLocation.delete(variableSymbol);
+    }
+
+    public getLocation (variableSymbol: IntermediateSymbols.Variable): string
+    {
+        if (this.variableToRegister.has(variableSymbol))
+        {
+            const register = this.variableToRegister.get(variableSymbol);
+
+            if (register === undefined)
             {
-                this.code.push(`mov ${register.bit64}, QWORD ${location}`); // Saved registers must always be the full 8 bytes long.
+                throw new Error('Transpiler error: Map.has returned true while Map.get returned undefined.');
             }
+
+            const registerName = this.getRegisterNameForSize(register, variableSymbol.size);
+
+            return registerName;
+        }
+        else
+        {
+            const stackLocation = this.variableToStackLocation.get(variableSymbol);
+
+            if (stackLocation === undefined)
+            {
+                throw new Error('Transpiler error: Variable has been used before it has been introduced.');
+            }
+
+            return stackLocation;
         }
     }
 
     /**
-     * Push a variable to a location.
-     * @param variable The variable to push.
-     * @param location The location to push to. If ommitted the next free register is used, or if none is free the memory.
-     * @param saveToMemoryWhenInUse If true and the location is in use, the content will be moved to the memory and not to a free register.
-     *                              This can be used to keep the registers free, e.g. before a function call.
+     * Pins the given variable to any free register until it is unpinned.
      */
-    protected pushVariable (variable: SemanticSymbols.Variable, location?: Register64Amd64|string, saveToMemoryWhenInUse = false): LocationedVariableAmd64
+    public pinVariableToRegister (variableSymbol: IntermediateSymbols.Variable): void
     {
-        let targetLocation: Register64Amd64|string;
-
-        if (location === undefined)
-        {
-            targetLocation = this.getNextLocation();
-        }
-        else
-        {
-            // If the location is a register in use we must free it before we can use it.
-
-            if ((location instanceof Register64Amd64) && (this.registersInUse.has(location)))
-            {
-                const locationedVariable = this.getVariableForLocation(location);
-
-                // Get the next stack location if it must be saved to memory, otherwise simply get the next location:
-                const newVariableLocation = saveToMemoryWhenInUse ? this.nextStackLocation : this.getNextLocation();
-
-                const oldLocationString = locationedVariable.locationString;
-
-                locationedVariable.location = newVariableLocation;
-
-                this.code.push(`mov ${locationedVariable.locationString}, ${oldLocationString}`);
-            }
-
-            targetLocation = location;
-        }
-
-        const locationedVariable = new LocationedVariableAmd64(variable, targetLocation);
-
-        this.lastVariableStack.set(variable, locationedVariable);
-
-        return locationedVariable;
-    }
-
-    private getVariableForLocation (location: Register64Amd64|string): LocationedVariableAmd64
-    {
-        for (const variableStack of this.variableStacks)
-        {
-            for (const locationedVariable of variableStack.values())
-            {
-                if (locationedVariable.location == location)
-                {
-                    return locationedVariable;
-                }
-            }
-        }
-
-        let locationAsString: string;
-        if (location instanceof Register64Amd64)
-        {
-            locationAsString = location.bit64;
-        }
-        else
-        {
-            locationAsString = location;
-        }
-
-        throw new Error(`Transpiler error: For the given location "${locationAsString}" there is no variable known.`);
-    }
-
-    private getNextLocation (): Register64Amd64|string
-    {
-        const register = this.getNextFreeRegister();
-
-        if (register === null)
-        {
-            const stackLocation = this.nextStackLocation;
-
-            return stackLocation;
-        }
-        else
-        {
-            return register;
-        }
-    }
-
-    private getNextFreeRegister (): Register64Amd64|null
-    {
-        // Priority of registers: Caller saved, arguments, callee saved.
-        // FIXME: We must save callee saved registers before use and restore them after it or at the end of the function!
-        const registers = [...RegistersAmd64Linux.callerSaved, ...RegistersAmd64Linux.integerArguments, ...RegistersAmd64Linux.calleeSaved];
-
-        for (const register of registers)
+        for (const register of RegistersAmd64Linux.calleeSaved)
         {
             if (!this.registersInUse.has(register))
             {
-                // Save registers that must be saved by the callee:
-                if (RegistersAmd64Linux.calleeSaved.includes(register))
-                {
-                    const stackLocation = this.nextStackLocation;
-
-                    this.code.push(`mov ${stackLocation}, ${register.bit64}`);
-
-                    this.usedCalleeSavedRegisters.set(register, stackLocation);
-                }
+                const stackLocation = this.getLocation(variableSymbol);
 
                 this.registersInUse.add(register);
+                this.variableToRegister.set(variableSymbol, register);
 
-                return register;
-            }
-        }
+                // TODO: Save register!
 
-        return null;
-    }
+                const registerName = this.getRegisterNameForSize(register, variableSymbol.size);
 
-    protected freeVariable (variable: SemanticSymbols.Variable): void
-    {
-        for (const variableStack of this.variableStacks.slice().reverse())
-        {
-            const variableLocation = variableStack.get(variable);
-
-            if (variableLocation !== undefined)
-            {
-                variableStack.delete(variable);
-
-                if (variableLocation.location instanceof Register64Amd64)
-                {
-                    this.registersInUse.delete(variableLocation.location);
-                }
+                this.instructions.push(
+                    new Instructions.Instruction('mov', registerName, stackLocation),
+                );
 
                 return;
             }
         }
 
-        throw new Error(`Transpiler error: The given variable "${variable.name}" cannot be freed because it is unknown.`);
-    }
-
-    protected getVariableLocation (variable: SemanticSymbols.Variable): LocationedVariableAmd64
-    {
-        for (const variableStack of this.variableStacks.slice().reverse())
-        {
-            const variableLocation = variableStack.get(variable);
-
-            if (variableLocation !== undefined)
-            {
-                return variableLocation;
-            }
-        }
-
-        throw new Error(`Transpiler error: The given variable "${variable.name}" has no location.`);
-    }
-
-    protected moveVariableToRegister (locationedVariable: LocationedVariableAmd64): LocationedVariableAmd64
-    {
-        if (!(locationedVariable.location instanceof Register64Amd64))
-        {
-            const register = this.makeAnyRegisterFree();
-
-            // Move our stack variable into a register:
-            // TODO: Replace the hardcoded size with the real type size:
-            this.code.push(`mov ${register.bit64}, ${locationedVariable.locationString}`);
-            locationedVariable.location = register;
-        }
-
-        return locationedVariable;
-    }
-
-    private makeAnyRegisterFree (): Register64Amd64
-    {
-        let register = this.getNextFreeRegister();
-
-        if (register === null)
-        {
-            const locationedVariableInRegister = this.getAnyVariableInRegister();
-
-            register = locationedVariableInRegister.location as Register64Amd64;
-
-            const stackLocation = this.nextStackLocation;
-
-            // Move register variable to the stack:
-            this.code.push(`mov ${stackLocation}, ${locationedVariableInRegister.locationString}`);
-            locationedVariableInRegister.location = stackLocation;
-        }
-
-        return register;
-    }
-
-    private getAnyVariableInRegister (): LocationedVariableAmd64
-    {
-        for (const stack of this.variableStacks)
-        {
-            for (const locationedVariable of stack.values())
-            {
-                if (locationedVariable.location instanceof Register64Amd64)
-                {
-                    return locationedVariable;
-                }
-            }
-        }
-
-        throw new Error('Transpile error: There are no registers. How can this happen?');
+        /* TODO: This should not be able to happen as a maximum of two registers can be in use at the same time.
+                 But shouldn't this be a diagnostic error regardless? */
+        throw new Error('Transpiler error: No free register available.');
     }
 
     /**
-     * Save the currently in use caller saved registers before a function call.
-     * @param targetLocation The target location of the function call, for it to be ignored instead of saved.
-     * @param isSystemCall If true, the registers for a system call are saved instead of a normal function call.
+     * Unpins the given variable from its register.
+     * @param variableSymbol The variable to unpin.
+     * @param hasChanged True if the variable has been changed, false otherwise. Will save the variable to its stack location if true.
      */
-    protected saveRegistersForFunctionCall (targetLocation: LocationedVariableAmd64|undefined, isSystemCall = false): void
+    public unpinVariableFromRegister (variableSymbol: IntermediateSymbols.Variable, hasChanged = true): void
     {
-        const registersToSave: Set<Register64Amd64> = new Set<Register64Amd64>();
+        const register = this.variableToRegister.get(variableSymbol);
 
-        // NOTE: The order of the registers (i.e. the reverse of the restore registers function) is important!
-        if (isSystemCall)
+        if (register === undefined)
         {
-            for (const register of [...RegistersAmd64Linux.syscallArguments, ...RegistersAmd64Linux.syscallCallerSaved])
-            {
-                registersToSave.add(register);
-            }
-        }
-        else
-        {
-            registersToSave.add(RegistersAmd64Linux.integerReturn);
-
-            for (const register of [...RegistersAmd64Linux.integerArguments, ...RegistersAmd64Linux.callerSaved])
-            {
-                registersToSave.add(register);
-            }
+            throw new Error('Transpiler error: Tried to unpin a variable that has not been pinned.');
         }
 
-        // Do not save the target location if it is a register:
-        if (targetLocation?.location instanceof Register64Amd64)
+        this.variableToRegister.delete(variableSymbol);
+        this.registersInUse.delete(register);
+
+        // Save variable value to its stack location:
+        if (hasChanged)
         {
-            registersToSave.delete(targetLocation.location);
+            const registerName = this.getRegisterNameForSize(register, variableSymbol.size);
+
+            this.instructions.push(
+                new Instructions.Instruction('mov', this.getLocation(variableSymbol), registerName),
+            );
         }
 
-        const currentlySavedRegisters: Register64Amd64[] = [];
-
-        for (const register of registersToSave)
-        {
-            if (this.registersInUse.has(register))
-            {
-                this.code.push(`push ${register.bit64}`);
-
-                this.registersInUse.delete(register);
-
-                currentlySavedRegisters.push(register);
-            }
-        }
-
-        this.currentlySavedRegistersList.push(currentlySavedRegisters);
+        // TODO: Restore register!
     }
 
-    protected restoreRegistersAfterFunctionCall (): void
+    public getParameterLocation (parameter: IntermediateSymbols.Parameter): string
     {
-        const currentlySavedRegisters = this.currentlySavedRegistersList.pop();
+        const maxParameterCount = RegistersAmd64Linux.integerArguments.length;
 
-        if (currentlySavedRegisters === undefined)
+        if (parameter.index >= maxParameterCount)
         {
-            throw new Error('Transpiler error: Tried to restore registers after a function call without saving them.');
+            throw new Error(
+                `Transpiler error: Stack parameters are not supported. There must not be more than ${maxParameterCount} parameters.`
+            );
         }
 
-        // The currently saved registers list must be reversed to correctly pop the values into their registers:
-        currentlySavedRegisters.reverse();
+        const parameterRegister = RegistersAmd64Linux.integerArguments[parameter.index];
 
-        for (const register of currentlySavedRegisters)
+        const registerName = this.getRegisterNameForSize(parameterRegister, parameter.size);
+
+        return registerName;
+    }
+
+    public getReturnValueLocation (returnValue: IntermediateSymbols.ReturnValue): string
+    {
+        if (returnValue.index > 0)
         {
-            this.code.push(`pop ${register.bit64}`);
-
-            this.registersInUse.add(register);
+            throw new Error(
+                `Transpiler error: Multiple return values are not supported.`
+            );
         }
+
+        const returnRegister = RegistersAmd64Linux.integerReturn;
+
+        const registerName = this.getRegisterNameForSize(returnRegister, returnValue.size);
+
+        return registerName;
     }
 }

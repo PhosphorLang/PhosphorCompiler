@@ -1,6 +1,6 @@
-import RegisterPairAvr from "./registerPairAvr";
+import { RegisterPairAvr } from './registerPairAvr';
 
-export default class AddressRegister extends RegisterPairAvr
+export class AddressRegisterAvr extends RegisterPairAvr
 {
     /** The full name of the address register */
     public readonly fullName: string;

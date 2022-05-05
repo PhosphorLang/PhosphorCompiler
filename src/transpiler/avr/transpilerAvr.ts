@@ -1,17 +1,17 @@
-import * as Instructions from "../common/instructions";
-import * as SemanticNodes from "../../connector/semanticNodes";
-import * as SemanticSymbols from "../../connector/semanticSymbols";
-import BuildInOperators from "../../definitions/buildInOperators";
-import BuildInTypes from "../../definitions/buildInTypes";
-import LocationedVariableAvr from "./locationedVariableAvr";
-import LocationManagerAvr from "./locationManagerAvr";
-import RegisterAvr from "./registers/registerAvr";
-import RegistersAvr from "./registersAvr";
-import SemanticKind from "../../connector/semanticKind";
-import Transpiler from "../transpiler";
-import TypesAvr from "./typesAvr";
+import * as Instructions from '../common/instructions';
+import * as SemanticNodes from '../../connector/semanticNodes';
+import * as SemanticSymbols from '../../connector/semanticSymbols';
+import { BuildInOperators } from '../../definitions/buildInOperators';
+import { BuildInTypes } from '../../definitions/buildInTypes';
+import { LocationedVariableAvr } from './locationedVariableAvr';
+import { LocationManagerAvr } from './locationManagerAvr';
+import { RegisterAvr } from './registers/registerAvr';
+import { RegistersAvr } from './registersAvr';
+import { SemanticKind } from '../../connector/semanticKind';
+import { SemanticTreeTranspiler } from '../semanticTreeTranspiler';
+import { TypesAvr } from './typesAvr';
 
-export default class TranspilerAvr implements Transpiler
+export class TranspilerAvr implements SemanticTreeTranspiler
 {
     private instructions: Instructions.Instruction[];
 
@@ -71,9 +71,16 @@ export default class TranspilerAvr implements Transpiler
     {
         let assembly = '';
 
+        const renderOptions: Instructions.RenderOptions = {
+            commandOperandSplitter: ' ',
+            operandSplitter: ', ',
+            prefix: '',
+            postfix: '',
+        };
+
         for (const instruction of instructions)
         {
-            assembly += instruction.text + "\n";
+            assembly += instruction.render(renderOptions) + '\n';
         }
 
         return assembly;
@@ -337,7 +344,7 @@ export default class TranspilerAvr implements Transpiler
         }
 
         const temporaryRegisters = this.locationManager.getFreeConstantLoadableRegisters(literalSize);
-        const temporaryVariable = new SemanticSymbols.Variable('return', literalExpression.type, false);
+        const temporaryVariable = new SemanticSymbols.Variable('literal', literalExpression.type, false);
         const temporaryLocation = this.locationManager.registerVariable(temporaryVariable, temporaryRegisters);
 
         switch (literalExpression.type)

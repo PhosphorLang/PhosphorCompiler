@@ -1,11 +1,11 @@
-import ElseClauseSyntaxNode from "./elseClauseSyntaxNode";
-import ExpressionSyntaxNode from "./expressionSyntaxNode";
-import SectionSyntaxNode from "./sectionSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import { ElseClauseSyntaxNode } from './elseClauseSyntaxNode';
+import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import { SectionSyntaxNode } from './sectionSyntaxNode';
+import { SyntaxKind } from '../syntaxKind';
+import { SyntaxNode } from './syntaxNode';
+import { Token } from '../../lexer/token';
 
-export default class IfStatementSyntaxNode extends SyntaxNode
+export class IfStatementSyntaxNode extends SyntaxNode
 {
     public readonly keyword: Token;
     public readonly condition: ExpressionSyntaxNode;

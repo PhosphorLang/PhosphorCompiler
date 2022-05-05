@@ -1,7 +1,7 @@
 import * as SyntaxNodes from '../../src/parser/syntaxNodes';
-import { CallArgumentsList } from '../../src/parser/callArgumentsList';
+import { CallArgumentsList } from '../../src/parser/lists/callArgumentsList';
 import { Defaults } from './defaults';
-import { FunctionParametersList } from '../../src/parser/functionParametersList';
+import { FunctionParametersList } from '../../src/parser/lists/functionParametersList';
 import { Token } from '../../src/lexer/token';
 import { TokenCreator } from './tokenCreator';
 

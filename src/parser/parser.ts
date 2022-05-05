@@ -1,7 +1,7 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
-import { CallArgumentsList } from './callArgumentsList';
-import { FunctionParametersList } from './functionParametersList';
+import { CallArgumentsList } from './lists/callArgumentsList';
+import { FunctionParametersList } from './lists/functionParametersList';
 import { OperatorOrder } from './operatorOrder';
 import { SyntaxNode } from './syntaxNodes';
 import { Token } from '../lexer/token';

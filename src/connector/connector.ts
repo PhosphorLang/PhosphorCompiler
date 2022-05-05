@@ -4,7 +4,7 @@ import * as SemanticSymbols from './semanticSymbols';
 import * as SyntaxNodes from '../parser/syntaxNodes';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
-import { FunctionParametersList } from '../parser/functionParametersList';
+import { FunctionParametersList } from '../parser/lists/functionParametersList';
 import { ImportNodeToFileNode } from '../importer/importNodeToFileNode';
 import { SemanticNode } from './semanticNodes';
 import { SyntaxKind } from '../parser/syntaxKind';

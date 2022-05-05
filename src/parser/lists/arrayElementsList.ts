@@ -1,7 +1,7 @@
-import ExpressionSyntaxNode from "../syntaxNodes/expressionSyntaxNode";
-import Token from "../../lexer/token";
+import { ExpressionSyntaxNode } from "../syntaxNodes/expressionSyntaxNode";
+import { Token } from "../../lexer/token";
 
-export default class ArrayElementsList
+export class ArrayElementsList
 {
     public readonly elements: ExpressionSyntaxNode[];
     public readonly separators: Token[];

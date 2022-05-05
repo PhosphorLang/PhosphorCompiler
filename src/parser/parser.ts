@@ -1,6 +1,6 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
-import ArrayElementsList from "./lists/arrayElementsList";
+import { ArrayElementsList } from "./lists/arrayElementsList";
 import { CallArgumentsList } from './lists/callArgumentsList';
 import { FunctionParametersList } from './lists/functionParametersList';
 import { OperatorOrder } from './operatorOrder';

@@ -1,5 +1,5 @@
 import * as SyntaxNodes from '../../src/parser/syntaxNodes';
-import ArrayElementsList from '../../src/parser/lists/arrayElementsList';
+import { ArrayElementsList } from '../../src/parser/lists/arrayElementsList';
 import { CallArgumentsList } from '../../src/parser/lists/callArgumentsList';
 import { Defaults } from './defaults';
 import { FunctionParametersList } from '../../src/parser/lists/functionParametersList';

@@ -1,7 +1,7 @@
-import SemanticSymbolKind from "../semanticSymbolKind";
-import TypeSemanticSymbol from "./typeSemanticSymbol";
+import { SemanticSymbolKind } from "../semanticSymbolKind";
+import { TypeSemanticSymbol } from "./typeSemanticSymbol";
 
-export default class ArrayTypeSemanticSymbol extends TypeSemanticSymbol
+export class ArrayTypeSemanticSymbol extends TypeSemanticSymbol
 {
     public readonly elementType: TypeSemanticSymbol;
     public readonly size: number;

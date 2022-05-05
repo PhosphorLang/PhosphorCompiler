@@ -1,6 +1,6 @@
 export { SyntaxNode } from './syntaxNode';
 
-export { default as ArrayLiteralExpression } from "./arrayLiteralExpressionSyntaxNode";
+export { ArrayLiteralExpressionSyntaxNode as ArrayLiteralExpression } from "./arrayLiteralExpressionSyntaxNode";
 export { AssignmentSyntaxNode as Assignment } from './assignmentSyntaxNode';
 export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressionSyntaxNode';
 export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSyntaxNode';

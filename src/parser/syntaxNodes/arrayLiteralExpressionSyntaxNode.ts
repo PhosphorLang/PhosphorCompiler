@@ -1,10 +1,10 @@
-import ArrayElementsList from "../lists/arrayElementsList";
-import ExpressionSyntaxNode from "./expressionSyntaxNode";
-import SyntaxKind from "../syntaxKind";
-import SyntaxNode from "./syntaxNode";
-import Token from "../../lexer/token";
+import { ArrayElementsList } from "../lists/arrayElementsList";
+import { ExpressionSyntaxNode } from "./expressionSyntaxNode";
+import { SyntaxKind } from "../syntaxKind";
+import { SyntaxNode } from "./syntaxNode";
+import { Token } from "../../lexer/token";
 
-export default class ArrayLiteralExpressionSyntaxNode extends ExpressionSyntaxNode
+export class ArrayLiteralExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly opening: Token;
     public readonly closing: Token;

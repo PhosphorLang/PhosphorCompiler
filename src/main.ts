@@ -147,6 +147,8 @@ class Main
             }
         }
 
+        // TODO: Check if the exit code is non-zero in case of errors.
+
         FileSystem.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
 
         assembler.run('tmp/test.asm', 'tmp/test.o');

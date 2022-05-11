@@ -111,7 +111,7 @@ export class LocationManagerAmd64LinuxNone
         const stackLocation = `[${RegistersAmd64Linux.stackBasePointer.bit64}-${this.currentBasePointerOffset}]`;
 
         //const variableSizeInBytes = this.intermediateSizeToByteSize(variableSymbol.size);
-        const variableSizeInBytes = 8;
+        const variableSizeInBytes = 8; // TODO: We have to take into account stack alignment here.
 
         this.instructions.push(
             new Instructions.Instruction('sub', RegistersAmd64Linux.stackPointer.bit64, `${variableSizeInBytes}`),

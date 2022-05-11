@@ -783,7 +783,7 @@ export class Lowerer
     }
 
     /**
-     * Lower a binary expression where the result type has the same as the left type.
+     * Lower a binary expression where the result type has the same size as the left type.
      */
     private lowerSizeRetainingBinaryExpression (
         binaryExpression: SemanticNodes.BinaryExpression,

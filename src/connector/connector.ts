@@ -474,6 +474,8 @@ export class Connector
         {
             case SyntaxKind.LiteralExpression:
                 return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
+            case SyntaxKind.ArrayLiteralExpression:
+                return this.connectArrayLiteralExpression(expression as SyntaxNodes.ArrayLiteralExpression);
             case SyntaxKind.VariableExpression:
                 return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
@@ -512,6 +514,49 @@ export class Connector
         }
 
         return new SemanticNodes.LiteralExpression(value, type);
+    }
+
+    private connectArrayLiteralExpression (expression: SyntaxNodes.ArrayLiteralExpression): SemanticNodes.ArrayLiteralExpression
+    {
+        const elements: SemanticNodes.Expression[] = [];
+
+        for (const element of expression.elements.elements)
+        {
+            const connectedExpression = this.connectExpression(element);
+            elements.push(connectedExpression);
+        }
+
+        let elementsType: SemanticSymbols.Type|null;
+        if (elements.length == 0)
+        {
+            elementsType = null;
+        }
+        else
+        {
+            elementsType = elements[0].type;
+
+            if (elements.length > 1)
+            {
+                for (let i = 1; i < elements.length; i++)
+                {
+                    if (!elements[i].type.equals(elementsType))
+                    {
+                        this.diagnostic.throw(
+                            new Diagnostic.Error(
+                                `Array literal of type "${elementsType.name}" contains incompatible expression of type`
+                                + ` "${elements[i].type.name}" at index ${i}.`,
+                                Diagnostic.Codes.ArrayLiteralContainsExpressionsOfDifferentTypesError,
+                                expression.elements.elements[i].token
+                            )
+                        );
+                    }
+                }
+            }
+        }
+
+        const type = new SemanticSymbols.ArrayType(elementsType, elements.length);
+
+        return new SemanticNodes.ArrayLiteralExpression(elements, type);
     }
 
     private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression

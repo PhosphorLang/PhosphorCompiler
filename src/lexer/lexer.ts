@@ -214,6 +214,7 @@ export class Lexer
             {
                 case '':
                 case "\n":
+                case "\r":
                     this.diagnostic.throw(
                         new Diagnostic.Error(
                             'Unterminated string',

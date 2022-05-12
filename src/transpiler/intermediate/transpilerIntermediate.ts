@@ -85,6 +85,8 @@ export class TranspilerIntermediate implements Transpiler
                 return 'jumpIfLess';
             case IntermediateKind.Move:
                 return 'move';
+            case IntermediateKind.Multiply:
+                return 'multiply';
             case IntermediateKind.Negate:
                 return 'negate';
             case IntermediateKind.Give:
@@ -211,6 +213,7 @@ export class TranspilerIntermediate implements Transpiler
             case IntermediateKind.Add:
             case IntermediateKind.Compare:
             case IntermediateKind.Subtract:
+            case IntermediateKind.Multiply:
                 parameters = [
                     this.getIntermediateSymbolString(statementIntermediate.leftOperand),
                     this.getIntermediateSymbolString(statementIntermediate.rightOperand),

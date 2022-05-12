@@ -814,15 +814,16 @@ export class Lowerer
                 intermediates.push(
                     new Intermediates.Add(targetLocation, temporaryVariable),
                 );
-                this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-                this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
                 break;
             case BuildInOperators.binaryIntSubtraction:
                 intermediates.push(
                     new Intermediates.Subtract(targetLocation, temporaryVariable),
                 );
-                this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-                this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
+                break;
+            case BuildInOperators.binaryIntMultiplication:
+                intermediates.push(
+                    new Intermediates.Multiply(targetLocation, temporaryVariable),
+                );
                 break;
             default:
                 throw new Error(
@@ -830,6 +831,10 @@ export class Lowerer
                     `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                 );
         }
+
+        // NOTE: This relies on the fact that, currently, the default branch of the switch statement aboth throws an error.
+        this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+        this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
     }
 
     /**

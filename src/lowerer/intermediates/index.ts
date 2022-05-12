@@ -14,6 +14,7 @@ export { JumpIfGreaterIntermediate as JumpIfGreater } from './jumpIfGreaterInter
 export { JumpIfLessIntermediate as JumpIfLess } from './jumpIfLessIntermediate';
 export { LabelIntermediate as Label } from './labelIntermediate';
 export { MoveIntermediate as Move } from './moveIntermediate';
+export { MultiplyIntermediate as Multiply } from './multiplyIntermediate';
 export { NegateIntermediate as Negate } from './negateIntermediate';
 export { ReturnIntermediate as Return } from './returnIntermediate';
 export { SubtractIntermediate as Subtract } from './subtractIntermediate';
@@ -35,6 +36,7 @@ import { JumpIfGreaterIntermediate } from './jumpIfGreaterIntermediate';
 import { JumpIfLessIntermediate } from './jumpIfLessIntermediate';
 import { LabelIntermediate } from './labelIntermediate';
 import { MoveIntermediate } from './moveIntermediate';
+import { MultiplyIntermediate } from './multiplyIntermediate';
 import { NegateIntermediate } from './negateIntermediate';
 import { ReturnIntermediate } from './returnIntermediate';
 import { SubtractIntermediate } from './subtractIntermediate';
@@ -43,10 +45,10 @@ import { TakeIntermediate } from './takeIntermediate';
 export type Intermediate =
     AddIntermediate | CallIntermediate | CompareIntermediate | ConstantIntermediate | DismissIntermediate | ExternalIntermediate
     | FileIntermediate | FunctionIntermediate | GiveIntermediate | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate
-    | JumpIfGreaterIntermediate | JumpIfLessIntermediate | LabelIntermediate | MoveIntermediate | NegateIntermediate
+    | JumpIfGreaterIntermediate | JumpIfLessIntermediate | LabelIntermediate | MoveIntermediate | MultiplyIntermediate | NegateIntermediate
     | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;
 
 export type Statement =
     AddIntermediate | CallIntermediate | CompareIntermediate | DismissIntermediate | GiveIntermediate | GotoIntermediate
     | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate | JumpIfLessIntermediate | LabelIntermediate
-    | MoveIntermediate | NegateIntermediate | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;
+    | MoveIntermediate | MultiplyIntermediate | NegateIntermediate | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;

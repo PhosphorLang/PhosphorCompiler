@@ -18,6 +18,7 @@ export enum IntermediateKind
     JumpIfLess = 'JumpIfLess',
     Label = 'Label',
     Move = 'Move',
+    Multiply = 'Multiply',
     Negate = 'Negate',
     Return = 'Return',
     Subtract = 'Subtract',

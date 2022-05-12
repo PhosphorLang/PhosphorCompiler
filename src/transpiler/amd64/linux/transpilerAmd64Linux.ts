@@ -168,6 +168,9 @@ export class TranspilerAmd64Linux implements Transpiler
             case IntermediateKind.Move:
                 this.transpileMove(statementIntermediate);
                 break;
+            case IntermediateKind.Multiply:
+                this.transpileMultiply(statementIntermediate);
+                break;
             case IntermediateKind.Negate:
                 this.transpileNegate(statementIntermediate);
                 break;
@@ -319,6 +322,20 @@ export class TranspilerAmd64Linux implements Transpiler
         );
 
         this.locationManager.unpinVariableFromRegister(moveIntermediate.to);
+    }
+
+    private transpileMultiply (multiplyIntermediate: Intermediates.Multiply): void
+    {
+        this.locationManager.pinVariableToRegister(multiplyIntermediate.leftOperand);
+
+        const leftOperandLocation = this.locationManager.getLocation(multiplyIntermediate.leftOperand);
+        const rightOperandLocation = this.locationManager.getLocation(multiplyIntermediate.rightOperand);
+
+        this.instructions.push(
+            new Instructions.Instruction('imul', leftOperandLocation, rightOperandLocation),
+        );
+
+        this.locationManager.unpinVariableFromRegister(multiplyIntermediate.leftOperand);
     }
 
     private transpileNegate (negateIntermediate: Intermediates.Negate): void

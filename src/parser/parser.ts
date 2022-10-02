@@ -271,8 +271,20 @@ export class Parser
 
         const statements: SyntaxNode[] = [];
 
-        while ((this.getCurrentToken().kind != TokenKind.ClosingBraceToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
+        while (true)
         {
+            while (this.getCurrentToken().kind == TokenKind.LineCommentToken)
+            {
+                this.consumeNextToken();
+
+                // TODO: Instead of ignorring the comment here, the lexer should add it as trivia to real tokens.
+            }
+
+            if ((this.getCurrentToken().kind == TokenKind.ClosingBraceToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
+            {
+                break;
+            }
+
             const statement = this.parseStatement();
             statements.push(statement);
 

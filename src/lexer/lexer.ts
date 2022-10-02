@@ -139,8 +139,27 @@ export class Lexer
                 kind = TokenKind.StarOperator;
                 break;
             case '/':
-                kind = TokenKind.SlashOperator;
+            {
+                const nextChar = this.getNextChar();
+                if (nextChar === '/')
+                {
+                    kind = TokenKind.LineCommentToken;
+                    content = this.readLineComment();
+                }
+                else if (nextChar === '*')
+                {
+                    kind = TokenKind.BlockCommentToken;
+                    content = this.readBlockComment();
+                }
+                else
+                {
+                    this.position--;
+
+                    kind = TokenKind.SlashOperator;
+                }
                 break;
+            }
+
             case '=':
                 kind = TokenKind.EqualOperator;
                 break;
@@ -236,6 +255,68 @@ export class Lexer
         const content = this.text.slice(start, this.position - 1);
 
         this.column += this.position - start - 1;
+
+        return content;
+    }
+
+    private readLineComment (): string
+    {
+        const start = this.position;
+
+        let continueReading = true;
+        while (continueReading)
+        {
+            switch (this.getNextChar())
+            {
+                case '':
+                case "\n":
+                case "\r":
+                    continueReading = false;
+                    break;
+            }
+        }
+
+        const content = this.text.slice(start, this.position - 1);
+
+        this.column += this.position - start - 2; // Include the leading "//", thus -2.
+
+        return content;
+    }
+
+    private readBlockComment (): string
+    {
+        const start = this.position;
+
+        let continueReading = true;
+        while (continueReading)
+        {
+            switch (this.getNextChar())
+            {
+                case '':
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            'Unterminated block comment',
+                            Diagnostic.Codes.UnterminatedBlockCommentError,
+                            {
+                                fileName: this.fileName,
+                                lineNumber: this.line,
+                                columnNumber: this.column
+                            }
+                        )
+                    );
+                // Does not fall through as this.diagnostic.throw never returns.
+                case "*":
+                    if (this.getNextChar() === '/')
+                    {
+                        continueReading = false;
+                    }
+                    break;
+            }
+        }
+
+        const content = this.text.slice(start, this.position - 2);
+
+        this.column += this.position - start - 2;
 
         return content;
     }

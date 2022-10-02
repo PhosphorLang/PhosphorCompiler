@@ -5,6 +5,7 @@ import { ProcessArguments,ProcessArgumentsError } from './processArguments';
 import { Assembler } from './assembler/assembler';
 import { AssemblerAmd64Linux } from './assembler/amd64/linux/assemblerAmd64Linux';
 import { AssemblerAvr } from './assembler/avr/assemblerAvr';
+import { AssemblerBackseat } from './assembler/backseat/assemblerBackseat';
 import { Connector } from './connector/connector';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
@@ -12,6 +13,7 @@ import { Lexer } from './lexer/lexer';
 import { Linker } from './linker/linker';
 import { LinkerAmd64Linux } from './linker/amd64/linux/linkerAmd64Linux';
 import { LinkerAvr } from './linker/avr/linkerAvr';
+import { LinkerBackseat } from './linker/backseat/linkerBackseat';
 import { Lowerer } from './lowerer/lowerer';
 import os from 'os';
 import { Parser } from './parser/parser';
@@ -20,6 +22,7 @@ import { TargetPlatform } from './options/targetPlatform';
 import { Transpiler } from './transpiler/transpiler';
 import { TranspilerAmd64Linux } from './transpiler/amd64/linux/transpilerAmd64Linux';
 import { TranspilerAvr } from './transpiler/avr/transpilerAvr';
+import { TranspilerBackseat } from './transpiler/backseat/transpilerBackseat';
 import { TranspilerIntermediate } from './transpiler/intermediate/transpilerIntermediate';
 
 class Main
@@ -72,6 +75,11 @@ class Main
                 transpiler = new TranspilerAvr();
                 assembler = new AssemblerAvr();
                 linker = new LinkerAvr();
+                break;
+            case TargetPlatform.Backseat:
+                transpiler = new TranspilerBackseat();
+                assembler = new AssemblerBackseat();
+                linker = new LinkerBackseat();
                 break;
         }
 
@@ -153,6 +161,7 @@ class Main
 
         assembler.run('tmp/test.asm', 'tmp/test.o');
 
+        // TODO: Different standard library extensions/names for different targets.
         const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
 
         const linkerFiles = ['tmp/test.o'];

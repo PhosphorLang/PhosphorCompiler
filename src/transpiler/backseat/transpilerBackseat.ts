@@ -1,6 +1,7 @@
 import * as Instructions from '../common/instructions';
 import * as Intermediates from '../../lowerer/intermediates';
 import { BackseatLabelInstruction } from './backseatLabelInstruction';
+import { IntermediateKind } from '../../lowerer/intermediateKind';
 import { Transpiler } from '../transpiler';
 
 export class TranspilerBackseat implements Transpiler
@@ -86,9 +87,19 @@ export class TranspilerBackseat implements Transpiler
     {
         switch (statementIntermediate.kind)
         {
+            case IntermediateKind.Return:
+                this.transpileReturn();
+                break;
             default:
-                // TODO: Do not ignore everything...
+                // TODO: Do not ignore every other command than a return...
                 return;
         }
+    }
+
+    private transpileReturn (): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction('RETURN'),
+        );
     }
 }

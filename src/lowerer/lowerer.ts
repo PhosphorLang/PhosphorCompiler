@@ -124,7 +124,7 @@ export class Lowerer
 
     private generateVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.Variable
     {
-        const newVariable = new IntermediateSymbols.Variable(`v#${this.variableCounter}`, size);
+        const newVariable = new IntermediateSymbols.Variable(this.variableCounter, size);
 
         this.variableCounter += 1;
 

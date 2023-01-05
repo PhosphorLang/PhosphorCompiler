@@ -8,14 +8,17 @@ export class VariableIntermediateSymbol extends IntermediateSymbolBase
 
     public readonly size: IntermediateSize;
 
-    // TODO: Should variables get an index like parameter and return value?
+    public readonly index: number;
 
-    constructor (name: string, size: IntermediateSize)
+    constructor (index: number, size: IntermediateSize)
     {
+        const name = `v#${index}`;
+
         super(name);
 
         this.kind = IntermediateSymbolKind.Variable;
 
+        this.index = index;
         this.size = size;
     }
 }

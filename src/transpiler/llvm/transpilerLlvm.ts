@@ -44,8 +44,8 @@ export class TranspilerLlvm implements Transpiler
         return `${this.labelCounter}l`;
     }
 
-    /** Map of intermediate variables to their LLVM variable/register name. */
-    private variableToNameMap: Map<IntermediateSymbols.Variable, string>;
+    /** Map of intermediate variables (their indices) to their LLVM variable/register name. */
+    private intermediateVariableIndexToNameMap: Map<number, string>;
 
     private currentFunction: IntermediateSymbols.Function | null;
     private compareOperands: [leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable] | null;
@@ -59,7 +59,7 @@ export class TranspilerLlvm implements Transpiler
         this.returnCounter = -1;
         this.labelCounter = -1;
 
-        this.variableToNameMap = new Map();
+        this.intermediateVariableIndexToNameMap = new Map();
 
         this.currentFunction = null;
         this.compareOperands = null;
@@ -244,7 +244,7 @@ export class TranspilerLlvm implements Transpiler
         this.parameterCounter = -1;
         this.returnCounter = -1;
         this.labelCounter = -1;
-        this.variableToNameMap.clear();
+        this.intermediateVariableIndexToNameMap.clear();
         this.currentFunction = functionIntermediate.symbol;
 
         // TODO: The following is duplicate code with transpileCall(). Could this be unified?
@@ -287,7 +287,7 @@ export class TranspilerLlvm implements Transpiler
         this.parameterCounter = -1;
         this.returnCounter = -1;
         this.labelCounter = -1;
-        this.variableToNameMap.clear();
+        this.intermediateVariableIndexToNameMap.clear();
         this.currentFunction = null;
     }
 
@@ -353,19 +353,19 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileAdd (addIntermediate: Intermediates.Add): void
     {
-        const leftOperandName = this.variableToNameMap.get(addIntermediate.leftOperand);
+        const leftOperandName = this.intermediateVariableIndexToNameMap.get(addIntermediate.leftOperand.index);
         if (leftOperandName === undefined)
         {
             throw new Error('Transpiler error: Cannot add because the left operand is not introduced.');
         }
-        const rightOperandName = this.variableToNameMap.get(addIntermediate.rightOperand);
+        const rightOperandName = this.intermediateVariableIndexToNameMap.get(addIntermediate.rightOperand.index);
         if (rightOperandName === undefined)
         {
             throw new Error('Transpiler error: Cannot add because the right operand is not introduced.');
         }
 
         const targetName = this.nextVariableName;
-        this.variableToNameMap.set(addIntermediate.leftOperand, targetName);
+        this.intermediateVariableIndexToNameMap.set(addIntermediate.leftOperand.index, targetName);
 
         // We can assume that the right value fits into the left one (the target):
         const sizeString = this.getLlvmSizeString(addIntermediate.leftOperand.size);
@@ -437,7 +437,7 @@ export class TranspilerLlvm implements Transpiler
                 const parameterName = this.nextParameterName;
                 /* TODO: The following assumes that the variable has been introduced right before the parameter is given and not used yet.
                          I think this is in line with the intermediate language but should be documented somewhere. */
-                const variableName = this.variableToNameMap.get(giveIntermediate.variable);
+                const variableName = this.intermediateVariableIndexToNameMap.get(giveIntermediate.variable.index);
 
                 if (variableName === undefined)
                 {
@@ -455,7 +455,7 @@ export class TranspilerLlvm implements Transpiler
                 const returnName = this.nextReturnName;
                 /* TODO: The following assumes that the variable has been introduced right before the return is given and not used yet.
                          I think this is in line with the intermediate language but should be documented somewhere. */
-                const variableName = this.variableToNameMap.get(giveIntermediate.variable);
+                const variableName = this.intermediateVariableIndexToNameMap.get(giveIntermediate.variable.index);
 
                 if (variableName === undefined)
                 {
@@ -485,13 +485,13 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileIntroduce (introduceIntermediate: Intermediates.Introduce): void
     {
-        if (this.variableToNameMap.has(introduceIntermediate.variableSymbol))
+        if (this.intermediateVariableIndexToNameMap.has(introduceIntermediate.variableSymbol.index))
         {
             throw new Error('Transpiler error: Tried to introduce a variable that was already introduced.');
         }
 
         const variableName = this.nextVariableName;
-        this.variableToNameMap.set(introduceIntermediate.variableSymbol, variableName);
+        this.intermediateVariableIndexToNameMap.set(introduceIntermediate.variableSymbol.index, variableName);
     }
 
     private transpileJumpIfEqual (jumpIfEqualIntermediate: Intermediates.JumpIfEqual): void
@@ -522,13 +522,13 @@ export class TranspilerLlvm implements Transpiler
         const comparisonVariableName = this.nextVariableName;
         const sizeName = this.getLlvmSizeString(leftOperand.size);
 
-        const leftOperandName = this.variableToNameMap.get(leftOperand);
+        const leftOperandName = this.intermediateVariableIndexToNameMap.get(leftOperand.index);
         if (leftOperandName === undefined)
         {
             throw new Error('Transpiler error: Tried to jump with a left operand that was not introduced.');
         }
 
-        const rightOperandName = this.variableToNameMap.get(rightOperand);
+        const rightOperandName = this.intermediateVariableIndexToNameMap.get(rightOperand.index);
         if (rightOperandName === undefined)
         {
             throw new Error('Transpiler error: Tried to jump with a right operand that was not introduced.');
@@ -575,7 +575,7 @@ export class TranspilerLlvm implements Transpiler
     private transpileMove (moveIntermediate: Intermediates.Move): void
     {
         const toName = this.nextVariableName;
-        this.variableToNameMap.set(moveIntermediate.to, toName);
+        this.intermediateVariableIndexToNameMap.set(moveIntermediate.to.index, toName);
 
         let fromTypeString: string;
         let fromName: string;
@@ -590,7 +590,7 @@ export class TranspilerLlvm implements Transpiler
             {
                 fromTypeString = this.getLlvmSizeString(moveIntermediate.from.size);
 
-                const fromVariableName = this.variableToNameMap.get(moveIntermediate.from);
+                const fromVariableName = this.intermediateVariableIndexToNameMap.get(moveIntermediate.from.index);
                 if (fromVariableName === undefined)
                 {
                     throw new Error('Transpiler error: Tried to move from a variable that was not introduced.');
@@ -623,19 +623,19 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileMultiply (multiplyIntermediate: Intermediates.Multiply): void
     {
-        const leftOperandName = this.variableToNameMap.get(multiplyIntermediate.leftOperand);
+        const leftOperandName = this.intermediateVariableIndexToNameMap.get(multiplyIntermediate.leftOperand.index);
         if (leftOperandName === undefined)
         {
             throw new Error('Transpiler error: Cannot multiply because the left operand is not introduced.');
         }
-        const rightOperandName = this.variableToNameMap.get(multiplyIntermediate.rightOperand);
+        const rightOperandName = this.intermediateVariableIndexToNameMap.get(multiplyIntermediate.rightOperand.index);
         if (rightOperandName === undefined)
         {
             throw new Error('Transpiler error: Cannot multiply because the right operand is not introduced.');
         }
 
         const targetName = this.nextVariableName;
-        this.variableToNameMap.set(multiplyIntermediate.leftOperand, targetName);
+        this.intermediateVariableIndexToNameMap.set(multiplyIntermediate.leftOperand.index, targetName);
 
         // TODO: What about the full product with double size an how to handle possible overflows?
         const sizeString = this.getLlvmSizeString(multiplyIntermediate.leftOperand.size);
@@ -647,14 +647,14 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileNegate (negateIntermediate: Intermediates.Negate): void
     {
-        const operandName = this.variableToNameMap.get(negateIntermediate.operand);
+        const operandName = this.intermediateVariableIndexToNameMap.get(negateIntermediate.operand.index);
         if (operandName === undefined)
         {
             throw new Error('Transpiler error: Cannot negate because the operand is not introduced.');
         }
 
         const targetName = this.nextVariableName;
-        this.variableToNameMap.set(negateIntermediate.operand, targetName);
+        this.intermediateVariableIndexToNameMap.set(negateIntermediate.operand.index, targetName);
 
         const sizeString = this.getLlvmSizeString(negateIntermediate.operand.size);
 
@@ -686,19 +686,19 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileSubtract (subtractIntermediate: Intermediates.Subtract): void
     {
-        const leftOperandName = this.variableToNameMap.get(subtractIntermediate.leftOperand);
+        const leftOperandName = this.intermediateVariableIndexToNameMap.get(subtractIntermediate.leftOperand.index);
         if (leftOperandName === undefined)
         {
             throw new Error('Transpiler error: Cannot subtract because the left operand is not introduced.');
         }
-        const rightOperandName = this.variableToNameMap.get(subtractIntermediate.rightOperand);
+        const rightOperandName = this.intermediateVariableIndexToNameMap.get(subtractIntermediate.rightOperand.index);
         if (rightOperandName === undefined)
         {
             throw new Error('Transpiler error: Cannot subtract because the right operand is not introduced.');
         }
 
         const targetName = this.nextVariableName;
-        this.variableToNameMap.set(subtractIntermediate.leftOperand, targetName);
+        this.intermediateVariableIndexToNameMap.set(subtractIntermediate.leftOperand.index, targetName);
 
         // We can assume that the right value fits into the left one (the target):
         const sizeString = this.getLlvmSizeString(subtractIntermediate.leftOperand.size);
@@ -715,7 +715,7 @@ export class TranspilerLlvm implements Transpiler
             case IntermediateSymbolKind.Parameter:
             {
                 const parameterName = this.getLlvmParameterName(takeIntermediate.takableValue.index);
-                const variableName = this.variableToNameMap.get(takeIntermediate.variableSymbol);
+                const variableName = this.intermediateVariableIndexToNameMap.get(takeIntermediate.variableSymbol.index);
 
                 if (variableName === undefined)
                 {
@@ -731,7 +731,7 @@ export class TranspilerLlvm implements Transpiler
             case IntermediateSymbolKind.ReturnValue:
             {
                 const returnName = this.getLlvmReturnName(takeIntermediate.takableValue.index);
-                const variableName = this.variableToNameMap.get(takeIntermediate.variableSymbol);
+                const variableName = this.intermediateVariableIndexToNameMap.get(takeIntermediate.variableSymbol.index);
 
                 if (variableName === undefined)
                 {

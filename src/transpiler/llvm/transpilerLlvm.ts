@@ -149,7 +149,7 @@ export class TranspilerLlvm implements Transpiler
             case IntermediateSize.Native:
                 return 'i64'; // FIXME: Input actual target word size.
             case IntermediateSize.Pointer:
-                return 'i64'; // FIXME: Is this correct? How about the star notiation in LLVM?
+                return 'i8*';
             case IntermediateSize.Void:
                 return 'void';
         }

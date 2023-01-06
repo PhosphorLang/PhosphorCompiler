@@ -108,12 +108,12 @@ export class TranspilerLlvm implements Transpiler
 
     private getLlvmParameterName (index: number): string
     {
-        return `%${index}p`;
+        return `%"${index}p"`;
     }
 
     private getLlvmReturnName (index: number): string
     {
-        return `%${index}r`;
+        return `%"${index}r"`;
     }
 
     private getLlvmConstantName (constantSymbol: IntermediateSymbols.Constant): string

@@ -157,11 +157,18 @@ export class TranspilerLlvm implements Transpiler
 
     private getLlvmConstantTypeString (constantSymbol: IntermediateSymbols.Constant): string
     {
+        const byteCount = this.getStringByteCount(constantSymbol.value);
+
+        return `i64, [${byteCount} x i8]`;
+    }
+
+    private getStringByteCount (theString: string): number
+    {
         // We need an encoded string to get the real byte count:
         const encoder = new TextEncoder();
-        const encodedString = encoder.encode(constantSymbol.value); // TODO: Encoding the string everytime it is used is suboptimal.
+        const encodedString = encoder.encode(theString); // TODO: Encoding the string everytime it is used is suboptimal.
 
-        return `i64, [${encodedString.length} x i8]`;
+        return encodedString.length;
     }
 
     private transpileFile (fileIntermediate: Intermediates.File): void
@@ -208,11 +215,14 @@ export class TranspilerLlvm implements Transpiler
         // TODO: This assumes that constants are always strings. Must be adjusted as soon as constants get a type (other than string only).
         const constantTypeString = this.getLlvmConstantTypeString(constantIntermediate.symbol);
 
+        const stringByteCount = this.getStringByteCount(constantIntermediate.symbol.value);
+        const constantValueString = `i64 ${stringByteCount}, [${stringByteCount} x i8] c"${constantIntermediate.symbol.value}"`;
+
         const instruction = new LlvmInstructions.Assignment(
             this.getLlvmConstantName(constantIntermediate.symbol),
             'global',
             '{' + constantTypeString + '}',
-            '{' + constantTypeString + 'c"' + constantIntermediate.symbol.value + '"}'
+            '{' + constantValueString + '}'
         );
 
         this.instructions.push(instruction);

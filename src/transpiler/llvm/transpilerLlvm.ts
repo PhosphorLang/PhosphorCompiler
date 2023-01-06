@@ -587,25 +587,45 @@ export class TranspilerLlvm implements Transpiler
         const toName = this.nextVariableName;
         this.intermediateVariableIndexToNameMap.set(moveIntermediate.to.index, toName);
 
-        let fromTypeString: string;
-        let fromName: string;
-
         switch (moveIntermediate.from.kind)
         {
             case IntermediateSymbolKind.Constant:
-                fromTypeString = this.getLlvmConstantTypeString(moveIntermediate.from) + '*';
-                fromName = this.getLlvmConstantName(moveIntermediate.from);
+            {
+                // %1 = i64, [12 x i8]* @"c#0"
+                // getelementptr [12 x i8], [12 x i8]* @.str, i64 0, i64 0
+
+                const constantTypeString = this.getLlvmConstantTypeString(moveIntermediate.from);
+                const constantName = this.getLlvmConstantName(moveIntermediate.from);
+
+                this.instructions.push(
+                    new LlvmInstructions.Assignment(
+                        toName,
+                        'getelementptr',
+                        '{' + constantTypeString + '},',
+                        '{' + constantTypeString + '}*',
+                        constantName + ',',
+                        'i32 0, i32 0' // TODO: Is i32 here correct? And if so, why?
+                    ),
+                );
+
                 break;
+            }
             case IntermediateSymbolKind.Variable:
             {
-                fromTypeString = this.getLlvmSizeString(moveIntermediate.from.size);
+                const fromTypeString = this.getLlvmSizeString(moveIntermediate.from.size);
 
                 const fromVariableName = this.intermediateVariableIndexToNameMap.get(moveIntermediate.from.index);
                 if (fromVariableName === undefined)
                 {
                     throw new Error('Transpiler error: Tried to move from a variable that was not introduced.');
                 }
-                fromName = fromVariableName;
+                const fromName = fromVariableName;
+
+                const fromString = fromTypeString + ' ' + fromName;
+
+                this.instructions.push(
+                    new LlvmInstructions.Assignment(toName, fromString),
+                );
 
                 break;
             }
@@ -620,15 +640,9 @@ export class TranspilerLlvm implements Transpiler
                     new LlvmInstructions.Assignment(toName, 'add', toSizeString, literalValue, ', 0'),
                 );
 
-                return;
+                break;
             }
         }
-
-        const fromString = fromTypeString + ' ' + fromName;
-
-        this.instructions.push(
-            new LlvmInstructions.Assignment(toName, fromString),
-        );
     }
 
     private transpileMultiply (multiplyIntermediate: Intermediates.Multiply): void

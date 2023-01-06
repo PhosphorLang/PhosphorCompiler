@@ -305,7 +305,9 @@ export class TranspilerLlvm implements Transpiler
                 this.transpileCompare(statementIntermediate);
                 break;
             case IntermediateKind.Dismiss:
-                this.transpileDismiss(statementIntermediate);
+                // Nothing to do here.
+                // Note that we could delete the variables from the map here. But then we would need to handle the dismisses between
+                // a compare and jump in a special way. (Have a look at transpileCompare for more information about this.)
                 break;
             case IntermediateKind.Give:
                 this.transpileGive(statementIntermediate);
@@ -424,16 +426,6 @@ export class TranspilerLlvm implements Transpiler
             compareIntermediate.leftOperand,
             compareIntermediate.rightOperand,
         ];
-    }
-
-    private transpileDismiss (dismissIntermediate: Intermediates.Dismiss): void
-    {
-        if (!this.variableToNameMap.has(dismissIntermediate.variableSymbol))
-        {
-            throw new Error('Transpiler error: Tried to dismiss a variable that was not introduced.');
-        }
-
-        this.variableToNameMap.delete(dismissIntermediate.variableSymbol);
     }
 
     private transpileGive (giveIntermediate: Intermediates.Give): void

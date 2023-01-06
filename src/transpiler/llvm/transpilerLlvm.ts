@@ -17,7 +17,7 @@ export class TranspilerLlvm implements Transpiler
     private get nextVariableName (): string
     {
         this.variableCounter++;
-        return `%${this.variableCounter}`;
+        return `%"${this.variableCounter}v"`;
     }
 
     /** Parameter counter, seperate from variables, for giving/taking parameters. */

@@ -119,13 +119,13 @@ export class TranspilerLlvm implements Transpiler
     private getLlvmConstantName (constantSymbol: IntermediateSymbols.Constant): string
     {
         // TODO: The quotes around the name allow all characters to be used in the name. Is there a better way than adding them here?
-        return '"@' + constantSymbol.name + '"';
+        return '@"' + constantSymbol.name + '"';
     }
 
     private getLlvmFunctionName (functionSymbol: IntermediateSymbols.Function): string
     {
         // TODO: The quotes around the name allow all characters to be used in the name. Is there a better way than adding them here?
-        return '"@' + functionSymbol.name + '"';
+        return '@"' + functionSymbol.name + '"';
     }
 
     private getLlvmLabelName (labelSymbol: IntermediateSymbols.Label): string

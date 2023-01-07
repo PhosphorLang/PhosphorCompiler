@@ -149,17 +149,10 @@ export class TranspilerLlvm implements Transpiler
             case IntermediateSize.Native:
                 return 'i64'; // FIXME: Input actual target word size.
             case IntermediateSize.Pointer:
-                return 'i8*';
+                return 'ptr';
             case IntermediateSize.Void:
                 return 'void';
         }
-    }
-
-    private getLlvmConstantTypeString (constantSymbol: IntermediateSymbols.Constant): string
-    {
-        const byteCount = this.getStringByteCount(constantSymbol.value);
-
-        return `i64, [${byteCount} x i8]`;
     }
 
     private getStringByteCount (theString: string): number
@@ -213,10 +206,15 @@ export class TranspilerLlvm implements Transpiler
     private transpileConstant (constantIntermediate: Intermediates.Constant): void
     {
         // TODO: This assumes that constants are always strings. Must be adjusted as soon as constants get a type (other than string only).
-        const constantTypeString = this.getLlvmConstantTypeString(constantIntermediate.symbol);
 
         const stringByteCount = this.getStringByteCount(constantIntermediate.symbol.value);
-        const constantValueString = `i64 ${stringByteCount}, [${stringByteCount} x i8] c"${constantIntermediate.symbol.value}"`;
+
+        const byteType = this.getLlvmSizeString(IntermediateSize.Int8);
+        const nativeType = this.getLlvmSizeString(IntermediateSize.Native);
+
+        const constantTypeString = `${nativeType}, [${stringByteCount} x ${byteType}]`;
+        const constantValueString =
+            `${nativeType} ${stringByteCount}, [${stringByteCount} x ${byteType}] c"${constantIntermediate.symbol.value}"`;
 
         const instruction = new LlvmInstructions.Assignment(
             this.getLlvmConstantName(constantIntermediate.symbol),
@@ -591,20 +589,18 @@ export class TranspilerLlvm implements Transpiler
         {
             case IntermediateSymbolKind.Constant:
             {
-                // %1 = i64, [12 x i8]* @"c#0"
-                // getelementptr [12 x i8], [12 x i8]* @.str, i64 0, i64 0
-
-                const constantTypeString = this.getLlvmConstantTypeString(moveIntermediate.from);
-                const constantName = this.getLlvmConstantName(moveIntermediate.from);
+                const constantName = this.getLlvmLocalEscapedName(moveIntermediate.from);
+                const constantSizeString = this.getLlvmSizeString(moveIntermediate.from.size);
+                const byteSizeString = this.getLlvmSizeString(IntermediateSize.Int8);
 
                 this.instructions.push(
                     new LlvmInstructions.Assignment(
                         toName,
                         'getelementptr',
-                        '{' + constantTypeString + '},',
-                        '{' + constantTypeString + '}*',
+                        byteSizeString + ',',
+                        constantSizeString,
                         constantName + ',',
-                        'i32 0, i32 0' // TODO: Is i32 here correct? And if so, why?
+                        byteSizeString +' 0',
                     ),
                 );
 

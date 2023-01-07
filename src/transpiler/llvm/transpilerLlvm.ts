@@ -137,15 +137,6 @@ export class TranspilerLlvm implements Transpiler
         }
     }
 
-    private getStringByteCount (theString: string): number
-    {
-        // We need an encoded string to get the real byte count:
-        const encoder = new TextEncoder();
-        const encodedString = encoder.encode(theString); // TODO: Encoding the string everytime it is used is suboptimal.
-
-        return encodedString.length;
-    }
-
     private transpileFile (fileIntermediate: Intermediates.File): void
     {
         for (const constant of fileIntermediate.constants)
@@ -189,7 +180,11 @@ export class TranspilerLlvm implements Transpiler
     {
         // TODO: This assumes that constants are always strings. Must be adjusted as soon as constants get a type (other than string only).
 
-        const stringByteCount = this.getStringByteCount(constantIntermediate.symbol.value);
+        // We need an encoded string to get the real byte count:
+        const encoder = new TextEncoder();
+        const encodedString = encoder.encode(constantIntermediate.symbol.value);
+
+        const stringByteCount = encodedString.length;
 
         const byteType = this.getLlvmSizeString(IntermediateSize.Int8);
         const nativeType = this.getLlvmSizeString(IntermediateSize.Native);

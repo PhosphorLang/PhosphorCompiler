@@ -20,22 +20,6 @@ export class TranspilerLlvm implements Transpiler
         return `%"${this.variableCounter}v"`;
     }
 
-    /** Parameter counter, seperate from variables, for giving/taking parameters. */
-    private parameterCounter: number;
-    private get nextParameterName (): string
-    {
-        this.parameterCounter++;
-        return this.getLlvmParameterName(this.parameterCounter);
-    }
-
-    /** Return counter, seperate from variables, for giving/taking returning values. */
-    private returnCounter: number;
-    private get nextReturnName (): string
-    {
-        this.returnCounter++;
-        return this.getLlvmReturnName(this.returnCounter);
-    }
-
     /** Label counter for the generation of basic blocks as required by LLVM. */
     private labelCounter: number;
     private get nextLabelName (): string
@@ -46,6 +30,10 @@ export class TranspilerLlvm implements Transpiler
 
     /** Map of intermediate variables (their indices) to their LLVM variable/register name. */
     private intermediateVariableIndexToNameMap: Map<number, string>;
+    /** Map of intermediate parameters (their indices) to their LLVM variable/register name. */
+    private intermediateParameterIndexToNameMap: Map<number, string>;
+    /** Map of intermediate returns (their indices) to their LLVM variable/register name. */
+    private intermediateReturnIndexToNameMap: Map<number, string>;
 
     private currentFunction: IntermediateSymbols.Function | null;
     private compareOperands: [leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable] | null;
@@ -55,11 +43,11 @@ export class TranspilerLlvm implements Transpiler
         this.instructions = [];
 
         this.variableCounter = -1;
-        this.parameterCounter = -1;
-        this.returnCounter = -1;
         this.labelCounter = -1;
 
         this.intermediateVariableIndexToNameMap = new Map();
+        this.intermediateParameterIndexToNameMap = new Map();
+        this.intermediateReturnIndexToNameMap = new Map();
 
         this.currentFunction = null;
         this.compareOperands = null;
@@ -116,16 +104,10 @@ export class TranspilerLlvm implements Transpiler
         return `%"${index}r"`;
     }
 
-    private getLlvmConstantName (constantSymbol: IntermediateSymbols.Constant): string
+    private getLlvmLocalEscapedName (intermediateSymbol: IntermediateSymbols.IntermediateSymbol): string
     {
         // TODO: The quotes around the name allow all characters to be used in the name. Is there a better way than adding them here?
-        return '@"' + constantSymbol.name + '"';
-    }
-
-    private getLlvmFunctionName (functionSymbol: IntermediateSymbols.Function): string
-    {
-        // TODO: The quotes around the name allow all characters to be used in the name. Is there a better way than adding them here?
-        return '@"' + functionSymbol.name + '"';
+        return '@"' + intermediateSymbol.name + '"';
     }
 
     private getLlvmLabelName (labelSymbol: IntermediateSymbols.Label): string
@@ -217,7 +199,7 @@ export class TranspilerLlvm implements Transpiler
             `${nativeType} ${stringByteCount}, [${stringByteCount} x ${byteType}] c"${constantIntermediate.symbol.value}"`;
 
         const instruction = new LlvmInstructions.Assignment(
-            this.getLlvmConstantName(constantIntermediate.symbol),
+            this.getLlvmLocalEscapedName(constantIntermediate.symbol),
             'global',
             '{' + constantTypeString + '}',
             '{' + constantValueString + '}'
@@ -239,7 +221,7 @@ export class TranspilerLlvm implements Transpiler
         const instruction = new LlvmInstructions.Function(
             'declare',
             this.getLlvmSizeString(externalIntermediate.symbol.returnSize),
-            this.getLlvmFunctionName(externalIntermediate.symbol),
+            this.getLlvmLocalEscapedName(externalIntermediate.symbol),
             parameters,
         );
 
@@ -249,18 +231,18 @@ export class TranspilerLlvm implements Transpiler
     private transpileFunction (functionIntermediate: Intermediates.Function): void
     {
         this.variableCounter = -1;
-        this.parameterCounter = -1;
-        this.returnCounter = -1;
         this.labelCounter = -1;
         this.intermediateVariableIndexToNameMap.clear();
+        this.intermediateParameterIndexToNameMap.clear();
+        this.intermediateReturnIndexToNameMap.clear();
         this.currentFunction = functionIntermediate.symbol;
 
-        // TODO: The following is duplicate code with transpileCall(). Could this be unified?
         const parameterStrings: string[] = [];
-        for (const parameterSize of functionIntermediate.symbol.parameters)
+        for (let parameterIndex = 0; parameterIndex < functionIntermediate.symbol.parameters.length; parameterIndex++)
         {
+            const parameterSize = functionIntermediate.symbol.parameters[parameterIndex];
             const parameterSizeString = this.getLlvmSizeString(parameterSize);
-            const parameterName = this.nextParameterName;
+            const parameterName = this.getLlvmParameterName(parameterIndex);
             const parameterString = parameterSizeString + ' ' + parameterName;
 
             parameterStrings.push(parameterString);
@@ -269,7 +251,7 @@ export class TranspilerLlvm implements Transpiler
         const instruction = new LlvmInstructions.Function(
             'define',
             this.getLlvmSizeString(functionIntermediate.symbol.returnSize),
-            this.getLlvmFunctionName(functionIntermediate.symbol),
+            this.getLlvmLocalEscapedName(functionIntermediate.symbol),
             parameterStrings,
         );
 
@@ -292,10 +274,10 @@ export class TranspilerLlvm implements Transpiler
         );
 
         this.variableCounter = -1;
-        this.parameterCounter = -1;
-        this.returnCounter = -1;
         this.labelCounter = -1;
         this.intermediateVariableIndexToNameMap.clear();
+        this.intermediateParameterIndexToNameMap.clear();
+        this.intermediateReturnIndexToNameMap.clear();
         this.currentFunction = null;
     }
 
@@ -385,33 +367,52 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileCall (callIntermediate: Intermediates.Call): void
     {
-        const returnName = this.nextReturnName;
-
-        /* TODO: The following assumes that all parameters are given immediately before the function call (with only dismisses inbetween).
-                 Is this assumption correct and if yes, can it be documented in the intermediate language? */
-        let parameterIndex = this.parameterCounter - callIntermediate.functionSymbol.parameters.length;
         const parameterStrings: string[] = [];
-        for (const parameterSize of callIntermediate.functionSymbol.parameters)
+        for (let parameterIndex = 0; parameterIndex < callIntermediate.functionSymbol.parameters.length; parameterIndex++)
         {
+            const parameterSize = callIntermediate.functionSymbol.parameters[parameterIndex];
             const parameterSizeString = this.getLlvmSizeString(parameterSize);
-            const parameterName = this.getLlvmParameterName(parameterIndex);
-            parameterIndex += 1;
+
+            const parameterName = this.intermediateParameterIndexToNameMap.get(parameterIndex);
+            if (parameterName === undefined)
+            {
+                throw new Error('Transpiler error: Cannot call function because a parameter is not introduced.');
+            }
+
             const parameterString = parameterSizeString + ' ' + parameterName;
+
             parameterStrings.push(parameterString);
         }
+        this.intermediateParameterIndexToNameMap.clear();
 
         // TODO: The following is duplicate code with AssignmentInstruction.constructor. Could this be unified?
         const parameterString = '(' + parameterStrings.join(', ') + ')';
 
-        this.instructions.push(
-            new LlvmInstructions.Assignment(
-                returnName,
-                'call',
-                this.getLlvmSizeString(callIntermediate.functionSymbol.returnSize),
-                this.getLlvmFunctionName(callIntermediate.functionSymbol),
-                parameterString,
-            ),
-        );
+        if (callIntermediate.functionSymbol.returnSize === IntermediateSize.Void)
+        {
+            this.instructions.push(
+                new Instructions.Instruction(
+                    'call',
+                    this.getLlvmSizeString(callIntermediate.functionSymbol.returnSize),
+                    this.getLlvmLocalEscapedName(callIntermediate.functionSymbol),
+                    parameterString,
+                )
+            );
+        }
+        else
+        {
+            const returnName = this.getLlvmReturnName(0);
+
+            this.instructions.push(
+                new LlvmInstructions.Assignment(
+                    returnName,
+                    'call',
+                    this.getLlvmSizeString(callIntermediate.functionSymbol.returnSize),
+                    this.getLlvmLocalEscapedName(callIntermediate.functionSymbol),
+                    parameterString,
+                ),
+            );
+        }
     }
 
     private transpileCompare (compareIntermediate: Intermediates.Compare): void
@@ -438,44 +439,20 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileGive (giveIntermediate: Intermediates.Give): void
     {
+        const variableName = this.intermediateVariableIndexToNameMap.get(giveIntermediate.variable.index);
+        if (variableName === undefined)
+        {
+            throw new Error('Transpiler error: Tried to give from a variable that was not introduced.');
+        }
+
         switch (giveIntermediate.targetSymbol.kind)
         {
             case IntermediateSymbolKind.Parameter:
-            {
-                const parameterName = this.nextParameterName;
-                /* TODO: The following assumes that the variable has been introduced right before the parameter is given and not used yet.
-                         I think this is in line with the intermediate language but should be documented somewhere. */
-                const variableName = this.intermediateVariableIndexToNameMap.get(giveIntermediate.variable.index);
-
-                if (variableName === undefined)
-                {
-                    throw new Error('Transpiler error: Tried to give a parameter from a variable that was not introduced.');
-                }
-
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(parameterName, variableName),
-                );
-
+                this.intermediateParameterIndexToNameMap.set(giveIntermediate.targetSymbol.index, variableName);
                 break;
-            }
             case IntermediateSymbolKind.ReturnValue:
-            {
-                const returnName = this.nextReturnName;
-                /* TODO: The following assumes that the variable has been introduced right before the return is given and not used yet.
-                         I think this is in line with the intermediate language but should be documented somewhere. */
-                const variableName = this.intermediateVariableIndexToNameMap.get(giveIntermediate.variable.index);
-
-                if (variableName === undefined)
-                {
-                    throw new Error('Transpiler error: Tried to give a return value from a variable that was not introduced.');
-                }
-
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(returnName, variableName),
-                );
-
+                this.intermediateReturnIndexToNameMap.set(giveIntermediate.targetSymbol.index, variableName);
                 break;
-            }
         }
     }
 
@@ -694,14 +671,25 @@ export class TranspilerLlvm implements Transpiler
         // TODO: Instead of needing the "currentFunction" workaround, could the return intermediate include the function symbol?
 
         const returnSizeString = this.getLlvmSizeString(this.currentFunction.returnSize);
-        /* TODO: The following assumes that all return values are given immediately before the return (with only dismisses inbetween).
-                 Is this assumption correct and if yes, can it be documented in the intermediate language? */
-        // TODO: This assumes there can only be a single return value. The intermediate language does not have this restriction (yet).
-        const returnName = this.getLlvmReturnName(this.returnCounter);
 
-        this.instructions.push(
-            new Instructions.Instruction('ret', returnSizeString, returnName),
-        );
+        if (this.currentFunction.returnSize == IntermediateSize.Void)
+        {
+            this.instructions.push(
+                new Instructions.Instruction('ret', returnSizeString),
+            );
+        }
+        else
+        {
+            const returnName = this.intermediateReturnIndexToNameMap.get(0);
+            if (returnName === undefined)
+            {
+                throw new Error('Transpiler error: Tried to return a value that was not given.');
+            }
+
+            this.instructions.push(
+                new Instructions.Instruction('ret', returnSizeString, returnName),
+            );
+        }
     }
 
     private transpileSubtract (subtractIntermediate: Intermediates.Subtract): void
@@ -735,32 +723,14 @@ export class TranspilerLlvm implements Transpiler
             case IntermediateSymbolKind.Parameter:
             {
                 const parameterName = this.getLlvmParameterName(takeIntermediate.takableValue.index);
-                const variableName = this.intermediateVariableIndexToNameMap.get(takeIntermediate.variableSymbol.index);
-
-                if (variableName === undefined)
-                {
-                    throw new Error('Transpiler error: Tried to take a parameter to a variable that was not introduced.');
-                }
-
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(variableName, parameterName),
-                );
+                this.intermediateVariableIndexToNameMap.set(takeIntermediate.variableSymbol.index, parameterName);
 
                 break;
             }
             case IntermediateSymbolKind.ReturnValue:
             {
                 const returnName = this.getLlvmReturnName(takeIntermediate.takableValue.index);
-                const variableName = this.intermediateVariableIndexToNameMap.get(takeIntermediate.variableSymbol.index);
-
-                if (variableName === undefined)
-                {
-                    throw new Error('Transpiler error: Tried to take a return value to a variable that was not introduced.');
-                }
-
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(variableName, returnName),
-                );
+                this.intermediateVariableIndexToNameMap.set(takeIntermediate.variableSymbol.index, returnName);
 
                 break;
             }

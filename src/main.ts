@@ -1,25 +1,20 @@
 #!/usr/bin/env node
 
 import * as Diagnostic from './diagnostic';
-import { ProcessArguments,ProcessArgumentsError } from './processArguments';
-import { Assembler } from './assembler/assembler';
-import { AssemblerAmd64Linux } from './assembler/amd64/linux/assemblerAmd64Linux';
-import { AssemblerAvr } from './assembler/avr/assemblerAvr';
+import * as Intermediates from './lowerer/intermediates';
+import * as SemanticNodes from './connector/semanticNodes';
+import { ProcessArguments, ProcessArgumentsError } from './processArguments';
+import { AvrBackend } from './backends/AvrBackend';
 import { Connector } from './connector/connector';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
 import { Lexer } from './lexer/lexer';
-import { Linker } from './linker/linker';
-import { LinkerAmd64Linux } from './linker/amd64/linux/linkerAmd64Linux';
-import { LinkerAvr } from './linker/avr/linkerAvr';
+import { LinuxAmd64Backend } from './backends/linuxAmd64Backend';
 import { Lowerer } from './lowerer/lowerer';
 import os from 'os';
 import { Parser } from './parser/parser';
 import Path from 'path';
 import { TargetPlatform } from './options/targetPlatform';
-import { Transpiler } from './transpiler/transpiler';
-import { TranspilerAmd64Linux } from './transpiler/amd64/linux/transpilerAmd64Linux';
-import { TranspilerAvr } from './transpiler/avr/transpilerAvr';
 import { TranspilerIntermediate } from './transpiler/intermediate/transpilerIntermediate';
 
 class Main
@@ -51,63 +46,43 @@ class Main
         const importer = new Importer(diagnostic, lexer, parser, standardLibraryTargetPath);
         const connector = new Connector(diagnostic);
         const lowerer = new Lowerer();
-        let transpiler: Transpiler|TranspilerAvr;
-        let assembler: Assembler;
-        let linker: Linker;
-
-        switch (this.arguments.targetPlatform)
-        {
-            case TargetPlatform.LinuxAmd64:
-                transpiler = new TranspilerAmd64Linux();
-                assembler = new AssemblerAmd64Linux();
-                linker = new LinkerAmd64Linux();
-                break;
-            case TargetPlatform.Avr:
-                diagnostic.add(
-                    new Diagnostic.Warning(
-                        'The AVR target platform is highly experimental and will probably not work.',
-                        Diagnostic.Codes.ExperimentalPlatformWarning
-                    )
-                );
-                transpiler = new TranspilerAvr();
-                assembler = new AssemblerAvr();
-                linker = new LinkerAvr();
-                break;
-        }
 
         // Create temporary directory for intermediate (IL, ASM, binary etc.) files:
         // TODO: The temporary directory should be formalised or, if possible, completely removed.
-        if (!FileSystem.existsSync('tmp'))
+        const temporaryDirectoryPath = 'tmp';
+        if (!FileSystem.existsSync(temporaryDirectoryPath))
         {
-            FileSystem.mkdirSync('tmp');
+            FileSystem.mkdirSync(temporaryDirectoryPath);
         }
 
         const fileContent = FileSystem.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
 
-        let assembly: string;
+        let semanticTree: SemanticNodes.File;
+        let intermediateLanguage: Intermediates.File;
         try
         {
             const tokens = lexer.run(fileContent, this.arguments.filePath);
             const syntaxTree = parser.run(tokens, this.arguments.filePath);
             const importedSyntaxTrees = importer.run(syntaxTree, this.arguments.filePath);
-            const semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
-            const intermediateLanguage = lowerer.run(semanticTree);
+            semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
+            intermediateLanguage = lowerer.run(semanticTree);
 
             if (this.arguments.intermediate)
             {
                 const intermediateTranspiler = new TranspilerIntermediate();
                 const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
 
-                FileSystem.writeFileSync('tmp/test.phi', intermediateCode, {encoding: 'utf8'});
+                FileSystem.writeFileSync(Path.join(temporaryDirectoryPath, 'test.phi'), intermediateCode, {encoding: 'utf8'});
             }
 
-            if (transpiler instanceof TranspilerAvr)
+            if (this.arguments.targetPlatform == TargetPlatform.Avr)
             {
-                assembly = transpiler.run(semanticTree);
-            }
-            else
-            {
-                assembly = transpiler.run(intermediateLanguage);
+                diagnostic.add(
+                    new Diagnostic.Warning(
+                        'The AVR target platform is highly experimental and will probably not work.',
+                        Diagnostic.Codes.ExperimentalPlatformWarning
+                    )
+                );
             }
 
             diagnostic.end();
@@ -147,18 +122,25 @@ class Main
             }
         }
 
-        // TODO: Check if the exit code is non-zero in case of errors.
-
-        FileSystem.writeFileSync('tmp/test.asm', assembly, {encoding: 'utf8'});
-
-        assembler.run('tmp/test.asm', 'tmp/test.o');
+        // TODO: Check if the exit codes of assemblers/linkers/compilers in the backends is non-zero in case of errors.
 
         const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
 
-        const linkerFiles = ['tmp/test.o'];
-        const libraryFiles = [standardLibraryFilePath];
-
-        linker.run(this.arguments.outputPath, linkerFiles, libraryFiles);
+        switch (this.arguments.targetPlatform)
+        {
+            case TargetPlatform.LinuxAmd64:
+            {
+                const backend = new LinuxAmd64Backend();
+                backend.run(intermediateLanguage, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
+                break;
+            }
+            case TargetPlatform.Avr:
+            {
+                const backend = new AvrBackend();
+                backend.run(semanticTree, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
+                break;
+            }
+        }
     }
 }
 

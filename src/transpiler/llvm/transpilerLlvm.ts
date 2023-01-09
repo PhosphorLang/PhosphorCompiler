@@ -369,7 +369,7 @@ export class TranspilerLlvm implements Transpiler
         const sizeString = this.getLlvmSizeString(addIntermediate.leftOperand.size);
 
         this.instructions.push(
-            new LlvmInstructions.Assignment(targetName, 'add', sizeString, leftOperandName, ',', rightOperandName),
+            new LlvmInstructions.Assignment(targetName, 'add', sizeString, leftOperandName + ',', rightOperandName),
         );
     }
 
@@ -626,7 +626,7 @@ export class TranspilerLlvm implements Transpiler
 
                 // HACK: There is no way in LLVM IR to put a literal value into a register, thus we need this addition hack.
                 this.instructions.push(
-                    new LlvmInstructions.Assignment(toName, 'add', toSizeString, literalValue, ', 0'),
+                    new LlvmInstructions.Assignment(toName, 'add', toSizeString, literalValue + ',', '0'),
                 );
 
                 break;

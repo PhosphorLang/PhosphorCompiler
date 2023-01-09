@@ -59,6 +59,19 @@ export class TranspilerLlvm implements Transpiler
 
         this.transpileFile(fileIntermediate);
 
+        this.instructions.push(
+            new Instructions.Instruction(''), // Empty line
+            new Instructions.Instruction('declare', 'void', '@exit', '()', 'noreturn'),
+            // The start routine calls main and then exits properly:
+            new LlvmInstructions.Function('define', 'void', '@_start', []),
+            new Instructions.Instruction('{'),
+            new Instructions.Label('entry'),
+            new Instructions.Instruction('call', 'void', '@main', '()'),
+            new Instructions.Instruction('call', 'void', '@exit', '()'),
+            new Instructions.Instruction('ret', 'void'),
+            new Instructions.Instruction('}'),
+        );
+
         const fileText = this.convertInstructionsToText(this.instructions);
 
         return fileText;

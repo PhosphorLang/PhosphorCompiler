@@ -195,7 +195,7 @@ export class TranspilerLlvm implements Transpiler
 
         const instruction = new LlvmInstructions.Assignment(
             this.getLlvmLocalEscapedName(constantIntermediate.symbol),
-            'global',
+            'constant',
             '{' + constantTypeString + '}',
             '{' + constantValueString + '}'
         );

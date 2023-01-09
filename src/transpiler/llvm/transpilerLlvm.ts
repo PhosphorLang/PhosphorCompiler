@@ -467,7 +467,7 @@ export class TranspilerLlvm implements Transpiler
     private transpileGoto (gotoIntermediate: Intermediates.Goto): void
     {
         this.instructions.push(
-            new Instructions.Instruction('br', 'label', this.getLlvmLabelName(gotoIntermediate.target)),
+            new LlvmInstructions.Branch(this.getLlvmLabelName(gotoIntermediate.target)),
         );
 
         // We need an additional label after the goto to fullfil LLVM's basic block requirements:
@@ -541,9 +541,7 @@ export class TranspilerLlvm implements Transpiler
         const falseLabelName = this.nextLabelName;
 
         this.instructions.push(
-            new Instructions.Instruction(
-                'br',
-                'i1',
+            new LlvmInstructions.Branch(
                 comparisonVariableName,
                 this.getLlvmLabelName(target),
                 falseLabelName

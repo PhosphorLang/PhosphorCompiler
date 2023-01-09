@@ -470,10 +470,7 @@ export class TranspilerLlvm implements Transpiler
             new LlvmInstructions.Branch(this.getLlvmLabelName(gotoIntermediate.target)),
         );
 
-        // We need an additional label after the goto to fullfil LLVM's basic block requirements:
-        this.instructions.push(
-            new Instructions.Label(this.nextLabelName),
-        );
+        // TODO: Is it really guaranteed that there is in all cases a label behind a goto instruction?
     }
 
     private transpileIntroduce (introduceIntermediate: Intermediates.Introduce): void

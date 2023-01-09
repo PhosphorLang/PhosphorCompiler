@@ -557,11 +557,11 @@ export class TranspilerLlvm implements Transpiler
     {
         const labelName = this.getLlvmLabelName(labelIntermediate.symbol);
 
-        // If the last instruction is already a label, we cannot simply add another one behind it because every basic block must end with
-        // a jump instruction. The easy workaround is to add a jump instruction to our new label which can be optimised away by the LLVM
-        // compiler.
+        // If the last instruction is anythin other than a branch instruction, we must close the basic block first before we can add a label
+        // (especially if the instruction is already a label). The easy workaround is to add a jump instruction to our new label which can
+        // be optimised away by the LLVM compiler.
         // TODO: Is there a better and cleaner way to do this?
-        if (this.instructions[this.instructions.length - 1] instanceof Instructions.Label)
+        if (!(this.instructions[this.instructions.length - 1] instanceof LlvmInstructions.Branch))
         {
             this.instructions.push(
                 new LlvmInstructions.Branch(labelName),

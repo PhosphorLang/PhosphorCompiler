@@ -25,7 +25,7 @@ export class TranspilerLlvm implements Transpiler
     private get nextLabelName (): string
     {
         this.labelCounter++;
-        return `${this.labelCounter}l`;
+        return `"${this.labelCounter}l"`;
     }
 
     /** Map of intermediate variables (their indices) to their LLVM variable/register name. */

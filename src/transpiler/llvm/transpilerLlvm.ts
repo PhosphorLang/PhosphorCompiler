@@ -538,19 +538,21 @@ export class TranspilerLlvm implements Transpiler
             )
         );
 
+        const falseLabelName = this.nextLabelName;
+
         this.instructions.push(
             new Instructions.Instruction(
                 'br',
                 'i1',
                 comparisonVariableName,
                 this.getLlvmLabelName(target),
-                this.nextLabelName
+                falseLabelName
             )
         );
 
         // We need an additional label after the conditional jump to fullfil LLVM's basic block requirements:
         this.instructions.push(
-            new Instructions.Label(this.nextLabelName),
+            new Instructions.Label(falseLabelName),
         );
 
         this.compareOperands = null;

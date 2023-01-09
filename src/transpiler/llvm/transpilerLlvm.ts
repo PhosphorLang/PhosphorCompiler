@@ -530,7 +530,7 @@ export class TranspilerLlvm implements Transpiler
                 'icmp',
                 condition,
                 sizeName,
-                leftOperandName,
+                leftOperandName + ',',
                 rightOperandName,
             )
         );

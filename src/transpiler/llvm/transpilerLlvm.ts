@@ -2,6 +2,7 @@ import * as Instructions from '../common/instructions';
 import * as Intermediates from '../../lowerer/intermediates';
 import * as IntermediateSymbols from '../../lowerer/intermediateSymbols';
 import * as LlvmInstructions from './llvmInstructions';
+import { ArrayBuilder } from '../../utility/arrayBuilder';
 import { IntermediateKind } from '../../lowerer/intermediateKind';
 import { IntermediateSize } from '../../lowerer/intermediateSize';
 import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
@@ -10,7 +11,7 @@ import { Transpiler } from '../transpiler';
 
 export class TranspilerLlvm implements Transpiler
 {
-    private instructions: Instructions.Instruction[];
+    private instructions: ArrayBuilder<Instructions.Instruction>;
 
     /** Counter for variables as all variables/registers in LLVM must only be assigned to once. */
     private variableCounter: number;
@@ -40,7 +41,7 @@ export class TranspilerLlvm implements Transpiler
 
     constructor ()
     {
-        this.instructions = [];
+        this.instructions = new ArrayBuilder();
 
         this.variableCounter = -1;
         this.labelCounter = -1;
@@ -55,7 +56,7 @@ export class TranspilerLlvm implements Transpiler
 
     public run (fileIntermediate: Intermediates.File): string
     {
-        this.instructions = [];
+        this.instructions.clear();
 
         this.transpileFile(fileIntermediate);
 
@@ -72,7 +73,7 @@ export class TranspilerLlvm implements Transpiler
             new Instructions.Instruction('}'),
         );
 
-        const fileText = this.convertInstructionsToText(this.instructions);
+        const fileText = this.convertInstructionsToText(this.instructions.toArray());
 
         return fileText;
     }
@@ -561,7 +562,7 @@ export class TranspilerLlvm implements Transpiler
         // (especially if the instruction is already a label). The easy workaround is to add a jump instruction to our new label which can
         // be optimised away by the LLVM compiler.
         // TODO: Is there a better and cleaner way to do this?
-        if (!(this.instructions[this.instructions.length - 1] instanceof LlvmInstructions.Branch))
+        if (!(this.instructions.lastElement instanceof LlvmInstructions.Branch))
         {
             this.instructions.push(
                 new LlvmInstructions.Branch(labelName),

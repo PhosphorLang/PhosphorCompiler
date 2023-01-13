@@ -407,15 +407,18 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileAdd (addIntermediate: Intermediates.Add): void
     {
-        const leftOperandName = this.getLlvmLocalName(addIntermediate.leftOperand);
-        const rightOperandName = this.getLlvmLocalName(addIntermediate.rightOperand);
+        const leftOperandRegister = this.loadIntoRegister(addIntermediate.leftOperand);
+        const rightOperandRegister = this.loadIntoRegister(addIntermediate.rightOperand);
+        const resultRegister = this.nextVariableName;
 
         // We can assume that the right value fits into the left one (the target):
         const sizeString = this.getLlvmSizeString(addIntermediate.leftOperand.size);
 
         this.instructions.push(
-            new LlvmInstructions.Assignment(leftOperandName, 'add', sizeString, leftOperandName + ',', rightOperandName),
+            new LlvmInstructions.Assignment(resultRegister, 'add', sizeString, leftOperandRegister + ',', rightOperandRegister),
         );
+
+        this.storeIntoVariable(resultRegister, addIntermediate.leftOperand);
     }
 
     private transpileCall (callIntermediate: Intermediates.Call): void

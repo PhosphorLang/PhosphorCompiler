@@ -9,12 +9,16 @@ import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
 import { TextEncoder } from 'node:util';
 import { Transpiler } from '../transpiler';
 
+// TODO: Some of the instructions in this transpiler still have to add quotes and commas manually. Could that situation be further improved?
+
 export class TranspilerLlvm implements Transpiler
 {
+    private readonly pointerSizeString = this.getLlvmSizeString(IntermediateSize.Pointer);
+
     private instructions: ArrayBuilder<Instructions.Instruction>;
 
-    /** Counter for variables as all variables/registers in LLVM must only be assigned to once. */
-    private variableCounter: number;
+    /** Counter for temporary variables. */
+    private variableCounter: number; // TODO: Should "variable" renamed into "register"?
     private get nextVariableName (): string
     {
         this.variableCounter++;
@@ -29,12 +33,10 @@ export class TranspilerLlvm implements Transpiler
         return `"${this.labelCounter}l"`;
     }
 
-    /** Map of intermediate variables (their indices) to their LLVM variable/register name. */
-    private intermediateVariableIndexToNameMap: Map<number, string>;
-    /** Map of intermediate parameters (their indices) to their LLVM variable/register name. */
-    private intermediateParameterIndexToNameMap: Map<number, string>;
-    /** Map of intermediate returns (their indices) to their LLVM variable/register name. */
-    private intermediateReturnIndexToNameMap: Map<number, string>;
+    private outgoingParameterIndexToName: Map<number, string>;
+    private incomingReturnName: string|null;
+
+    private variableIntroductions: Instructions.Instruction[];
 
     private currentFunction: IntermediateSymbols.Function | null;
     private compareOperands: [leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable] | null;
@@ -46,9 +48,10 @@ export class TranspilerLlvm implements Transpiler
         this.variableCounter = -1;
         this.labelCounter = -1;
 
-        this.intermediateVariableIndexToNameMap = new Map();
-        this.intermediateParameterIndexToNameMap = new Map();
-        this.intermediateReturnIndexToNameMap = new Map();
+        this.outgoingParameterIndexToName = new Map();
+        this.incomingReturnName = null;
+
+        this.variableIntroductions = [];
 
         this.currentFunction = null;
         this.compareOperands = null;
@@ -118,16 +121,19 @@ export class TranspilerLlvm implements Transpiler
         return `%"${index}r"`;
     }
 
-    private getLlvmLocalEscapedName (intermediateSymbol: IntermediateSymbols.IntermediateSymbol): string
+    private getLlvmName (intermediateSymbol: IntermediateSymbols.IntermediateSymbol): string
     {
-        // TODO: The quotes around the name allow all characters to be used in the name. Is there a better way than adding them here?
-        return '@"' + intermediateSymbol.name + '"';
+        return '"' + intermediateSymbol.name + '"';
     }
 
-    private getLlvmLabelName (labelSymbol: IntermediateSymbols.Label): string
+    private getLlvmLocalName (intermediateSymbol: IntermediateSymbols.IntermediateSymbol): string
     {
-        // TODO: The quotes around the name allow all characters to be used in the name. Is there a better way than adding them here?
-        return '"' + labelSymbol.name + '"';
+        return '%' + this.getLlvmName(intermediateSymbol);
+    }
+
+    private getLlvmGlobalName (intermediateSymbol: IntermediateSymbols.IntermediateSymbol): string
+    {
+        return '@' + this.getLlvmName(intermediateSymbol);
     }
 
     private getLlvmSizeString (intermediateSize: IntermediateSize): string
@@ -149,6 +155,50 @@ export class TranspilerLlvm implements Transpiler
             case IntermediateSize.Void:
                 return 'void';
         }
+    }
+
+    /**
+     * Load a variable into a register.
+     * @param variable The variable to load from.
+     * @returns The name of the register.
+     */
+    private loadIntoRegister (variable: IntermediateSymbols.Variable): string
+    {
+        const registerName = this.nextVariableName;
+
+        const fromVariableName = this.getLlvmLocalName(variable);
+        const fromSizeString = this.getLlvmSizeString(variable.size);
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(
+                registerName,
+                'load',
+                fromSizeString + ',',
+                this.pointerSizeString,
+                fromVariableName,
+            ),
+        );
+
+        return registerName;
+    }
+
+    /**
+     * Store into the given variable. \
+     * NOTE: Assumes that the {@link fromString} is of the same size/type as the variable.
+     * @param fromString The string that describes the value to store (e.g. a register name).
+     * @param variable The variable to store into.
+     */
+    private storeIntoVariable (fromString: string, variable: IntermediateSymbols.Variable): void
+    {
+        this.instructions.push(
+            new Instructions.Instruction(
+                'store',
+                this.getLlvmSizeString(variable.size),
+                fromString + ',',
+                this.pointerSizeString,
+                this.getLlvmLocalName(variable),
+            )
+        );
     }
 
     private transpileFile (fileIntermediate: Intermediates.File): void
@@ -208,7 +258,7 @@ export class TranspilerLlvm implements Transpiler
             `${nativeType} ${stringByteCount}, [${stringByteCount} x ${byteType}] c"${constantIntermediate.symbol.value}"`;
 
         const instruction = new LlvmInstructions.Assignment(
-            this.getLlvmLocalEscapedName(constantIntermediate.symbol),
+            this.getLlvmGlobalName(constantIntermediate.symbol),
             'constant',
             '{' + constantTypeString + '}',
             '{' + constantValueString + '}'
@@ -230,7 +280,7 @@ export class TranspilerLlvm implements Transpiler
         const instruction = new LlvmInstructions.Function(
             'declare',
             this.getLlvmSizeString(externalIntermediate.symbol.returnSize),
-            this.getLlvmLocalEscapedName(externalIntermediate.symbol),
+            this.getLlvmGlobalName(externalIntermediate.symbol),
             parameters,
         );
 
@@ -241,9 +291,9 @@ export class TranspilerLlvm implements Transpiler
     {
         this.variableCounter = -1;
         this.labelCounter = -1;
-        this.intermediateVariableIndexToNameMap.clear();
-        this.intermediateParameterIndexToNameMap.clear();
-        this.intermediateReturnIndexToNameMap.clear();
+        this.outgoingParameterIndexToName = new Map();
+        this.incomingReturnName = null;
+        this.variableIntroductions = [];
         this.currentFunction = functionIntermediate.symbol;
 
         const parameterStrings: string[] = [];
@@ -260,7 +310,7 @@ export class TranspilerLlvm implements Transpiler
         const instruction = new LlvmInstructions.Function(
             'define',
             this.getLlvmSizeString(functionIntermediate.symbol.returnSize),
-            this.getLlvmLocalEscapedName(functionIntermediate.symbol),
+            this.getLlvmGlobalName(functionIntermediate.symbol),
             parameterStrings,
         );
 
@@ -273,6 +323,9 @@ export class TranspilerLlvm implements Transpiler
             new Instructions.Label('entry'),
         );
 
+        const introductionReference = this.instructions.currentReference;
+        this.instructions.addNewReference();
+
         for (const instruction of functionIntermediate.body)
         {
             this.transpileStatement(instruction);
@@ -282,11 +335,13 @@ export class TranspilerLlvm implements Transpiler
             new Instructions.Instruction('}'),
         );
 
+        introductionReference.push(...this.variableIntroductions);
+
         this.variableCounter = -1;
         this.labelCounter = -1;
-        this.intermediateVariableIndexToNameMap.clear();
-        this.intermediateParameterIndexToNameMap.clear();
-        this.intermediateReturnIndexToNameMap.clear();
+        this.outgoingParameterIndexToName = new Map();
+        this.incomingReturnName = null;
+        this.variableIntroductions = [];
         this.currentFunction = null;
     }
 
@@ -352,25 +407,14 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileAdd (addIntermediate: Intermediates.Add): void
     {
-        const leftOperandName = this.intermediateVariableIndexToNameMap.get(addIntermediate.leftOperand.index);
-        if (leftOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot add because the left operand is not introduced.');
-        }
-        const rightOperandName = this.intermediateVariableIndexToNameMap.get(addIntermediate.rightOperand.index);
-        if (rightOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot add because the right operand is not introduced.');
-        }
-
-        const targetName = this.nextVariableName;
-        this.intermediateVariableIndexToNameMap.set(addIntermediate.leftOperand.index, targetName);
+        const leftOperandName = this.getLlvmLocalName(addIntermediate.leftOperand);
+        const rightOperandName = this.getLlvmLocalName(addIntermediate.rightOperand);
 
         // We can assume that the right value fits into the left one (the target):
         const sizeString = this.getLlvmSizeString(addIntermediate.leftOperand.size);
 
         this.instructions.push(
-            new LlvmInstructions.Assignment(targetName, 'add', sizeString, leftOperandName + ',', rightOperandName),
+            new LlvmInstructions.Assignment(leftOperandName, 'add', sizeString, leftOperandName + ',', rightOperandName),
         );
     }
 
@@ -382,7 +426,7 @@ export class TranspilerLlvm implements Transpiler
             const parameterSize = callIntermediate.functionSymbol.parameters[parameterIndex];
             const parameterSizeString = this.getLlvmSizeString(parameterSize);
 
-            const parameterName = this.intermediateParameterIndexToNameMap.get(parameterIndex);
+            const parameterName = this.outgoingParameterIndexToName.get(parameterIndex);
             if (parameterName === undefined)
             {
                 throw new Error('Transpiler error: Cannot call function because a parameter is not introduced.');
@@ -392,7 +436,7 @@ export class TranspilerLlvm implements Transpiler
 
             parameterStrings.push(parameterString);
         }
-        this.intermediateParameterIndexToNameMap.clear();
+        this.outgoingParameterIndexToName.clear();
 
         // TODO: The following is duplicate code with AssignmentInstruction.constructor. Could this be unified?
         const parameterString = '(' + parameterStrings.join(', ') + ')';
@@ -403,21 +447,22 @@ export class TranspilerLlvm implements Transpiler
                 new Instructions.Instruction(
                     'call',
                     this.getLlvmSizeString(callIntermediate.functionSymbol.returnSize),
-                    this.getLlvmLocalEscapedName(callIntermediate.functionSymbol),
+                    this.getLlvmGlobalName(callIntermediate.functionSymbol),
                     parameterString,
                 )
             );
         }
         else
         {
-            const returnName = this.getLlvmReturnName(0);
+            const returnName = this.nextVariableName;
+            this.incomingReturnName = returnName;
 
             this.instructions.push(
                 new LlvmInstructions.Assignment(
                     returnName,
                     'call',
                     this.getLlvmSizeString(callIntermediate.functionSymbol.returnSize),
-                    this.getLlvmLocalEscapedName(callIntermediate.functionSymbol),
+                    this.getLlvmLocalName(callIntermediate.functionSymbol),
                     parameterString,
                 ),
             );
@@ -448,27 +493,34 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileGive (giveIntermediate: Intermediates.Give): void
     {
-        const variableName = this.intermediateVariableIndexToNameMap.get(giveIntermediate.variable.index);
-        if (variableName === undefined)
-        {
-            throw new Error('Transpiler error: Tried to give from a variable that was not introduced.');
-        }
+        let targetName: string;
 
         switch (giveIntermediate.targetSymbol.kind)
         {
             case IntermediateSymbolKind.Parameter:
-                this.intermediateParameterIndexToNameMap.set(giveIntermediate.targetSymbol.index, variableName);
+                targetName = this.nextVariableName;
+                this.outgoingParameterIndexToName.set(giveIntermediate.targetSymbol.index, targetName);
                 break;
             case IntermediateSymbolKind.ReturnValue:
-                this.intermediateReturnIndexToNameMap.set(giveIntermediate.targetSymbol.index, variableName);
+                targetName = this.getLlvmReturnName(giveIntermediate.targetSymbol.index);
                 break;
         }
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(
+                targetName,
+                'load',
+                this.getLlvmSizeString(giveIntermediate.targetSymbol.size) + ',',
+                this.pointerSizeString,
+                this.getLlvmLocalName(giveIntermediate.variable),
+            ),
+        );
     }
 
     private transpileGoto (gotoIntermediate: Intermediates.Goto): void
     {
         this.instructions.push(
-            new LlvmInstructions.Branch(this.getLlvmLabelName(gotoIntermediate.target)),
+            new LlvmInstructions.Branch(this.getLlvmName(gotoIntermediate.target)),
         );
 
         // TODO: Is it really guaranteed that there is in all cases a label behind a goto instruction?
@@ -476,13 +528,13 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileIntroduce (introduceIntermediate: Intermediates.Introduce): void
     {
-        if (this.intermediateVariableIndexToNameMap.has(introduceIntermediate.variableSymbol.index))
-        {
-            throw new Error('Transpiler error: Tried to introduce a variable that was already introduced.');
-        }
-
-        const variableName = this.nextVariableName;
-        this.intermediateVariableIndexToNameMap.set(introduceIntermediate.variableSymbol.index, variableName);
+        this.variableIntroductions.push(
+            new LlvmInstructions.Assignment(
+                this.getLlvmLocalName(introduceIntermediate.variableSymbol),
+                'alloca',
+                this.getLlvmSizeString(introduceIntermediate.variableSymbol.size),
+            )
+        );
     }
 
     private transpileJumpIfEqual (jumpIfEqualIntermediate: Intermediates.JumpIfEqual): void
@@ -513,17 +565,8 @@ export class TranspilerLlvm implements Transpiler
         const comparisonVariableName = this.nextVariableName;
         const sizeName = this.getLlvmSizeString(leftOperand.size);
 
-        const leftOperandName = this.intermediateVariableIndexToNameMap.get(leftOperand.index);
-        if (leftOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Tried to jump with a left operand that was not introduced.');
-        }
-
-        const rightOperandName = this.intermediateVariableIndexToNameMap.get(rightOperand.index);
-        if (rightOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Tried to jump with a right operand that was not introduced.');
-        }
+        const leftOperandName = this.loadIntoRegister(leftOperand);
+        const rightOperandName = this.loadIntoRegister(rightOperand);
 
         this.instructions.push(
             new LlvmInstructions.Assignment(
@@ -541,7 +584,7 @@ export class TranspilerLlvm implements Transpiler
         this.instructions.push(
             new LlvmInstructions.Branch(
                 comparisonVariableName,
-                this.getLlvmLabelName(target),
+                this.getLlvmName(target),
                 falseLabelName
             )
         );
@@ -556,7 +599,7 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileLabel (labelIntermediate: Intermediates.Label): void
     {
-        const labelName = this.getLlvmLabelName(labelIntermediate.symbol);
+        const labelName = this.getLlvmName(labelIntermediate.symbol);
 
         // If the last instruction is anythin other than a branch instruction, we must close the basic block first before we can add a label
         // (especially if the instruction is already a label). The easy workaround is to add a jump instruction to our new label which can
@@ -576,59 +619,30 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileMove (moveIntermediate: Intermediates.Move): void
     {
-        const toName = this.nextVariableName;
-        this.intermediateVariableIndexToNameMap.set(moveIntermediate.to.index, toName);
-
         switch (moveIntermediate.from.kind)
         {
             case IntermediateSymbolKind.Constant:
             {
-                const constantName = this.getLlvmLocalEscapedName(moveIntermediate.from);
+                const constantName = this.getLlvmGlobalName(moveIntermediate.from);
                 const constantSizeString = this.getLlvmSizeString(moveIntermediate.from.size);
                 const byteSizeString = this.getLlvmSizeString(IntermediateSize.Int8);
 
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(
-                        toName,
-                        'getelementptr',
-                        byteSizeString + ',',
-                        constantSizeString,
-                        constantName + ',',
-                        byteSizeString +' 0',
-                    ),
-                );
+                const fromString = `getelementptr (${byteSizeString}, ${constantSizeString} ${constantName}, ${byteSizeString} 0)`;
+                this.storeIntoVariable(fromString, moveIntermediate.to);
 
                 break;
             }
             case IntermediateSymbolKind.Variable:
             {
-                const fromTypeString = this.getLlvmSizeString(moveIntermediate.from.size);
-
-                const fromVariableName = this.intermediateVariableIndexToNameMap.get(moveIntermediate.from.index);
-                if (fromVariableName === undefined)
-                {
-                    throw new Error('Transpiler error: Tried to move from a variable that was not introduced.');
-                }
-                const fromName = fromVariableName;
-
-                const fromString = fromTypeString + ' ' + fromName;
-
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(toName, fromString),
-                );
+                const temporaryRegister = this.loadIntoRegister(moveIntermediate.from);
+                this.storeIntoVariable(temporaryRegister, moveIntermediate.to);
 
                 break;
             }
             case IntermediateSymbolKind.Literal:
             {
                 // We can assume that the literal value fits into the target size:
-                const toSizeString = this.getLlvmSizeString(moveIntermediate.to.size);
-                const literalValue = moveIntermediate.from.value;
-
-                // HACK: There is no way in LLVM IR to put a literal value into a register, thus we need this addition hack.
-                this.instructions.push(
-                    new LlvmInstructions.Assignment(toName, 'add', toSizeString, literalValue + ',', '0'),
-                );
+                this.storeIntoVariable(moveIntermediate.from.value, moveIntermediate.to);
 
                 break;
             }
@@ -637,45 +651,33 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileMultiply (multiplyIntermediate: Intermediates.Multiply): void
     {
-        const leftOperandName = this.intermediateVariableIndexToNameMap.get(multiplyIntermediate.leftOperand.index);
-        if (leftOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot multiply because the left operand is not introduced.');
-        }
-        const rightOperandName = this.intermediateVariableIndexToNameMap.get(multiplyIntermediate.rightOperand.index);
-        if (rightOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot multiply because the right operand is not introduced.');
-        }
-
-        const targetName = this.nextVariableName;
-        this.intermediateVariableIndexToNameMap.set(multiplyIntermediate.leftOperand.index, targetName);
+        const leftOperandRegister = this.loadIntoRegister(multiplyIntermediate.leftOperand);
+        const rightOperandRegister = this.loadIntoRegister(multiplyIntermediate.rightOperand);
+        const resultRegister = this.nextVariableName;
 
         // TODO: What about the full product with double size an how to handle possible overflows?
         const sizeString = this.getLlvmSizeString(multiplyIntermediate.leftOperand.size);
 
         this.instructions.push(
-            new LlvmInstructions.Assignment(targetName, 'mul', sizeString, leftOperandName, ',', rightOperandName),
+            new LlvmInstructions.Assignment(resultRegister, 'mul', sizeString, leftOperandRegister + ',', rightOperandRegister),
         );
+
+        this.storeIntoVariable(resultRegister, multiplyIntermediate.leftOperand);
     }
 
     private transpileNegate (negateIntermediate: Intermediates.Negate): void
     {
-        const operandName = this.intermediateVariableIndexToNameMap.get(negateIntermediate.operand.index);
-        if (operandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot negate because the operand is not introduced.');
-        }
-
+        const operandRegister = this.loadIntoRegister(negateIntermediate.operand);
         const targetName = this.nextVariableName;
-        this.intermediateVariableIndexToNameMap.set(negateIntermediate.operand.index, targetName);
 
         const sizeString = this.getLlvmSizeString(negateIntermediate.operand.size);
 
         // Negate in LLVM IR is done by subtracting the value from zero:
         this.instructions.push(
-            new LlvmInstructions.Assignment(targetName, 'sub', sizeString, '0,', operandName),
+            new LlvmInstructions.Assignment(targetName, 'sub', sizeString, '0,', operandRegister),
         );
+
+        this.storeIntoVariable(targetName, negateIntermediate.operand);
     }
 
     private transpileReturn (): void
@@ -697,11 +699,7 @@ export class TranspilerLlvm implements Transpiler
         }
         else
         {
-            const returnName = this.intermediateReturnIndexToNameMap.get(0);
-            if (returnName === undefined)
-            {
-                throw new Error('Transpiler error: Tried to return a value that was not given.');
-            }
+            const returnName = this.getLlvmReturnName(0);
 
             this.instructions.push(
                 new Instructions.Instruction('ret', returnSizeString, returnName),
@@ -711,46 +709,46 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileSubtract (subtractIntermediate: Intermediates.Subtract): void
     {
-        const leftOperandName = this.intermediateVariableIndexToNameMap.get(subtractIntermediate.leftOperand.index);
-        if (leftOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot subtract because the left operand is not introduced.');
-        }
-        const rightOperandName = this.intermediateVariableIndexToNameMap.get(subtractIntermediate.rightOperand.index);
-        if (rightOperandName === undefined)
-        {
-            throw new Error('Transpiler error: Cannot subtract because the right operand is not introduced.');
-        }
-
+        const leftOperandName = this.loadIntoRegister(subtractIntermediate.leftOperand);
+        const rightOperandName = this.loadIntoRegister(subtractIntermediate.rightOperand);
         const targetName = this.nextVariableName;
-        this.intermediateVariableIndexToNameMap.set(subtractIntermediate.leftOperand.index, targetName);
 
         // We can assume that the right value fits into the left one (the target):
         const sizeString = this.getLlvmSizeString(subtractIntermediate.leftOperand.size);
 
         this.instructions.push(
-            new LlvmInstructions.Assignment(targetName, 'sub', sizeString, leftOperandName, ',', rightOperandName),
+            new LlvmInstructions.Assignment(targetName, 'sub', sizeString, leftOperandName + ',', rightOperandName),
         );
+
+        this.storeIntoVariable(targetName, subtractIntermediate.leftOperand);
     }
 
     private transpileTake (takeIntermediate: Intermediates.Take): void
     {
+        let takeableName: string;
         switch (takeIntermediate.takableValue.kind)
         {
             case IntermediateSymbolKind.Parameter:
-            {
-                const parameterName = this.getLlvmParameterName(takeIntermediate.takableValue.index);
-                this.intermediateVariableIndexToNameMap.set(takeIntermediate.variableSymbol.index, parameterName);
-
+                takeableName = this.getLlvmParameterName(takeIntermediate.takableValue.index);
                 break;
-            }
             case IntermediateSymbolKind.ReturnValue:
-            {
-                const returnName = this.getLlvmReturnName(takeIntermediate.takableValue.index);
-                this.intermediateVariableIndexToNameMap.set(takeIntermediate.variableSymbol.index, returnName);
-
+                if (this.incomingReturnName === null)
+                {
+                    throw new Error('Transpiler error: Tried to take from an unknown return value.');
+                }
+                takeableName = this.incomingReturnName;
+                this.incomingReturnName = null;
                 break;
-            }
         }
+
+        this.variableIntroductions.push(
+            new LlvmInstructions.Assignment(
+                takeableName,
+                'alloca',
+                this.getLlvmSizeString(takeIntermediate.takableValue.size),
+            )
+        );
+
+        this.storeIntoVariable(takeableName, takeIntermediate.variableSymbol);
     }
 }

@@ -465,7 +465,7 @@ export class TranspilerLlvm implements Transpiler
                     returnName,
                     'call',
                     this.getLlvmSizeString(callIntermediate.functionSymbol.returnSize),
-                    this.getLlvmLocalName(callIntermediate.functionSymbol),
+                    this.getLlvmGlobalName(callIntermediate.functionSymbol),
                     parameterString,
                 ),
             );

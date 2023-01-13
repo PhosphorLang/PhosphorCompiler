@@ -307,12 +307,26 @@ export class TranspilerLlvm implements Transpiler
             parameterStrings.push(parameterString);
         }
 
+        const returnSizeString = this.getLlvmSizeString(functionIntermediate.symbol.returnSize);
+
         const instruction = new LlvmInstructions.Function(
             'define',
-            this.getLlvmSizeString(functionIntermediate.symbol.returnSize),
+            returnSizeString,
             this.getLlvmGlobalName(functionIntermediate.symbol),
             parameterStrings,
         );
+
+        if (functionIntermediate.symbol.returnSize !== IntermediateSize.Void)
+        {
+            // Allocate the return value for it being multi-assignable:
+            this.variableIntroductions.push(
+                new LlvmInstructions.Assignment(
+                    this.getLlvmReturnName(0),
+                    'alloca',
+                    returnSizeString,
+                )
+            );
+        }
 
         this.instructions.push(
             instruction,
@@ -496,28 +510,40 @@ export class TranspilerLlvm implements Transpiler
 
     private transpileGive (giveIntermediate: Intermediates.Give): void
     {
-        let targetName: string;
-
-        switch (giveIntermediate.targetSymbol.kind)
-        {
-            case IntermediateSymbolKind.Parameter:
-                targetName = this.nextVariableName;
-                this.outgoingParameterIndexToName.set(giveIntermediate.targetSymbol.index, targetName);
-                break;
-            case IntermediateSymbolKind.ReturnValue:
-                targetName = this.getLlvmReturnName(giveIntermediate.targetSymbol.index);
-                break;
-        }
+        const registerName = this.nextVariableName;
+        const targetSizeString = this.getLlvmSizeString(giveIntermediate.targetSymbol.size);
 
         this.instructions.push(
             new LlvmInstructions.Assignment(
-                targetName,
+                registerName,
                 'load',
-                this.getLlvmSizeString(giveIntermediate.targetSymbol.size) + ',',
+                targetSizeString + ',',
                 this.pointerSizeString,
                 this.getLlvmLocalName(giveIntermediate.variable),
             ),
         );
+
+        switch (giveIntermediate.targetSymbol.kind)
+        {
+            case IntermediateSymbolKind.Parameter:
+                this.outgoingParameterIndexToName.set(giveIntermediate.targetSymbol.index, registerName);
+                break;
+            case IntermediateSymbolKind.ReturnValue:
+                {
+                    const targetName = this.getLlvmReturnName(giveIntermediate.targetSymbol.index);
+
+                    this.instructions.push(
+                        new Instructions.Instruction(
+                            'store',
+                            targetSizeString,
+                            registerName + ',',
+                            this.pointerSizeString,
+                            targetName,
+                        )
+                    );
+                }
+                break;
+        }
     }
 
     private transpileGoto (gotoIntermediate: Intermediates.Goto): void
@@ -702,10 +728,21 @@ export class TranspilerLlvm implements Transpiler
         }
         else
         {
-            const returnName = this.getLlvmReturnName(0);
+            const returnVariableName = this.getLlvmReturnName(0);
+            const returnRegister = this.nextVariableName;
 
             this.instructions.push(
-                new Instructions.Instruction('ret', returnSizeString, returnName),
+                new LlvmInstructions.Assignment(
+                    returnRegister,
+                    'load',
+                    returnSizeString + ',',
+                    this.pointerSizeString,
+                    returnVariableName,
+                ),
+            );
+
+            this.instructions.push(
+                new Instructions.Instruction('ret', returnSizeString, returnRegister),
             );
         }
     }
@@ -733,13 +770,6 @@ export class TranspilerLlvm implements Transpiler
         {
             case IntermediateSymbolKind.Parameter:
                 takeableName = this.getLlvmParameterName(takeIntermediate.takableValue.index);
-                this.variableIntroductions.push(
-                    new LlvmInstructions.Assignment(
-                        takeableName,
-                        'alloca',
-                        this.getLlvmSizeString(takeIntermediate.takableValue.size),
-                    )
-                );
                 break;
             case IntermediateSymbolKind.ReturnValue:
                 if (this.incomingReturnName === null)

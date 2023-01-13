@@ -733,6 +733,13 @@ export class TranspilerLlvm implements Transpiler
         {
             case IntermediateSymbolKind.Parameter:
                 takeableName = this.getLlvmParameterName(takeIntermediate.takableValue.index);
+                this.variableIntroductions.push(
+                    new LlvmInstructions.Assignment(
+                        takeableName,
+                        'alloca',
+                        this.getLlvmSizeString(takeIntermediate.takableValue.size),
+                    )
+                );
                 break;
             case IntermediateSymbolKind.ReturnValue:
                 if (this.incomingReturnName === null)
@@ -743,14 +750,6 @@ export class TranspilerLlvm implements Transpiler
                 this.incomingReturnName = null;
                 break;
         }
-
-        this.variableIntroductions.push(
-            new LlvmInstructions.Assignment(
-                takeableName,
-                'alloca',
-                this.getLlvmSizeString(takeIntermediate.takableValue.size),
-            )
-        );
 
         this.storeIntoVariable(takeableName, takeIntermediate.variableSymbol);
     }

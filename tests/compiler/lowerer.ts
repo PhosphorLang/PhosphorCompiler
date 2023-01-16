@@ -161,7 +161,7 @@ describe('Lowerer',
                     ]
                 );
 
-                const intermediateVariableSymbol = IntermediateCreator.newVariableSymbol('v#0');
+                const intermediateVariableSymbol = IntermediateCreator.newVariableSymbol();
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -201,7 +201,7 @@ describe('Lowerer',
                     ]
                 );
 
-                const intermediateVariableSymbol = IntermediateCreator.newVariableSymbol('v#0');
+                const intermediateVariableSymbol = IntermediateCreator.newVariableSymbol();
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -251,8 +251,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const variableSymbol0 = IntermediateCreator.newVariableSymbol('v#0');
-                const variableSymbol1 = IntermediateCreator.newVariableSymbol('v#1');
+                const variableSymbol0 = IntermediateCreator.newVariableSymbol();
+                const variableSymbol1 = IntermediateCreator.newVariableSymbol(1);
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -295,8 +295,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const variableSymbol0 = IntermediateCreator.newVariableSymbol('v#0');
-                const variableSymbol1 = IntermediateCreator.newVariableSymbol('v#1');
+                const variableSymbol0 = IntermediateCreator.newVariableSymbol();
+                const variableSymbol1 = IntermediateCreator.newVariableSymbol(1);
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -345,9 +345,9 @@ describe('Lowerer',
                     ]
                 );
 
-                const resultVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
-                const leftOperandVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Native);
-                const rightOperandVariableSymbol = IntermediateCreator.newVariableSymbol('v#2', IntermediateSize.Native);
+                const resultVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
+                const leftOperandVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Native);
+                const rightOperandVariableSymbol = IntermediateCreator.newVariableSymbol(2, IntermediateSize.Native);
 
                 const equalLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
@@ -418,9 +418,9 @@ describe('Lowerer',
                 const constantSymbol0 = IntermediateCreator.newConstantSymbol('c#0', 'string0');
                 const constantSymbol1 = IntermediateCreator.newConstantSymbol('c#1', 'string1');
 
-                const returnVariable0 = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
-                const variableSymbol1 = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Pointer);
-                const variableSymbol2 = IntermediateCreator.newVariableSymbol('v#2', IntermediateSize.Pointer);
+                const returnVariable0 = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
+                const variableSymbol1 = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Pointer);
+                const variableSymbol2 = IntermediateCreator.newVariableSymbol(2, IntermediateSize.Pointer);
 
                 // TODO: The following shouldn't be necessary to be defined here. It should be defined somewhere more general.
                 const stringsAreEqualBuildInFunctionSymbol = IntermediateCreator.newFunctionSymbol(
@@ -572,8 +572,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const compareVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
-                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Int8);
+                const compareVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Int8);
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
 
                 const expectedResult = IntermediateCreator.newFile(
@@ -633,8 +633,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const compareVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
-                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Int8);
+                const compareVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Int8);
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const elseLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
 
@@ -693,8 +693,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const conditionVariableSymbol = IntermediateCreator.newVariableSymbol('v#0', IntermediateSize.Int8);
-                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol('v#1', IntermediateSize.Int8);
+                const conditionVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Int8);
                 const startLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
 

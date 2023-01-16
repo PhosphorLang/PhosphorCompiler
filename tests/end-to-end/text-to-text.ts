@@ -8,7 +8,6 @@ import { Lexer } from '../../src/lexer/lexer';
 import { Lowerer } from '../../src/lowerer/lowerer';
 import { Parser } from '../../src/parser/parser';
 import Path from 'path';
-import { Transpiler } from '../../src/transpiler/transpiler';
 import { TranspilerIntermediate } from '../../src/transpiler/intermediate/transpilerIntermediate';
 
 describe('End-to-end, the compiler',
@@ -19,7 +18,7 @@ describe('End-to-end, the compiler',
         let parser: Parser;
         let connector: Connector;
         let lowerer: Lowerer;
-        let transpiler: Transpiler;
+        let transpiler: TranspilerIntermediate;
 
         function readInputFile (fileName: string): string
         {

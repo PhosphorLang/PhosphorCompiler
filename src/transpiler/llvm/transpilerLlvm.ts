@@ -65,6 +65,7 @@ export class TranspilerLlvm implements Transpiler
 
         this.instructions.push(
             new Instructions.Instruction(''), // Empty line
+            // TODO: The exit function could be declared twice. How to handle that?
             new Instructions.Instruction('declare', 'void', '@exit', '()', 'noreturn'),
             // The start routine calls main and then exits properly:
             new LlvmInstructions.Function('define', 'void', '@_start', []),

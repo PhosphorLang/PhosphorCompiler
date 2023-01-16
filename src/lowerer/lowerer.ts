@@ -576,6 +576,7 @@ export class Lowerer
                 {
                     let value: string;
 
+                     // TODO: Remove the magic strings "true" and "false". Should they be handled in the connector?
                     if (literalExpression.value === 'true')
                     {
                         value = '-1';

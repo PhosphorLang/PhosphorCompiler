@@ -19,3 +19,6 @@ out/**/*
 
 # Coverage directory used by tools like istanbul:
 coverage
+
+# Notes folder:
+notes

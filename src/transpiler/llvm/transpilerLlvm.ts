@@ -7,11 +7,10 @@ import { IntermediateKind } from '../../lowerer/intermediateKind';
 import { IntermediateSize } from '../../lowerer/intermediateSize';
 import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
 import { TextEncoder } from 'node:util';
-import { Transpiler } from '../transpiler';
 
 // TODO: Some of the instructions in this transpiler still have to add quotes and commas manually. Could that situation be further improved?
 
-export class TranspilerLlvm implements Transpiler
+export class TranspilerLlvm
 {
     private readonly pointerSizeString = this.getLlvmSizeString(IntermediateSize.Pointer);
 

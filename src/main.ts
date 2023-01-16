@@ -4,13 +4,11 @@ import * as Diagnostic from './diagnostic';
 import * as Intermediates from './lowerer/intermediates';
 import * as SemanticNodes from './connector/semanticNodes';
 import { ProcessArguments, ProcessArgumentsError } from './processArguments';
-import { AvrBackend } from './backends/AvrBackend';
 import { Connector } from './connector/connector';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
 import { Lexer } from './lexer/lexer';
 import { LinuxAmd64Backend } from './backends/linuxAmd64Backend';
-import { LinuxAmd64LlvmBackend } from './backends/linuxAmd64LlvmBackend';
 import { Lowerer } from './lowerer/lowerer';
 import os from 'os';
 import { Parser } from './parser/parser';
@@ -38,7 +36,7 @@ class Main
 
     public run (): void
     {
-        const standardLibraryTargetPath = this.getStandardLibraryPath();
+        const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, this.arguments.targetPlatform);
 
         const diagnostic = new Diagnostic.Diagnostic();
 
@@ -74,16 +72,6 @@ class Main
                 const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
 
                 FileSystem.writeFileSync(Path.join(temporaryDirectoryPath, 'test.phi'), intermediateCode, {encoding: 'utf8'});
-            }
-
-            if (this.arguments.targetPlatform == TargetPlatform.Avr)
-            {
-                diagnostic.add(
-                    new Diagnostic.Warning(
-                        'The AVR target platform is highly experimental and will probably not work.',
-                        Diagnostic.Codes.ExperimentalPlatformWarning
-                    )
-                );
             }
 
             diagnostic.end();
@@ -135,32 +123,7 @@ class Main
                 backend.run(intermediateLanguage, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
                 break;
             }
-            case TargetPlatform.LinuxAmd64Llvm:
-            {
-                const backend = new LinuxAmd64LlvmBackend();
-                backend.run(intermediateLanguage, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
-                break;
-            }
-            case TargetPlatform.Avr:
-            {
-                const backend = new AvrBackend();
-                backend.run(semanticTree, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
-                break;
-            }
         }
-    }
-
-    private getStandardLibraryPath (): string
-    {
-        let platformPath = this.arguments.targetPlatform;
-
-        if (platformPath == TargetPlatform.LinuxAmd64Llvm)
-        {
-            platformPath = TargetPlatform.LinuxAmd64;
-        }
-
-        const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, platformPath);
-        return standardLibraryTargetPath;
     }
 }
 

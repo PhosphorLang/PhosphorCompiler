@@ -1,10 +1,11 @@
 import * as Intermediates from '../lowerer/intermediates';
 import FileSystem from 'fs';
 import { GnuLinker } from '../linker/gnu/gnuLinker';
-import { NasmAssembler } from '../assembler/nasm/nasmAssembler';
-import { NasmAssemblerTarget } from '../assembler/nasm/nasmAssemblerTarget';
+import { LinuxAmd64GnuAssembler } from '../assembler/linuxAmd64Gnu/linuxAmd64GnuAssembler';
+import { LlvmCompiler } from './llvm/llvmCompiler';
+import { LlvmCompilerTarget } from './llvm/llvmCompilerTarget';
 import Path from 'path';
-import { TranspilerAmd64Linux } from '../transpiler/amd64/linux/transpilerAmd64Linux';
+import { TranspilerLlvm } from '../transpiler/llvm/transpilerLlvm';
 
 export class LinuxAmd64Backend
 {
@@ -15,19 +16,23 @@ export class LinuxAmd64Backend
         outputFilePath: string,
         ): void
     {
-        const transpiler = new TranspilerAmd64Linux();
-        const assembler = new NasmAssembler();
+        const transpiler = new TranspilerLlvm();
+        const compiler = new LlvmCompiler();
+        const assembler = new LinuxAmd64GnuAssembler();
         const linker = new GnuLinker();
 
         const assembly = transpiler.run(fileIntermediate);
 
         // TODO: Better temporary file naming for the two temporary files.
 
-        const temporaryAssemblyFilePath = Path.join(temporaryDirectoryPath, 'test.asm');
-        FileSystem.writeFileSync(temporaryAssemblyFilePath, assembly, {encoding: 'utf8'});
+        const temporaryLlvmIrFilePath = Path.join(temporaryDirectoryPath, 'test.ll');
+        FileSystem.writeFileSync(temporaryLlvmIrFilePath, assembly, {encoding: 'utf8'});
+
+        const temporaryAssemblyFilePath = Path.join(temporaryDirectoryPath, 'test.s');
+        compiler.run(temporaryLlvmIrFilePath, temporaryAssemblyFilePath, LlvmCompilerTarget.LinuxAmd64);
 
         const temporaryObjectFilePath = Path.join(temporaryDirectoryPath, 'test.o');
-        assembler.run(temporaryAssemblyFilePath, temporaryObjectFilePath, NasmAssemblerTarget.Elf64);
+        assembler.run(temporaryAssemblyFilePath, temporaryObjectFilePath);
 
         const linkerFiles = [temporaryObjectFilePath];
         const libraryFiles = [standardLibraryPath];

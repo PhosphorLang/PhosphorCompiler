@@ -12,6 +12,8 @@ export enum TokenKind
     ColonToken,
     SemicolonToken,
     CommaToken,
+    LineCommentToken,
+    BlockCommentToken,
     // Operators
     AssignmentOperator,
     PlusOperator,

@@ -4,7 +4,6 @@ import * as Diagnostic from './diagnostic';
 import * as Intermediates from './lowerer/intermediates';
 import * as SemanticNodes from './connector/semanticNodes';
 import { ProcessArguments, ProcessArgumentsError } from './processArguments';
-import { AvrBackend } from './backends/AvrBackend';
 import { Connector } from './connector/connector';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
@@ -76,16 +75,6 @@ class Main
                 FileSystem.writeFileSync(Path.join(temporaryDirectoryPath, 'test.phi'), intermediateCode, {encoding: 'utf8'});
             }
 
-            if (this.arguments.targetPlatform == TargetPlatform.Avr)
-            {
-                diagnostic.add(
-                    new Diagnostic.Warning(
-                        'The AVR target platform is highly experimental and will probably not work.',
-                        Diagnostic.Codes.ExperimentalPlatformWarning
-                    )
-                );
-            }
-
             diagnostic.end();
         }
         catch (error)
@@ -139,12 +128,6 @@ class Main
             {
                 const backend = new LinuxAmd64LlvmBackend();
                 backend.run(intermediateLanguage, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
-                break;
-            }
-            case TargetPlatform.Avr:
-            {
-                const backend = new AvrBackend();
-                backend.run(semanticTree, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
                 break;
             }
         }

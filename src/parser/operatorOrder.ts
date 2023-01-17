@@ -9,8 +9,12 @@ export abstract class OperatorOrder
      */
     public static getUnaryPriority (token: Token): number
     {
+        // TODO: As all unary operators are prefix operators, has the priority any meaning?
+
         switch (token.kind)
         {
+            case TokenKind.NotOperator:
+                return 20;
             case TokenKind.PlusOperator:
             case TokenKind.MinusOperator:
                 return 10;
@@ -27,16 +31,27 @@ export abstract class OperatorOrder
     {
         switch (token.kind)
         {
+            // Mathematical operators:
             case TokenKind.StarOperator:
             case TokenKind.SlashOperator:
-                return 3;
+                return 6;
             case TokenKind.PlusOperator:
             case TokenKind.MinusOperator:
+                return 5;
+            // Logical/Bitwise operators:
+            case TokenKind.NotOperator:
+                return 4;
+            case TokenKind.AndOperator:
+                return 3;
+            case TokenKind.OrOperator:
                 return 2;
+            // Comparison operators:
             case TokenKind.EqualOperator:
+            case TokenKind.NotEqualOperator:
             case TokenKind.LessOperator:
             case TokenKind.GreaterOperator:
                 return 1;
+            // Default:
             default:
                 return 0;
         }

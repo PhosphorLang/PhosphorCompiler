@@ -366,6 +366,9 @@ export class TranspilerLlvm
             case IntermediateKind.Add:
                 this.transpileAdd(statementIntermediate);
                 break;
+            case IntermediateKind.And:
+                this.transpileAnd(statementIntermediate);
+                break;
             case IntermediateKind.Call:
                 this.transpileCall(statementIntermediate);
                 break;
@@ -395,6 +398,9 @@ export class TranspilerLlvm
             case IntermediateKind.JumpIfLess:
                 this.transpileJumpIfLess(statementIntermediate);
                 break;
+            case IntermediateKind.JumpIfNotEqual:
+                this.transpileJumpIfNotEqual(statementIntermediate);
+                break;
             case IntermediateKind.Label:
                 this.transpileLabel(statementIntermediate);
                 break;
@@ -406,6 +412,12 @@ export class TranspilerLlvm
                 break;
             case IntermediateKind.Negate:
                 this.transpileNegate(statementIntermediate);
+                break;
+            case IntermediateKind.Not:
+                this.transpileNot(statementIntermediate);
+                break;
+            case IntermediateKind.Or:
+                this.transpileOr(statementIntermediate);
                 break;
             case IntermediateKind.Return:
                 this.transpileReturn();
@@ -421,6 +433,8 @@ export class TranspilerLlvm
 
     private transpileAdd (addIntermediate: Intermediates.Add): void
     {
+        // TODO: These typical two operand operations all share a lot of code. Could that be unified?
+
         const leftOperandRegister = this.loadIntoRegister(addIntermediate.leftOperand);
         const rightOperandRegister = this.loadIntoRegister(addIntermediate.rightOperand);
         const resultRegister = this.nextVariableName;
@@ -433,6 +447,22 @@ export class TranspilerLlvm
         );
 
         this.storeIntoVariable(resultRegister, addIntermediate.leftOperand);
+    }
+
+    private transpileAnd (andIntermediate: Intermediates.And): void
+    {
+        const leftOperandRegister = this.loadIntoRegister(andIntermediate.leftOperand);
+        const rightOperandRegister = this.loadIntoRegister(andIntermediate.rightOperand);
+        const resultRegister = this.nextVariableName;
+
+        // We can assume that the right value fits into the left one (the target):
+        const sizeString = this.getLlvmSizeString(andIntermediate.leftOperand.size);
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(resultRegister, 'and', sizeString, leftOperandRegister + ',', rightOperandRegister),
+        );
+
+        this.storeIntoVariable(resultRegister, andIntermediate.leftOperand);
     }
 
     private transpileCall (callIntermediate: Intermediates.Call): void
@@ -583,6 +613,11 @@ export class TranspilerLlvm
         this.transpileConditionalJump('ult', jumpIfLessIntermediate.target);
     }
 
+    private transpileJumpIfNotEqual (jumpIfNotEqualIntermediate: Intermediates.JumpIfNotEqual): void
+    {
+        this.transpileConditionalJump('ne', jumpIfNotEqualIntermediate.target);
+    }
+
     private transpileConditionalJump (condition: string, target: IntermediateSymbols.Label): void
     {
         if (this.compareOperands === null)
@@ -707,6 +742,37 @@ export class TranspilerLlvm
         );
 
         this.storeIntoVariable(targetName, negateIntermediate.operand);
+    }
+
+    private transpileNot (notIntermediate: Intermediates.Not): void
+    {
+        const operandRegister = this.loadIntoRegister(notIntermediate.operand);
+        const targetName = this.nextVariableName;
+
+        const sizeString = this.getLlvmSizeString(notIntermediate.operand.size);
+
+        // Not in LLVM IR is done by XORing the value with -1:
+        this.instructions.push(
+            new LlvmInstructions.Assignment(targetName, 'xor', sizeString, operandRegister + ',', '-1'),
+        );
+
+        this.storeIntoVariable(targetName, notIntermediate.operand);
+    }
+
+    private transpileOr (orIntermediate: Intermediates.Or): void
+    {
+        const leftOperandRegister = this.loadIntoRegister(orIntermediate.leftOperand);
+        const rightOperandRegister = this.loadIntoRegister(orIntermediate.rightOperand);
+        const resultRegister = this.nextVariableName;
+
+        // We can assume that the right value fits into the left one (the target):
+        const sizeString = this.getLlvmSizeString(orIntermediate.leftOperand.size);
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(resultRegister, 'or', sizeString, leftOperandRegister + ',', rightOperandRegister),
+        );
+
+        this.storeIntoVariable(resultRegister, orIntermediate.leftOperand);
     }
 
     private transpileReturn (): void

@@ -732,6 +732,8 @@ export class Lowerer
                 // An unary addition has no effect.
                 break;
             case BuildInOperators.unaryIntSubtraction:
+            case BuildInOperators.unaryIntNot:
+            case BuildInOperators.unaryBoolNot:
                 {
                     if (!this.variableIntroducedSet.has(targetLocation))
                     {
@@ -742,9 +744,21 @@ export class Lowerer
                         this.variableIntroducedSet.add(targetLocation);
                     }
 
-                    intermediates.push(
-                        new Intermediates.Negate(targetLocation),
-                    );
+                    let intermediate: Intermediate;
+                    switch (operator)
+                    {
+                        case BuildInOperators.unaryIntSubtraction:
+                            intermediate = new Intermediates.Negate(targetLocation);
+                            break;
+                        case BuildInOperators.unaryIntNot:
+                        case BuildInOperators.unaryBoolNot:
+                            intermediate = new Intermediates.Not(targetLocation);
+                            break;
+                        default:
+                            throw new Error(`Lowerer error: Inconsistent handling for operator "${operator.kind}"`);
+                    }
+
+                    intermediates.push(intermediate);
 
                     this.variableDismissIndexMap.set(targetLocation, intermediates.length);
 
@@ -826,6 +840,20 @@ export class Lowerer
                     new Intermediates.Multiply(targetLocation, temporaryVariable),
                 );
                 break;
+            case BuildInOperators.binaryIntDivision:
+                throw new Error(`Lowerer error: The operator "${operator.kind}" is not implemented.`);
+            case BuildInOperators.binaryIntAnd:
+            case BuildInOperators.binaryBoolAnd:
+                intermediates.push(
+                    new Intermediates.And(targetLocation, temporaryVariable),
+                );
+                break;
+            case BuildInOperators.binaryIntOr:
+            case BuildInOperators.binaryBoolOr:
+                intermediates.push(
+                    new Intermediates.Or(targetLocation, temporaryVariable),
+                );
+                break;
             default:
                 throw new Error(
                     `Lowerer error: The size-retaining operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
@@ -878,8 +906,11 @@ export class Lowerer
             switch (operator)
             {
                 case BuildInOperators.binaryIntEqual:
+                case BuildInOperators.binaryIntNotEqual:
                 case BuildInOperators.binaryIntLess:
                 case BuildInOperators.binaryIntGreater:
+                case BuildInOperators.binaryBoolEqual:
+                case BuildInOperators.binaryBoolNotEqual:
                 {
                     intermediates.push(
                         new Intermediates.Compare(leftTemporaryVariable, rightTemporaryVariable),
@@ -894,8 +925,15 @@ export class Lowerer
                     switch (operator)
                     {
                         case BuildInOperators.binaryIntEqual:
+                        case BuildInOperators.binaryBoolEqual:
                             intermediates.push(
                                 new Intermediates.JumpIfEqual(trueLabel)
+                            );
+                            break;
+                        case BuildInOperators.binaryIntNotEqual:
+                        case BuildInOperators.binaryBoolNotEqual:
+                            intermediates.push(
+                                new Intermediates.JumpIfNotEqual(trueLabel)
                             );
                             break;
                         case BuildInOperators.binaryIntLess:

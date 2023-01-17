@@ -159,7 +159,6 @@ export class Lexer
                 }
                 break;
             }
-
             case '=':
                 kind = TokenKind.EqualOperator;
                 break;
@@ -168,6 +167,25 @@ export class Lexer
                 break;
             case '>':
                 kind = TokenKind.GreaterOperator;
+                break;
+            case '!':
+                if (this.getNextChar() === '=')
+                {
+                    kind = TokenKind.NotEqualOperator;
+                    content = '!=';
+                }
+                else
+                {
+                    this.position--;
+
+                    kind = TokenKind.NotOperator;
+                }
+                break;
+            case '&':
+                kind = TokenKind.AndOperator;
+                break;
+            case '|':
+                kind = TokenKind.OrOperator;
                 break;
             case "'":
                 kind = TokenKind.StringToken;

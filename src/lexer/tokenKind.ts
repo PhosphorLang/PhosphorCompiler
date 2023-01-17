@@ -21,8 +21,12 @@ export enum TokenKind
     StarOperator,
     SlashOperator,
     EqualOperator,
+    NotEqualOperator,
     LessOperator,
     GreaterOperator,
+    NotOperator,
+    AndOperator,
+    OrOperator,
     // Keywords
     VarKeyword,
     FunctionKeyword,

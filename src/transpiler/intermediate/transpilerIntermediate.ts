@@ -66,6 +66,8 @@ export class TranspilerIntermediate
                 return 'external';
             case IntermediateKind.Add:
                 return 'add';
+            case IntermediateKind.And:
+                return 'and';
             case IntermediateKind.Call:
                 return 'call';
             case IntermediateKind.Compare:
@@ -82,12 +84,18 @@ export class TranspilerIntermediate
                 return 'jumpIfGreater';
             case IntermediateKind.JumpIfLess:
                 return 'jumpIfLess';
+            case IntermediateKind.JumpIfNotEqual:
+                return 'jumpIfNotEqual';
             case IntermediateKind.Move:
                 return 'move';
             case IntermediateKind.Multiply:
                 return 'multiply';
             case IntermediateKind.Negate:
                 return 'negate';
+            case IntermediateKind.Not:
+                return 'not';
+            case IntermediateKind.Or:
+                return 'or';
             case IntermediateKind.Give:
                 return 'give';
             case IntermediateKind.Take:
@@ -210,9 +218,11 @@ export class TranspilerIntermediate
         switch (statementIntermediate.kind)
         {
             case IntermediateKind.Add:
+            case IntermediateKind.And:
             case IntermediateKind.Compare:
             case IntermediateKind.Subtract:
             case IntermediateKind.Multiply:
+            case IntermediateKind.Or:
                 parameters = [
                     this.getIntermediateSymbolString(statementIntermediate.leftOperand),
                     this.getIntermediateSymbolString(statementIntermediate.rightOperand),
@@ -233,6 +243,7 @@ export class TranspilerIntermediate
             case IntermediateKind.JumpIfEqual:
             case IntermediateKind.JumpIfGreater:
             case IntermediateKind.JumpIfLess:
+            case IntermediateKind.JumpIfNotEqual:
                 parameters = [
                     this.getIntermediateSymbolString(statementIntermediate.target),
                 ];
@@ -244,6 +255,7 @@ export class TranspilerIntermediate
                 ];
                 break;
             case IntermediateKind.Negate:
+            case IntermediateKind.Not:
                 parameters = [
                     this.getIntermediateSymbolString(statementIntermediate.operand),
                 ];

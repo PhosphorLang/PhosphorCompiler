@@ -90,6 +90,11 @@ export abstract class TokenCreator
         return new Token(TokenKind.SlashOperator, '/');
     }
 
+    public static newPercent (): Token
+    {
+        return new Token(TokenKind.PercentOperator, '%');
+    }
+
     public static newEqual (): Token
     {
         return new Token(TokenKind.EqualOperator, '=');

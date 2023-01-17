@@ -20,6 +20,7 @@ export enum TokenKind
     MinusOperator,
     StarOperator,
     SlashOperator,
+    PercentOperator,
     EqualOperator,
     NotEqualOperator,
     LessOperator,

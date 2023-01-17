@@ -841,7 +841,15 @@ export class Lowerer
                 );
                 break;
             case BuildInOperators.binaryIntDivision:
-                throw new Error(`Lowerer error: The operator "${operator.kind}" is not implemented.`);
+                intermediates.push(
+                    new Intermediates.Divide(targetLocation, temporaryVariable),
+                );
+                break;
+            case BuildInOperators.binaryIntModulo:
+                intermediates.push(
+                    new Intermediates.Modulo(targetLocation, temporaryVariable),
+                );
+                break;
             case BuildInOperators.binaryIntAnd:
             case BuildInOperators.binaryBoolAnd:
                 intermediates.push(

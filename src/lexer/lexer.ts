@@ -159,6 +159,9 @@ export class Lexer
                 }
                 break;
             }
+            case '%':
+                kind = TokenKind.PercentOperator;
+                break;
             case '=':
                 kind = TokenKind.EqualOperator;
                 break;

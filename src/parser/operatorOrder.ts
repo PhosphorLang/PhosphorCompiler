@@ -34,6 +34,7 @@ export abstract class OperatorOrder
             // Mathematical operators:
             case TokenKind.StarOperator:
             case TokenKind.SlashOperator:
+            case TokenKind.PercentOperator:
                 return 6;
             case TokenKind.PlusOperator:
             case TokenKind.MinusOperator:

@@ -18,6 +18,7 @@ export abstract class BuildInOperators
     public static readonly binaryIntSubtraction = new BinarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
     public static readonly binaryIntMultiplication = new BinarySemanticOperator(SemanticOperatorKind.Multiplication, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
     public static readonly binaryIntDivision = new BinarySemanticOperator(SemanticOperatorKind.Division, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+    public static readonly binaryIntModulo = new BinarySemanticOperator(SemanticOperatorKind.Modulo, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
 
     public static readonly binaryIntAnd = new BinarySemanticOperator(SemanticOperatorKind.And, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
     public static readonly binaryIntOr = new BinarySemanticOperator(SemanticOperatorKind.Or, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
@@ -47,6 +48,7 @@ export abstract class BuildInOperators
         BuildInOperators.binaryIntSubtraction,
         BuildInOperators.binaryIntMultiplication,
         BuildInOperators.binaryIntDivision,
+        BuildInOperators.binaryIntModulo,
         BuildInOperators.binaryIntAnd,
         BuildInOperators.binaryIntOr,
         BuildInOperators.binaryBoolAnd,
@@ -72,6 +74,8 @@ export abstract class BuildInOperators
                 return SemanticOperatorKind.Multiplication;
             case TokenKind.SlashOperator:
                 return SemanticOperatorKind.Division;
+            case TokenKind.PercentOperator:
+                return SemanticOperatorKind.Modulo;
             case TokenKind.NotOperator:
                 return SemanticOperatorKind.Not;
             case TokenKind.AndOperator:

@@ -380,6 +380,9 @@ export class TranspilerLlvm
                 // Note that we could delete the variables from the map here. But then we would need to handle the dismisses between
                 // a compare and jump in a special way. (Have a look at transpileCompare for more information about this.)
                 break;
+            case IntermediateKind.Divide:
+                this.transpileDivide(statementIntermediate);
+                break;
             case IntermediateKind.Give:
                 this.transpileGive(statementIntermediate);
                 break;
@@ -403,6 +406,9 @@ export class TranspilerLlvm
                 break;
             case IntermediateKind.Label:
                 this.transpileLabel(statementIntermediate);
+                break;
+            case IntermediateKind.Modulo:
+                this.transpileModulo(statementIntermediate);
                 break;
             case IntermediateKind.Move:
                 this.transpileMove(statementIntermediate);
@@ -536,6 +542,23 @@ export class TranspilerLlvm
             compareIntermediate.leftOperand,
             compareIntermediate.rightOperand,
         ];
+    }
+
+    private transpileDivide (divideIntermediate: Intermediates.Divide): void
+    {
+        const leftOperandRegister = this.loadIntoRegister(divideIntermediate.leftOperand);
+        const rightOperandRegister = this.loadIntoRegister(divideIntermediate.rightOperand);
+        const resultRegister = this.nextVariableName;
+
+        // We can assume that the right value fits into the left one (the target):
+        const sizeString = this.getLlvmSizeString(divideIntermediate.leftOperand.size);
+
+        this.instructions.push(
+            // TODO: We have to check the type as soon as there are unsigned types in Phosphor:
+            new LlvmInstructions.Assignment(resultRegister, 'sdiv', sizeString, leftOperandRegister + ',', rightOperandRegister),
+        );
+
+        this.storeIntoVariable(resultRegister, divideIntermediate.leftOperand);
     }
 
     private transpileGive (giveIntermediate: Intermediates.Give): void
@@ -679,6 +702,24 @@ export class TranspilerLlvm
         this.instructions.push(
             new Instructions.Label(labelName),
         );
+    }
+
+    private transpileModulo (moduloIntermediate: Intermediates.Modulo): void
+    {
+
+        const leftOperandRegister = this.loadIntoRegister(moduloIntermediate.leftOperand);
+        const rightOperandRegister = this.loadIntoRegister(moduloIntermediate.rightOperand);
+        const resultRegister = this.nextVariableName;
+
+        // We can assume that the right value fits into the left one (the target):
+        const sizeString = this.getLlvmSizeString(moduloIntermediate.leftOperand.size);
+
+        this.instructions.push(
+            // TODO: We have to check the type as soon as there are unsigned types in Phosphor:
+            new LlvmInstructions.Assignment(resultRegister, 'srem', sizeString, leftOperandRegister + ',', rightOperandRegister),
+        );
+
+        this.storeIntoVariable(resultRegister, moduloIntermediate.leftOperand);
     }
 
     private transpileMove (moveIntermediate: Intermediates.Move): void

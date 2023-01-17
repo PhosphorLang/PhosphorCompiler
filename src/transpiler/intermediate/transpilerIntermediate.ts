@@ -74,6 +74,8 @@ export class TranspilerIntermediate
                 return 'compare';
             case IntermediateKind.Dismiss:
                 return 'dismiss';
+            case IntermediateKind.Divide:
+                return 'divide';
             case IntermediateKind.Goto:
                 return 'goto';
             case IntermediateKind.Introduce:
@@ -86,6 +88,8 @@ export class TranspilerIntermediate
                 return 'jumpIfLess';
             case IntermediateKind.JumpIfNotEqual:
                 return 'jumpIfNotEqual';
+            case IntermediateKind.Modulo:
+                return 'modulo';
             case IntermediateKind.Move:
                 return 'move';
             case IntermediateKind.Multiply:
@@ -222,6 +226,8 @@ export class TranspilerIntermediate
             case IntermediateKind.Compare:
             case IntermediateKind.Subtract:
             case IntermediateKind.Multiply:
+            case IntermediateKind.Divide:
+            case IntermediateKind.Modulo:
             case IntermediateKind.Or:
                 parameters = [
                     this.getIntermediateSymbolString(statementIntermediate.leftOperand),

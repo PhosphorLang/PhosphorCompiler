@@ -80,44 +80,100 @@ function testMultiplication (Native, Native): Native
     return
 }
 
-function main (): Void
+function testDivision (Native, Native): Native
 {
     introduce v#16
-    move v#16 Native(1)
-    give p#0 v#16
-    dismiss v#16
-    call testUnaryMinus
+    take v#16 p#0
     introduce v#17
-    move v#17 Native(1)
-    give p#0 v#17
-    dismiss v#17
-    call testUnaryPlus
+    take v#17 p#1
     introduce v#18
-    move v#18 Native(1)
-    give p#0 v#18
-    dismiss v#18
+    move v#18 v#16
+    dismiss v#16
     introduce v#19
-    move v#19 Native(2)
-    give p#1 v#19
+    move v#19 v#17
+    dismiss v#17
+    divide v#18 v#19
     dismiss v#19
-    call testAddition
+    give r#0 v#18
+    dismiss v#18
+    return
+}
+
+function testModulo (Native, Native): Native
+{
     introduce v#20
-    move v#20 Native(1)
-    give p#0 v#20
-    dismiss v#20
+    take v#20 p#0
     introduce v#21
-    move v#21 Native(2)
-    give p#1 v#21
-    dismiss v#21
-    call testSubtraction
+    take v#21 p#1
     introduce v#22
-    move v#22 Native(1)
-    give p#0 v#22
-    dismiss v#22
+    move v#22 v#20
+    dismiss v#20
     introduce v#23
-    move v#23 Native(2)
-    give p#1 v#23
+    move v#23 v#21
+    dismiss v#21
+    modulo v#22 v#23
     dismiss v#23
+    give r#0 v#22
+    dismiss v#22
+    return
+}
+
+function main (): Void
+{
+    introduce v#24
+    move v#24 Native(1)
+    give p#0 v#24
+    dismiss v#24
+    call testUnaryMinus
+    introduce v#25
+    move v#25 Native(1)
+    give p#0 v#25
+    dismiss v#25
+    call testUnaryPlus
+    introduce v#26
+    move v#26 Native(1)
+    give p#0 v#26
+    dismiss v#26
+    introduce v#27
+    move v#27 Native(2)
+    give p#1 v#27
+    dismiss v#27
+    call testAddition
+    introduce v#28
+    move v#28 Native(1)
+    give p#0 v#28
+    dismiss v#28
+    introduce v#29
+    move v#29 Native(2)
+    give p#1 v#29
+    dismiss v#29
+    call testSubtraction
+    introduce v#30
+    move v#30 Native(1)
+    give p#0 v#30
+    dismiss v#30
+    introduce v#31
+    move v#31 Native(2)
+    give p#1 v#31
+    dismiss v#31
     call testMultiplication
+    introduce v#32
+    move v#32 Native(3)
+    give p#0 v#32
+    dismiss v#32
+    introduce v#33
+    move v#33 Native(2)
+    give p#1 v#33
+    dismiss v#33
+    call testDivision
+    introduce v#34
+    move v#34 Native(3)
+    give p#0 v#34
+    dismiss v#34
+    introduce v#35
+    move v#35 Native(2)
+    give p#1 v#35
+    dismiss v#35
+    call testModulo
     return
 }

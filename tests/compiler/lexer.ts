@@ -75,12 +75,16 @@ describe('Lexer',
             new InputToTokenKind('*', TokenKind.StarOperator, 'a star operator'),
             new InputToTokenKind('<', TokenKind.LessOperator, 'a less operator'),
             new InputToTokenKind('>', TokenKind.GreaterOperator, 'a greater operator'),
+            new InputToTokenKind('&', TokenKind.AndOperator, 'an and operator'),
+            new InputToTokenKind('|', TokenKind.OrOperator, 'an or operator'),
         ];
 
         // A list of inputs to their resulting token kind to automatically create tests out of that:
         const inputToTokenKindList: InputToTokenKind[] = [
             ...nonDelimitedInputToTokenKindList,
             new InputToTokenKind('=', TokenKind.EqualOperator, 'an equal operator'),
+            new InputToTokenKind('!=', TokenKind.NotEqualOperator, 'a not equal operator'),
+            new InputToTokenKind('!', TokenKind.NotOperator, 'a not operator'),
             new InputToTokenKind('/', TokenKind.SlashOperator, 'a slash operator'),
             new InputToTokenKind('//', TokenKind.LineCommentToken, 'a line comment'),
             new InputToTokenKind('/**/', TokenKind.BlockCommentToken, 'a block comment'),

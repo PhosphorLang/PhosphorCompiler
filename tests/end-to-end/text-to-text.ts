@@ -41,6 +41,19 @@ describe('End-to-end, the compiler',
             return intermediateCode;
         }
 
+        function expectCompiledEquality (fileName: string): void
+        {
+            const input = readInputFile(fileName + '.ph');
+
+            const expectedResult = readOutputFile(fileName + '.phi');
+
+            const result = compile(input);
+
+            diagnostic.end();
+
+            assert.deepStrictEqual(result, expectedResult);
+        }
+
         beforeEach(
             function ()
             {
@@ -57,105 +70,63 @@ describe('End-to-end, the compiler',
         it('can compile an empty file.',
             function ()
             {
-                const input = readInputFile('emptyFile.ph');
-
-                const expectedResult = readOutputFile('emptyFile.phi');
-
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+                expectCompiledEquality('emptyFile');
             }
         );
 
         it('can compile an empty main function.',
             function ()
             {
-                const input = readInputFile('emptyMain.ph');
-
-                const expectedResult = readOutputFile('emptyMain.phi');
-
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+                expectCompiledEquality('emptyMain');
             }
         );
 
         it('can compile function definition and call.',
             function ()
             {
-                const input = readInputFile('functions.ph');
-
-                const expectedResult = readOutputFile('functions.phi');
-
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+                expectCompiledEquality('functions');
             }
         );
 
         it('can compile if and else.',
             function ()
             {
-                const input = readInputFile('ifElse.ph');
-
-                const expectedResult = readOutputFile('ifElse.phi');
-
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+                expectCompiledEquality('ifElse');
             }
         );
 
         it('can compile a while loop.',
             function ()
             {
-                const input = readInputFile('whileLoop.ph');
-
-                const expectedResult = readOutputFile('whileLoop.phi');
-
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+                expectCompiledEquality('whileLoop');
             }
         );
 
         it('can compile math expressions.',
             function ()
             {
-                const input = readInputFile('math.ph');
+                expectCompiledEquality('math');
+            }
+        );
 
-                const expectedResult = readOutputFile('math.phi');
+        it('can compile bitwise expressions.',
+            function ()
+            {
+                expectCompiledEquality('bitwise');
+            }
+        );
 
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+        it('can compile logical expressions.',
+            function ()
+            {
+                expectCompiledEquality('logic');
             }
         );
 
         it('can compile string constants and operations.',
             function ()
             {
-                const input = readInputFile('strings.ph');
-
-                const expectedResult = readOutputFile('strings.phi');
-
-                const result = compile(input);
-
-                diagnostic.end();
-
-                assert.deepStrictEqual(result, expectedResult);
+                expectCompiledEquality('strings');
             }
         );
     }

@@ -277,6 +277,90 @@ describe('Parser',
             }
         );
 
+        it('can parse an equal operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newEqual(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newBinaryExpression(
+                                            SyntaxCreator.newIntegerLiteral(),
+                                            TokenCreator.newEqual(),
+                                            SyntaxCreator.newIntegerLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse a non equal operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newNotEqual(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newBinaryExpression(
+                                            SyntaxCreator.newIntegerLiteral(),
+                                            TokenCreator.newNotEqual(),
+                                            SyntaxCreator.newIntegerLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can parse a less operator.',
             function ()
             {
@@ -347,6 +431,130 @@ describe('Parser',
                                             SyntaxCreator.newIntegerLiteral(),
                                             TokenCreator.newGreater(),
                                             SyntaxCreator.newIntegerLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse a not operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newNot(),
+                    TokenCreator.newFalseKeyword(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newUnaryExpression(
+                                            SyntaxCreator.newFalseBooleanLiteral(),
+                                            TokenCreator.newNot()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse an and operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newTrueKeyword(),
+                    TokenCreator.newAnd(),
+                    TokenCreator.newTrueKeyword(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newBinaryExpression(
+                                            SyntaxCreator.newTrueBooleanLiteral(),
+                                            TokenCreator.newAnd(),
+                                            SyntaxCreator.newTrueBooleanLiteral()
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse an or operator.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newTrueKeyword(),
+                    TokenCreator.newOr(),
+                    TokenCreator.newFalseKeyword(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newBinaryExpression(
+                                            SyntaxCreator.newTrueBooleanLiteral(),
+                                            TokenCreator.newOr(),
+                                            SyntaxCreator.newFalseBooleanLiteral()
                                         )
                                     )
                                 ]

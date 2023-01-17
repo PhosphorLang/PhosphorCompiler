@@ -95,6 +95,11 @@ export abstract class TokenCreator
         return new Token(TokenKind.EqualOperator, '=');
     }
 
+    public static newNotEqual (): Token
+    {
+        return new Token(TokenKind.NotEqualOperator, '=');
+    }
+
     public static newLess (): Token
     {
         return new Token(TokenKind.LessOperator, '<');
@@ -103,6 +108,21 @@ export abstract class TokenCreator
     public static newGreater (): Token
     {
         return new Token(TokenKind.GreaterOperator, '>');
+    }
+
+    public static newNot (): Token
+    {
+        return new Token(TokenKind.NotOperator, '!');
+    }
+
+    public static newAnd (): Token
+    {
+        return new Token(TokenKind.AndOperator, '&');
+    }
+
+    public static newOr (): Token
+    {
+        return new Token(TokenKind.OrOperator, '|');
     }
 
     public static newVarKeyword (): Token

@@ -1,9 +1,33 @@
-function testMath (a: Int, b: Int, c: Int): Int
+function testUnaryPlus (a: Int): Int
 {
-    return -a + b - c;
+    return +a;
+}
+
+function testUnaryMinus (a: Int): Int
+{
+    return -a;
+}
+
+function testAddition (a: Int, b: Int): Int
+{
+    return a + b;
+}
+
+function testSubtraction (a: Int, b: Int): Int
+{
+    return a - b;
+}
+
+function testMultiplication (a: Int, b: Int): Int
+{
+    return a * b;
 }
 
 function main ()
 {
-    testMath(1, 2, 3);
+    testUnaryMinus(1);
+    testUnaryPlus(1);
+    testAddition(1, 2);
+    testSubtraction(1, 2);
+    testMultiplication(1, 2);
 }

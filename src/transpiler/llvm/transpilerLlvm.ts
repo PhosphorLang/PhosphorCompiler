@@ -626,14 +626,14 @@ export class TranspilerLlvm
 
     private transpileJumpIfGreater (jumpIfGreaterIntermediate: Intermediates.JumpIfGreater): void
     {
-        // TODO: We have to check the type as soon as there are signed types in Phosphor:
-        this.transpileConditionalJump('ugt', jumpIfGreaterIntermediate.target);
+        // TODO: We have to check the type as soon as there are unsigned types in Phosphor:
+        this.transpileConditionalJump('sgt', jumpIfGreaterIntermediate.target);
     }
 
     private transpileJumpIfLess (jumpIfLessIntermediate: Intermediates.JumpIfLess): void
     {
-        // TODO: We have to check the type as soon as there are signed types in Phosphor:
-        this.transpileConditionalJump('ult', jumpIfLessIntermediate.target);
+        // TODO: We have to check the type as soon as there are unsigned types in Phosphor:
+        this.transpileConditionalJump('slt', jumpIfLessIntermediate.target);
     }
 
     private transpileJumpIfNotEqual (jumpIfNotEqualIntermediate: Intermediates.JumpIfNotEqual): void

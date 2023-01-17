@@ -19,4 +19,12 @@ function main ()
     var multiplicationResult := a * b;
     writeLine('Multiplication result:');
     writeLine(intToString(multiplicationResult));
+
+    var divisionResult := a / b;
+    writeLine('Division result:');
+    writeLine(intToString(divisionResult));
+
+    var moduloResult := a % b;
+    writeLine('Modulo result:');
+    writeLine(intToString(moduloResult));
 }

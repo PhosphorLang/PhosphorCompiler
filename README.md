@@ -42,11 +42,9 @@ You need the following present on your system:
 - For all target platforms:
     - [Node.js](https://nodejs.org/) >= 16.3.0
 - Linux Amd64:
-    - [NASM](https://nasm.us/) >= 2.13
-    - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.30
-- AVR:
-    - [GNU avr-as](https://www.gnu.org/software/binutils/) >= 2.26
-    - [GNU avr-ld](https://www.gnu.org/software/binutils/) >= 2.26
+    - [LLVM](https://llvm.org/) = 14.0.0
+    - [GNU x86_64-linux-gnu-as](https://www.gnu.org/software/binutils/) >= 2.38
+    - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.38
 
 ### **Compile the compiler**
 
@@ -80,10 +78,13 @@ You can compile to any target platform from any supported platform.
 
 Target platforms:
 - Linux on x86_64: linuxAmd64
-- AVR (not working yet): avr
 
 Supported platforms:
 - Linux on x86_64
+
+Removed target platforms:
+- Linux on x86_64 without LLVM
+- AVR
 
 <hr>
 

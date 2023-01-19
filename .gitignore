@@ -4,7 +4,7 @@ node_modules/
 # No package-lock.json (package manager specific):
 package-lock.json
 
-# No browser specific configs:
+# No editor specific configs:
 .vscode
 .idea
 
@@ -19,3 +19,6 @@ out/**/*
 
 # Coverage directory used by tools like istanbul:
 coverage
+
+# Notes folder:
+notes

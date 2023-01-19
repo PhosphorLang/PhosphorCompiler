@@ -1,7 +1,7 @@
 export { SemanticNode } from './semanticNode';
 
 export { ArrayLiteralExpressionSemanticNode as ArrayLiteralExpression } from './arrayLiteralExpressionSemanticNode';
-export { AssignmentSemanticNode as Assignment } from"./assignmentSemanticNode";
+export { AssignmentSemanticNode as Assignment } from './assignmentSemanticNode';
 export { BinaryExpressionSemanticNode as BinaryExpression } from './binaryExpressionSemanticNode';
 export { CallExpressionSemanticNode as CallExpression } from './callExpressionSemanticNode';
 export { ConditionalGotoStatementSemanticNode as ConditionalGotoStatement } from './conditionalGotoStatementSemanticNode';

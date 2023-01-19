@@ -35,7 +35,8 @@ export enum DiagnosticCodes
     MissingSectionInWhileStatementError = 'E1032',
     MissingStandardLibraryCommandLineParameterError = 'E1033',
     CannotFindImportFileError = 'E1034',
-    ArrayLiteralContainsExpressionsOfDifferentTypesError = 'E1035',
+    UnterminatedBlockCommentError = 'E1035',
+    ArrayLiteralContainsExpressionsOfDifferentTypesError = 'E1036',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

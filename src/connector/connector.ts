@@ -494,6 +494,8 @@ export class Connector
                         expression.token
                     )
                 );
+            /* TODO: Move the diagnostic out of the switch and remove the default. The diagnostic will continue to be called only if
+                     none of the cases returns but this allows ESLint to signal alarm if not all cases are handled. */
         }
     }
 

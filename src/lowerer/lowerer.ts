@@ -124,7 +124,7 @@ export class Lowerer
 
     private generateVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.Variable
     {
-        const newVariable = new IntermediateSymbols.Variable(`v#${this.variableCounter}`, size);
+        const newVariable = new IntermediateSymbols.Variable(this.variableCounter, size);
 
         this.variableCounter += 1;
 
@@ -576,6 +576,7 @@ export class Lowerer
                 {
                     let value: string;
 
+                     // TODO: Remove the magic strings "true" and "false". Should they be handled in the connector?
                     if (literalExpression.value === 'true')
                     {
                         value = '-1';
@@ -731,6 +732,8 @@ export class Lowerer
                 // An unary addition has no effect.
                 break;
             case BuildInOperators.unaryIntSubtraction:
+            case BuildInOperators.unaryIntNot:
+            case BuildInOperators.unaryBoolNot:
                 {
                     if (!this.variableIntroducedSet.has(targetLocation))
                     {
@@ -741,9 +744,21 @@ export class Lowerer
                         this.variableIntroducedSet.add(targetLocation);
                     }
 
-                    intermediates.push(
-                        new Intermediates.Negate(targetLocation),
-                    );
+                    let intermediate: Intermediate;
+                    switch (operator)
+                    {
+                        case BuildInOperators.unaryIntSubtraction:
+                            intermediate = new Intermediates.Negate(targetLocation);
+                            break;
+                        case BuildInOperators.unaryIntNot:
+                        case BuildInOperators.unaryBoolNot:
+                            intermediate = new Intermediates.Not(targetLocation);
+                            break;
+                        default:
+                            throw new Error(`Lowerer error: Inconsistent handling for operator "${operator.kind}"`);
+                    }
+
+                    intermediates.push(intermediate);
 
                     this.variableDismissIndexMap.set(targetLocation, intermediates.length);
 
@@ -783,7 +798,7 @@ export class Lowerer
     }
 
     /**
-     * Lower a binary expression where the result type has the same as the left type.
+     * Lower a binary expression where the result type has the same size as the left type.
      */
     private lowerSizeRetainingBinaryExpression (
         binaryExpression: SemanticNodes.BinaryExpression,
@@ -814,15 +829,38 @@ export class Lowerer
                 intermediates.push(
                     new Intermediates.Add(targetLocation, temporaryVariable),
                 );
-                this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-                this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
                 break;
             case BuildInOperators.binaryIntSubtraction:
                 intermediates.push(
                     new Intermediates.Subtract(targetLocation, temporaryVariable),
                 );
-                this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-                this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
+                break;
+            case BuildInOperators.binaryIntMultiplication:
+                intermediates.push(
+                    new Intermediates.Multiply(targetLocation, temporaryVariable),
+                );
+                break;
+            case BuildInOperators.binaryIntDivision:
+                intermediates.push(
+                    new Intermediates.Divide(targetLocation, temporaryVariable),
+                );
+                break;
+            case BuildInOperators.binaryIntModulo:
+                intermediates.push(
+                    new Intermediates.Modulo(targetLocation, temporaryVariable),
+                );
+                break;
+            case BuildInOperators.binaryIntAnd:
+            case BuildInOperators.binaryBoolAnd:
+                intermediates.push(
+                    new Intermediates.And(targetLocation, temporaryVariable),
+                );
+                break;
+            case BuildInOperators.binaryIntOr:
+            case BuildInOperators.binaryBoolOr:
+                intermediates.push(
+                    new Intermediates.Or(targetLocation, temporaryVariable),
+                );
                 break;
             default:
                 throw new Error(
@@ -830,6 +868,10 @@ export class Lowerer
                     `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                 );
         }
+
+        // NOTE: This relies on the fact that, currently, the default branch of the switch statement aboth throws an error.
+        this.variableDismissIndexMap.set(targetLocation, intermediates.length);
+        this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
     }
 
     /**
@@ -872,8 +914,11 @@ export class Lowerer
             switch (operator)
             {
                 case BuildInOperators.binaryIntEqual:
+                case BuildInOperators.binaryIntNotEqual:
                 case BuildInOperators.binaryIntLess:
                 case BuildInOperators.binaryIntGreater:
+                case BuildInOperators.binaryBoolEqual:
+                case BuildInOperators.binaryBoolNotEqual:
                 {
                     intermediates.push(
                         new Intermediates.Compare(leftTemporaryVariable, rightTemporaryVariable),
@@ -888,8 +933,15 @@ export class Lowerer
                     switch (operator)
                     {
                         case BuildInOperators.binaryIntEqual:
+                        case BuildInOperators.binaryBoolEqual:
                             intermediates.push(
                                 new Intermediates.JumpIfEqual(trueLabel)
+                            );
+                            break;
+                        case BuildInOperators.binaryIntNotEqual:
+                        case BuildInOperators.binaryBoolNotEqual:
+                            intermediates.push(
+                                new Intermediates.JumpIfNotEqual(trueLabel)
                             );
                             break;
                         case BuildInOperators.binaryIntLess:

@@ -11,4 +11,6 @@ export enum IntermediateSize
     /** Void is the size of "NoType", i.e. zero. */
     Void = 'Void',
     // TODO: What about unsigned types (UIntX, UNative)?
+    // TODO: What about floating point types (FloatX)?
+    // TODO: What about copy-by-value types (Structure, Array)?
 }

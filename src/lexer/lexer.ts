@@ -145,7 +145,28 @@ export class Lexer
                 kind = TokenKind.StarOperator;
                 break;
             case '/':
-                kind = TokenKind.SlashOperator;
+            {
+                const nextChar = this.getNextChar();
+                if (nextChar === '/')
+                {
+                    kind = TokenKind.LineCommentToken;
+                    content = this.readLineComment();
+                }
+                else if (nextChar === '*')
+                {
+                    kind = TokenKind.BlockCommentToken;
+                    content = this.readBlockComment();
+                }
+                else
+                {
+                    this.position--;
+
+                    kind = TokenKind.SlashOperator;
+                }
+                break;
+            }
+            case '%':
+                kind = TokenKind.PercentOperator;
                 break;
             case '=':
                 kind = TokenKind.EqualOperator;
@@ -155,6 +176,25 @@ export class Lexer
                 break;
             case '>':
                 kind = TokenKind.GreaterOperator;
+                break;
+            case '!':
+                if (this.getNextChar() === '=')
+                {
+                    kind = TokenKind.NotEqualOperator;
+                    content = '!=';
+                }
+                else
+                {
+                    this.position--;
+
+                    kind = TokenKind.NotOperator;
+                }
+                break;
+            case '&':
+                kind = TokenKind.AndOperator;
+                break;
+            case '|':
+                kind = TokenKind.OrOperator;
                 break;
             case "'":
                 kind = TokenKind.StringToken;
@@ -220,6 +260,7 @@ export class Lexer
             {
                 case '':
                 case "\n":
+                case "\r":
                     this.diagnostic.throw(
                         new Diagnostic.Error(
                             'Unterminated string',
@@ -241,6 +282,68 @@ export class Lexer
         const content = this.text.slice(start, this.position - 1);
 
         this.column += this.position - start - 1;
+
+        return content;
+    }
+
+    private readLineComment (): string
+    {
+        const start = this.position;
+
+        let continueReading = true;
+        while (continueReading)
+        {
+            switch (this.getNextChar())
+            {
+                case '':
+                case "\n":
+                case "\r":
+                    continueReading = false;
+                    break;
+            }
+        }
+
+        const content = this.text.slice(start, this.position - 1);
+
+        this.column += this.position - start - 2; // Include the leading "//", thus -2.
+
+        return content;
+    }
+
+    private readBlockComment (): string
+    {
+        const start = this.position;
+
+        let continueReading = true;
+        while (continueReading)
+        {
+            switch (this.getNextChar())
+            {
+                case '':
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            'Unterminated block comment',
+                            Diagnostic.Codes.UnterminatedBlockCommentError,
+                            {
+                                fileName: this.fileName,
+                                lineNumber: this.line,
+                                columnNumber: this.column
+                            }
+                        )
+                    );
+                // Does not fall through as this.diagnostic.throw never returns.
+                case "*":
+                    if (this.getNextChar() === '/')
+                    {
+                        continueReading = false;
+                    }
+                    break;
+            }
+        }
+
+        const content = this.text.slice(start, this.position - 2);
+
+        this.column += this.position - start - 2;
 
         return content;
     }

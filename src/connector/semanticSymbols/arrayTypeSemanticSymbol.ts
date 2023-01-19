@@ -3,18 +3,12 @@ import { TypeSemanticSymbol } from "./typeSemanticSymbol";
 
 export class ArrayTypeSemanticSymbol extends TypeSemanticSymbol
 {
-    public readonly elementType: TypeSemanticSymbol|null;
-    /**
-     * If the size is null, the array is of (at compile time) unknown size. \
-     * TODO: Should an array with unknown size be a separate semantic symbol?
-     * */
-    public readonly size: number|null;
+    public readonly elementType: TypeSemanticSymbol;
+    public readonly size: number;
 
-    constructor (elementType: TypeSemanticSymbol|null, size: number|null)
+    constructor (elementType: TypeSemanticSymbol, size: number)
     {
-        const sizeString = size === null ? '' :`${size}`;
-        const elementTypeString = elementType === null ? '' :`${elementType.name}`;
-        const name = `${elementTypeString}[${sizeString}]`;
+        const name = `${elementType.name}[${size}]`;
 
         super(name);
 
@@ -31,16 +25,7 @@ export class ArrayTypeSemanticSymbol extends TypeSemanticSymbol
     {
         if ((type.kind === this.kind) && (type instanceof ArrayTypeSemanticSymbol))
         {
-            let sameElementType: boolean;
-            if ((type.elementType === null) || (this.elementType === null))
-            {
-                sameElementType = type.elementType === this.elementType;
-            }
-            else
-            {
-                sameElementType = type.elementType.equals(this.elementType);
-            }
-
+            const sameElementType = type.elementType.equals(this.elementType);
             const sameSize = type.size === this.size;
 
             return sameSize && sameElementType;

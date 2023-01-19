@@ -37,6 +37,7 @@ export enum DiagnosticCodes
     CannotFindImportFileError = 'E1034',
     UnterminatedBlockCommentError = 'E1035',
     ArrayLiteralContainsExpressionsOfDifferentTypesError = 'E1036',
+    EmptyArrayLiteralError = 'E1037',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

@@ -528,14 +528,19 @@ export class Connector
             elements.push(connectedExpression);
         }
 
-        let elementsType: SemanticSymbols.Type|null;
         if (elements.length == 0)
         {
-            elementsType = null;
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'An array literal must contain at least one element.',
+                    Diagnostic.Codes.EmptyArrayLiteralError,
+                    expression.token
+                )
+            );
         }
         else
         {
-            elementsType = elements[0].type;
+            const elementsType = elements[0].type;
 
             if (elements.length > 1)
             {
@@ -554,11 +559,11 @@ export class Connector
                     }
                 }
             }
+
+            const arrayType = new SemanticSymbols.ArrayType(elementsType, elements.length);
+
+            return new SemanticNodes.ArrayLiteralExpression(elements, arrayType);
         }
-
-        const type = new SemanticSymbols.ArrayType(elementsType, elements.length);
-
-        return new SemanticNodes.ArrayLiteralExpression(elements, type);
     }
 
     private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression

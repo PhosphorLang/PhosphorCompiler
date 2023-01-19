@@ -12,6 +12,16 @@ export class TypeSemanticSymbol extends SemanticSymbol
 
     public equals (type: TypeSemanticSymbol): boolean
     {
-        return this === type;
+        if (this === type)
+        {
+            return true;
+        }
+
+        if (this.constructor === type.constructor)
+        {
+            return this.name === type.name;
+        }
+
+        return false;
     }
 }

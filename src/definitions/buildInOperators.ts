@@ -106,7 +106,7 @@ export abstract class BuildInOperators
 
         for (const unaryOperator of BuildInOperators.unaryOperators)
         {
-            if ((unaryOperator.kind == operatorKind) && (unaryOperator.operandType == operandType))
+            if ((unaryOperator.kind == operatorKind) && (unaryOperator.operandType.equals(operandType)))
             {
                 return unaryOperator;
             }
@@ -127,8 +127,8 @@ export abstract class BuildInOperators
         for (const binaryOperator of BuildInOperators.binaryOperators)
         {
             if ((binaryOperator.kind == operatorKind)
-                && (binaryOperator.leftType == leftType)
-                && (binaryOperator.rightType == rightType))
+                && (binaryOperator.leftType.equals(leftType))
+                && (binaryOperator.rightType.equals(rightType)))
             {
                 return binaryOperator;
             }

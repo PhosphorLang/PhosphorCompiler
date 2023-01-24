@@ -19,7 +19,7 @@ export enum SyntaxKind
     BinaryExpression = 'BinaryExpression',
     ParenthesizedExpression = 'ParenthesizedExpression',
     LiteralExpression = 'LiteralExpression',
-    ArrayLiteralExpression = 'ArrayLiteralExpression',
+    VectorLiteralExpression = 'VectorLiteralExpression',
     VariableExpression = 'VariableExpression',
     CallExpression = 'CallExpression',
 }

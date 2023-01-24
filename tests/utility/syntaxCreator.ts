@@ -1,10 +1,10 @@
 import * as SyntaxNodes from '../../src/parser/syntaxNodes';
-import { ArrayElementsList } from '../../src/parser/lists/arrayElementsList';
 import { CallArgumentsList } from '../../src/parser/lists/callArgumentsList';
 import { Defaults } from './defaults';
 import { FunctionParametersList } from '../../src/parser/lists/functionParametersList';
 import { Token } from '../../src/lexer/token';
 import { TokenCreator } from './tokenCreator';
+import { ElementsList } from '../../src/parser/lists/elementsList';
 
 export abstract class SyntaxCreator
 {
@@ -131,16 +131,16 @@ export abstract class SyntaxCreator
         return new SyntaxNodes.LiteralExpression(TokenCreator.newFalseKeyword());
     }
 
-    public static newArrayLiteral (arrayElements = this.newArrayElementsList()): SyntaxNodes.ArrayLiteralExpression
+    public static newVectorLiteral (vectorElements = this.newElementsList()): SyntaxNodes.VectorLiteralExpression
     {
-        return new SyntaxNodes.ArrayLiteralExpression(
+        return new SyntaxNodes.VectorLiteralExpression(
             TokenCreator.newOpeningSquareBracket(),
-            arrayElements,
+            vectorElements,
             TokenCreator.newClosingSquareBracket()
         );
     }
 
-    public static newArrayElementsList (elements: SyntaxNodes.Expression[] = []): ArrayElementsList
+    public static newElementsList (elements: SyntaxNodes.Expression[] = []): ElementsList
     {
         const separators: Token[] = [];
 
@@ -149,7 +149,7 @@ export abstract class SyntaxCreator
             separators.push(TokenCreator.newComma());
         }
 
-        return new ArrayElementsList(elements, separators);
+        return new ElementsList(elements, separators);
     }
 
     public static newBinaryExpression (left: SyntaxNodes.Expression, operator: Token, right: SyntaxNodes.Expression): SyntaxNodes.BinaryExpression

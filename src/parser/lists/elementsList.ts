@@ -1,7 +1,8 @@
 import { ExpressionSyntaxNode } from "../syntaxNodes/expressionSyntaxNode";
 import { Token } from "../../lexer/token";
 
-export class ArrayElementsList
+// TODO: Is there a better name for this? It is used for lists of expressions in vectors/arrays etc.
+export class ElementsList
 {
     public readonly elements: ExpressionSyntaxNode[];
     public readonly separators: Token[];

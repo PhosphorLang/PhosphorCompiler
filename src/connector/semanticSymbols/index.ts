@@ -1,6 +1,6 @@
 export { SemanticSymbol } from './semanticSymbol';
 
-export { ArrayTypeSemanticSymbol as ArrayType } from './arrayTypeSemanticSymbol';
+export { VectorTypeSemanticSymbol as VectorType } from './vectorTypeSemanticSymbol';
 export { FunctionSemanticSymbol as Function } from './functionSemanticSymbol';
 export { LabelSemanticSymbol as Label } from './labelSemanticSymbol';
 export { ParameterSemanticSymbol as Parameter } from './parameterSemanticSymbol';

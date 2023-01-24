@@ -239,7 +239,7 @@ describe('Parser',
             }
         );
 
-        it('can parse an empty array literal.',
+        it('can parse an empty vector literal.',
             function ()
             {
                 const input = [
@@ -262,7 +262,7 @@ describe('Parser',
                             SyntaxCreator.newSection(
                                 [
                                     SyntaxCreator.newAssignment(
-                                        SyntaxCreator.newArrayLiteral()
+                                        SyntaxCreator.newVectorLiteral()
                                     )
                                 ]
                             )
@@ -276,7 +276,7 @@ describe('Parser',
             }
         );
 
-        it('can parse an array literal with one element.',
+        it('can parse an vector literal with one element.',
             function ()
             {
                 const input = [
@@ -300,8 +300,8 @@ describe('Parser',
                             SyntaxCreator.newSection(
                                 [
                                     SyntaxCreator.newAssignment(
-                                        SyntaxCreator.newArrayLiteral(
-                                            SyntaxCreator.newArrayElementsList(
+                                        SyntaxCreator.newVectorLiteral(
+                                            SyntaxCreator.newElementsList(
                                                 [
                                                     SyntaxCreator.newIntegerLiteral()
                                                 ]
@@ -320,7 +320,7 @@ describe('Parser',
             }
         );
 
-        it('can parse an array literal with multiple elements.',
+        it('can parse an vector literal with multiple elements.',
             function ()
             {
                 const input = [
@@ -346,8 +346,8 @@ describe('Parser',
                             SyntaxCreator.newSection(
                                 [
                                     SyntaxCreator.newAssignment(
-                                        SyntaxCreator.newArrayLiteral(
-                                            SyntaxCreator.newArrayElementsList(
+                                        SyntaxCreator.newVectorLiteral(
+                                            SyntaxCreator.newElementsList(
                                                 [
                                                     SyntaxCreator.newIntegerLiteral(),
                                                     SyntaxCreator.newIntegerLiteral()

@@ -1,14 +1,14 @@
-import { ArrayElementsList } from "../lists/arrayElementsList";
 import { ExpressionSyntaxNode } from "./expressionSyntaxNode";
 import { SyntaxKind } from "../syntaxKind";
 import { SyntaxNode } from "./syntaxNode";
 import { Token } from "../../lexer/token";
+import { ElementsList } from "../lists/elementsList";
 
-export class ArrayLiteralExpressionSyntaxNode extends ExpressionSyntaxNode
+export class VectorLiteralExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly opening: Token;
     public readonly closing: Token;
-    public readonly elements: ArrayElementsList;
+    public readonly elements: ElementsList;
 
     public get children (): Iterable<SyntaxNode>
     {
@@ -20,9 +20,9 @@ export class ArrayLiteralExpressionSyntaxNode extends ExpressionSyntaxNode
         return this.opening;
     }
 
-    constructor (opening: Token, elements: ArrayElementsList, closing: Token)
+    constructor (opening: Token, elements: ElementsList, closing: Token)
     {
-        super(SyntaxKind.ArrayLiteralExpression);
+        super(SyntaxKind.VectorLiteralExpression);
 
         this.opening = opening;
         this.elements = elements;

@@ -4,7 +4,7 @@ export enum SemanticSymbolKind
     Variable = 'Variable',
     Parameter = 'Parameter',
     Type = 'Type',
-    ArrayType = 'ArrayType',
+    VectorType = 'VectorType',
     Label = 'Label',
     // TODO: Sort alphabetically.
 }

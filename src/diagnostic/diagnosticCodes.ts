@@ -36,8 +36,8 @@ export enum DiagnosticCodes
     MissingStandardLibraryCommandLineParameterError = 'E1033',
     CannotFindImportFileError = 'E1034',
     UnterminatedBlockCommentError = 'E1035',
-    ArrayLiteralContainsExpressionsOfDifferentTypesError = 'E1036',
-    EmptyArrayLiteralError = 'E1037',
+    VectorLiteralContainsExpressionsOfDifferentTypesError = 'E1036',
+    EmptyVectorLiteralError = 'E1037',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

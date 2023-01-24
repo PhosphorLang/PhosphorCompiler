@@ -474,8 +474,8 @@ export class Connector
         {
             case SyntaxKind.LiteralExpression:
                 return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
-            case SyntaxKind.ArrayLiteralExpression:
-                return this.connectArrayLiteralExpression(expression as SyntaxNodes.ArrayLiteralExpression);
+            case SyntaxKind.VectorLiteralExpression:
+                return this.connectVectorLiteralExpression(expression as SyntaxNodes.VectorLiteralExpression);
             case SyntaxKind.VariableExpression:
                 return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
@@ -518,7 +518,7 @@ export class Connector
         return new SemanticNodes.LiteralExpression(value, type);
     }
 
-    private connectArrayLiteralExpression (expression: SyntaxNodes.ArrayLiteralExpression): SemanticNodes.ArrayLiteralExpression
+    private connectVectorLiteralExpression (expression: SyntaxNodes.VectorLiteralExpression): SemanticNodes.VectorLiteralExpression
     {
         const elements: SemanticNodes.Expression[] = [];
 
@@ -532,8 +532,8 @@ export class Connector
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    'An array literal must contain at least one element.',
-                    Diagnostic.Codes.EmptyArrayLiteralError,
+                    'A vector literal must contain at least one element.',
+                    Diagnostic.Codes.EmptyVectorLiteralError,
                     expression.token
                 )
             );
@@ -550,9 +550,9 @@ export class Connector
                     {
                         this.diagnostic.throw(
                             new Diagnostic.Error(
-                                `Array literal of type "${elementsType.name}" contains incompatible expression of type`
+                                `Vector literal of type "${elementsType.name}" contains incompatible expression of type`
                                 + ` "${elements[i].type.name}" at index ${i}.`,
-                                Diagnostic.Codes.ArrayLiteralContainsExpressionsOfDifferentTypesError,
+                                Diagnostic.Codes.VectorLiteralContainsExpressionsOfDifferentTypesError,
                                 expression.elements.elements[i].token
                             )
                         );
@@ -560,9 +560,9 @@ export class Connector
                 }
             }
 
-            const arrayType = new SemanticSymbols.ArrayType(elementsType, elements.length);
+            const vectorType = new SemanticSymbols.VectorType(elementsType, elements.length);
 
-            return new SemanticNodes.ArrayLiteralExpression(elements, arrayType);
+            return new SemanticNodes.VectorLiteralExpression(elements, vectorType);
         }
     }
 

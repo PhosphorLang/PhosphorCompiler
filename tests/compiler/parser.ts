@@ -239,6 +239,134 @@ describe('Parser',
             }
         );
 
+        it('can parse an empty vector literal.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newOpeningSquareBracket(),
+                    TokenCreator.newClosingSquareBracket(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newVectorLiteral()
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse an vector literal with one element.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newOpeningSquareBracket(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newClosingSquareBracket(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newVectorLiteral(
+                                            SyntaxCreator.newElementsList(
+                                                [
+                                                    SyntaxCreator.newIntegerLiteral()
+                                                ]
+                                            )
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
+        it('can parse an vector literal with multiple elements.',
+            function ()
+            {
+                const input = [
+                    TokenCreator.newFunctionKeyword(),
+                    TokenCreator.newIdentifier(),
+                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newVariableIdentifier(),
+                    TokenCreator.newAssignment(),
+                    TokenCreator.newOpeningSquareBracket(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newComma(),
+                    TokenCreator.newInteger(),
+                    TokenCreator.newClosingSquareBracket(),
+                    TokenCreator.newSemicolon(),
+                    TokenCreator.newClosingBrace(),
+                ];
+
+                const expectedResult = SyntaxCreator.newFile(
+                    [
+                        SyntaxCreator.newFunctionDeclaration(
+                            SyntaxCreator.newSection(
+                                [
+                                    SyntaxCreator.newAssignment(
+                                        SyntaxCreator.newVectorLiteral(
+                                            SyntaxCreator.newElementsList(
+                                                [
+                                                    SyntaxCreator.newIntegerLiteral(),
+                                                    SyntaxCreator.newIntegerLiteral()
+                                                ]
+                                            )
+                                        )
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                );
+
+                const result = parser.run(input, Defaults.fileName);
+
+                assert.deepStrictEqual(result, expectedResult);
+            }
+        );
+
         it('can parse an integer addition.',
             function ()
             {

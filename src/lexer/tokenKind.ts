@@ -9,6 +9,8 @@ export enum TokenKind
     ClosingParenthesisToken,
     OpeningBraceToken,
     ClosingBraceToken,
+    OpeningSquareBracketToken,
+    ClosingSquareBracketToken,
     ColonToken,
     SemicolonToken,
     CommaToken,

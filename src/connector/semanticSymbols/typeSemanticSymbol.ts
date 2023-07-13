@@ -9,4 +9,19 @@ export class TypeSemanticSymbol extends SemanticSymbol
     {
         super(SemanticSymbolKind.Type, name);
     }
+
+    public equals (type: TypeSemanticSymbol): boolean
+    {
+        if (this === type)
+        {
+            return true;
+        }
+
+        if (this.constructor === type.constructor)
+        {
+            return this.name === type.name;
+        }
+
+        return false;
+    }
 }

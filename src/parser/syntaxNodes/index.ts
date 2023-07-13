@@ -1,5 +1,6 @@
 export { SyntaxNode } from './syntaxNode';
 
+export { VectorLiteralExpressionSyntaxNode as VectorLiteralExpression } from "./vectorLiteralExpressionSyntaxNode";
 export { AssignmentSyntaxNode as Assignment } from './assignmentSyntaxNode';
 export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressionSyntaxNode';
 export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSyntaxNode';

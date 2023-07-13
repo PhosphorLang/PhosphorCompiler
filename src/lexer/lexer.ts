@@ -110,6 +110,12 @@ export class Lexer
             case '}':
                 kind = TokenKind.ClosingBraceToken;
                 break;
+            case '[':
+                kind = TokenKind.OpeningSquareBracketToken;
+                break;
+            case ']':
+                kind = TokenKind.ClosingSquareBracketToken;
+                break;
             case ':':
                 if (this.getNextChar() === '=')
                 {

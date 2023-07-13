@@ -1,5 +1,6 @@
 export { SemanticNode } from './semanticNode';
 
+export { VectorLiteralExpressionSemanticNode as VectorLiteralExpression } from './vectorLiteralExpressionSemanticNode';
 export { AssignmentSemanticNode as Assignment } from './assignmentSemanticNode';
 export { BinaryExpressionSemanticNode as BinaryExpression } from './binaryExpressionSemanticNode';
 export { CallExpressionSemanticNode as CallExpression } from './callExpressionSemanticNode';

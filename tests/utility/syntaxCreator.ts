@@ -4,6 +4,7 @@ import { Defaults } from './defaults';
 import { FunctionParametersList } from '../../src/parser/lists/functionParametersList';
 import { Token } from '../../src/lexer/token';
 import { TokenCreator } from './tokenCreator';
+import { ElementsList } from '../../src/parser/lists/elementsList';
 
 export abstract class SyntaxCreator
 {
@@ -128,6 +129,27 @@ export abstract class SyntaxCreator
     public static newFalseBooleanLiteral (): SyntaxNodes.LiteralExpression
     {
         return new SyntaxNodes.LiteralExpression(TokenCreator.newFalseKeyword());
+    }
+
+    public static newVectorLiteral (vectorElements = this.newElementsList()): SyntaxNodes.VectorLiteralExpression
+    {
+        return new SyntaxNodes.VectorLiteralExpression(
+            TokenCreator.newOpeningSquareBracket(),
+            vectorElements,
+            TokenCreator.newClosingSquareBracket()
+        );
+    }
+
+    public static newElementsList (elements: SyntaxNodes.Expression[] = []): ElementsList
+    {
+        const separators: Token[] = [];
+
+        for (let i = 0; i < elements.length - 1; i++) // - 1 because we need one separator less than elements.
+        {
+            separators.push(TokenCreator.newComma());
+        }
+
+        return new ElementsList(elements, separators);
     }
 
     public static newBinaryExpression (left: SyntaxNodes.Expression, operator: Token, right: SyntaxNodes.Expression): SyntaxNodes.BinaryExpression

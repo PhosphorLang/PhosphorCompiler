@@ -333,7 +333,7 @@ export class Connector
             expression = this.connectExpression(returnStatement.expression);
         }
 
-        if (this.currentFunction.returnType == BuildInTypes.noType)
+        if (this.currentFunction.returnType.equals(BuildInTypes.noType))
         {
             if (expression !== null)
             {
@@ -358,7 +358,7 @@ export class Connector
                     )
                 );
             }
-            else if (expression.type != this.currentFunction.returnType)
+            else if (!expression.type.equals(this.currentFunction.returnType))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -377,7 +377,7 @@ export class Connector
     {
         const condition = this.connectExpression(ifStatement.condition);
 
-        if (condition.type !== BuildInTypes.bool)
+        if (!condition.type.equals(BuildInTypes.bool))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -419,7 +419,7 @@ export class Connector
     {
         const condition = this.connectExpression(whileStatement.condition);
 
-        if (condition.type !== BuildInTypes.bool)
+        if (!condition.type.equals(BuildInTypes.bool))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -474,6 +474,8 @@ export class Connector
         {
             case SyntaxKind.LiteralExpression:
                 return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
+            case SyntaxKind.VectorLiteralExpression:
+                return this.connectVectorLiteralExpression(expression as SyntaxNodes.VectorLiteralExpression);
             case SyntaxKind.VariableExpression:
                 return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
@@ -514,6 +516,54 @@ export class Connector
         }
 
         return new SemanticNodes.LiteralExpression(value, type);
+    }
+
+    private connectVectorLiteralExpression (expression: SyntaxNodes.VectorLiteralExpression): SemanticNodes.VectorLiteralExpression
+    {
+        const elements: SemanticNodes.Expression[] = [];
+
+        for (const element of expression.elements.elements)
+        {
+            const connectedExpression = this.connectExpression(element);
+            elements.push(connectedExpression);
+        }
+
+        if (elements.length == 0)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'A vector literal must contain at least one element.',
+                    Diagnostic.Codes.EmptyVectorLiteralError,
+                    expression.token
+                )
+            );
+        }
+        else
+        {
+            const elementsType = elements[0].type;
+
+            if (elements.length > 1)
+            {
+                for (let i = 1; i < elements.length; i++)
+                {
+                    if (!elements[i].type.equals(elementsType))
+                    {
+                        this.diagnostic.throw(
+                            new Diagnostic.Error(
+                                `Vector literal of type "${elementsType.name}" contains incompatible expression of type`
+                                + ` "${elements[i].type.name}" at index ${i}.`,
+                                Diagnostic.Codes.VectorLiteralContainsExpressionsOfDifferentTypesError,
+                                expression.elements.elements[i].token
+                            )
+                        );
+                    }
+                }
+            }
+
+            const vectorType = new SemanticSymbols.VectorType(elementsType, elements.length);
+
+            return new SemanticNodes.VectorLiteralExpression(elements, vectorType);
+        }
     }
 
     private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression
@@ -572,7 +622,7 @@ export class Connector
 
         for (let i = 0; i < callArguments.length; i++)
         {
-            if (callArguments[i].type !== functionSymbol.parameters[i].type)
+            if (!callArguments[i].type.equals(functionSymbol.parameters[i].type))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(

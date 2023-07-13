@@ -1,5 +1,6 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
+import { ElementsList } from "./lists/elementsList";
 import { CallArgumentsList } from './lists/callArgumentsList';
 import { FunctionParametersList } from './lists/functionParametersList';
 import { OperatorOrder } from './operatorOrder';
@@ -548,6 +549,8 @@ export class Parser
         {
             case TokenKind.OpeningParenthesisToken:
                 return this.parseParenthesizedExpression();
+            case TokenKind.OpeningSquareBracketToken:
+                return this.parseVectorLiteralExpression();
             case TokenKind.IntegerToken:
             case TokenKind.StringToken:
             case TokenKind.TrueKeyword:
@@ -573,6 +576,15 @@ export class Parser
         const closing = this.consumeNextToken();
 
         return new SyntaxNodes.ParenthesizedExpression(opening, expression, closing);
+    }
+
+    private parseVectorLiteralExpression (): SyntaxNodes.VectorLiteralExpression
+    {
+        const opening = this.consumeNextToken();
+        const elements = this.parseVectorElements();
+        const closing = this.consumeNextToken();
+
+        return new SyntaxNodes.VectorLiteralExpression(opening, elements, closing);
     }
 
     private parseLiteralExpression (): SyntaxNodes.LiteralExpression
@@ -625,6 +637,29 @@ export class Parser
         }
 
         return new CallArgumentsList(expressions, separators);
+    }
+
+    private parseVectorElements (): ElementsList
+    {
+        const elements: SyntaxNodes.Expression[] = [];
+        const separators: Token[] = [];
+
+        while ((this.getCurrentToken().kind != TokenKind.ClosingSquareBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
+        {
+            const element = this.parseExpression();
+            elements.push(element);
+
+            if (this.getCurrentToken().kind == TokenKind.CommaToken)
+            {
+                separators.push(this.consumeNextToken());
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return new ElementsList(elements, separators);
     }
 
     private parseVariableExpression (): SyntaxNodes.VariableExpression

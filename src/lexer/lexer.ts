@@ -116,6 +116,9 @@ export class Lexer
             case ']':
                 kind = TokenKind.ClosingSquareBracketToken;
                 break;
+            case '.':
+                kind = TokenKind.DotToken;
+                break;
             case ':':
                 if (this.getNextChar() === '=')
                 {
@@ -391,6 +394,9 @@ export class Lexer
                 break;
             case 'false':
                 kind = TokenKind.FalseKeyword;
+                break;
+            case 'module':
+                kind = TokenKind.ModuleKeyword;
                 break;
             case 'import':
                 kind = TokenKind.ImportKeyword;

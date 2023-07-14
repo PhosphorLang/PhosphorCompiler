@@ -11,6 +11,7 @@ export enum TokenKind
     ClosingBraceToken,
     OpeningSquareBracketToken,
     ClosingSquareBracketToken,
+    DotToken,
     ColonToken,
     SemicolonToken,
     CommaToken,
@@ -31,6 +32,7 @@ export enum TokenKind
     AndOperator,
     OrOperator,
     // Keywords
+    ModuleKeyword,
     VarKeyword,
     FunctionKeyword,
     ReturnKeyword,

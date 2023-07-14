@@ -3,6 +3,7 @@ import { IntermediateKind } from '../intermediateKind';
 
 /**
  * Declares the function (of the given function symbol) as external, which means that it is defined in an separate linked library.
+ * TODO: Should this be renamed to "HeaderIntermediate" for consistency with the frontend or are the two concepts too seperated?
  */
 export class ExternalIntermediate
 {

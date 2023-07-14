@@ -246,7 +246,7 @@ export class Lowerer
      */
     private lowerBuildInFunctionIfNeeded (functionSymbol: SemanticSymbols.Function): void
     {
-        if (!functionSymbol.isExternal)
+        if (!functionSymbol.isHeader)
         {
             throw new Error(`Lowerer error: Tried to lower build-in function "${functionSymbol.name}" which is not external.`);
         }
@@ -278,7 +278,7 @@ export class Lowerer
 
         this.functionSymbolMap.set(functionDeclaration.symbol, functionSymbol);
 
-        if (functionDeclaration.symbol.isExternal)
+        if (functionDeclaration.symbol.isHeader)
         {
             const externalFunction = new Intermediates.External(functionSymbol);
             this.externals.push(externalFunction);

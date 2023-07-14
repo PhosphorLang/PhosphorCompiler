@@ -34,7 +34,7 @@ export enum TokenKind
     VarKeyword,
     FunctionKeyword,
     ReturnKeyword,
-    ExternalKeyword,
+    HeaderKeyword,
     IfKeyword,
     ElseKeyword,
     WhileKeyword,

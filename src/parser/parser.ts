@@ -105,7 +105,7 @@ export class Parser
                     functions.push(functionDeclaration);
                     break;
                 }
-                case TokenKind.ExternalKeyword:
+                case TokenKind.HeaderKeyword:
                 {
                     const functionDeclaration = this.parseFunctionModifier();
                     functions.push(functionDeclaration);
@@ -143,7 +143,7 @@ export class Parser
 
         switch (this.getCurrentToken().kind)
         {
-            case TokenKind.ExternalKeyword:
+            case TokenKind.HeaderKeyword:
             {
                 const newModifier = this.consumeNextToken();
                 modifiers.push(newModifier);
@@ -160,7 +160,7 @@ export class Parser
                 {
                     switch (modifier.kind)
                     {
-                        case TokenKind.ExternalKeyword:
+                        case TokenKind.HeaderKeyword:
                             isExternal = true;
                             break;
                         default:

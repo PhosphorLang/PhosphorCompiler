@@ -7,14 +7,14 @@ export class FunctionSemanticSymbol extends SemanticSymbol
 {
     public readonly parameters: ParameterSemanticSymbol[];
     public readonly returnType: TypeSemanticSymbol;
-    public readonly isExternal: boolean;
+    public readonly isHeader: boolean;
 
-    constructor (name: string, returnType: TypeSemanticSymbol, parameters: ParameterSemanticSymbol[], isExternal: boolean)
+    constructor (name: string, returnType: TypeSemanticSymbol, parameters: ParameterSemanticSymbol[], isHeader: boolean)
     {
         super(SemanticSymbolKind.Function, name);
 
         this.returnType = returnType;
         this.parameters = parameters;
-        this.isExternal = isExternal;
+        this.isHeader = isHeader;
     }
 }

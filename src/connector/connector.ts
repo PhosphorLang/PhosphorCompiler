@@ -124,9 +124,9 @@ export class Connector
         const name = functionDeclaration.identifier.content;
         const returnType = this.connectType(functionDeclaration.type) ?? BuildInTypes.noType;
         const parameters = this.connectParameters(functionDeclaration.parameters);
-        const isExternal = functionDeclaration.isExternal;
+        const isHeader = functionDeclaration.isHeader;
 
-        return new SemanticSymbols.Function(name, returnType, parameters, isExternal);
+        return new SemanticSymbols.Function(name, returnType, parameters, isHeader);
     }
 
     private connectType (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.Type|null

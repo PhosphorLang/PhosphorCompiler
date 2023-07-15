@@ -14,12 +14,19 @@ export class FileIntermediate
     public externals: ExternalIntermediate[];
     public constants: ConstantIntermediate[];
 
-    constructor (functions: FunctionIntermediate[], externals: ExternalIntermediate[], constants: ConstantIntermediate[])
-    {
+    public isEntryPoint: boolean;
+
+    constructor (
+        functions: FunctionIntermediate[],
+        externals: ExternalIntermediate[],
+        constants: ConstantIntermediate[],
+        isEntryPoint: boolean
+    ){
         this.kind = IntermediateKind.File;
 
         this.functions = functions;
         this.externals = externals;
         this.constants = constants;
+        this.isEntryPoint = isEntryPoint;
     }
 }

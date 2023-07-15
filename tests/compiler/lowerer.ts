@@ -7,11 +7,12 @@ import { IntermediateCreator } from '../utility/intermediateCreator';
 import { IntermediateSize } from '../../src/lowerer/intermediateSize';
 import { Lowerer } from '../../src/lowerer/lowerer';
 import { SemanticCreator } from '../utility/semanticCreator';
+import { BuildInModules } from '../../src/definitions/buildInModules';
 
 describe('Lowerer',
     function ()
     {
-        it('can lower an empty file.',
+        it('can lower an empty module.',
             function ()
             {
                 const input = SemanticCreator.newFile();
@@ -429,7 +430,7 @@ describe('Lowerer',
                         IntermediateSize.Pointer,
                     ],
                     IntermediateSize.Int8,
-                    BuildInFunctions.stringsAreEqual.name
+                    BuildInModules.string.qualifiedName + '.' + BuildInFunctions.stringsAreEqual.name
                 );
 
                 const expectedResult = IntermediateCreator.newFile(

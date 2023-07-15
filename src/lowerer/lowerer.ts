@@ -3,6 +3,7 @@ import * as IntermediateSymbols from './intermediateSymbols';
 import * as SemanticNodes from '../connector/semanticNodes';
 import * as SemanticSymbols from '../connector/semanticSymbols';
 import { BuildInFunctions } from '../definitions/buildInFunctions';
+import { BuildInModules } from '../definitions/buildInModules';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { Intermediate } from './intermediates';
@@ -10,7 +11,9 @@ import { IntermediateKind } from './intermediateKind';
 import { IntermediateSize } from './intermediateSize';
 import { SemanticKind } from '../connector/semanticKind';
 
-// TODO: When (if?) the Bool type size is changed from Int8 to UInt8 (i.e. unsigned), the value of true must be changed from -1 to 255.
+/* TODO: When (if?) the Bool type size is changed from Int8 to UInt8 (i.e. unsigned), the value of true must be changed from -1 to 255.
+         -> Should we rather introduce a boolean type in the intermediate language? */
+// TODO: Should the lowerer really directly lower to the IL? Or should it rather only "desugar" on the semantic level?
 
 /**
  * The lowerer "lowers" semantic by breaking up abstracted structures (like an if statement) into simpler components (e.g. multiple goto
@@ -38,7 +41,9 @@ export class Lowerer
     private variableDismissIndexMap: Map<IntermediateSymbols.Variable, number>;
 
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
-    private buildInFunctionLoweredSet: Set<SemanticSymbols.Function>;
+    private buildInModuleLoweredSet: Set<SemanticSymbols.Module>;
+
+    private currentModule: SemanticSymbols.Module|null;
 
     constructor ()
     {
@@ -56,7 +61,9 @@ export class Lowerer
         this.variableDismissIndexMap = new Map();
 
         this.variableIntroducedSet = new Set();
-        this.buildInFunctionLoweredSet = new Set();
+        this.buildInModuleLoweredSet = new Set();
+
+        this.currentModule = null;
     }
 
     public run (fileSemanticNode: SemanticNodes.File): Intermediates.File
@@ -78,11 +85,13 @@ export class Lowerer
         this.variableDismissIndexMap.clear();
 
         this.variableIntroducedSet.clear();
-        this.buildInFunctionLoweredSet.clear();
+        this.buildInModuleLoweredSet.clear();
+
+        this.currentModule = null;
 
         this.lowerFile(fileSemanticNode);
 
-        return new Intermediates.File(this.functions, this.externals, this.constants);
+        return new Intermediates.File(this.functions, this.externals, this.constants, fileSemanticNode.module.isEntryPoint);
     }
 
     private getOrGenerateConstant (value: string): IntermediateSymbols.Constant
@@ -165,9 +174,14 @@ export class Lowerer
                 return IntermediateSize.Pointer;
             case BuildInTypes.noType:
                 return IntermediateSize.Void;
-            default:
-                throw new Error(`Lowerer error: No known size for type "${type.name}"`);
         }
+
+        if (type instanceof SemanticSymbols.VectorType)
+        {
+            return IntermediateSize.Pointer;
+        }
+
+        throw new Error(`Lowerer error: No known size for type "${type.name}"`);
     }
 
     /**
@@ -223,60 +237,96 @@ export class Lowerer
 
     private lowerFile (file: SemanticNodes.File): void
     {
-        for (const importNode of file.imports)
+        this.currentModule = file.module;
+
+        for (const importModule of file.imports)
         {
-            this.lowerImport(importNode);
+            this.lowerImport(importModule);
         }
 
         for (const functionNode of file.functions)
         {
             this.lowerFunction(functionNode);
         }
+
+        this.currentModule = null;
     }
 
-    private lowerImport (importNode: SemanticNodes.Import): void
+    private lowerImport (importModule: SemanticSymbols.Module): void
     {
-        this.lowerFile(importNode.file);
-    }
-
-    /**
-     * Lower a build-in function if not already lowered. \
-     * Note that this must only be used for build-in functions (which are all external by definition).
-     * Will not check if the function really is build-in but will throw if it is not external.
-     */
-    private lowerBuildInFunctionIfNeeded (functionSymbol: SemanticSymbols.Function): void
-    {
-        if (!functionSymbol.isHeader)
+        for (const semanticFunctionSymbol of importModule.functionsNameToSymbol.values())
         {
-            throw new Error(`Lowerer error: Tried to lower build-in function "${functionSymbol.name}" which is not external.`);
-        }
+            const intermediateFunctionSymbol = this.lowerFunctionSymbol(semanticFunctionSymbol, importModule);
 
-        if (!this.buildInFunctionLoweredSet.has(functionSymbol))
-        {
-            const buildInFunctionDeclaration = new SemanticNodes.FunctionDeclaration(functionSymbol, null);
-
-            this.lowerFunction(buildInFunctionDeclaration);
-
-            this.buildInFunctionLoweredSet.add(functionSymbol);
+            const externalFunction = new Intermediates.External(intermediateFunctionSymbol);
+            this.externals.push(externalFunction);
         }
     }
 
-    private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): void
+    private lowerFunctionSymbol (
+        semanticFunctionSymbol: SemanticSymbols.Function,
+        module: SemanticSymbols.Module
+    ): IntermediateSymbols.Function
     {
         const parameterSizes: IntermediateSize[] = [];
-        for (const parameter of functionDeclaration.symbol.parameters)
+        for (const parameter of semanticFunctionSymbol.parameters)
         {
             const parameterSize = this.typeToSize(parameter.type);
             parameterSizes.push(parameterSize);
         }
 
-        const functionSymbol = new IntermediateSymbols.Function(
-            functionDeclaration.symbol.name,
-            this.typeToSize(functionDeclaration.symbol.returnType),
+        let qualifiedName: string;
+        if (module.isEntryPoint && semanticFunctionSymbol.name == 'main') // TODO: Find a better way than a hardcoded name.
+        {
+            qualifiedName = semanticFunctionSymbol.name;
+        }
+        else
+        {
+            qualifiedName = module.qualifiedName + '.' + semanticFunctionSymbol.name;
+        }
+
+        const intermediateFunctionSymbol = new IntermediateSymbols.Function(
+            qualifiedName,
+            this.typeToSize(semanticFunctionSymbol.returnType),
             parameterSizes
         );
 
-        this.functionSymbolMap.set(functionDeclaration.symbol, functionSymbol);
+        this.functionSymbolMap.set(semanticFunctionSymbol, intermediateFunctionSymbol);
+
+        return intermediateFunctionSymbol;
+    }
+
+    /**
+     * Lower a build-in module if not already lowered. \
+     * Note that this must only be used for build-in modules (which are all header files by definition).
+     * Will not check if the module really is build-in but will throw if it is not header-only.
+     */
+    private lowerBuildInModuleIfNeeded (moduleSymbol: SemanticSymbols.Module): void
+    {
+        for (const functionSymbol of moduleSymbol.functionsNameToSymbol.values())
+        {
+            if (!functionSymbol.isHeader)
+            {
+                throw new Error(`Lowerer error: Tried to lower build-in module "${moduleSymbol.name}" which includes non-header function.`);
+            }
+        }
+
+        if (!this.buildInModuleLoweredSet.has(moduleSymbol))
+        {
+            this.lowerImport(BuildInModules.string);
+
+            this.buildInModuleLoweredSet.add(moduleSymbol);
+        }
+    }
+
+    private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): void
+    {
+        if (this.currentModule === null)
+        {
+            throw new Error(`Lowerer error: Current module is null.`);
+        }
+
+        const functionSymbol = this.lowerFunctionSymbol(functionDeclaration.symbol, this.currentModule);
 
         if (functionDeclaration.symbol.isHeader)
         {
@@ -887,10 +937,11 @@ export class Lowerer
         {
             // NOTE: Compiler magic: The comparison of a string is call to the build in function "stringsAreEqual".
 
-            this.lowerBuildInFunctionIfNeeded(BuildInFunctions.stringsAreEqual);
+            this.lowerBuildInModuleIfNeeded(BuildInModules.string);
 
             const callExpression = new SemanticNodes.CallExpression(
                 BuildInFunctions.stringsAreEqual,
+                BuildInModules.string,
                 [
                     binaryExpression.leftOperand,
                     binaryExpression.rightOperand,

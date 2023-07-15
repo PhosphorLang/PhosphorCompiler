@@ -8,10 +8,11 @@ export abstract class IntermediateCreator
     public static newFile (
         functions: Intermediates.Function[] = [],
         externals: Intermediates.External[] = [],
-        constants: Intermediates.Constant[] = []
+        constants: Intermediates.Constant[] = [],
+        isEntryPoint = false
     ): Intermediates.File
     {
-        return new Intermediates.File(functions, externals, constants);
+        return new Intermediates.File(functions, externals, constants, isEntryPoint);
     }
 
     public static newFunction (
@@ -25,7 +26,7 @@ export abstract class IntermediateCreator
     public static newFunctionSymbol (
         parameters: IntermediateSize[] = [],
         returnSize: IntermediateSize = IntermediateSize.Void,
-        name = Defaults.identifier,
+        name = Defaults.moduleName + '.' + Defaults.identifier,
     ): IntermediateSymbols.Function
     {
         return new IntermediateSymbols.Function(name, returnSize, parameters);

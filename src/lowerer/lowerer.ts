@@ -103,7 +103,14 @@ export class Lowerer
             return existingConstant;
         }
 
-        const newConstant = new IntermediateSymbols.Constant(`c#${this.constantCounter}`, value);
+        if (this.currentModule === null)
+        {
+            throw new Error(`Lowerer error: Current module is null while defining a constant.`);
+        }
+
+        const qualifiedName = this.currentModule.qualifiedName + '.' + `c#${this.constantCounter}`;
+
+        const newConstant = new IntermediateSymbols.Constant(qualifiedName, value);
 
         this.constantCounter += 1;
 
@@ -323,7 +330,7 @@ export class Lowerer
     {
         if (this.currentModule === null)
         {
-            throw new Error(`Lowerer error: Current module is null.`);
+            throw new Error(`Lowerer error: Current module is null while lowering a function.`);
         }
 
         const functionSymbol = this.lowerFunctionSymbol(functionDeclaration.symbol, this.currentModule);

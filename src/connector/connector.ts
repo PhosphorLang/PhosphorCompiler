@@ -5,7 +5,6 @@ import * as SyntaxNodes from '../parser/syntaxNodes';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { FunctionParametersList } from '../parser/lists/functionParametersList';
-import { ImportNodeToFileNode } from '../importer/importNodeToFileNode';
 import { SemanticNode } from './semanticNodes';
 import { SyntaxKind } from '../parser/syntaxKind';
 import { SyntaxNode } from '../parser/syntaxNodes';
@@ -14,6 +13,11 @@ export class Connector
 {
     private readonly diagnostic: Diagnostic.Diagnostic;
 
+    /**
+     * A map of files (by their local module name).
+     * This is filled with already connected files that are imported in the current one.
+     */
+    private importedFiles: Map<string, SemanticNodes.File>;
     /**
      * A list of functions, global to the file.
      * This is filled before the function bodies are connected, so every function can reference every other function,
@@ -27,24 +31,29 @@ export class Connector
      */
     private variableStacks: Map<string, SemanticSymbols.Variable>[];
 
+    private currentModule: SemanticSymbols.Module|null;
     private currentFunction: SemanticSymbols.Function|null;
 
     constructor (diagnostic: Diagnostic.Diagnostic)
     {
         this.diagnostic = diagnostic;
 
-        this.functions = new Map<string, SemanticSymbols.Function>();
+        this.importedFiles = new Map();
+        this.functions = new Map();
         this.variableStacks = [];
+        this.currentModule = null;
         this.currentFunction = null;
     }
 
-    public run (fileSyntaxNode: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
+    public run (fileSyntaxNode: SyntaxNodes.File, qualifiedNameToFile: Map<string, SemanticNodes.File>): SemanticNodes.File
     {
+        this.importedFiles.clear();
         this.functions.clear();
         this.variableStacks = [];
+        this.currentModule = null;
         this.currentFunction = null;
 
-        const result = this.connectFile(fileSyntaxNode, importedSyntaxTrees);
+        const result = this.connectFile(fileSyntaxNode, qualifiedNameToFile);
 
         return result;
     }
@@ -72,31 +81,57 @@ export class Connector
         return null;
     }
 
-    private connectFile (file: SyntaxNodes.File, importedSyntaxTrees: ImportNodeToFileNode): SemanticNodes.File
+    private connectFile (file: SyntaxNodes.File, qualifiedNameToFile: Map<string, SemanticNodes.File>): SemanticNodes.File
     {
-        const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
-        const importNodes: SemanticNodes.Import[] = [];
+        const importedModules: SemanticSymbols.Module[] = [];
 
         for (const importSyntaxNode of file.imports)
         {
-            const importedFileSyntaxNode = importedSyntaxTrees.get(importSyntaxNode);
+            const importedFile = qualifiedNameToFile.get(importSyntaxNode.namespace.qualifiedName);
 
-            if (importedFileSyntaxNode === undefined)
+            if (importedFile === undefined)
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Could not find file "${importSyntaxNode.path.content}" for import.`,
-                        Diagnostic.Codes.CannotFindImportFileError,
-                        importSyntaxNode.path
+                        `Module "${importSyntaxNode.namespace.qualifiedName}" not found.`,
+                        Diagnostic.Codes.ModuleNotFoundError,
+                        importSyntaxNode.keyword
                     )
                 );
             }
+
+            const duplicateFile = this.importedFiles.get(importSyntaxNode.namespace.name);
+
+            if (duplicateFile != undefined)
+            {
+                if (duplicateFile.module.equals(importedFile.module))
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Module "${importSyntaxNode.namespace.qualifiedName}" already imported.`,
+                            Diagnostic.Codes.ModuleAlreadyImportedError,
+                            importSyntaxNode.keyword
+                        )
+                    );
+
+                }
+                else
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Name conflict for import of "${duplicateFile.module.qualifiedName}" and `
+                                + `"${importedFile.module.qualifiedName}". Use "as" to rename one of them.`,
+                            Diagnostic.Codes.ImportNameConflictError,
+                            importSyntaxNode.keyword
+                        )
+                    );
+                }
+            }
             else
             {
-                const importedFileNode = this.connectFile(importedFileSyntaxNode, importedSyntaxTrees);
+                this.importedFiles.set(importSyntaxNode.namespace.name, importedFile);
 
-                const importNode = new SemanticNodes.Import(importSyntaxNode.path.content, importedFileNode);
-                importNodes.push(importNode);
+                importedModules.push(importedFile.module);
             }
         }
 
@@ -108,7 +143,12 @@ export class Connector
             this.functions.set(functionSymbol.name, functionSymbol);
         }
 
+        // Module:
+        const moduleSymbol = this.connectModule(file.module);
+        this.currentModule = moduleSymbol;
+
         // Function bodies:
+        const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
         for (const functionDeclaration of file.functions)
         {
             const functionNode = this.connectFunction(functionDeclaration);
@@ -116,7 +156,22 @@ export class Connector
             functionNodes.push(functionNode);
         }
 
-        return new SemanticNodes.File(file.name, importNodes, functionNodes);
+        this.currentModule = null;
+
+        return new SemanticNodes.File(file.fileName, moduleSymbol, importedModules, functionNodes);
+    }
+
+    private connectModule (module: SyntaxNodes.Module): SemanticSymbols.Module
+    {
+        const name = module.namespace.name;
+        const pathName = module.namespace.pathName;
+        const qualifiedName = module.namespace.qualifiedName;
+
+        const functionsNameToSymbol = new Map(this.functions);
+
+        const isEntryPoint = module.isEntryPoint;
+
+        return new SemanticSymbols.Module(name, pathName, qualifiedName, functionsNameToSymbol, isEntryPoint);
     }
 
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function
@@ -480,13 +535,28 @@ export class Connector
                 return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
                 return this.connectCallExpression(expression as SyntaxNodes.CallExpression);
+            case SyntaxKind.AccessExpression:
+                return this.connectAccessExpression(expression as SyntaxNodes.AccessExpression);
             case SyntaxKind.ParenthesizedExpression:
                 return this.connectParenthesizedExpression(expression as SyntaxNodes.ParenthesizedExpression);
             case SyntaxKind.UnaryExpression:
                 return this.connectUnaryExpression(expression as SyntaxNodes.UnaryExpression);
             case SyntaxKind.BinaryExpression:
                 return this.connectBinaryExpression(expression as SyntaxNodes.BinaryExpression);
-            default:
+            case SyntaxKind.File:
+            case SyntaxKind.Section:
+            case SyntaxKind.Namespace:
+            case SyntaxKind.Module:
+            case SyntaxKind.Import:
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.FunctionParameter:
+            case SyntaxKind.TypeClause:
+            case SyntaxKind.VariableDeclaration:
+            case SyntaxKind.Assignment:
+            case SyntaxKind.IfStatement:
+            case SyntaxKind.ElseClause:
+            case SyntaxKind.WhileStatement:
+            case SyntaxKind.ReturnStatement:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
                         `Unexpected syntax of kind "${expression.kind}".`,
@@ -494,8 +564,6 @@ export class Connector
                         expression.token
                     )
                 );
-            /* TODO: Move the diagnostic out of the switch and remove the default. The diagnostic will continue to be called only if
-                     none of the cases returns but this allows ESLint to signal alarm if not all cases are handled. */
         }
     }
 
@@ -586,9 +654,20 @@ export class Connector
         return new SemanticNodes.VariableExpression(variable);
     }
 
-    private connectCallExpression (expression: SyntaxNodes.CallExpression): SemanticNodes.CallExpression
+    private connectCallExpression (
+        expression: SyntaxNodes.CallExpression,
+        inModule: SemanticSymbols.Module|null = null
+    ): SemanticNodes.CallExpression
     {
-        const functionSymbol = this.functions.get(expression.identifier.content);
+        let functionSymbol: SemanticSymbols.Function|undefined;
+        if (inModule === null)
+        {
+            functionSymbol = this.functions.get(expression.identifier.content);
+        }
+        else
+        {
+            functionSymbol = inModule.functionsNameToSymbol.get(expression.identifier.content);
+        }
 
         if (functionSymbol === undefined)
         {
@@ -596,6 +675,19 @@ export class Connector
                 new Diagnostic.Error(
                     `Unknown function "${expression.identifier.content}"`,
                     Diagnostic.Codes.UnknownFunctionError,
+                    expression.identifier
+                )
+            );
+        }
+
+        const module = inModule ?? this.currentModule;
+
+        if (module === null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Cannot call function "${expression.identifier.content}" outside of a module.`,
+                    Diagnostic.Codes.CallOutsideModuleError,
                     expression.identifier
                 )
             );
@@ -634,7 +726,40 @@ export class Connector
             }
         }
 
-        return new SemanticNodes.CallExpression(functionSymbol, callArguments);
+        return new SemanticNodes.CallExpression(functionSymbol, module, callArguments);
+    }
+
+    private connectAccessExpression (expression: SyntaxNodes.AccessExpression): SemanticNodes.CallExpression
+    {
+        const importedFile = this.importedFiles.get(expression.identifier.content);
+
+        if (importedFile === undefined)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Unknown module "${expression.identifier.content}"`,
+                    Diagnostic.Codes.UnknownModuleError,
+                    expression.identifier
+                )
+            );
+        }
+        else
+        {
+            if (!importedFile.module.functionsNameToSymbol.has(expression.functionCall.identifier.content))
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unknown function "${expression.functionCall.identifier.content}" in module "${importedFile.module.name}"`,
+                        Diagnostic.Codes.UnknownFunctionError,
+                        expression.functionCall.identifier
+                    )
+                );
+            }
+            else
+            {
+                return this.connectCallExpression(expression.functionCall, importedFile.module);
+            }
+        }
     }
 
     private connectParenthesizedExpression (expression: SyntaxNodes.ParenthesizedExpression): SemanticNodes.Expression

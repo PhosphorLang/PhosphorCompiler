@@ -1,5 +1,6 @@
 export enum SemanticSymbolKind
 {
+    Module = 'Module',
     Function = 'Function',
     Variable = 'Variable',
     Parameter = 'Parameter',

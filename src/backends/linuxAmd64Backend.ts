@@ -9,34 +9,32 @@ import { TranspilerLlvm } from '../transpiler/llvm/transpilerLlvm';
 
 export class LinuxAmd64Backend
 {
-    public run (
-        fileIntermediate: Intermediates.File,
-        standardLibraryPath: string,
-        temporaryDirectoryPath: string,
-        outputFilePath: string,
-        ): void
+    public compile (fileIntermediate: Intermediates.File, moduleQualifiedName: string, temporaryDirectoryPath: string): string
     {
         const transpiler = new TranspilerLlvm();
         const compiler = new LlvmCompiler();
         const assembler = new LinuxAmd64GnuAssembler();
-        const linker = new GnuLinker();
 
         const assembly = transpiler.run(fileIntermediate);
 
         // TODO: Better temporary file naming for the two temporary files.
 
-        const temporaryLlvmIrFilePath = Path.join(temporaryDirectoryPath, 'test.ll');
+        const temporaryLlvmIrFilePath = Path.join(temporaryDirectoryPath, moduleQualifiedName + '.ll');
         FileSystem.writeFileSync(temporaryLlvmIrFilePath, assembly, {encoding: 'utf8'});
 
-        const temporaryAssemblyFilePath = Path.join(temporaryDirectoryPath, 'test.s');
+        const temporaryAssemblyFilePath = Path.join(temporaryDirectoryPath, moduleQualifiedName + '.s');
         compiler.run(temporaryLlvmIrFilePath, temporaryAssemblyFilePath, LlvmCompilerTarget.LinuxAmd64);
 
-        const temporaryObjectFilePath = Path.join(temporaryDirectoryPath, 'test.o');
+        const temporaryObjectFilePath = Path.join(temporaryDirectoryPath, moduleQualifiedName + '.o');
         assembler.run(temporaryAssemblyFilePath, temporaryObjectFilePath);
 
-        const linkerFiles = [temporaryObjectFilePath];
-        const libraryFiles = [standardLibraryPath];
+        return temporaryObjectFilePath;
+    }
 
-        linker.run(outputFilePath, linkerFiles, libraryFiles);
+    public link (inputFilePaths: string[], standardLibraryPath: string, outputFilePath: string): void
+    {
+        const linker = new GnuLinker(); // TODO: Should we switch to the LLVM linker (llvm-ld alias lld)?
+
+        linker.run(outputFilePath, inputFilePaths, [standardLibraryPath]);
     }
 }

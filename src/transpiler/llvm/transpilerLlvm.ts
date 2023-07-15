@@ -62,19 +62,22 @@ export class TranspilerLlvm
 
         this.transpileFile(fileIntermediate);
 
-        this.instructions.push(
-            new Instructions.Instruction(''), // Empty line
-            // TODO: The exit function could be declared twice. How to handle that?
-            new Instructions.Instruction('declare', 'void', '@exit', '()', 'noreturn'),
-            // The start routine calls main and then exits properly:
-            new LlvmInstructions.Function('define', 'void', '@_start', []),
-            new Instructions.Instruction('{'),
-            new Instructions.Label('entry'),
-            new Instructions.Instruction('call', 'void', '@main', '()'),
-            new Instructions.Instruction('call', 'void', '@exit', '()'),
-            new Instructions.Instruction('ret', 'void'),
-            new Instructions.Instruction('}'),
-        );
+        if (fileIntermediate.isEntryPoint)
+        {
+            this.instructions.push(
+                new Instructions.Instruction(''), // Empty line
+                // TODO: The exit function could be declared twice. How to handle that?
+                new Instructions.Instruction('declare', 'void', '@Standard.System.exit', '()', 'noreturn'),
+                // The start routine calls main and then exits properly:
+                new LlvmInstructions.Function('define', 'void', '@_start', []),
+                new Instructions.Instruction('{'),
+                new Instructions.Label('entry'),
+                new Instructions.Instruction('call', 'void', '@main', '()'),
+                new Instructions.Instruction('call', 'void', '@Standard.System.exit', '()'),
+                new Instructions.Instruction('ret', 'void'),
+                new Instructions.Instruction('}'),
+            );
+        }
 
         const fileText = this.convertInstructionsToText(this.instructions.toArray());
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import * as Diagnostic from './diagnostic';
-import * as Intermediates from './lowerer/intermediates';
-import * as SemanticNodes from './connector/semanticNodes';
 import { ProcessArguments, ProcessArgumentsError } from './processArguments';
 import { Connector } from './connector/connector';
+import { FileSemanticNode } from './connector/semanticNodes/fileSemanticNode';
+import { FileSyntaxNode } from './parser/syntaxNodes/fileSyntaxNode';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
 import { Lexer } from './lexer/lexer';
@@ -38,14 +38,6 @@ class Main
     {
         const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, this.arguments.targetPlatform);
 
-        const diagnostic = new Diagnostic.Diagnostic();
-
-        const lexer = new Lexer(diagnostic);
-        const parser = new Parser(diagnostic);
-        const importer = new Importer(diagnostic, lexer, parser, standardLibraryTargetPath);
-        const connector = new Connector(diagnostic);
-        const lowerer = new Lowerer();
-
         // Create temporary directory for intermediate (IL, ASM, binary etc.) files:
         // TODO: The temporary directory should be formalised or, if possible, completely removed.
         const temporaryDirectoryPath = 'tmp';
@@ -54,25 +46,109 @@ class Main
             FileSystem.mkdirSync(temporaryDirectoryPath);
         }
 
-        const fileContent = FileSystem.readFileSync(this.arguments.filePath, {encoding: 'utf8'});
+        const diagnostic = new Diagnostic.Diagnostic();
 
-        let semanticTree: SemanticNodes.File;
-        let intermediateLanguage: Intermediates.File;
+        const lexer = new Lexer(diagnostic);
+        const parser = new Parser(diagnostic);
+        const importer = new Importer(diagnostic);
+        const connector = new Connector(diagnostic);
+        const lowerer = new Lowerer();
+
+        const searchPaths = [
+            Path.dirname(this.arguments.filePath),
+            standardLibraryTargetPath,
+        ];
+
+        const sourceFiles: string[] = [];
+        for (const searchPath of searchPaths)
+        {
+            const sourceFilesInPath = this.getSourceFilesInPathRecursively(searchPath);
+
+            sourceFiles.push(...sourceFilesInPath);
+        }
+
         try
         {
-            const tokens = lexer.run(fileContent, this.arguments.filePath);
-            const syntaxTree = parser.run(tokens, this.arguments.filePath);
-            const importedSyntaxTrees = importer.run(syntaxTree, this.arguments.filePath);
-            semanticTree = connector.run(syntaxTree, importedSyntaxTrees);
-            intermediateLanguage = lowerer.run(semanticTree);
-
-            if (this.arguments.intermediate)
+            const syntaxTrees: FileSyntaxNode[] = [];
+            let entrySyntaxTree: FileSyntaxNode|null = null;
+            for (const sourceFile of sourceFiles)
             {
-                const intermediateTranspiler = new TranspilerIntermediate();
-                const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
+                /* TODO: We have to parse every file in the search paths. This has drawbacks:
+                         - It is slow. Caching could help.
+                         - The first error ends the compilation, even if it is an unrelated file. Instead, the compiler should report all
+                           errors and continue compiling (as long as possible) with partial information and error propagation. */
 
-                FileSystem.writeFileSync(Path.join(temporaryDirectoryPath, 'test.phi'), intermediateCode, {encoding: 'utf8'});
+                const fileContent = FileSystem.readFileSync(sourceFile, {encoding: 'utf8'});
+
+                const tokens = lexer.run(fileContent, sourceFile);
+                const syntaxTree = parser.run(tokens, sourceFile);
+
+                if (sourceFile == this.arguments.filePath)
+                {
+                    entrySyntaxTree = syntaxTree;
+                    entrySyntaxTree.module.isEntryPoint = true;
+                }
+                else
+                {
+                    syntaxTrees.push(syntaxTree);
+                }
             }
+
+            if (entrySyntaxTree == null)
+            {
+                diagnostic.throw(
+                    new Diagnostic.Error(
+                        `The entry file '${this.arguments.filePath}' was not found.`,
+                        Diagnostic.Codes.FileNotFoundError
+                    )
+                );
+
+                entrySyntaxTree = entrySyntaxTree!; // HACK: This is a workaround for the type checker.
+            }
+
+            const importOrderedSyntaxTrees = importer.run(entrySyntaxTree, syntaxTrees);
+            const qualifiedNameToFile = new Map<string, FileSemanticNode>();
+
+            for (const syntaxTree of importOrderedSyntaxTrees)
+            {
+                const fileSemanticTree = connector.run(syntaxTree, qualifiedNameToFile);
+                qualifiedNameToFile.set(fileSemanticTree.module.qualifiedName, fileSemanticTree);
+            }
+
+            let backend: LinuxAmd64Backend;
+            switch (this.arguments.targetPlatform)
+            {
+                case TargetPlatform.LinuxAmd64:
+                    backend = new LinuxAmd64Backend();
+                    break;
+            }
+
+            // TODO: Check if the exit codes of assemblers/linkers/compilers in the backends is non-zero in case of errors.
+
+            const objectFiles: string[] = [];
+            for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
+            {
+                const intermediateLanguage = lowerer.run(fileSemanticTree);
+
+                if (this.arguments.intermediate)
+                {
+                    const intermediateTranspiler = new TranspilerIntermediate();
+                    const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
+
+                    FileSystem.writeFileSync(
+                        Path.join(temporaryDirectoryPath, qualifiedName + '.phi'),
+                        intermediateCode,
+                        {encoding: 'utf8'}
+                    );
+                }
+
+                const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, temporaryDirectoryPath);
+                objectFiles.push(objectFilePath);
+            }
+
+            const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
+
+            backend.link(objectFiles, standardLibraryFilePath, this.arguments.outputPath);
 
             diagnostic.end();
         }
@@ -110,20 +186,36 @@ class Main
                 console.error(infoString);
             }
         }
+    }
 
-        // TODO: Check if the exit codes of assemblers/linkers/compilers in the backends is non-zero in case of errors.
+    private getSourceFilesInPathRecursively (directoryPath: string): string[]
+    {
+        const result: string[] = [];
 
-        const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
+        const filesAndFolders = FileSystem.readdirSync(directoryPath, { withFileTypes: true });
 
-        switch (this.arguments.targetPlatform)
+        for (const fileOrFolder of filesAndFolders)
         {
-            case TargetPlatform.LinuxAmd64:
+            if (fileOrFolder.isFile())
             {
-                const backend = new LinuxAmd64Backend();
-                backend.run(intermediateLanguage, standardLibraryFilePath, temporaryDirectoryPath, this.arguments.outputPath);
-                break;
+                if (fileOrFolder.name.endsWith('.ph'))
+                {
+                    const filePath = Path.join(directoryPath, fileOrFolder.name);
+
+                    result.push(filePath);
+                }
+            }
+            else if (fileOrFolder.isDirectory())
+            {
+                const subDirectoryPath = Path.join(directoryPath, fileOrFolder.name);
+
+                const subDirectoryFiles = this.getSourceFilesInPathRecursively(subDirectoryPath);
+
+                result.push(...subDirectoryFiles);
             }
         }
+
+        return result;
     }
 }
 

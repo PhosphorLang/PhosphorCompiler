@@ -3,7 +3,6 @@ import * as Diagnostic from '../../src/diagnostic';
 import { assert } from 'chai';
 import { Connector } from '../../src/connector/connector';
 import FileSystem from 'fs';
-import { ImportNodeToFileNode } from '../../src/importer/importNodeToFileNode';
 import { Lexer } from '../../src/lexer/lexer';
 import { Lowerer } from '../../src/lowerer/lowerer';
 import { Parser } from '../../src/parser/parser';
@@ -34,7 +33,7 @@ describe('End-to-end, the compiler',
         {
             const tokens = lexer.run(input, '');
             const syntaxTree = parser.run(tokens, '');
-            const semanticTree = connector.run(syntaxTree, new ImportNodeToFileNode());
+            const semanticTree = connector.run(syntaxTree, new Map());
             const intermediateTree = lowerer.run(semanticTree);
             const intermediateCode = transpiler.run(intermediateTree);
 

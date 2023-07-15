@@ -17,4 +17,9 @@ export class Token implements LineInformation
         this.lineNumber = line;
         this.columnNumber = column;
     }
+
+    public toString (): string
+    {
+        return this.content;
+    }
 }

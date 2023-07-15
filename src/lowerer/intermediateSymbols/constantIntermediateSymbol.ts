@@ -9,6 +9,8 @@ export class ConstantIntermediateSymbol extends IntermediateSymbolBase
     public readonly size: IntermediateSize.Pointer;
     public readonly value: string;
 
+    // TODO: Should the constant get an index like variables, parameters and return values?
+
     constructor (name: string, value: string)
     {
         super(name);

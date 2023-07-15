@@ -5,8 +5,8 @@ export abstract class BuildInTypes
 {
     public static readonly noType = new TypeSemanticSymbol('NoType');
     public static readonly int = new TypeSemanticSymbol('Int');
-    public static readonly string = new TypeSemanticSymbol('String');
     public static readonly bool = new TypeSemanticSymbol('Bool');
+    public static readonly string = new TypeSemanticSymbol('String');
 
     public static getTypeByName (name: string): TypeSemanticSymbol|null
     {

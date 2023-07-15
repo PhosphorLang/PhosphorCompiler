@@ -3,7 +3,7 @@ import { SyntaxKind } from '../syntaxKind';
 import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode
+export class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode // TODO: Rename to ParenthesisedExpressionSyntaxNode
 {
     public readonly openingToken: Token;
     public readonly expression: ExpressionSyntaxNode;

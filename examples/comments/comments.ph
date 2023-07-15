@@ -1,4 +1,6 @@
-import 'io';
+module Comments;
+
+import Standard.Io;
 
 // Global comment
 
@@ -9,7 +11,7 @@ function main /* Inline block comment */ () // Inline comment after function dec
 {
     // Statement level comment
 
-    writeLine ('This source code includes comments.'); // Inline comment after statement
+    Io.writeLine ('This source code includes comments.'); // Inline comment after statement
 
     /*
         Block comment

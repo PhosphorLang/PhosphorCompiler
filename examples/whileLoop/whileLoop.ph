@@ -1,4 +1,6 @@
-import 'io';
+module WhileLoop;
+
+import Standard.Io;
 
 function main ()
 {
@@ -7,7 +9,7 @@ function main ()
 
     while continueLoop
     {
-        writeLine('Counted!');
+        Io.writeLine('Counted!');
 
         counter := counter + 1;
 

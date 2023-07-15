@@ -22,11 +22,28 @@ export abstract class SemanticCreator
         name = Defaults.moduleName,
         path = "",
         prefix = "",
-        isEntryPoint = true
+        isEntryPoint = false
     ): SemanticSymbols.Module
     {
-        const pathName = path + '.' + name;
-        const qualifiedName = prefix + ':' + pathName;
+        let pathName: string;
+        if (path.length === 0)
+        {
+            pathName = name;
+        }
+        else
+        {
+            pathName = path + '.' + name;
+        }
+
+        let qualifiedName: string;
+        if (prefix.length === 0)
+        {
+            qualifiedName = pathName;
+        }
+        else
+        {
+            qualifiedName = prefix + ':' + pathName;
+        }
 
         return new SemanticSymbols.Module(name, pathName, qualifiedName, new Map(), isEntryPoint);
     }

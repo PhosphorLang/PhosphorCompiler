@@ -1,3 +1,5 @@
+module Logic;
+
 function testNot (a: Bool): Bool
 {
     return !a;

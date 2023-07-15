@@ -66,10 +66,10 @@ describe('End-to-end, the compiler',
             }
         );
 
-        it('can compile an empty file.',
+        it('can compile an empty module.',
             function ()
             {
-                expectCompiledEquality('emptyFile');
+                expectCompiledEquality('emptyModule');
             }
         );
 

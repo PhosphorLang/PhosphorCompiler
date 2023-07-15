@@ -1,3 +1,5 @@
+module Strings;
+
 function testStringCompare (a: String, b: String): Bool
 {
     return a = b;

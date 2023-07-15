@@ -1,3 +1,5 @@
+module Functions;
+
 function add (a: Int, b: Int): Int
 {
     var result := a + b;

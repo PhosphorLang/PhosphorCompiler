@@ -1,3 +1,5 @@
+module EmptyMain;
+
 function main ()
 {
 }

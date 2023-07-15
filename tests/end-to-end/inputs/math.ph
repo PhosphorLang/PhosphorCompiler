@@ -1,3 +1,5 @@
+module Math;
+
 function testUnaryPlus (a: Int): Int
 {
     return +a;

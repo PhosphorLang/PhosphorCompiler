@@ -1,3 +1,5 @@
+module Bitwise;
+
 function testNot (a: Int): Int
 {
     return !a;

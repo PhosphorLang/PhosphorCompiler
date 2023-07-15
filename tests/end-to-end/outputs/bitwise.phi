@@ -1,4 +1,4 @@
-function testNot (Native): Native
+function Bitwise.testNot (Native): Native
 {
     introduce v#0
     take v#0 p#0
@@ -11,7 +11,7 @@ function testNot (Native): Native
     return
 }
 
-function testAnd (Native, Native): Native
+function Bitwise.testAnd (Native, Native): Native
 {
     introduce v#2
     take v#2 p#0
@@ -30,7 +30,7 @@ function testAnd (Native, Native): Native
     return
 }
 
-function testOr (Native, Native): Native
+function Bitwise.testOr (Native, Native): Native
 {
     introduce v#6
     take v#6 p#0
@@ -49,13 +49,13 @@ function testOr (Native, Native): Native
     return
 }
 
-function main (): Void
+function Bitwise.main (): Void
 {
     introduce v#10
     move v#10 Native(2)
     give p#0 v#10
     dismiss v#10
-    call testNot
+    call Bitwise.testNot
     introduce v#11
     move v#11 Native(2)
     give p#0 v#11
@@ -64,7 +64,7 @@ function main (): Void
     move v#12 Native(3)
     give p#1 v#12
     dismiss v#12
-    call testAnd
+    call Bitwise.testAnd
     introduce v#13
     move v#13 Native(2)
     give p#0 v#13
@@ -73,6 +73,6 @@ function main (): Void
     move v#14 Native(3)
     give p#1 v#14
     dismiss v#14
-    call testOr
+    call Bitwise.testOr
     return
 }

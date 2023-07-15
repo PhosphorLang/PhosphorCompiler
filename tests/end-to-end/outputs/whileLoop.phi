@@ -1,4 +1,4 @@
-function getMax (): Native
+function WhileLoop.getMax (): Native
 {
     introduce v#0
     move v#0 Native(4)
@@ -7,14 +7,14 @@ function getMax (): Native
     return
 }
 
-function testWhileLoop (): Int8
+function WhileLoop.testWhileLoop (): Int8
 {
     introduce v#1
     move v#1 Native(0)
     l#0:
     introduce v#3
     move v#3 v#1
-    call getMax
+    call WhileLoop.getMax
     introduce v#4
     take v#4 r#0
     compare v#3 v#4
@@ -47,8 +47,8 @@ function testWhileLoop (): Int8
     return
 }
 
-function main (): Void
+function WhileLoop.main (): Void
 {
-    call testWhileLoop
+    call WhileLoop.testWhileLoop
     return
 }

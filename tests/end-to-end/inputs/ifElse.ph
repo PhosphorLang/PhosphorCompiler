@@ -1,3 +1,5 @@
+module IfElse;
+
 function testIfElse (): Bool
 {
     if 2 = 2

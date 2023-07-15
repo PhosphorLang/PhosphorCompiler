@@ -1,3 +1,5 @@
+module WhileLoop;
+
 function getMax (): Int
 {
     return 4;

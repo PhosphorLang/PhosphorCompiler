@@ -8,6 +8,7 @@ import { IntermediateSize } from '../../src/lowerer/intermediateSize';
 import { Lowerer } from '../../src/lowerer/lowerer';
 import { SemanticCreator } from '../utility/semanticCreator';
 import { BuildInModules } from '../../src/definitions/buildInModules';
+import { Defaults } from '../utility/defaults';
 
 describe('Lowerer',
     function ()
@@ -416,8 +417,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const constantSymbol0 = IntermediateCreator.newConstantSymbol('c#0', 'string0');
-                const constantSymbol1 = IntermediateCreator.newConstantSymbol('c#1', 'string1');
+                const constantSymbol0 = IntermediateCreator.newConstantSymbol(Defaults.moduleName + '.c#0', 'string0');
+                const constantSymbol1 = IntermediateCreator.newConstantSymbol(Defaults.moduleName + '.c#1', 'string1');
 
                 const returnVariable0 = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
                 const variableSymbol1 = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Pointer);

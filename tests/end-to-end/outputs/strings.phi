@@ -1,5 +1,5 @@
-constant c#0 "abc"
-constant c#1 "def"
+constant Strings.c#0 "abc"
+constant Strings.c#1 "def"
 
 external Standard.String.stringsAreEqual (Pointer, Pointer): Int8
 
@@ -30,20 +30,20 @@ function Strings.testStringCompare (Pointer, Pointer): Int8
 function Strings.main (): Void
 {
     introduce v#5
-    move v#5 c#0
+    move v#5 Strings.c#0
     give p#0 v#5
     dismiss v#5
     introduce v#6
-    move v#6 c#1
+    move v#6 Strings.c#1
     give p#1 v#6
     dismiss v#6
     call Strings.testStringCompare
     introduce v#7
-    move v#7 c#0
+    move v#7 Strings.c#0
     give p#0 v#7
     dismiss v#7
     introduce v#8
-    move v#8 c#0
+    move v#8 Strings.c#0
     give p#1 v#8
     dismiss v#8
     call Strings.testStringCompare

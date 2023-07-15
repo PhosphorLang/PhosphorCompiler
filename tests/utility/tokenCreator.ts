@@ -10,6 +10,11 @@ export abstract class TokenCreator
         return new Token(TokenKind.IdentifierToken, identifier, fileName, line, column);
     }
 
+    public static newModuleIdentifier (identifier = Defaults.moduleName): Token
+    {
+        return new Token(TokenKind.IdentifierToken, identifier);
+    }
+
     public static newVariableIdentifier (identifier = Defaults.variableName): Token
     {
         return new Token(TokenKind.IdentifierToken, identifier);
@@ -138,6 +143,11 @@ export abstract class TokenCreator
     public static newOr (): Token
     {
         return new Token(TokenKind.OrOperator, '|');
+    }
+
+    public static newModuleKeyword (): Token
+    {
+        return new Token(TokenKind.ModuleKeyword, 'module');
     }
 
     public static newVarKeyword (): Token

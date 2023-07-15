@@ -1,20 +1,41 @@
 import * as SyntaxNodes from '../../src/parser/syntaxNodes';
 import { CallArgumentsList } from '../../src/parser/lists/callArgumentsList';
 import { Defaults } from './defaults';
+import { ElementsList } from '../../src/parser/lists/elementsList';
 import { FunctionParametersList } from '../../src/parser/lists/functionParametersList';
+import { Namespace } from '../../src/parser/namespace';
 import { Token } from '../../src/lexer/token';
 import { TokenCreator } from './tokenCreator';
-import { ElementsList } from '../../src/parser/lists/elementsList';
 
 export abstract class SyntaxCreator
 {
     public static newFile (
         functions: SyntaxNodes.FunctionDeclaration[] = [],
         imports: SyntaxNodes.Import[] = [],
-        fileName = Defaults.fileName
+        fileName = Defaults.fileName,
+        module = SyntaxCreator.newModule(),
     ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, imports, functions);
+        return new SyntaxNodes.File(fileName, module, imports, functions);
+    }
+
+    public static newModule (
+        namespace = SyntaxCreator.newNamespace(),
+    ): SyntaxNodes.Module
+    {
+        return new SyntaxNodes.Module(
+            TokenCreator.newModuleKeyword(),
+            namespace
+        );
+    }
+
+    public static newNamespace (
+        name = TokenCreator.newModuleIdentifier(),
+        prefixComponents: Token[] = [],
+        pathComponents: Token[] = []
+    ): Namespace
+    {
+        return new Namespace(prefixComponents, pathComponents, name);
     }
 
     public static newFunctionDeclaration (
@@ -229,8 +250,8 @@ export abstract class SyntaxCreator
         return new SyntaxNodes.WhileStatement(TokenCreator.newWhileKeyword(), condition, section);
     }
 
-    public static newImport (path = TokenCreator.newString(Defaults.importFileName)): SyntaxNodes.Import
+    public static newImport (namespace = SyntaxCreator.newNamespace()): SyntaxNodes.Import
     {
-        return new SyntaxNodes.Import(TokenCreator.newImportKeyword(), path);
+        return new SyntaxNodes.Import(TokenCreator.newImportKeyword(), namespace);
     }
 }

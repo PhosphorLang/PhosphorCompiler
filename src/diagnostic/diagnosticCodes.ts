@@ -38,6 +38,9 @@ export enum DiagnosticCodes
     UnterminatedBlockCommentError = 'E1035',
     VectorLiteralContainsExpressionsOfDifferentTypesError = 'E1036',
     EmptyVectorLiteralError = 'E1037',
+    UnexpectedTokenInNamespace = 'E1038',
+    EmptyNamespaceError = 'E1039',
+    MissingModuleNameError = 'E1040',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

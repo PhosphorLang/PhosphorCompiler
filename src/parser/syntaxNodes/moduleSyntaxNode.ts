@@ -3,10 +3,12 @@ import { SyntaxKind } from '../syntaxKind';
 import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class ImportSyntaxNode extends SyntaxNode
+export class ModuleSyntaxNode extends SyntaxNode
 {
     public readonly keyword: Token;
     public readonly namespace: Namespace;
+
+    public isEntryPoint: boolean;
 
     public get children (): Iterable<SyntaxNode>
     {
@@ -15,9 +17,11 @@ export class ImportSyntaxNode extends SyntaxNode
 
     constructor (keyword: Token, namespace: Namespace)
     {
-        super(SyntaxKind.Import);
+        super(SyntaxKind.Module);
 
         this.keyword = keyword;
         this.namespace = namespace;
+
+        this.isEntryPoint = false;
     }
 }

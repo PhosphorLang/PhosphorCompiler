@@ -1,5 +1,6 @@
 export { SyntaxNode } from './syntaxNode';
 
+export { AccessExpressionSyntaxNode as AccessExpression } from './accessExpressionSyntaxNode';
 export { VectorLiteralExpressionSyntaxNode as VectorLiteralExpression } from "./vectorLiteralExpressionSyntaxNode";
 export { AssignmentSyntaxNode as Assignment } from './assignmentSyntaxNode';
 export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressionSyntaxNode';
@@ -10,6 +11,7 @@ export { FileSyntaxNode as File } from './fileSyntaxNode';
 export { FunctionDeclarationSyntaxNode as FunctionDeclaration } from './functionDeclarationSyntaxNode';
 export { FunctionParameterSyntaxNode as FunctionParameter } from './functionParameterSyntaxNode';
 export { IfStatementSyntaxNode as IfStatement } from './ifStatementSyntaxNode';
+export { ModuleSyntaxNode as Module } from './moduleSyntaxNode';
 export { ImportSyntaxNode as Import } from './importSyntaxNode';
 export { LiteralExpressionSyntaxNode as LiteralExpression } from './literalExpressionSyntaxNode';
 export { ParenthesizedExpressionSyntaxNode as ParenthesizedExpression } from './parenthesizedExpressionSyntaxNode';

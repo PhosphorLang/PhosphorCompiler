@@ -1,8 +1,9 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
-import { ElementsList } from "./lists/elementsList";
 import { CallArgumentsList } from './lists/callArgumentsList';
+import { ElementsList } from "./lists/elementsList";
 import { FunctionParametersList } from './lists/functionParametersList';
+import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
 import { SyntaxNode } from './syntaxNodes';
 import { Token } from '../lexer/token';
@@ -88,11 +89,17 @@ export class Parser
     {
         const imports: SyntaxNodes.Import[] = [];
         const functions: SyntaxNodes.FunctionDeclaration[] = [];
+        let module: SyntaxNodes.Module|null = null;
 
         while (this.getCurrentToken().kind != TokenKind.NoToken)
         {
             switch (this.getCurrentToken().kind)
             {
+                case TokenKind.ModuleKeyword:
+                {
+                    module = this.parseModule();
+                    break;
+                }
                 case TokenKind.ImportKeyword:
                 {
                     const importDeclaration = this.parseImport();
@@ -122,19 +129,94 @@ export class Parser
             }
         }
 
-        const fileRoot = new SyntaxNodes.File(this.fileName, imports, functions);
+        if (module == null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Missing module name in file.`,
+                    Diagnostic.Codes.MissingModuleNameError,
+                    {
+                        fileName: this.fileName,
+                        lineNumber: 0,
+                        columnNumber: 0,
+                    }
+                )
+            );
+        }
+
+        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, functions);
 
         return fileRoot;
+    }
+
+    private parseModule (): SyntaxNodes.Module
+    {
+        const keyword = this.consumeNextToken();
+        const moduleNamespace = this.parseNamespace();
+
+        return new SyntaxNodes.Module(keyword, moduleNamespace);
     }
 
     private parseImport (): SyntaxNodes.Import
     {
         const keyword = this.consumeNextToken();
-        const path = this.consumeNextToken();
-        // The semicolon:
-        this.consumeNextToken();
+        const importNamespace = this.parseNamespace();
 
-        return new SyntaxNodes.Import(keyword, path);
+        return new SyntaxNodes.Import(keyword, importNamespace);
+    }
+
+    private parseNamespace (): Namespace
+    {
+        let prefixComponents: Token[] = [];
+        let pathComponents: Token[] = [];
+
+        let nextToken = this.consumeNextToken();
+        while (nextToken.kind != TokenKind.SemicolonToken)
+        {
+            switch (nextToken.kind)
+            {
+                case TokenKind.IdentifierToken:
+                    pathComponents.push(nextToken);
+                    break;
+                case TokenKind.DotToken:
+                    break;
+                case TokenKind.ColonToken:
+                {
+                    const temp = prefixComponents;
+                    prefixComponents = pathComponents;
+                    pathComponents = temp;
+
+                    break;
+                }
+                default:
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Unexpected token "${nextToken.content}" in namespace.`,
+                            Diagnostic.Codes.UnexpectedTokenInNamespace,
+                            nextToken
+                        )
+                    );
+            }
+
+            nextToken = this.consumeNextToken();
+        }
+
+        const name = pathComponents.pop();
+
+        if (name == undefined)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Empty namespace.`,
+                    Diagnostic.Codes.EmptyNamespaceError,
+                    nextToken
+                )
+            );
+        }
+
+        const namespace = new Namespace(prefixComponents, pathComponents, name);
+
+        return namespace;
     }
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration
@@ -278,7 +360,7 @@ export class Parser
             {
                 this.consumeNextToken();
 
-                // TODO: Instead of ignorring the comment here, the lexer should add it as trivia to real tokens.
+                // TODO: Instead of ignoring the comment here, the lexer should add it as trivia to real tokens.
             }
 
             if ((this.getCurrentToken().kind == TokenKind.ClosingBraceToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
@@ -596,14 +678,24 @@ export class Parser
 
     private parseIdentifierExpression (): SyntaxNodes.Expression
     {
-        if (this.getFollowerToken().kind == TokenKind.OpeningParenthesisToken)
+        switch (this.getFollowerToken().kind)
         {
-            return this.parseCallExpression();
+            case TokenKind.DotToken:
+                return this.parseAccessExpression();
+            case TokenKind.OpeningParenthesisToken:
+                return this.parseCallExpression();
+            default:
+                return this.parseVariableExpression();
         }
-        else
-        {
-            return this.parseVariableExpression();
-        }
+    }
+
+    private parseAccessExpression (): SyntaxNodes.AccessExpression
+    {
+        const identifier = this.consumeNextToken();
+        const dot = this.consumeNextToken();
+        const functionCall = this.parseCallExpression();
+
+        return new SyntaxNodes.AccessExpression(identifier, dot, functionCall);
     }
 
     private parseCallExpression (): SyntaxNodes.CallExpression

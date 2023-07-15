@@ -1,8 +1,9 @@
 export enum SyntaxKind
 {
-    NoKind = 'NoKind',
     File = 'File',
     Section = 'Section',
+    Namespace = 'Namespace',
+    Module = 'Module',
     Import = 'Import',
     FunctionDeclaration = 'FunctionDeclaration',
     FunctionParameter = 'FunctionParameter',
@@ -15,6 +16,7 @@ export enum SyntaxKind
     IfStatement = 'IfStatement',
     WhileStatement = 'WhileStatement',
     // Expressions
+    AccessExpression = 'AccessExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',
     ParenthesizedExpression = 'ParenthesizedExpression',

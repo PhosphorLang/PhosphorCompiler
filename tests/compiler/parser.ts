@@ -21,12 +21,18 @@ describe('Parser',
             }
         );
 
-        it('can parse an empty file.',
+        it('can parse an empty module.',
             function ()
             {
+                const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
+                ];
+
                 const expectedResult = SyntaxCreator.newFile();
 
-                const result = parser.run([], Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -36,6 +42,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -60,6 +69,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -94,6 +106,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -128,6 +143,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -169,6 +187,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -207,6 +228,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -243,6 +267,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -280,6 +307,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -324,6 +354,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -371,6 +404,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -409,6 +445,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -451,6 +490,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -493,6 +535,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -535,6 +580,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -577,6 +625,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -617,6 +668,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -659,6 +713,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -701,6 +758,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -748,6 +808,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -780,6 +843,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -819,6 +885,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -856,6 +925,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -897,6 +969,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -931,6 +1006,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -972,6 +1050,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -1017,6 +1098,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -1051,8 +1135,11 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newImportKeyword(),
-                    TokenCreator.newString(Defaults.importFileName),
+                    TokenCreator.newModuleIdentifier(),
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
@@ -1089,6 +1176,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -1111,6 +1201,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),
@@ -1133,6 +1226,9 @@ describe('Parser',
             function ()
             {
                 const input = [
+                    TokenCreator.newModuleKeyword(),
+                    TokenCreator.newModuleIdentifier(),
+                    TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
                     TokenCreator.newOpeningParenthesis(),

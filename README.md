@@ -7,11 +7,13 @@
 A compiler for the Phosphor programming language.
 
 ```phosphor
-import 'io';
+module HelloWorld,
+
+import Standard.Io;
 
 function main ()
 {
-    writeLine('Hello world!');
+    Io.writeLine('Hello world!');
 }
 ```
 

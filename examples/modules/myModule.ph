@@ -7,7 +7,7 @@ function getHello (): String
     return 'Hello got from MyModule!';
 }
 
-function sayHello (): String
+function sayHello ()
 {
     Io.writeLine('Hello from inside MyModule!');
 }

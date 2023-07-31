@@ -111,6 +111,6 @@ Removed target platforms:
 
 ### **Examples**
 
-You can find a full example of all features [here](/examples/everything.ph).
+You can find a full example of all features [here](/examples/everything/everything.ph).
 
 More example are in the [examples directory](/examples/);

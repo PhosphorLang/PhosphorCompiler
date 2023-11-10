@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { DiagnosticCodes } from './diagnosticCodes';
 import { LineInformation } from '../definitions/lineInformation';
 
 export abstract class DiagnosticMessage
@@ -7,7 +8,7 @@ export abstract class DiagnosticMessage
     protected readonly text: string;
     protected readonly lineInformation?: LineInformation;
 
-    public readonly code: string;
+    public readonly code: DiagnosticCodes;
 
     public get message (): string
     {
@@ -35,7 +36,7 @@ export abstract class DiagnosticMessage
      * @param text The text of the message. Should not be coloured.
      * @param lineInformation The line information with the location the message applies to.
      */
-    constructor (type: string, code: string, text: string, lineInformation?: LineInformation)
+    constructor (type: string, code: DiagnosticCodes, text: string, lineInformation?: LineInformation)
     {
         this.type = type;
         this.code = code;

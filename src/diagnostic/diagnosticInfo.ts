@@ -1,3 +1,4 @@
+import { DiagnosticCodes } from './diagnosticCodes';
 import { DiagnosticMessage } from './diagnosticMessage';
 import { LineInformation } from '../definitions/lineInformation';
 
@@ -7,7 +8,7 @@ import { LineInformation } from '../definitions/lineInformation';
  */
 export class DiagnosticInfo extends DiagnosticMessage
 {
-    constructor (text: string, code: string, lineInformation?: LineInformation)
+    constructor (text: string, code: DiagnosticCodes, lineInformation?: LineInformation)
     {
         const type = 'Info';
 

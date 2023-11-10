@@ -3,9 +3,9 @@
  */
 export class DiagnosticException extends Error
 {
-    constructor (code: string)
+    constructor (message: string)
     {
-        super(code);
+        super(message);
         this.name = 'DiagnosticException';
     }
 }

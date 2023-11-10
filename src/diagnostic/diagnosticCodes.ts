@@ -1,4 +1,4 @@
-export enum DiagnosticCodes
+export enum DiagnosticCodes // TODO: Should this be singular?
 {
     // Errors:
     UnknownTokenError = 'E1001',

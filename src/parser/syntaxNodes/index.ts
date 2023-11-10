@@ -1,7 +1,7 @@
 export { SyntaxNode } from './syntaxNode';
 
 export { AccessExpressionSyntaxNode as AccessExpression } from './accessExpressionSyntaxNode';
-export { VectorLiteralExpressionSyntaxNode as VectorLiteralExpression } from "./vectorLiteralExpressionSyntaxNode";
+export { VectorInitialiserExpressionSyntaxNode as VectorInitialiserExpression } from './vectorInitialiserExpressionSyntaxNode';
 export { AssignmentSyntaxNode as Assignment } from './assignmentSyntaxNode';
 export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressionSyntaxNode';
 export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSyntaxNode';
@@ -18,6 +18,7 @@ export { BracketedExpressionSyntaxNode as BracketedExpression } from './brackete
 export { ReturnStatementSyntaxNode as ReturnStatement } from './returnStatementSyntaxNode';
 export { SectionSyntaxNode as Section } from './sectionSyntaxNode';
 export { TypeClauseSyntaxNode as TypeClause } from './typeClauseSyntaxNode';
+export { TypeSyntaxNode as Type } from './typeSyntaxNode';
 export { UnaryExpressionSyntaxNode as UnaryExpression } from './unaryExpressionSyntaxNode';
 export { VariableDeclarationSyntaxNode as VariableDeclaration } from './variableDeclarationSyntaxNode';
 export { VariableExpressionSyntaxNode as VariableExpression } from './variableExpressionSyntaxNode';

@@ -47,6 +47,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     ImportNameConflictError = 'E1045',
     UnknownModuleError = 'E1046',
     CallOutsideModuleError = 'E1047',
+    InvalidTokenInTypeArgumentError = 'E1048',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

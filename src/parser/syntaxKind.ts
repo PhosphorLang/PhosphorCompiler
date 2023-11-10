@@ -7,6 +7,7 @@ export enum SyntaxKind
     Import = 'Import',
     FunctionDeclaration = 'FunctionDeclaration',
     FunctionParameter = 'FunctionParameter',
+    Type = 'Type',
     TypeClause = 'TypeClause',
     ElseClause = 'ElseClause',
     // Statements
@@ -21,7 +22,7 @@ export enum SyntaxKind
     BinaryExpression = 'BinaryExpression',
     BracketedExpression = 'BracketedExpression',
     LiteralExpression = 'LiteralExpression',
-    VectorLiteralExpression = 'VectorLiteralExpression',
+    VectorInitialiserExpression = 'VectorInitialiserExpression',
     VariableExpression = 'VariableExpression',
     CallExpression = 'CallExpression',
 }

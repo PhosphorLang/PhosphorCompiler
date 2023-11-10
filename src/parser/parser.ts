@@ -335,10 +335,79 @@ export class Parser
         else
         {
             const colon = this.consumeNextToken();
-            const identifier = this.consumeNextToken();
+            const type = this.parseType();
 
-            return new SyntaxNodes.TypeClause(colon, identifier);
+            return new SyntaxNodes.TypeClause(colon, type);
         }
+    }
+
+    private parseType (): SyntaxNodes.Type
+    {
+        const identifier = this.consumeNextToken();
+
+        if (this.getCurrentToken().kind == TokenKind.OpeningSquareBracketToken)
+        {
+            const opening = this.consumeNextToken();
+            const typeArguments = this.parseTypeArguments();
+            const closing = this.consumeNextToken();
+
+            return new SyntaxNodes.Type(identifier, opening, typeArguments, closing);
+        }
+        else
+        {
+            return new SyntaxNodes.Type(identifier);
+        }
+    }
+
+    private parseTypeArguments (): ElementsList<SyntaxNodes.Type|SyntaxNodes.LiteralExpression>
+    {
+        const elements: (SyntaxNodes.Type|SyntaxNodes.LiteralExpression)[] = [];
+        const separators: Token[] = [];
+
+        while (true)
+        {
+            const currentToken = this.getCurrentToken();
+            let element: SyntaxNodes.Type|SyntaxNodes.LiteralExpression|null;
+
+            switch (currentToken.kind)
+            {
+                case TokenKind.IdentifierToken:
+                    element = this.parseType();
+                    break;
+                case TokenKind.IntegerToken:
+                case TokenKind.StringToken:
+                case TokenKind.TrueKeyword:
+                case TokenKind.FalseKeyword:
+                    element = this.parseLiteralExpression();
+                    break;
+                case TokenKind.ClosingSquareBracketToken:
+                case TokenKind.NoToken:
+                    element = null;
+                    break;
+                default:
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Invalid token in type argument "${currentToken.content}"`,
+                            Diagnostic.Codes.InvalidTokenInTypeArgumentError,
+                            currentToken
+                        )
+                    );
+            }
+
+            if (element === null)
+            {
+                break;
+            }
+
+            elements.push(element);
+
+            if (this.getCurrentToken().kind == TokenKind.CommaToken)
+            {
+                separators.push(this.consumeNextToken());
+            }
+        }
+
+        return new ElementsList(elements, separators);
     }
 
     private parseSection (): SyntaxNodes.Section|null
@@ -630,8 +699,6 @@ export class Parser
         {
             case TokenKind.OpeningRoundBracketToken:
                 return this.parseBracketedExpression();
-            case TokenKind.OpeningSquareBracketToken:
-                return this.parseVectorLiteralExpression();
             case TokenKind.IntegerToken:
             case TokenKind.StringToken:
             case TokenKind.TrueKeyword:
@@ -659,15 +726,6 @@ export class Parser
         return new SyntaxNodes.BracketedExpression(opening, expression, closing);
     }
 
-    private parseVectorLiteralExpression (): SyntaxNodes.VectorLiteralExpression
-    {
-        const opening = this.consumeNextToken();
-        const elements = this.parseVectorElements();
-        const closing = this.consumeNextToken();
-
-        return new SyntaxNodes.VectorLiteralExpression(opening, elements, closing);
-    }
-
     private parseLiteralExpression (): SyntaxNodes.LiteralExpression
     {
         const literal = this.consumeNextToken();
@@ -683,6 +741,9 @@ export class Parser
                 return this.parseAccessExpression();
             case TokenKind.OpeningRoundBracketToken:
                 return this.parseCallExpression();
+            case TokenKind.OpeningCurlyBracketToken:
+            case TokenKind.OpeningSquareBracketToken:
+                return this.parseVectorInitialiserExpression();
             default:
                 return this.parseVariableExpression();
         }
@@ -730,12 +791,22 @@ export class Parser
         return new ElementsList(expressions, separators);
     }
 
-    private parseVectorElements (): ElementsList<SyntaxNodes.Expression>
+    private parseVectorInitialiserExpression (): SyntaxNodes.VectorInitialiserExpression
+    {
+        const type = this.parseType();
+        const opening = this.consumeNextToken();
+        const elements = this.parseVectorInitialiserElements();
+        const closing = this.consumeNextToken();
+
+        return new SyntaxNodes.VectorInitialiserExpression(type, opening, elements, closing);
+    }
+
+    private parseVectorInitialiserElements (): ElementsList<SyntaxNodes.Expression>
     {
         const elements: SyntaxNodes.Expression[] = [];
         const separators: Token[] = [];
 
-        while ((this.getCurrentToken().kind != TokenKind.ClosingSquareBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
+        while ((this.getCurrentToken().kind != TokenKind.ClosingCurlyBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
         {
             const element = this.parseExpression();
             elements.push(element);

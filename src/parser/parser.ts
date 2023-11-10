@@ -1,6 +1,6 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
-import { CallArgumentsList } from './lists/callArgumentsList';
+import { ArgumentsList } from './lists/argumentsList';
 import { ElementsList } from "./lists/elementsList";
 import { FunctionParametersList } from './lists/functionParametersList';
 import { Namespace } from './namespace';
@@ -702,13 +702,13 @@ export class Parser
     {
         const identifier = this.consumeNextToken();
         const opening = this.consumeNextToken();
-        const callArguments = this.parseArguments();
+        const callArguments = this.parseCallArguments();
         const closing = this.consumeNextToken();
 
         return new SyntaxNodes.CallExpression(identifier, opening, callArguments, closing);
     }
 
-    private parseArguments (): CallArgumentsList
+    private parseCallArguments (): ArgumentsList<SyntaxNodes.Expression>
     {
         const expressions: SyntaxNodes.Expression[] = [];
         const separators: Token[] = [];
@@ -728,7 +728,7 @@ export class Parser
             }
         }
 
-        return new CallArgumentsList(expressions, separators);
+        return new ArgumentsList(expressions, separators);
     }
 
     private parseVectorElements (): ElementsList

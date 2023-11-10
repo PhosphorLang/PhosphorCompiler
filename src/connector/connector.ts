@@ -695,7 +695,7 @@ export class Connector
 
         const callArguments: SemanticNodes.Expression[] = [];
 
-        for (const argumentExpression of expression.arguments.expressions)
+        for (const argumentExpression of expression.arguments.elements)
         {
             const callArgument = this.connectExpression(argumentExpression);
             callArguments.push(callArgument);

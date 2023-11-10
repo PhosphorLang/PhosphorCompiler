@@ -1,4 +1,4 @@
-import { CallArgumentsList } from '../lists/callArgumentsList';
+import { ArgumentsList } from '../lists/argumentsList';
 import { ExpressionSyntaxNode } from './expressionSyntaxNode';
 import { SyntaxKind } from '../syntaxKind';
 import { SyntaxNode } from './syntaxNode';
@@ -8,12 +8,12 @@ export class CallExpressionSyntaxNode extends ExpressionSyntaxNode
 {
     public readonly identifier: Token;
     public readonly opening: Token;
-    public readonly arguments: CallArgumentsList;
+    public readonly arguments: ArgumentsList<ExpressionSyntaxNode>;
     public readonly closing: Token;
 
     public get children (): Iterable<SyntaxNode>
     {
-        return this.arguments.expressions;
+        return this.arguments.elements;
     }
 
     public get token (): Token
@@ -21,7 +21,7 @@ export class CallExpressionSyntaxNode extends ExpressionSyntaxNode
         return this.identifier;
     }
 
-    constructor (identifier: Token, opening: Token, callArguments: CallArgumentsList, closing: Token)
+    constructor (identifier: Token, opening: Token, callArguments: ArgumentsList<ExpressionSyntaxNode>, closing: Token)
     {
         super(SyntaxKind.CallExpression);
 

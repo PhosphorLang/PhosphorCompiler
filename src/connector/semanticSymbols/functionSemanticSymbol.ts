@@ -1,15 +1,15 @@
-import { ParameterSemanticSymbol } from './parameterSemanticSymbol';
+import { ConcreteTypeSemanticSymbol } from './concreteTypeSemanticSymbol';
+import { FunctionParameterSemanticSymbol } from './functionParameterSemanticSymbol';
 import { SemanticSymbol } from './semanticSymbol';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
-import { TypeSemanticSymbol } from './typeSemanticSymbol';
 
 export class FunctionSemanticSymbol extends SemanticSymbol
 {
-    public readonly parameters: ParameterSemanticSymbol[];
-    public readonly returnType: TypeSemanticSymbol;
+    public readonly parameters: FunctionParameterSemanticSymbol[];
+    public readonly returnType: ConcreteTypeSemanticSymbol;
     public readonly isHeader: boolean;
 
-    constructor (name: string, returnType: TypeSemanticSymbol, parameters: ParameterSemanticSymbol[], isHeader: boolean)
+    constructor (name: string, returnType: ConcreteTypeSemanticSymbol, parameters: FunctionParameterSemanticSymbol[], isHeader: boolean)
     {
         super(SemanticSymbolKind.Function, name);
 

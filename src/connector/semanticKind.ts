@@ -16,7 +16,7 @@ export enum SemanticKind
     VariableDeclaration = 'VariableDeclaration',
     // Expressions
     LiteralExpression = 'LiteralExpression',
-    VectorLiteralExpression = 'VectorLiteralExpression',
+    VectorInitialiserExpression = 'VectorInitialiserExpression',
     VariableExpression = 'VariableExpression',
     CallExpression = 'CallExpression',
     UnaryExpression = 'UnaryExpression',

@@ -6,6 +6,7 @@ import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { ElementsList } from '../parser/elementsList';
 import { SemanticNode } from './semanticNodes';
+import { SemanticSymbolKind } from './semanticSymbolKind';
 import { SyntaxKind } from '../parser/syntaxKind';
 import { SyntaxNode } from '../parser/syntaxNodes';
 
@@ -177,14 +178,14 @@ export class Connector
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function
     {
         const name = functionDeclaration.identifier.content;
-        const returnType = this.connectType(functionDeclaration.type) ?? BuildInTypes.noType;
+        const returnType = this.connectTypeClause(functionDeclaration.type) ?? BuildInTypes.noType;
         const parameters = this.connectParameters(functionDeclaration.parameters);
         const isHeader = functionDeclaration.isHeader;
 
         return new SemanticSymbols.Function(name, returnType, parameters, isHeader);
     }
 
-    private connectType (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.Type|null
+    private connectTypeClause (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.ConcreteType|null
     {
         if (typeClause === null)
         {
@@ -192,26 +193,113 @@ export class Connector
         }
         else
         {
-            const type = BuildInTypes.getTypeByName(typeClause.identifier.content);
-
-            if (type === null)
-            {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `Unknown type "${typeClause.identifier.content}"`,
-                        Diagnostic.Codes.UnknownTypeError,
-                        typeClause.identifier
-                    )
-                );
-            }
-
-            return type;
+            return this.connectType(typeClause.type);
         }
     }
 
-    private connectParameters (parameters: ElementsList<SyntaxNodes.FunctionParameter>): SemanticSymbols.Parameter[]
+    private connectType (typeSyntaxNode: SyntaxNodes.Type): SemanticSymbols.ConcreteType
     {
-        const parameterSymbols: SemanticSymbols.Parameter[] = [];
+        const type = BuildInTypes.getTypeByName(typeSyntaxNode.identifier.content);
+
+        if (type === null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Unknown type "${typeSyntaxNode.identifier.content}"`,
+                    Diagnostic.Codes.UnknownTypeError,
+                    typeSyntaxNode.identifier
+                )
+            );
+        }
+
+        if (type.kind === SemanticSymbolKind.ConcreteType)
+        {
+            return type as SemanticSymbols.ConcreteType; // TODO: We should use a type guard here.
+        }
+
+        const genericType = type as SemanticSymbols.GenericType; // TODO: We should use a type guard here.
+
+        if (genericType.parameters.length !== typeSyntaxNode.arguments.elements.length)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Wrong argument count for generic type "${genericType.name}"`,
+                    Diagnostic.Codes.WrongGenericArgumentCountError,
+                    typeSyntaxNode.identifier
+                )
+            );
+        }
+
+        const concreteArguments: SemanticSymbols.ConcreteParameter[] = [];
+        for (let i = 0; i < genericType.parameters.length; i++)
+        {
+            const argument = typeSyntaxNode.arguments.elements[i];
+
+            if (genericType.parameters[i].isLiteral)
+            {
+                if (argument.kind != SyntaxKind.LiteralExpression)
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Generic argument "${genericType.parameters[i].name}" must be a literal.`,
+                            Diagnostic.Codes.GenericArgumentMustBeLiteralError,
+                            typeSyntaxNode.identifier // TODO: Would be better to have the token of the parameter here.
+                        )
+                    );
+                }
+
+                const literalArgument = argument as SyntaxNodes.LiteralExpression; // TODO: We should use a type guard here.
+
+                const literalType = BuildInTypes.getTypeByTokenKind(literalArgument.literal.kind);
+                if (literalType === null)
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            // TODO: This is the same error as in connectLiteralExpression. Could this be unified?
+                            `Unexpected literal "${literalArgument.literal.content}" of type "${literalArgument.kind}".`,
+                            Diagnostic.Codes.UnexpectedLiteralExpressionSyntaxKindError,
+                            literalArgument.literal
+                        )
+                    );
+                }
+
+                const literalConcreteParameter = new SemanticSymbols.LiteralConcreteParameter(
+                    genericType.parameters[i].name,
+                    literalArgument.literal.content,
+                    literalType
+                );
+                concreteArguments.push(literalConcreteParameter);
+            }
+            else
+            {
+                if (argument.kind != SyntaxKind.Type)
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Generic argument "${genericType.parameters[i].name}" must be a type.`,
+                            Diagnostic.Codes.GenericArgumentMustBeTypeError,
+                            typeSyntaxNode.identifier // TODO: Would be better to have the token of the parameter here.
+                        )
+                    );
+                }
+
+                const typeArgument = argument as SyntaxNodes.Type; // TODO: We should use a type guard here.
+
+                const typeArgumentType = this.connectType(typeArgument);
+                const typeConcreteParameter = new SemanticSymbols.TypeConcreteParameter(
+                    genericType.parameters[i].name,
+                    typeArgumentType
+                );
+                concreteArguments.push(typeConcreteParameter);
+            }
+        }
+
+        return new SemanticSymbols.ConcreteType(genericType.name, concreteArguments);
+    }
+
+    private connectParameters (parameters: ElementsList<SyntaxNodes.FunctionParameter>): SemanticSymbols.FunctionParameter[]
+    {
+        const parameterSymbols: SemanticSymbols.FunctionParameter[] = [];
 
         const names = new Set<string>();
 
@@ -232,7 +320,7 @@ export class Connector
 
             names.add(name);
 
-            const type = this.connectType(parameter.type);
+            const type = this.connectTypeClause(parameter.type);
 
             if (type === null)
             {
@@ -245,7 +333,7 @@ export class Connector
                 );
             }
 
-            const parameterSymbol = new SemanticSymbols.Parameter(name, type);
+            const parameterSymbol = new SemanticSymbols.FunctionParameter(name, type);
 
             parameterSymbols.push(parameterSymbol);
         }
@@ -330,7 +418,7 @@ export class Connector
     {
         const name = variableDeclaration.identifier.content;
         const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
-        let type = this.connectType(variableDeclaration.type);
+        let type = this.connectTypeClause(variableDeclaration.type);
 
         if (type === null)
         {
@@ -529,8 +617,8 @@ export class Connector
         {
             case SyntaxKind.LiteralExpression:
                 return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
-            case SyntaxKind.VectorLiteralExpression:
-                return this.connectVectorLiteralExpression(expression as SyntaxNodes.VectorLiteralExpression);
+            case SyntaxKind.VectorInitialiserExpression:
+                return this.connectVectorInitialiserExpression(expression as SyntaxNodes.VectorInitialiserExpression);
             case SyntaxKind.VariableExpression:
                 return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
@@ -551,6 +639,7 @@ export class Connector
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.FunctionParameter:
             case SyntaxKind.TypeClause:
+            case SyntaxKind.Type:
             case SyntaxKind.VariableDeclaration:
             case SyntaxKind.Assignment:
             case SyntaxKind.IfStatement:
@@ -586,52 +675,55 @@ export class Connector
         return new SemanticNodes.LiteralExpression(value, type);
     }
 
-    private connectVectorLiteralExpression (expression: SyntaxNodes.VectorLiteralExpression): SemanticNodes.VectorLiteralExpression
+    private connectVectorInitialiserExpression (expression: SyntaxNodes.VectorInitialiserExpression):
+        SemanticNodes.VectorInitialiserExpression
     {
-        const elements: SemanticNodes.Expression[] = [];
-
-        for (const element of expression.elements.elements)
-        {
-            const connectedExpression = this.connectExpression(element);
-            elements.push(connectedExpression);
-        }
-
-        if (elements.length == 0)
+        if (expression.elements.elements.length == 0)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    'A vector literal must contain at least one element.',
-                    Diagnostic.Codes.EmptyVectorLiteralError,
+                    'A vector initialiser must contain at least one element.',
+                    Diagnostic.Codes.EmptyVectorInitialiserError,
                     expression.token
                 )
             );
         }
-        else
-        {
-            const elementsType = elements[0].type;
 
-            if (elements.length > 1)
+        const vectorType = this.connectType(expression.type);
+
+        if (expression.elements.elements.length != vectorType.parameters.length)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Vector initialiser of type "${vectorType.name}" must contain exactly ${vectorType.parameters.length} elements.`,
+                    Diagnostic.Codes.WrongVectorInitialiserElementCountError,
+                    expression.token
+                )
+            );
+        }
+
+        const elements: SemanticNodes.Expression[] = [];
+        for (const element of expression.elements.elements)
+        {
+            const connectedExpression = this.connectExpression(element);
+
+            if (!connectedExpression.type.equals(vectorType.parameters[0].type))
             {
-                for (let i = 1; i < elements.length; i++)
-                {
-                    if (!elements[i].type.equals(elementsType))
-                    {
-                        this.diagnostic.throw(
-                            new Diagnostic.Error(
-                                `Vector literal of type "${elementsType.name}" contains incompatible expression of type`
-                                + ` "${elements[i].type.name}" at index ${i}.`,
-                                Diagnostic.Codes.VectorLiteralContainsExpressionsOfDifferentTypesError,
-                                expression.elements.elements[i].token
-                            )
-                        );
-                    }
-                }
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        // TODO: Only printing the vector type's name (which is "Vector") is not helpful.
+                        `Vector initialiser of type "${vectorType.name}" contains an incompatible expression of type` +
+                        ` "${connectedExpression.type.name}"`,
+                        Diagnostic.Codes.VectorInitialiserContainsExpressionOfWrongTypeError,
+                        element.token
+                    )
+                );
             }
 
-            const vectorType = new SemanticSymbols.VectorType(elementsType, elements.length);
-
-            return new SemanticNodes.VectorLiteralExpression(elements, vectorType);
+            elements.push(connectedExpression);
         }
+
+        return new SemanticNodes.VectorInitialiserExpression(elements, vectorType);
     }
 
     private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression

@@ -1,9 +1,14 @@
 export { SemanticSymbol } from './semanticSymbol';
 
-export { VectorTypeSemanticSymbol as VectorType } from './vectorTypeSemanticSymbol';
+export { ConcreteTypeSemanticSymbol as ConcreteType } from './concreteTypeSemanticSymbol';
+export { FunctionParameterSemanticSymbol as FunctionParameter } from './functionParameterSemanticSymbol';
 export { FunctionSemanticSymbol as Function } from './functionSemanticSymbol';
+export { ConcreteParameterSemanticSymbol as ConcreteParameter } from './concreteParameterSemanticSymbol';
+export { GenericParameterSemanticSymbol as GenericParameter } from './genericParameterSemanticSymbol';
+export { GenericTypeSemanticSymbol as GenericType } from './genericTypeSemanticSymbol';
 export { LabelSemanticSymbol as Label } from './labelSemanticSymbol';
+export { LiteralConcreteParameterSemanticSymbol as LiteralConcreteParameter } from './literalConcreteParemeterSemanticSymbol';
 export { ModuleSemanticSymbol as Module } from './moduleSemanticSymbol';
-export { ParameterSemanticSymbol as Parameter } from './parameterSemanticSymbol';
+export { TypeConcreteParameterSemanticSymbol as TypeConcreteParameter } from './typeConcreteParameterSemanticSymbol';
 export { TypeSemanticSymbol as Type } from './typeSemanticSymbol';
 export { VariableSemanticSymbol as Variable } from './variableSemanticSymbol';

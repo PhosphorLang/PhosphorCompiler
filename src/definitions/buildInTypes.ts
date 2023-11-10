@@ -1,14 +1,21 @@
+import * as SemanticSymbols from '../connector/semanticSymbols';
 import { TokenKind } from '../lexer/tokenKind';
-import { TypeSemanticSymbol } from '../connector/semanticSymbols/typeSemanticSymbol';
 
 export abstract class BuildInTypes
 {
-    public static readonly noType = new TypeSemanticSymbol('NoType');
-    public static readonly int = new TypeSemanticSymbol('Int');
-    public static readonly bool = new TypeSemanticSymbol('Bool');
-    public static readonly string = new TypeSemanticSymbol('String');
+    public static readonly noType = new SemanticSymbols.ConcreteType('NoType', []);
+    public static readonly int = new SemanticSymbols.ConcreteType('Int', []);
+    public static readonly bool = new SemanticSymbols.ConcreteType('Bool', []);
+    public static readonly string = new SemanticSymbols.ConcreteType('String', []);
+    public static readonly vector = new SemanticSymbols.GenericType(
+        'Vector',
+        [
+            new SemanticSymbols.GenericParameter('Type', false),
+            new SemanticSymbols.GenericParameter('Size', true), // TODO: What would the capitalisation convention be here?
+        ]
+    );
 
-    public static getTypeByName (name: string): TypeSemanticSymbol|null
+    public static getTypeByName (name: string): SemanticSymbols.Type|null
     {
         switch (name)
         {
@@ -18,12 +25,14 @@ export abstract class BuildInTypes
                 return this.string;
             case 'Bool':
                 return this.bool;
+            case 'Vector':
+                return this.vector;
             default:
                 return null;
         }
     }
 
-    public static getTypeByTokenKind (tokenKind: TokenKind): TypeSemanticSymbol|null
+    public static getTypeByTokenKind (tokenKind: TokenKind): SemanticSymbols.ConcreteType|null
     {
         switch (tokenKind)
         {

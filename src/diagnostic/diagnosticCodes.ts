@@ -35,8 +35,6 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     MissingSectionInWhileStatementError = 'E1032',
     MissingStandardLibraryCommandLineParameterError = 'E1033',
     UnterminatedBlockCommentError = 'E1035',
-    VectorLiteralContainsExpressionsOfDifferentTypesError = 'E1036',
-    EmptyVectorLiteralError = 'E1037',
     UnexpectedTokenInNamespace = 'E1038',
     EmptyNamespaceError = 'E1039',
     MissingModuleNameError = 'E1040',
@@ -48,6 +46,12 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     UnknownModuleError = 'E1046',
     CallOutsideModuleError = 'E1047',
     InvalidTokenInTypeArgumentError = 'E1048',
+    WrongGenericArgumentCountError = 'E1049',
+    GenericArgumentMustBeTypeError = 'E1050',
+    GenericArgumentMustBeLiteralError = 'E1051',
+    EmptyVectorInitialiserError = 'E1052',
+    WrongVectorInitialiserElementCountError = 'E1053',
+    VectorInitialiserContainsExpressionOfWrongTypeError = 'E1054',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

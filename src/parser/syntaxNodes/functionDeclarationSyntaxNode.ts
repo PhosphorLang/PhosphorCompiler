@@ -1,4 +1,5 @@
-import { FunctionParametersList } from '../lists/functionParametersList';
+import { ElementsList } from '../../utility/elementsList';
+import { FunctionParameterSyntaxNode } from './functionParameterSyntaxNode';
 import { SectionSyntaxNode } from './sectionSyntaxNode';
 import { SyntaxKind } from '../syntaxKind';
 import { SyntaxNode } from './syntaxNode';
@@ -10,7 +11,7 @@ export class FunctionDeclarationSyntaxNode extends SyntaxNode
     public readonly keyword: Token;
     public readonly identifier: Token;
     public readonly opening: Token;
-    public readonly parameters: FunctionParametersList;
+    public readonly parameters: ElementsList<FunctionParameterSyntaxNode>;
     public readonly closing: Token;
     public readonly type: TypeClauseSyntaxNode|null;
     public readonly body: SectionSyntaxNode|null;
@@ -18,14 +19,14 @@ export class FunctionDeclarationSyntaxNode extends SyntaxNode
 
     public get children (): Iterable<SyntaxNode>
     {
-        return this.parameters.parameters;
+        return this.parameters.elements;
     }
 
     constructor (
         keyword: Token,
         identifier: Token,
         opening: Token,
-        parameters: FunctionParametersList,
+        parameters: ElementsList<FunctionParameterSyntaxNode>,
         closing: Token,
         type: TypeClauseSyntaxNode|null,
         body: SectionSyntaxNode|null,

@@ -4,7 +4,7 @@ import * as SemanticSymbols from './semanticSymbols';
 import * as SyntaxNodes from '../parser/syntaxNodes';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
-import { FunctionParametersList } from '../parser/lists/functionParametersList';
+import { ElementsList } from '../utility/elementsList';
 import { SemanticNode } from './semanticNodes';
 import { SyntaxKind } from '../parser/syntaxKind';
 import { SyntaxNode } from '../parser/syntaxNodes';
@@ -209,13 +209,13 @@ export class Connector
         }
     }
 
-    private connectParameters (parameters: FunctionParametersList): SemanticSymbols.Parameter[]
+    private connectParameters (parameters: ElementsList<SyntaxNodes.FunctionParameter>): SemanticSymbols.Parameter[]
     {
         const parameterSymbols: SemanticSymbols.Parameter[] = [];
 
         const names = new Set<string>();
 
-        for (const parameter of parameters.parameters)
+        for (const parameter of parameters.elements)
         {
             const name = parameter.identifier.content;
 

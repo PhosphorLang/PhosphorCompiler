@@ -1,8 +1,6 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
-import { ArgumentsList } from './lists/argumentsList';
-import { ElementsList } from "./lists/elementsList";
-import { FunctionParametersList } from './lists/functionParametersList';
+import { ElementsList } from '../utility/elementsList';
 import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
 import { SyntaxNode } from './syntaxNodes';
@@ -286,7 +284,7 @@ export class Parser
         return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isExternal);
     }
 
-    private parseFunctionParameters (): FunctionParametersList
+    private parseFunctionParameters (): ElementsList<SyntaxNodes.FunctionParameter>
     {
         const parameters: SyntaxNodes.FunctionParameter[] = [];
         const separators: Token[] = [];
@@ -306,7 +304,7 @@ export class Parser
             }
         }
 
-        return new FunctionParametersList(parameters, separators);
+        return new ElementsList(parameters, separators);
     }
 
     private parseFunctionParameter (): SyntaxNodes.FunctionParameter
@@ -709,7 +707,7 @@ export class Parser
         return new SyntaxNodes.CallExpression(identifier, opening, callArguments, closing);
     }
 
-    private parseCallArguments (): ArgumentsList<SyntaxNodes.Expression>
+    private parseCallArguments (): ElementsList<SyntaxNodes.Expression>
     {
         const expressions: SyntaxNodes.Expression[] = [];
         const separators: Token[] = [];
@@ -729,10 +727,10 @@ export class Parser
             }
         }
 
-        return new ArgumentsList(expressions, separators);
+        return new ElementsList(expressions, separators);
     }
 
-    private parseVectorElements (): ElementsList
+    private parseVectorElements (): ElementsList<SyntaxNodes.Expression>
     {
         const elements: SyntaxNodes.Expression[] = [];
         const separators: Token[] = [];

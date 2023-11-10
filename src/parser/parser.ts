@@ -345,7 +345,7 @@ export class Parser
 
     private parseSection (): SyntaxNodes.Section|null
     {
-        if (this.getCurrentToken().kind != TokenKind.OpeningBraceToken)
+        if (this.getCurrentToken().kind != TokenKind.OpeningCurlyBraceToken)
         {
             return null;
         }
@@ -363,7 +363,7 @@ export class Parser
                 // TODO: Instead of ignoring the comment here, the lexer should add it as trivia to real tokens.
             }
 
-            if ((this.getCurrentToken().kind == TokenKind.ClosingBraceToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
+            if ((this.getCurrentToken().kind == TokenKind.ClosingCurlyBraceToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
             {
                 break;
             }
@@ -415,7 +415,7 @@ export class Parser
             // Remove the correct token:
             this.consumeNextToken();
         }
-        else if (this.getPreviousToken().kind != TokenKind.ClosingBraceToken) // No semicolon needed after a closing brace (often a section).
+        else if (this.getPreviousToken().kind != TokenKind.ClosingCurlyBraceToken) // No semicolon needed after a closing brace (often a section).
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(

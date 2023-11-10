@@ -105,10 +105,10 @@ export class Lexer
                 kind = TokenKind.ClosingParenthesisToken;
                 break;
             case '{':
-                kind = TokenKind.OpeningBraceToken;
+                kind = TokenKind.OpeningCurlyBraceToken;
                 break;
             case '}':
-                kind = TokenKind.ClosingBraceToken;
+                kind = TokenKind.ClosingCurlyBraceToken;
                 break;
             case '[':
                 kind = TokenKind.OpeningSquareBracketToken;

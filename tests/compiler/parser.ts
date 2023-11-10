@@ -47,10 +47,10 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -74,13 +74,13 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newOpeningRoundBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newColon(),
                     TokenCreator.newTypeIdentifier(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -111,14 +111,14 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -148,15 +148,15 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newOpeningRoundBrackets(),
                     TokenCreator.newInteger(),
-                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newClosingRoundBrackets(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -192,15 +192,15 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVarKeyword(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newColon(),
                     TokenCreator.newTypeIdentifier(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -233,14 +233,14 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -263,143 +263,6 @@ describe('Parser',
             }
         );
 
-        it('can parse an empty vector literal.',
-            function ()
-            {
-                const input = [
-                    TokenCreator.newModuleKeyword(),
-                    TokenCreator.newModuleIdentifier(),
-                    TokenCreator.newSemicolon(),
-                    TokenCreator.newFunctionKeyword(),
-                    TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newVariableIdentifier(),
-                    TokenCreator.newAssignment(),
-                    TokenCreator.newOpeningSquareBracket(),
-                    TokenCreator.newClosingSquareBracket(),
-                    TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
-                ];
-
-                const expectedResult = SyntaxCreator.newFile(
-                    [
-                        SyntaxCreator.newFunctionDeclaration(
-                            SyntaxCreator.newSection(
-                                [
-                                    SyntaxCreator.newAssignment(
-                                        SyntaxCreator.newVectorLiteral()
-                                    )
-                                ]
-                            )
-                        )
-                    ]
-                );
-
-                const result = parser.run(input, Defaults.fileName);
-
-                assert.deepStrictEqual(result, expectedResult);
-            }
-        );
-
-        it('can parse an vector literal with one element.',
-            function ()
-            {
-                const input = [
-                    TokenCreator.newModuleKeyword(),
-                    TokenCreator.newModuleIdentifier(),
-                    TokenCreator.newSemicolon(),
-                    TokenCreator.newFunctionKeyword(),
-                    TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newVariableIdentifier(),
-                    TokenCreator.newAssignment(),
-                    TokenCreator.newOpeningSquareBracket(),
-                    TokenCreator.newInteger(),
-                    TokenCreator.newClosingSquareBracket(),
-                    TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
-                ];
-
-                const expectedResult = SyntaxCreator.newFile(
-                    [
-                        SyntaxCreator.newFunctionDeclaration(
-                            SyntaxCreator.newSection(
-                                [
-                                    SyntaxCreator.newAssignment(
-                                        SyntaxCreator.newVectorLiteral(
-                                            SyntaxCreator.newElementsList(
-                                                [
-                                                    SyntaxCreator.newIntegerLiteral()
-                                                ]
-                                            )
-                                        )
-                                    )
-                                ]
-                            )
-                        )
-                    ]
-                );
-
-                const result = parser.run(input, Defaults.fileName);
-
-                assert.deepStrictEqual(result, expectedResult);
-            }
-        );
-
-        it('can parse an vector literal with multiple elements.',
-            function ()
-            {
-                const input = [
-                    TokenCreator.newModuleKeyword(),
-                    TokenCreator.newModuleIdentifier(),
-                    TokenCreator.newSemicolon(),
-                    TokenCreator.newFunctionKeyword(),
-                    TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newVariableIdentifier(),
-                    TokenCreator.newAssignment(),
-                    TokenCreator.newOpeningSquareBracket(),
-                    TokenCreator.newInteger(),
-                    TokenCreator.newComma(),
-                    TokenCreator.newInteger(),
-                    TokenCreator.newClosingSquareBracket(),
-                    TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
-                ];
-
-                const expectedResult = SyntaxCreator.newFile(
-                    [
-                        SyntaxCreator.newFunctionDeclaration(
-                            SyntaxCreator.newSection(
-                                [
-                                    SyntaxCreator.newAssignment(
-                                        SyntaxCreator.newVectorLiteral(
-                                            SyntaxCreator.newElementsList(
-                                                [
-                                                    SyntaxCreator.newIntegerLiteral(),
-                                                    SyntaxCreator.newIntegerLiteral()
-                                                ]
-                                            )
-                                        )
-                                    )
-                                ]
-                            )
-                        )
-                    ]
-                );
-
-                const result = parser.run(input, Defaults.fileName);
-
-                assert.deepStrictEqual(result, expectedResult);
-            }
-        );
-
         it('can parse an integer addition.',
             function ()
             {
@@ -409,16 +272,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newPlus(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -450,16 +313,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newEqual(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -495,16 +358,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newNotEqual(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -540,16 +403,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newLess(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -585,16 +448,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newGreater(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -630,15 +493,15 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newNot(),
                     TokenCreator.newFalseKeyword(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -673,16 +536,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newTrueKeyword(),
                     TokenCreator.newAnd(),
                     TokenCreator.newTrueKeyword(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -718,16 +581,16 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newTrueKeyword(),
                     TokenCreator.newOr(),
                     TokenCreator.newFalseKeyword(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -763,20 +626,20 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newInteger(),
                     TokenCreator.newPlus(),
-                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newOpeningRoundBrackets(),
                     TokenCreator.newInteger(),
                     TokenCreator.newPlus(),
                     TokenCreator.newInteger(),
-                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newClosingRoundBrackets(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -787,7 +650,7 @@ describe('Parser',
                                     SyntaxCreator.newAssignment(
                                         SyntaxCreator.newAddition(
                                             SyntaxCreator.newIntegerLiteral(),
-                                            SyntaxCreator.newParenthesizedExpression(
+                                            SyntaxCreator.newBracketedExpression(
                                                 SyntaxCreator.newIntegerAddition()
                                             )
                                         )
@@ -813,12 +676,12 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newReturnKeyword(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -848,15 +711,15 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
                     TokenCreator.newColon(),
                     TokenCreator.newTypeIdentifier(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newReturnKeyword(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -890,15 +753,15 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newAssignment(),
                     TokenCreator.newMinus(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -930,15 +793,15 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
+                    TokenCreator.newOpeningRoundBrackets(),
                     TokenCreator.newVariableIdentifier(),
-                    TokenCreator.newClosingParenthesis(),
+                    TokenCreator.newClosingRoundBrackets(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -974,14 +837,14 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIfKeyword(),
                     TokenCreator.newTrueKeyword(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -1011,17 +874,17 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIfKeyword(),
                     TokenCreator.newFalseKeyword(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                     TokenCreator.newElseKeyword(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -1055,19 +918,19 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIfKeyword(),
                     TokenCreator.newFalseKeyword(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                     TokenCreator.newElseKeyword(),
                     TokenCreator.newIfKeyword(),
                     TokenCreator.newTrueKeyword(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -1103,14 +966,14 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newWhileKeyword(),
                     TokenCreator.newTrueKeyword(),
-                    TokenCreator.newOpeningBrace(),
-                    TokenCreator.newClosingBrace(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -1143,12 +1006,12 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newReturnKeyword(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 const expectedResult = SyntaxCreator.newFile(
@@ -1181,13 +1044,13 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 assert.throws(
@@ -1206,13 +1069,13 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVarKeyword(),
                     TokenCreator.newInteger(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 assert.throws(
@@ -1231,13 +1094,13 @@ describe('Parser',
                     TokenCreator.newSemicolon(),
                     TokenCreator.newFunctionKeyword(),
                     TokenCreator.newIdentifier(),
-                    TokenCreator.newOpeningParenthesis(),
-                    TokenCreator.newClosingParenthesis(),
-                    TokenCreator.newOpeningBrace(),
+                    TokenCreator.newOpeningRoundBrackets(),
+                    TokenCreator.newClosingRoundBrackets(),
+                    TokenCreator.newOpeningCurlyBrackets(),
                     TokenCreator.newVarKeyword(),
                     TokenCreator.newVariableIdentifier(),
                     TokenCreator.newSemicolon(),
-                    TokenCreator.newClosingBrace(),
+                    TokenCreator.newClosingCurlyBrackets(),
                 ];
 
                 assert.throws(

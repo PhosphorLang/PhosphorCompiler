@@ -62,7 +62,7 @@ export abstract class SemanticCreator
     }
 
     public static newFunctionSymbol (
-        parameters: SemanticSymbols.Parameter[] = [],
+        parameters: SemanticSymbols.FunctionParameter[] = [],
         returnType = BuildInTypes.noType,
         name = Defaults.identifier,
         isExternal = false,
@@ -71,9 +71,9 @@ export abstract class SemanticCreator
         return new SemanticSymbols.Function(name, returnType, parameters, isExternal);
     }
 
-    public static newFunctionParameter (type = BuildInTypes.int, name = Defaults.variableName): SemanticSymbols.Parameter
+    public static newFunctionParameter (type = BuildInTypes.int, name = Defaults.variableName): SemanticSymbols.FunctionParameter
     {
-        return new SemanticSymbols.Parameter(name, type);
+        return new SemanticSymbols.FunctionParameter(name, type);
     }
 
     public static newFunctionCall (

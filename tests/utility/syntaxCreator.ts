@@ -1,8 +1,6 @@
 import * as SyntaxNodes from '../../src/parser/syntaxNodes';
-import { CallArgumentsList } from '../../src/parser/lists/callArgumentsList';
 import { Defaults } from './defaults';
-import { ElementsList } from '../../src/parser/lists/elementsList';
-import { FunctionParametersList } from '../../src/parser/lists/functionParametersList';
+import { ElementsList } from '../../src/parser/elementsList';
 import { Namespace } from '../../src/parser/namespace';
 import { Token } from '../../src/lexer/token';
 import { TokenCreator } from './tokenCreator';
@@ -49,9 +47,9 @@ export abstract class SyntaxCreator
         return new SyntaxNodes.FunctionDeclaration(
             TokenCreator.newFunctionKeyword(),
             identifier,
-            TokenCreator.newOpeningParenthesis(),
+            TokenCreator.newOpeningRoundBrackets(),
             parameters,
-            TokenCreator.newClosingParenthesis(),
+            TokenCreator.newClosingRoundBrackets(),
             type,
             section,
             isExternal
@@ -60,10 +58,10 @@ export abstract class SyntaxCreator
 
     public static newSection (statements: SyntaxNodes.SyntaxNode[] = []): SyntaxNodes.Section
     {
-        return new SyntaxNodes.Section(TokenCreator.newOpeningBrace(), statements, TokenCreator.newClosingBrace());
+        return new SyntaxNodes.Section(TokenCreator.newOpeningCurlyBrackets(), statements, TokenCreator.newClosingCurlyBrackets());
     }
 
-    public static newFunctionParametersList (parameters: SyntaxNodes.FunctionParameter[] = []): FunctionParametersList
+    public static newFunctionParametersList (parameters: SyntaxNodes.FunctionParameter[] = []): ElementsList<SyntaxNodes.FunctionParameter>
     {
         const separators: Token[] = [];
 
@@ -72,7 +70,7 @@ export abstract class SyntaxCreator
             separators.push(TokenCreator.newComma());
         }
 
-        return new FunctionParametersList(parameters, separators);
+        return new ElementsList(parameters, separators);
     }
 
     public static newFunctionParameter (
@@ -85,7 +83,7 @@ export abstract class SyntaxCreator
 
     public static newTypeClause (identifier = TokenCreator.newTypeIdentifier()): SyntaxNodes.TypeClause
     {
-        return new SyntaxNodes.TypeClause(TokenCreator.newColon(), identifier);
+        return new SyntaxNodes.TypeClause(TokenCreator.newColon(), new SyntaxNodes.Type(identifier));
     }
 
     public static newFunctionCall (
@@ -95,13 +93,13 @@ export abstract class SyntaxCreator
     {
         return new SyntaxNodes.CallExpression(
             identifier,
-            TokenCreator.newOpeningParenthesis(),
+            TokenCreator.newOpeningRoundBrackets(),
             callArguments,
-            TokenCreator.newClosingParenthesis()
+            TokenCreator.newClosingRoundBrackets()
         );
     }
 
-    public static newCallArgumentsList (expressions: SyntaxNodes.Expression[] = []): CallArgumentsList
+    public static newCallArgumentsList (expressions: SyntaxNodes.Expression[] = []): ElementsList<SyntaxNodes.Expression>
     {
         const separators: Token[] = [];
 
@@ -110,7 +108,7 @@ export abstract class SyntaxCreator
             separators.push(TokenCreator.newComma());
         }
 
-        return new CallArgumentsList(expressions, separators);
+        return new ElementsList(expressions, separators);
     }
 
     public static newVariableDeclaration (
@@ -152,16 +150,7 @@ export abstract class SyntaxCreator
         return new SyntaxNodes.LiteralExpression(TokenCreator.newFalseKeyword());
     }
 
-    public static newVectorLiteral (vectorElements = this.newElementsList()): SyntaxNodes.VectorLiteralExpression
-    {
-        return new SyntaxNodes.VectorLiteralExpression(
-            TokenCreator.newOpeningSquareBracket(),
-            vectorElements,
-            TokenCreator.newClosingSquareBracket()
-        );
-    }
-
-    public static newElementsList (elements: SyntaxNodes.Expression[] = []): ElementsList
+    public static newElementsList (elements: SyntaxNodes.Expression[] = []): ElementsList<SyntaxNodes.Expression>
     {
         const separators: Token[] = [];
 
@@ -199,12 +188,12 @@ export abstract class SyntaxCreator
         );
     }
 
-    public static newParenthesizedExpression (expression: SyntaxNodes.Expression): SyntaxNodes.ParenthesizedExpression
+    public static newBracketedExpression (expression: SyntaxNodes.Expression): SyntaxNodes.BracketedExpression
     {
-        return new SyntaxNodes.ParenthesizedExpression(
-            TokenCreator.newOpeningParenthesis(),
+        return new SyntaxNodes.BracketedExpression(
+            TokenCreator.newOpeningRoundBrackets(),
             expression,
-            TokenCreator.newClosingParenthesis()
+            TokenCreator.newClosingRoundBrackets()
         );
     }
 

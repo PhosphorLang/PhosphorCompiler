@@ -1,14 +1,14 @@
 import 'mocha';
 import { assert } from 'chai';
 import { BuildInFunctions } from '../../src/definitions/buildInFunctions';
+import { BuildInModules } from '../../src/definitions/buildInModules';
 import { BuildInOperators } from '../../src/definitions/buildInOperators';
 import { BuildInTypes } from '../../src/definitions/buildInTypes';
+import { Defaults } from '../utility/defaults';
 import { IntermediateCreator } from '../utility/intermediateCreator';
 import { IntermediateSize } from '../../src/lowerer/intermediateSize';
 import { Lowerer } from '../../src/lowerer/lowerer';
 import { SemanticCreator } from '../utility/semanticCreator';
-import { BuildInModules } from '../../src/definitions/buildInModules';
-import { Defaults } from '../utility/defaults';
 
 describe('Lowerer',
     function ()

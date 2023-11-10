@@ -8,7 +8,7 @@ describe('Diagnostic',
     function ()
     {
         const testText = 'testText';
-        const testCode = 'testCode';
+        const testCode = Diagnostic.Codes.UnknownTokenError;
         const testFileName = 'testFileName';
         const testLineNumber = -1;
         const testColumnNumber = -2;

@@ -351,7 +351,7 @@ describe('Connector',
                                     SyntaxCreator.newVariableDeclaration(
                                         SyntaxCreator.newAddition(
                                             SyntaxCreator.newIntegerLiteral(),
-                                            SyntaxCreator.newParenthesizedExpression(
+                                            SyntaxCreator.newBracketedExpression(
                                                 SyntaxCreator.newIntegerAddition()
                                             )
                                         )

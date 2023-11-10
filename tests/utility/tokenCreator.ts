@@ -35,24 +35,24 @@ export abstract class TokenCreator
         return new Token(TokenKind.StringToken, value);
     }
 
-    public static newOpeningParenthesis (): Token
+    public static newOpeningRoundBrackets (): Token
     {
-        return new Token(TokenKind.OpeningParenthesisToken, '(');
+        return new Token(TokenKind.OpeningRoundBracketToken, '(');
     }
 
-    public static newClosingParenthesis (): Token
+    public static newClosingRoundBrackets (): Token
     {
-        return new Token(TokenKind.ClosingParenthesisToken, ')');
+        return new Token(TokenKind.ClosingRoundBracketToken, ')');
     }
 
-    public static newOpeningBrace (): Token
+    public static newOpeningCurlyBrackets (): Token
     {
-        return new Token(TokenKind.OpeningBraceToken, '{');
+        return new Token(TokenKind.OpeningCurlyBracketToken, '{');
     }
 
-    public static newClosingBrace (): Token
+    public static newClosingCurlyBrackets (): Token
     {
-        return new Token(TokenKind.ClosingBraceToken, '}');
+        return new Token(TokenKind.ClosingCurlyBracketToken, '}');
     }
 
     public static newOpeningSquareBracket (): Token

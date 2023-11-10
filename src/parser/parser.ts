@@ -1,6 +1,6 @@
 import * as Diagnostic from '../diagnostic';
 import * as SyntaxNodes from './syntaxNodes';
-import { ElementsList } from '../utility/elementsList';
+import { ElementsList } from './elementsList';
 import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
 import { SyntaxNode } from './syntaxNodes';

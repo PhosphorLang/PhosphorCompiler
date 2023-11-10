@@ -1,5 +1,5 @@
-import { SyntaxNode } from '../syntaxNodes';
-import { Token } from '../../lexer/token';
+import { SyntaxNode } from './syntaxNodes';
+import { Token } from '../lexer/token';
 
 export class ElementsList <TSyntaxNode extends SyntaxNode>
 {

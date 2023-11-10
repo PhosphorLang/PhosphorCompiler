@@ -1,4 +1,4 @@
-import { ElementsList } from '../../utility/elementsList';
+import { ElementsList } from '../elementsList';
 import { ExpressionSyntaxNode } from './expressionSyntaxNode';
 import { SyntaxKind } from '../syntaxKind';
 import { SyntaxNode } from './syntaxNode';

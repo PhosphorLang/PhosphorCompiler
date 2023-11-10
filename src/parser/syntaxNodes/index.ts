@@ -14,7 +14,7 @@ export { IfStatementSyntaxNode as IfStatement } from './ifStatementSyntaxNode';
 export { ModuleSyntaxNode as Module } from './moduleSyntaxNode';
 export { ImportSyntaxNode as Import } from './importSyntaxNode';
 export { LiteralExpressionSyntaxNode as LiteralExpression } from './literalExpressionSyntaxNode';
-export { ParenthesizedExpressionSyntaxNode as ParenthesizedExpression } from './parenthesizedExpressionSyntaxNode';
+export { BracketedExpressionSyntaxNode as BracketedExpression } from './bracketedExpressionSyntaxNode';
 export { ReturnStatementSyntaxNode as ReturnStatement } from './returnStatementSyntaxNode';
 export { SectionSyntaxNode as Section } from './sectionSyntaxNode';
 export { TypeClauseSyntaxNode as TypeClause } from './typeClauseSyntaxNode';

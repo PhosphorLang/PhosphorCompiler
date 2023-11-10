@@ -291,7 +291,7 @@ export class Parser
         const parameters: SyntaxNodes.FunctionParameter[] = [];
         const separators: Token[] = [];
 
-        while ((this.getCurrentToken().kind != TokenKind.ClosingParenthesisToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
+        while ((this.getCurrentToken().kind != TokenKind.ClosingRoundBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
         {
             const parameter = this.parseFunctionParameter();
             parameters.push(parameter);
@@ -345,7 +345,7 @@ export class Parser
 
     private parseSection (): SyntaxNodes.Section|null
     {
-        if (this.getCurrentToken().kind != TokenKind.OpeningCurlyBraceToken)
+        if (this.getCurrentToken().kind != TokenKind.OpeningCurlyBracketToken)
         {
             return null;
         }
@@ -363,7 +363,7 @@ export class Parser
                 // TODO: Instead of ignoring the comment here, the lexer should add it as trivia to real tokens.
             }
 
-            if ((this.getCurrentToken().kind == TokenKind.ClosingCurlyBraceToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
+            if ((this.getCurrentToken().kind == TokenKind.ClosingCurlyBracketToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
             {
                 break;
             }
@@ -415,7 +415,8 @@ export class Parser
             // Remove the correct token:
             this.consumeNextToken();
         }
-        else if (this.getPreviousToken().kind != TokenKind.ClosingCurlyBraceToken) // No semicolon needed after a closing brace (often a section).
+        // No semicolon needed after a closing curly bracket (often a section):
+        else if (this.getPreviousToken().kind != TokenKind.ClosingCurlyBracketToken)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -629,8 +630,8 @@ export class Parser
     {
         switch (this.getCurrentToken().kind)
         {
-            case TokenKind.OpeningParenthesisToken:
-                return this.parseParenthesizedExpression();
+            case TokenKind.OpeningRoundBracketToken:
+                return this.parseBracketedExpression();
             case TokenKind.OpeningSquareBracketToken:
                 return this.parseVectorLiteralExpression();
             case TokenKind.IntegerToken:
@@ -651,13 +652,13 @@ export class Parser
         }
     }
 
-    private parseParenthesizedExpression (): SyntaxNodes.ParenthesizedExpression
+    private parseBracketedExpression (): SyntaxNodes.BracketedExpression
     {
         const opening = this.consumeNextToken();
         const expression = this.parseExpression();
         const closing = this.consumeNextToken();
 
-        return new SyntaxNodes.ParenthesizedExpression(opening, expression, closing);
+        return new SyntaxNodes.BracketedExpression(opening, expression, closing);
     }
 
     private parseVectorLiteralExpression (): SyntaxNodes.VectorLiteralExpression
@@ -682,7 +683,7 @@ export class Parser
         {
             case TokenKind.DotToken:
                 return this.parseAccessExpression();
-            case TokenKind.OpeningParenthesisToken:
+            case TokenKind.OpeningRoundBracketToken:
                 return this.parseCallExpression();
             default:
                 return this.parseVariableExpression();
@@ -713,7 +714,7 @@ export class Parser
         const expressions: SyntaxNodes.Expression[] = [];
         const separators: Token[] = [];
 
-        while ((this.getCurrentToken().kind != TokenKind.ClosingParenthesisToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
+        while ((this.getCurrentToken().kind != TokenKind.ClosingRoundBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
         {
             const expression = this.parseExpression();
             expressions.push(expression);

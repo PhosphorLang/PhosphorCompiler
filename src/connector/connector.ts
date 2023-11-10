@@ -537,8 +537,8 @@ export class Connector
                 return this.connectCallExpression(expression as SyntaxNodes.CallExpression);
             case SyntaxKind.AccessExpression:
                 return this.connectAccessExpression(expression as SyntaxNodes.AccessExpression);
-            case SyntaxKind.ParenthesizedExpression:
-                return this.connectParenthesizedExpression(expression as SyntaxNodes.ParenthesizedExpression);
+            case SyntaxKind.BracketedExpression:
+                return this.connectBracketedExpression(expression as SyntaxNodes.BracketedExpression);
             case SyntaxKind.UnaryExpression:
                 return this.connectUnaryExpression(expression as SyntaxNodes.UnaryExpression);
             case SyntaxKind.BinaryExpression:
@@ -762,7 +762,7 @@ export class Connector
         }
     }
 
-    private connectParenthesizedExpression (expression: SyntaxNodes.ParenthesizedExpression): SemanticNodes.Expression
+    private connectBracketedExpression (expression: SyntaxNodes.BracketedExpression): SemanticNodes.Expression
     {
         return this.connectExpression(expression.expression);
     }

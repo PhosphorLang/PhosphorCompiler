@@ -99,16 +99,16 @@ export class Lexer
                 this.column++;
                 return null;
             case '(':
-                kind = TokenKind.OpeningParenthesisToken;
+                kind = TokenKind.OpeningRoundBracketToken;
                 break;
             case ')':
-                kind = TokenKind.ClosingParenthesisToken;
+                kind = TokenKind.ClosingRoundBracketToken;
                 break;
             case '{':
-                kind = TokenKind.OpeningCurlyBraceToken;
+                kind = TokenKind.OpeningCurlyBracketToken;
                 break;
             case '}':
-                kind = TokenKind.ClosingCurlyBraceToken;
+                kind = TokenKind.ClosingCurlyBracketToken;
                 break;
             case '[':
                 kind = TokenKind.OpeningSquareBracketToken;

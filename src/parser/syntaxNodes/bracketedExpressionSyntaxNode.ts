@@ -3,7 +3,7 @@ import { SyntaxKind } from '../syntaxKind';
 import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode // TODO: Rename to ParenthesisedExpressionSyntaxNode
+export class BracketedExpressionSyntaxNode extends ExpressionSyntaxNode // TODO: Rename to ParenthesisedExpressionSyntaxNode
 {
     public readonly openingToken: Token;
     public readonly expression: ExpressionSyntaxNode;
@@ -21,7 +21,7 @@ export class ParenthesizedExpressionSyntaxNode extends ExpressionSyntaxNode // T
 
     constructor (openingToken: Token, expression: ExpressionSyntaxNode, closingToken: Token)
     {
-        super(SyntaxKind.ParenthesizedExpression);
+        super(SyntaxKind.BracketedExpression);
 
         this.openingToken = openingToken;
         this.expression = expression;

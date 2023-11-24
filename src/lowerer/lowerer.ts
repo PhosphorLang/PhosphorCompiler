@@ -177,18 +177,13 @@ export class Lowerer
                 return IntermediateSize.Native;
             case BuildInTypes.bool:
                 return IntermediateSize.Int8;
-            case BuildInTypes.string:
-                return IntermediateSize.Pointer;
             case BuildInTypes.noType:
                 return IntermediateSize.Void;
+            case BuildInTypes.string:
+            default:
+                // TODO: How to prevent other value types (primitives) will be silently marked as pointers here in the future?
+                return IntermediateSize.Pointer;
         }
-
-        if (type instanceof SemanticSymbols.VectorType)
-        {
-            return IntermediateSize.Pointer;
-        }
-
-        throw new Error(`Lowerer error: No known size for type "${type.name}"`);
     }
 
     /**

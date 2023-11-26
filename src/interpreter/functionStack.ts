@@ -10,6 +10,7 @@ export class FunctionStack
     public takableParameters: ParameterIndexToValue;
     public givenParameters: ParameterIndexToValue;
     public returnValues: ReturnIndexToValue;
+    public callResults: ReturnIndexToValue;
 
     public localVariables: VariablesMap;
     public compareOperands: [leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable] | null;
@@ -19,6 +20,7 @@ export class FunctionStack
         this.takableParameters = takableParameters;
         this.givenParameters = new Map();
         this.returnValues = new Map();
+        this.callResults = new Map();
 
         this.localVariables = new Map();
         this.compareOperands = null;

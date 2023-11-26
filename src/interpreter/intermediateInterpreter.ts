@@ -226,7 +226,7 @@ export class IntermediateInterpreter
         }
 
         const callParameters = functionStack.givenParameters;
-        this.interpretFunction(fileIntermediate, callParameters);
+        functionStack.callResults = this.interpretFunction(fileIntermediate, callParameters);
     }
 
     private interpretCompare (compareIntermediate: Intermediates.Compare, functionStack: FunctionStack): void
@@ -488,7 +488,7 @@ export class IntermediateInterpreter
             }
             case IntermediateSymbolKind.ReturnValue:
             {
-                const returnValueValue = functionStack.returnValues.get(takeIntermediate.takableValue.index);
+                const returnValueValue = functionStack.callResults.get(takeIntermediate.takableValue.index);
 
                 if (returnValueValue === undefined)
                 {

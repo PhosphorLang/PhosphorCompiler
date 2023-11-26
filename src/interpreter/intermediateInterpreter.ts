@@ -4,6 +4,7 @@ import * as InterpreterValues from './interpreterValues';
 import { FunctionStack, ParameterIndexToValue, ReturnIndexToValue } from './functionStack';
 import { IntermediateKind } from '../lowerer/intermediateKind';
 import { IntermediateSymbolKind } from '../lowerer/intermediateSymbolKind';
+import { StandardLibrary } from './standardLibrary';
 
 /**
  * The Intermediate Interpreter runs the intermediate instructions.
@@ -15,6 +16,8 @@ export class IntermediateInterpreter
     private functions: Map<IntermediateSymbols.Function, Intermediates.Function>;
     private constants: Map<IntermediateSymbols.Constant, Intermediates.Constant>;
 
+    private standardLibrary: StandardLibrary;
+
     /** Maps the label symbol to the statement index. Note that this is function-local. */
     private labelToStatementIndex: Map<IntermediateSymbols.Label, number>;
 
@@ -24,6 +27,8 @@ export class IntermediateInterpreter
         this.functions = new Map();
         this.constants = new Map();
         this.labelToStatementIndex = new Map();
+
+        this.standardLibrary = new StandardLibrary();
     }
 
     public run (files: Intermediates.File[]): void
@@ -220,13 +225,25 @@ export class IntermediateInterpreter
     {
         const fileIntermediate = this.functions.get(callIntermediate.functionSymbol);
 
-        if (fileIntermediate === undefined)
+        if (fileIntermediate !== undefined)
         {
-            throw new Error(`Intermediate Interpreter error: Function "${callIntermediate.functionSymbol.name}" not found.`);
+            const callParameters = functionStack.givenParameters;
+            functionStack.callResults = this.interpretFunction(fileIntermediate, callParameters);
         }
+        else
+        {
+            const standardLibraryFunction = this.standardLibrary.functions.get(callIntermediate.functionSymbol.name);
 
-        const callParameters = functionStack.givenParameters;
-        functionStack.callResults = this.interpretFunction(fileIntermediate, callParameters);
+            if (standardLibraryFunction !== undefined)
+            {
+                const callParameters = functionStack.givenParameters;
+                functionStack.callResults = standardLibraryFunction(callParameters);
+            }
+            else
+            {
+                throw new Error(`Intermediate Interpreter error: Function "${callIntermediate.functionSymbol.name}" not found.`);
+            }
+        }
     }
 
     private interpretCompare (compareIntermediate: Intermediates.Compare, functionStack: FunctionStack): void

@@ -3,10 +3,12 @@
 import * as Diagnostic from './diagnostic';
 import { ProcessArguments, ProcessArgumentsError } from './processArguments';
 import { Connector } from './connector/connector';
+import { FileIntermediate } from './lowerer/intermediates/fileIntermediate';
 import { FileSemanticNode } from './connector/semanticNodes/fileSemanticNode';
 import { FileSyntaxNode } from './parser/syntaxNodes/fileSyntaxNode';
 import FileSystem from 'fs';
 import { Importer } from './importer/importer';
+import { IntermediateInterpreter } from './interpreter/intermediateInterpreter';
 import { Lexer } from './lexer/lexer';
 import { LinuxAmd64Backend } from './backends/linuxAmd64Backend';
 import { Lowerer } from './lowerer/lowerer';
@@ -36,6 +38,8 @@ class Main
 
     public run (): void
     {
+        // TODO: This function should be split into smaller functions.
+
         const standardLibraryTargetPath = Path.join(this.arguments.standardLibraryPath, this.arguments.targetPlatform);
 
         // Create temporary directory for intermediate (IL, ASM, binary etc.) files:
@@ -125,30 +129,46 @@ class Main
 
             // TODO: Check if the exit codes of assemblers/linkers/compilers in the backends is non-zero in case of errors.
 
-            const objectFiles: string[] = [];
-            for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
+            if (this.arguments.run)
             {
-                const intermediateLanguage = lowerer.run(fileSemanticTree);
-
-                if (this.arguments.intermediate)
+                const intermediateFiles: FileIntermediate[] = [];
+                for (const [, fileSemanticTree] of qualifiedNameToFile)
                 {
-                    const intermediateTranspiler = new TranspilerIntermediate();
-                    const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
-
-                    FileSystem.writeFileSync(
-                        Path.join(temporaryDirectoryPath, qualifiedName + '.phi'),
-                        intermediateCode,
-                        {encoding: 'utf8'}
-                    );
+                    const intermediateLanguage = lowerer.run(fileSemanticTree);
+                    intermediateFiles.push(intermediateLanguage);
                 }
 
-                const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, temporaryDirectoryPath);
-                objectFiles.push(objectFilePath);
+                const intermediateInterpreter = new IntermediateInterpreter();
+
+                intermediateInterpreter.run(intermediateFiles);
             }
+            else
+            {
+                const objectFiles: string[] = [];
+                for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
+                {
+                    const intermediateLanguage = lowerer.run(fileSemanticTree);
 
-            const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
+                    if (this.arguments.intermediate)
+                    {
+                        const intermediateTranspiler = new TranspilerIntermediate();
+                        const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
 
-            backend.link(objectFiles, standardLibraryFilePath, this.arguments.outputPath);
+                        FileSystem.writeFileSync(
+                            Path.join(temporaryDirectoryPath, qualifiedName + '.phi'),
+                            intermediateCode,
+                            {encoding: 'utf8'}
+                        );
+                    }
+
+                    const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, temporaryDirectoryPath);
+                    objectFiles.push(objectFilePath);
+                }
+
+                const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
+
+                backend.link(objectFiles, standardLibraryFilePath, this.arguments.outputPath);
+            }
 
             diagnostic.end();
         }

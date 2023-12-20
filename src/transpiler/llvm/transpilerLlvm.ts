@@ -709,7 +709,6 @@ export class TranspilerLlvm
 
     private transpileModulo (moduloIntermediate: Intermediates.Modulo): void
     {
-
         const leftOperandRegister = this.loadIntoRegister(moduloIntermediate.leftOperand);
         const rightOperandRegister = this.loadIntoRegister(moduloIntermediate.rightOperand);
         const resultRegister = this.nextVariableName;

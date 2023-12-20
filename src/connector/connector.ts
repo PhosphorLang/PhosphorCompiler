@@ -343,8 +343,12 @@ export class Connector
 
     private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
     {
-        const functionSymbol = this.functions.get(functionDeclaration.identifier.content) as SemanticSymbols.Function;
-        // The function symbol must exist because we added it previously based on the same function declarations.
+        const functionSymbol = this.functions.get(functionDeclaration.identifier.content);
+        if (functionSymbol === undefined)
+        {
+            // NOTE: The function symbol must exist because we added it previously based on the same function declarations.
+            throw new Error('Connector error: Function symbol not found.');
+        }
 
         this.currentFunction = functionSymbol;
 
@@ -702,12 +706,14 @@ export class Connector
             );
         }
 
+        const vectorElementsType = vectorType.parameters[0].type; // HACK: We know the first parameter is the elements' type.
+
         const elements: SemanticNodes.Expression[] = [];
         for (const element of expression.elements.elements)
         {
             const connectedExpression = this.connectExpression(element);
 
-            if (!connectedExpression.type.equals(vectorType.parameters[0].type))
+            if (!connectedExpression.type.equals(vectorElementsType))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(

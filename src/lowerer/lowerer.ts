@@ -315,7 +315,7 @@ export class Lowerer
 
         if (!this.buildInModuleLoweredSet.has(moduleSymbol))
         {
-            this.lowerImport(BuildInModules.string);
+            this.lowerImport(moduleSymbol);
 
             this.buildInModuleLoweredSet.add(moduleSymbol);
         }
@@ -937,7 +937,7 @@ export class Lowerer
     {
         if (binaryExpression.operator == BuildInOperators.binaryStringEqual)
         {
-            // NOTE: Compiler magic: The comparison of a string is call to the build in function "stringsAreEqual".
+            // NOTE: Compiler magic: The comparison of a string is a call to the build in function "stringsAreEqual".
 
             this.lowerBuildInModuleIfNeeded(BuildInModules.string);
 

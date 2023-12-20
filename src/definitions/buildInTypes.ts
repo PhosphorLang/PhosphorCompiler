@@ -4,7 +4,7 @@ import { TokenKind } from '../lexer/tokenKind';
 export abstract class BuildInTypes
 {
     public static readonly noType = new SemanticSymbols.ConcreteType('NoType', []);
-    public static readonly int = new SemanticSymbols.ConcreteType('Int', []);
+    public static readonly int = new SemanticSymbols.ConcreteType('Int', []); // TODO: Is often misused for UInts. Should be corrected.
     public static readonly bool = new SemanticSymbols.ConcreteType('Bool', []);
     public static readonly string = new SemanticSymbols.ConcreteType('String', []);
     public static readonly vector = new SemanticSymbols.GenericType(

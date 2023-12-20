@@ -1,6 +1,6 @@
-module ModulesExample.MyModule;
-
 import Standard.Io;
+
+module ModulesExample.MyModule;
 
 function getHello (): String
 {

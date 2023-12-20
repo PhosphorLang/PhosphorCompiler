@@ -116,6 +116,7 @@ class Main
             for (const syntaxTree of importOrderedSyntaxTrees)
             {
                 const fileSemanticTree = connector.run(syntaxTree, qualifiedNameToFile);
+                // TODO: Check if the qualified name is already in the map.
                 qualifiedNameToFile.set(fileSemanticTree.module.qualifiedName, fileSemanticTree);
             }
 

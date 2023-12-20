@@ -638,7 +638,7 @@ export class Parser
 
     private parseExpression (parentPriority = 0): SyntaxNodes.Expression
     {
-        let left;
+        let left: SyntaxNodes.Expression;
 
         if (this.isUnaryExpression(parentPriority))
         {
@@ -743,6 +743,7 @@ export class Parser
                 return this.parseCallExpression();
             case TokenKind.OpeningCurlyBracketToken:
             case TokenKind.OpeningSquareBracketToken:
+                // FIXME: This wrongly detects "if a = b {" as a vector!
                 return this.parseVectorInitialiserExpression();
             default:
                 return this.parseVariableExpression();

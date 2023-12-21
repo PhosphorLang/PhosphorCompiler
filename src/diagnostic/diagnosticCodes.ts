@@ -52,6 +52,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     EmptyVectorInitialiserError = 'E1052',
     WrongVectorInitialiserElementCountError = 'E1053',
     VectorInitialiserContainsExpressionOfWrongTypeError = 'E1054',
+    UnexpectedTokenInInstantiationExpressionError = 'E1055',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

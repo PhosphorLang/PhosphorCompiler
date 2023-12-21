@@ -1,9 +1,9 @@
 export { SyntaxNode } from './syntaxNode';
 
 export { AccessExpressionSyntaxNode as AccessExpression } from './accessExpressionSyntaxNode';
-export { VectorInitialiserExpressionSyntaxNode as VectorInitialiserExpression } from './vectorInitialiserExpressionSyntaxNode';
 export { AssignmentSyntaxNode as Assignment } from './assignmentSyntaxNode';
 export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressionSyntaxNode';
+export { BracketedExpressionSyntaxNode as BracketedExpression } from './bracketedExpressionSyntaxNode';
 export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSyntaxNode';
 export { ElseClauseSyntaxNode as ElseClause } from './elseClauseSyntaxNode';
 export { ExpressionSyntaxNode as Expression } from './expressionSyntaxNode';
@@ -11,10 +11,10 @@ export { FileSyntaxNode as File } from './fileSyntaxNode';
 export { FunctionDeclarationSyntaxNode as FunctionDeclaration } from './functionDeclarationSyntaxNode';
 export { FunctionParameterSyntaxNode as FunctionParameter } from './functionParameterSyntaxNode';
 export { IfStatementSyntaxNode as IfStatement } from './ifStatementSyntaxNode';
-export { ModuleSyntaxNode as Module } from './moduleSyntaxNode';
+export { InstantiationExpressionSyntaxNode as InstantiationExpression } from './instantiationExpressionSyntaxNode';
 export { ImportSyntaxNode as Import } from './importSyntaxNode';
 export { LiteralExpressionSyntaxNode as LiteralExpression } from './literalExpressionSyntaxNode';
-export { BracketedExpressionSyntaxNode as BracketedExpression } from './bracketedExpressionSyntaxNode';
+export { ModuleSyntaxNode as Module } from './moduleSyntaxNode';
 export { ReturnStatementSyntaxNode as ReturnStatement } from './returnStatementSyntaxNode';
 export { SectionSyntaxNode as Section } from './sectionSyntaxNode';
 export { TypeClauseSyntaxNode as TypeClause } from './typeClauseSyntaxNode';

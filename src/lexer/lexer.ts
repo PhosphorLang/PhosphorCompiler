@@ -398,8 +398,14 @@ export class Lexer
             case 'module':
                 kind = TokenKind.ModuleKeyword;
                 break;
+            case 'class':
+                kind = TokenKind.ClassKeyword;
+                break;
             case 'import':
                 kind = TokenKind.ImportKeyword;
+                break;
+            case 'new':
+                kind = TokenKind.NewOperator;
                 break;
             default:
                 kind = TokenKind.IdentifierToken;

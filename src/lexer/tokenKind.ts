@@ -31,8 +31,10 @@ export enum TokenKind
     NotOperator,
     AndOperator,
     OrOperator,
+    NewOperator,
     // Keywords
     ModuleKeyword,
+    ClassKeyword,
     VarKeyword,
     FunctionKeyword,
     ReturnKeyword,

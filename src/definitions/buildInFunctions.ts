@@ -20,6 +20,17 @@ export abstract class BuildInFunctions
             new FunctionParameterSemanticSymbol('string1', BuildInTypes.string),
             new FunctionParameterSemanticSymbol('string2', BuildInTypes.string)
         ],
+        false,
+        true
+    );
+
+    public static readonly allocate = new FunctionSemanticSymbol(
+        'allocate',
+        BuildInTypes.pointer,
+        [
+            new FunctionParameterSemanticSymbol('size', BuildInTypes.int) // FIXME: This should be UInt.
+        ],
+        false,
         true
     );
 }

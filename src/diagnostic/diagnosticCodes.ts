@@ -49,10 +49,9 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     WrongGenericArgumentCountError = 'E1049',
     GenericArgumentMustBeTypeError = 'E1050',
     GenericArgumentMustBeLiteralError = 'E1051',
-    EmptyVectorInitialiserError = 'E1052',
-    WrongVectorInitialiserElementCountError = 'E1053',
-    VectorInitialiserContainsExpressionOfWrongTypeError = 'E1054',
-    UnexpectedTokenInInstantiationExpressionError = 'E1055',
+    UnexpectedTokenInInstantiationExpressionError = 'E1052',
+    MethodInModuleWithoutClassError = 'E1053',
+    AccessOfUnknownTypeError = 'E1054',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

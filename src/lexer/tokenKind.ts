@@ -31,7 +31,6 @@ export enum TokenKind
     NotOperator,
     AndOperator,
     OrOperator,
-    NewOperator,
     // Keywords
     ModuleKeyword,
     ClassKeyword,
@@ -46,4 +45,5 @@ export enum TokenKind
     TrueKeyword,
     FalseKeyword,
     ImportKeyword,
+    NewKeyword,
 }

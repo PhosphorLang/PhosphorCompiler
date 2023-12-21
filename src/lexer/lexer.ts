@@ -408,7 +408,7 @@ export class Lexer
                 kind = TokenKind.ImportKeyword;
                 break;
             case 'new':
-                kind = TokenKind.NewOperator;
+                kind = TokenKind.NewKeyword;
                 break;
             default:
                 kind = TokenKind.IdentifierToken;

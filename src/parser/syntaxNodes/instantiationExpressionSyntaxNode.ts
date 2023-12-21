@@ -7,12 +7,11 @@ import { TypeSyntaxNode } from './typeSyntaxNode';
 
 export class InstantiationExpressionSyntaxNode extends ExpressionSyntaxNode
 {
+    public readonly keyword: Token;
     public readonly type: TypeSyntaxNode;
     public readonly opening: Token;
     public readonly arguments: ElementsList<ExpressionSyntaxNode>;
     public readonly closing: Token;
-    /** If true, the instantiation has an initialiser, if false, it's a constructor call.  */
-    public readonly hasInitialiser: boolean;
 
     public get children (): Iterable<SyntaxNode>
     {
@@ -21,22 +20,22 @@ export class InstantiationExpressionSyntaxNode extends ExpressionSyntaxNode
 
     public get token (): Token
     {
-        return this.type.identifier;
+        return this.keyword;
     }
 
     constructor (
+        keyword: Token,
         type: TypeSyntaxNode,
         opening: Token,
-        constructorOrInitialiserArguments: ElementsList<ExpressionSyntaxNode>,
-        closing: Token,
-        hasInitialiser: boolean
+        constructorArguments: ElementsList<ExpressionSyntaxNode>,
+        closing: Token
     ) {
         super(SyntaxKind.InstantiationExpression);
 
+        this.keyword = keyword;
         this.type = type;
         this.opening = opening;
-        this.arguments = constructorOrInitialiserArguments;
+        this.arguments = constructorArguments;
         this.closing = closing;
-        this.hasInitialiser = hasInitialiser;
     }
 }

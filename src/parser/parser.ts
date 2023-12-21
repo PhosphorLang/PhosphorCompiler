@@ -712,6 +712,8 @@ export class Parser
                 return this.parseLiteralExpression();
             case TokenKind.IdentifierToken:
                 return this.parseIdentifierExpression();
+            case TokenKind.NewKeyword:
+                return this.parseInstantiationExpression();
             default:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -741,21 +743,14 @@ export class Parser
 
     private parseIdentifierExpression (): SyntaxNodes.Expression
     {
-        if (this.getPreviousToken().kind == TokenKind.NewOperator)
+        switch (this.getFollowerToken().kind)
         {
-            return this.parseInstantiationExpression();
-        }
-        else
-        {
-            switch (this.getFollowerToken().kind)
-            {
-                case TokenKind.DotToken:
-                    return this.parseAccessExpression();
-                case TokenKind.OpeningRoundBracketToken:
-                    return this.parseCallExpression();
-                default:
-                    return this.parseVariableExpression();
-            }
+            case TokenKind.DotToken:
+                return this.parseAccessExpression();
+            case TokenKind.OpeningRoundBracketToken:
+                return this.parseCallExpression();
+            default:
+                return this.parseVariableExpression();
         }
     }
 
@@ -803,57 +798,13 @@ export class Parser
 
     private parseInstantiationExpression (): SyntaxNodes.InstantiationExpression
     {
+        const keyword = this.consumeNextToken();
         const type = this.parseType();
         const opening = this.consumeNextToken();
-
-        let constructorOrInitialiserArguments: ElementsList<SyntaxNodes.Expression>;
-        let hasInitialiser;
-        switch (opening.kind)
-        {
-            case TokenKind.OpeningRoundBracketToken:
-                constructorOrInitialiserArguments = this.parseCallArguments();
-                hasInitialiser = false;
-                break;
-            case TokenKind.OpeningCurlyBracketToken:
-                constructorOrInitialiserArguments = this.parseInitialiserArguments();
-                hasInitialiser = true;
-                break;
-            default:
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `Unexpected token "${opening.content}" in instantiation expression`,
-                        Diagnostic.Codes.UnexpectedTokenInInstantiationExpressionError,
-                        opening
-                    )
-                );
-        }
-
+        const constructorArguments = this.parseCallArguments();
         const closing = this.consumeNextToken();
 
-        return new SyntaxNodes.InstantiationExpression(type, opening, constructorOrInitialiserArguments, closing, hasInitialiser);
-    }
-
-    private parseInitialiserArguments (): ElementsList<SyntaxNodes.Expression>
-    {
-        const elements: SyntaxNodes.Expression[] = [];
-        const separators: Token[] = [];
-
-        while ((this.getCurrentToken().kind != TokenKind.ClosingCurlyBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
-        {
-            const element = this.parseExpression();
-            elements.push(element);
-
-            if (this.getCurrentToken().kind == TokenKind.CommaToken)
-            {
-                separators.push(this.consumeNextToken());
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        return new ElementsList(elements, separators);
+        return new SyntaxNodes.InstantiationExpression(keyword, type, opening, constructorArguments, closing);
     }
 
     private parseVariableExpression (): SyntaxNodes.VariableExpression

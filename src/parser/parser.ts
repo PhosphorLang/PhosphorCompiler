@@ -106,6 +106,7 @@ export class Parser
                     break;
                 }
                 case TokenKind.FunctionKeyword:
+                case TokenKind.MethodKeyword:
                 {
                     const functionDeclaration = this.parseFunctionDeclaration(false);
                     functions.push(functionDeclaration);
@@ -278,13 +279,15 @@ export class Parser
         const type = this.parseTypeClause();
         const body = this.parseSection();
 
+        const isMethod = keyword.kind == TokenKind.MethodKeyword;
+
         if (isExternal)
         {
             // The semicolon:
             this.consumeNextToken();
         }
 
-        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isExternal);
+        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isMethod, isExternal);
     }
 
     private parseFunctionParameters (): ElementsList<SyntaxNodes.FunctionParameter>

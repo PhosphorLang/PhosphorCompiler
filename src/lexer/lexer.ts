@@ -374,6 +374,9 @@ export class Lexer
             case 'function':
                 kind = TokenKind.FunctionKeyword;
                 break;
+            case 'method':
+                kind = TokenKind.MethodKeyword;
+                break;
             case 'return':
                 kind = TokenKind.ReturnKeyword;
                 break;

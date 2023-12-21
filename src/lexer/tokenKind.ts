@@ -37,6 +37,7 @@ export enum TokenKind
     ClassKeyword,
     VarKeyword,
     FunctionKeyword,
+    MethodKeyword,
     ReturnKeyword,
     HeaderKeyword,
     IfKeyword,

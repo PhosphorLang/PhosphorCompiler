@@ -179,6 +179,7 @@ export class Lowerer
                 return IntermediateSize.Int8;
             case BuildInTypes.noType:
                 return IntermediateSize.Void;
+            case BuildInTypes.pointer:
             case BuildInTypes.string:
             default:
                 // TODO: How to prevent other value types (primitives) will be silently marked as pointers here in the future?
@@ -271,6 +272,12 @@ export class Lowerer
     ): IntermediateSymbols.Function
     {
         const parameterSizes: IntermediateSize[] = [];
+
+        if (semanticFunctionSymbol.isMethod)
+        {
+            parameterSizes.push(IntermediateSize.Pointer);
+        }
+
         for (const parameter of semanticFunctionSymbol.parameters)
         {
             const parameterSize = this.typeToSize(parameter.type);
@@ -603,6 +610,9 @@ export class Lowerer
             case SemanticKind.BinaryExpression:
                 this.lowerBinaryExpression(expression as SemanticNodes.BinaryExpression, intermediates, targetLocation);
                 break;
+            case SemanticKind.InitialisationExpression:
+                this.lowerInitialisationExpression(expression as SemanticNodes.InstantiationExpression, intermediates, targetLocation);
+                break;
             default:
                 throw new Error(`Lowerer error: No implementation for expression of kind "${expression.kind}"`);
         }
@@ -713,7 +723,14 @@ export class Lowerer
     {
         let parameterCounter = 0;
 
-        for (const argumentExpression of callExpression.arguments)
+        const argumentExpressions: SemanticNodes.Expression[] = [];
+        if (callExpression.thisReference !== null)
+        {
+            argumentExpressions.push(callExpression.thisReference);
+        }
+        argumentExpressions.push(...callExpression.arguments);
+
+        for (const argumentExpression of argumentExpressions)
         {
             const temporaryVariable = this.generateVariable(this.typeToSize(argumentExpression.type));
 
@@ -947,7 +964,8 @@ export class Lowerer
                 [
                     binaryExpression.leftOperand,
                     binaryExpression.rightOperand,
-                ]
+                ],
+                null
             );
 
             this.lowerCallExpression(callExpression, intermediates, targetLocation);
@@ -1039,6 +1057,33 @@ export class Lowerer
                         `and "${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                     );
             }
+        }
+    }
+
+    private lowerInitialisationExpression (
+        expression: SemanticNodes.InstantiationExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.Variable
+    ): void
+    {
+        this.lowerBuildInModuleIfNeeded(BuildInModules.memory);
+
+        const callExpression = new SemanticNodes.CallExpression(
+            BuildInFunctions.allocate,
+            BuildInModules.memory,
+            [
+                new SemanticNodes.LiteralExpression("1", BuildInTypes.int),
+                // TODO: As soon as classes can have fields, this must become a real value based on the classes size.
+            ],
+            null
+        );
+
+        this.lowerCallExpression(callExpression, intermediates, targetLocation);
+
+        // TODO: Call constructor.
+        if (expression.arguments.length > 0)
+        {
+            throw new Error(`Lowerer error: Initialisation expression with arguments is not implemented.`);
         }
     }
 }

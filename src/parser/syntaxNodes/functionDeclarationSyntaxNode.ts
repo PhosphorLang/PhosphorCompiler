@@ -15,6 +15,7 @@ export class FunctionDeclarationSyntaxNode extends SyntaxNode
     public readonly closing: Token;
     public readonly type: TypeClauseSyntaxNode|null;
     public readonly body: SectionSyntaxNode|null;
+    public readonly isMethod: boolean;
     public readonly isHeader: boolean;
 
     public get children (): Iterable<SyntaxNode>
@@ -30,6 +31,7 @@ export class FunctionDeclarationSyntaxNode extends SyntaxNode
         closing: Token,
         type: TypeClauseSyntaxNode|null,
         body: SectionSyntaxNode|null,
+        isMethod: boolean,
         isHeader: boolean)
     {
         super(SyntaxKind.FunctionDeclaration);
@@ -41,6 +43,7 @@ export class FunctionDeclarationSyntaxNode extends SyntaxNode
         this.closing = closing;
         this.type = type;
         this.body = body;
+        this.isMethod = isMethod;
         this.isHeader = isHeader;
     }
 }

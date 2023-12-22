@@ -7,9 +7,23 @@ export abstract class BuildInModules
         'String',
         'Standard.String',
         'Standard.String',
+        null,
         new Map(
             [
                 [BuildInFunctions.stringsAreEqual.name, BuildInFunctions.stringsAreEqual]
+            ]
+        ),
+        false
+    );
+
+    public static readonly memory = new ModuleSemanticSymbol(
+        'Memory',
+        'Standard.Memory',
+        'Standard.Memory',
+        null,
+        new Map(
+            [
+                [BuildInFunctions.allocate.name, BuildInFunctions.allocate]
             ]
         ),
         false

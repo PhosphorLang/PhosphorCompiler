@@ -32,6 +32,7 @@ export class Connector
      */
     private variableStacks: Map<string, SemanticSymbols.Variable>[];
 
+    private moduleIsClass: boolean;
     private currentModule: SemanticSymbols.Module|null;
     private currentFunction: SemanticSymbols.Function|null;
 
@@ -42,6 +43,7 @@ export class Connector
         this.importedFiles = new Map();
         this.functions = new Map();
         this.variableStacks = [];
+        this.moduleIsClass = false;
         this.currentModule = null;
         this.currentFunction = null;
     }
@@ -51,6 +53,7 @@ export class Connector
         this.importedFiles.clear();
         this.functions.clear();
         this.variableStacks = [];
+        this.moduleIsClass = false;
         this.currentModule = null;
         this.currentFunction = null;
 
@@ -136,6 +139,8 @@ export class Connector
             }
         }
 
+        this.moduleIsClass = file.module.isClass;
+
         // Function declarations:
         for (const functionDeclaration of file.functions)
         {
@@ -157,6 +162,7 @@ export class Connector
             functionNodes.push(functionNode);
         }
 
+        this.moduleIsClass = false;
         this.currentModule = null;
 
         return new SemanticNodes.File(file.fileName, moduleSymbol, importedModules, functionNodes);
@@ -168,11 +174,17 @@ export class Connector
         const pathName = module.namespace.pathName;
         const qualifiedName = module.namespace.qualifiedName;
 
+        let classType: SemanticSymbols.GenericType|null = null;
+        if (module.isClass)
+        {
+            classType = new SemanticSymbols.GenericType(name, []); // TODO: Implement generic classes.
+        }
+
         const functionsNameToSymbol = new Map(this.functions);
 
         const isEntryPoint = module.isEntryPoint;
 
-        return new SemanticSymbols.Module(name, pathName, qualifiedName, functionsNameToSymbol, isEntryPoint);
+        return new SemanticSymbols.Module(name, pathName, qualifiedName, classType, functionsNameToSymbol, isEntryPoint);
     }
 
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function
@@ -180,9 +192,21 @@ export class Connector
         const name = functionDeclaration.identifier.content;
         const returnType = this.connectTypeClause(functionDeclaration.type) ?? BuildInTypes.noType;
         const parameters = this.connectParameters(functionDeclaration.parameters);
+        const isMethod = functionDeclaration.isMethod;
         const isHeader = functionDeclaration.isHeader;
 
-        return new SemanticSymbols.Function(name, returnType, parameters, isHeader);
+        if (isMethod && !this.moduleIsClass)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'Methods can only be declared in classes.',
+                    Diagnostic.Codes.MethodInModuleWithoutClassError,
+                    functionDeclaration.identifier
+                )
+            );
+        }
+
+        return new SemanticSymbols.Function(name, returnType, parameters, isMethod, isHeader);
     }
 
     private connectTypeClause (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.ConcreteType|null
@@ -199,17 +223,23 @@ export class Connector
 
     private connectType (typeSyntaxNode: SyntaxNodes.Type): SemanticSymbols.ConcreteType
     {
-        const type = BuildInTypes.getTypeByName(typeSyntaxNode.identifier.content);
+        let type = BuildInTypes.getTypeByName(typeSyntaxNode.identifier.content);
 
         if (type === null)
         {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    `Unknown type "${typeSyntaxNode.identifier.content}"`,
-                    Diagnostic.Codes.UnknownTypeError,
-                    typeSyntaxNode.identifier
-                )
-            );
+            const importedClass = this.importedFiles.get(typeSyntaxNode.identifier.content);
+            type = importedClass?.module.classType ?? null;
+
+            if (type === null)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unknown type "${typeSyntaxNode.identifier.content}"`,
+                        Diagnostic.Codes.UnknownTypeError,
+                        typeSyntaxNode.identifier
+                    )
+                );
+            }
         }
 
         if (type.kind === SemanticSymbolKind.ConcreteType)
@@ -218,6 +248,7 @@ export class Connector
         }
 
         const genericType = type as SemanticSymbols.GenericType; // TODO: We should use a type guard here.
+        // TODO: Check if it really a SemanticSymbolKind.GenericType here.
 
         if (genericType.parameters.length !== typeSyntaxNode.arguments.elements.length)
         {
@@ -621,8 +652,8 @@ export class Connector
         {
             case SyntaxKind.LiteralExpression:
                 return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
-            case SyntaxKind.VectorInitialiserExpression:
-                return this.connectVectorInitialiserExpression(expression as SyntaxNodes.VectorInitialiserExpression);
+            case SyntaxKind.InstantiationExpression:
+                return this.connectInstantiationExpression(expression as SyntaxNodes.InstantiationExpression);
             case SyntaxKind.VariableExpression:
                 return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
             case SyntaxKind.CallExpression:
@@ -679,57 +710,20 @@ export class Connector
         return new SemanticNodes.LiteralExpression(value, type);
     }
 
-    private connectVectorInitialiserExpression (expression: SyntaxNodes.VectorInitialiserExpression):
-        SemanticNodes.VectorInitialiserExpression
+    private connectInstantiationExpression (expression: SyntaxNodes.InstantiationExpression): SemanticNodes.InstantiationExpression
     {
-        if (expression.elements.elements.length == 0)
-        {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    'A vector initialiser must contain at least one element.',
-                    Diagnostic.Codes.EmptyVectorInitialiserError,
-                    expression.token
-                )
-            );
-        }
-
-        const vectorType = this.connectType(expression.type);
-
-        if (expression.elements.elements.length != vectorType.parameters.length)
-        {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    `Vector initialiser of type "${vectorType.name}" must contain exactly ${vectorType.parameters.length} elements.`,
-                    Diagnostic.Codes.WrongVectorInitialiserElementCountError,
-                    expression.token
-                )
-            );
-        }
-
-        const vectorElementsType = vectorType.parameters[0].type; // HACK: We know the first parameter is the elements' type.
+        const type = this.connectType(expression.type);
 
         const elements: SemanticNodes.Expression[] = [];
-        for (const element of expression.elements.elements)
+        for (const element of expression.arguments.elements)
         {
             const connectedExpression = this.connectExpression(element);
-
-            if (!connectedExpression.type.equals(vectorElementsType))
-            {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        // TODO: Only printing the vector type's name (which is "Vector") is not helpful.
-                        `Vector initialiser of type "${vectorType.name}" contains an incompatible expression of type` +
-                        ` "${connectedExpression.type.name}"`,
-                        Diagnostic.Codes.VectorInitialiserContainsExpressionOfWrongTypeError,
-                        element.token
-                    )
-                );
-            }
-
             elements.push(connectedExpression);
+
+            // TODO: As soon as there is a constructor, we must check the arguments' types here.
         }
 
-        return new SemanticNodes.VectorInitialiserExpression(elements, vectorType);
+        return new SemanticNodes.InstantiationExpression(type, elements);
     }
 
     private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression
@@ -754,7 +748,8 @@ export class Connector
 
     private connectCallExpression (
         expression: SyntaxNodes.CallExpression,
-        inModule: SemanticSymbols.Module|null = null
+        inModule: SemanticSymbols.Module|null = null,
+        thisReference: SemanticSymbols.Variable|null = null
     ): SemanticNodes.CallExpression
     {
         let functionSymbol: SemanticSymbols.Function|undefined;
@@ -824,10 +819,29 @@ export class Connector
             }
         }
 
-        return new SemanticNodes.CallExpression(functionSymbol, module, callArguments);
+        let thisExpression: SemanticNodes.VariableExpression|null = null;
+        if (thisReference !== null)
+        {
+            thisExpression = new SemanticNodes.VariableExpression(thisReference);
+        }
+
+        return new SemanticNodes.CallExpression(functionSymbol, module, callArguments, thisExpression);
     }
 
     private connectAccessExpression (expression: SyntaxNodes.AccessExpression): SemanticNodes.CallExpression
+    {
+        const foundVariable = this.getVariable(expression.identifier.content);
+        if (foundVariable === null)
+        {
+            return this.connectModuleAccessExpression(expression);
+        }
+        else
+        {
+            return this.connectObjectAccessExpression(expression, foundVariable);
+        }
+    }
+
+    private connectModuleAccessExpression (expression: SyntaxNodes.AccessExpression): SemanticNodes.CallExpression
     {
         const importedFile = this.importedFiles.get(expression.identifier.content);
 
@@ -858,6 +872,39 @@ export class Connector
                 return this.connectCallExpression(expression.functionCall, importedFile.module);
             }
         }
+    }
+
+    private connectObjectAccessExpression (
+        expression: SyntaxNodes.AccessExpression,
+        objectToAccess?: SemanticSymbols.Variable
+    ): SemanticNodes.CallExpression
+    {
+        const objectVariable = objectToAccess ?? this.getVariable(expression.identifier.content);
+        if (objectVariable === null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Unknown variable "${expression.identifier.content}"`,
+                    Diagnostic.Codes.UnknownVariableError,
+                    expression.identifier
+                )
+            );
+        }
+
+        const importedFile = this.importedFiles.get(objectVariable.type.name);
+        // TODO: Should we look for the class type by symbols instead of the module name here?
+        if (importedFile === undefined)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Cannot access "${expression.identifier.content}" of unkown type "${objectVariable.type.name}"`,
+                    Diagnostic.Codes.AccessOfUnknownTypeError,
+                    expression.identifier
+                )
+            );
+        }
+
+        return this.connectCallExpression(expression.functionCall, importedFile.module, objectVariable);
     }
 
     private connectBracketedExpression (expression: SyntaxNodes.BracketedExpression): SemanticNodes.Expression

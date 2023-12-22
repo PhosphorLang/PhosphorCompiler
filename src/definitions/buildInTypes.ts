@@ -7,13 +7,7 @@ export abstract class BuildInTypes
     public static readonly int = new SemanticSymbols.ConcreteType('Int', []); // TODO: Is often misused for UInts. Should be corrected.
     public static readonly bool = new SemanticSymbols.ConcreteType('Bool', []);
     public static readonly string = new SemanticSymbols.ConcreteType('String', []);
-    public static readonly vector = new SemanticSymbols.GenericType(
-        'Vector',
-        [
-            new SemanticSymbols.GenericParameter('Type', false),
-            new SemanticSymbols.GenericParameter('Size', true), // TODO: What would the capitalisation convention be here?
-        ]
-    );
+    public static readonly pointer = new SemanticSymbols.ConcreteType('Pointer', []);
 
     public static getTypeByName (name: string): SemanticSymbols.Type|null
     {
@@ -25,8 +19,8 @@ export abstract class BuildInTypes
                 return this.string;
             case 'Bool':
                 return this.bool;
-            case 'Vector':
-                return this.vector;
+            case 'Pointer':
+                return this.pointer;
             default:
                 return null;
         }

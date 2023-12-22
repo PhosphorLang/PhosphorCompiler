@@ -8,6 +8,7 @@ export class ModuleSyntaxNode extends SyntaxNode
     public readonly keyword: Token;
     public readonly namespace: Namespace;
 
+    public readonly isClass: boolean;
     public isEntryPoint: boolean;
 
     public get children (): Iterable<SyntaxNode>
@@ -15,13 +16,14 @@ export class ModuleSyntaxNode extends SyntaxNode
         return [];
     }
 
-    constructor (keyword: Token, namespace: Namespace)
+    constructor (keyword: Token, namespace: Namespace, isClass: boolean)
     {
         super(SyntaxKind.Module);
 
         this.keyword = keyword;
         this.namespace = namespace;
 
+        this.isClass = isClass;
         this.isEntryPoint = false;
     }
 }

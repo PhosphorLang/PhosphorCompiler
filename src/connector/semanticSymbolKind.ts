@@ -9,7 +9,6 @@ export enum SemanticSymbolKind
     ConcreteType = 'ConcreteType',
     TypeConcreteParameter = 'TypeConcreteParameter',
     LiteralConcreteParameter = 'LiteralConcreteParameter',
-    VectorType = 'VectorType',
     Label = 'Label',
     // TODO: Sort alphabetically.
 }

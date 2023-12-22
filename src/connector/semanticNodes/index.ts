@@ -1,6 +1,5 @@
 export { SemanticNode } from './semanticNode';
 
-export { VectorInitialiserExpressionSemanticNode as VectorInitialiserExpression } from './vectorInitialiserExpressionSemanticNode';
 export { AssignmentSemanticNode as Assignment } from './assignmentSemanticNode';
 export { BinaryExpressionSemanticNode as BinaryExpression } from './binaryExpressionSemanticNode';
 export { CallExpressionSemanticNode as CallExpression } from './callExpressionSemanticNode';
@@ -11,6 +10,7 @@ export { FileSemanticNode as File } from './fileSemanticNode';
 export { FunctionDeclarationSemanticNode as FunctionDeclaration } from './functionDeclarationSemanticNode';
 export { GotoStatementSemanticNode as GotoStatement } from './gotoStatementSemanticNode';
 export { IfStatementSemanticNode as IfStatement } from './ifStatementSemanticNode';
+export { InstantiationExpressionSemanticNode as InstantiationExpression } from './instantiationExpressionSemanticNode';
 export { LabelSemanticNode as Label } from './labelSemanticNode';
 export { LiteralExpressionSemanticNode as LiteralExpression } from './literalExpressionSemanticNode';
 export { ReturnStatementSemanticNode as ReturnStatement } from './returnStatementSemanticNode';

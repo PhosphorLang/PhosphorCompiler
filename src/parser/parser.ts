@@ -94,6 +94,7 @@ export class Parser
             switch (this.getCurrentToken().kind)
             {
                 case TokenKind.ModuleKeyword:
+                case TokenKind.ClassKeyword:
                 {
                     module = this.parseModule();
                     break;
@@ -105,6 +106,7 @@ export class Parser
                     break;
                 }
                 case TokenKind.FunctionKeyword:
+                case TokenKind.MethodKeyword:
                 {
                     const functionDeclaration = this.parseFunctionDeclaration(false);
                     functions.push(functionDeclaration);
@@ -152,7 +154,9 @@ export class Parser
         const keyword = this.consumeNextToken();
         const moduleNamespace = this.parseNamespace();
 
-        return new SyntaxNodes.Module(keyword, moduleNamespace);
+        const isClass = keyword.kind == TokenKind.ClassKeyword;
+
+        return new SyntaxNodes.Module(keyword, moduleNamespace, isClass);
     }
 
     private parseImport (): SyntaxNodes.Import
@@ -275,13 +279,15 @@ export class Parser
         const type = this.parseTypeClause();
         const body = this.parseSection();
 
+        const isMethod = keyword.kind == TokenKind.MethodKeyword;
+
         if (isExternal)
         {
             // The semicolon:
             this.consumeNextToken();
         }
 
-        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isExternal);
+        return new SyntaxNodes.FunctionDeclaration(keyword, identifier, opening, parameters, closing, type, body, isMethod, isExternal);
     }
 
     private parseFunctionParameters (): ElementsList<SyntaxNodes.FunctionParameter>
@@ -706,6 +712,8 @@ export class Parser
                 return this.parseLiteralExpression();
             case TokenKind.IdentifierToken:
                 return this.parseIdentifierExpression();
+            case TokenKind.NewKeyword:
+                return this.parseInstantiationExpression();
             default:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -741,10 +749,6 @@ export class Parser
                 return this.parseAccessExpression();
             case TokenKind.OpeningRoundBracketToken:
                 return this.parseCallExpression();
-            case TokenKind.OpeningCurlyBracketToken:
-            case TokenKind.OpeningSquareBracketToken:
-                // FIXME: This wrongly detects "if a = b {" as a vector!
-                return this.parseVectorInitialiserExpression();
             default:
                 return this.parseVariableExpression();
         }
@@ -792,37 +796,15 @@ export class Parser
         return new ElementsList(expressions, separators);
     }
 
-    private parseVectorInitialiserExpression (): SyntaxNodes.VectorInitialiserExpression
+    private parseInstantiationExpression (): SyntaxNodes.InstantiationExpression
     {
+        const keyword = this.consumeNextToken();
         const type = this.parseType();
         const opening = this.consumeNextToken();
-        const elements = this.parseVectorInitialiserElements();
+        const constructorArguments = this.parseCallArguments();
         const closing = this.consumeNextToken();
 
-        return new SyntaxNodes.VectorInitialiserExpression(type, opening, elements, closing);
-    }
-
-    private parseVectorInitialiserElements (): ElementsList<SyntaxNodes.Expression>
-    {
-        const elements: SyntaxNodes.Expression[] = [];
-        const separators: Token[] = [];
-
-        while ((this.getCurrentToken().kind != TokenKind.ClosingCurlyBracketToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
-        {
-            const element = this.parseExpression();
-            elements.push(element);
-
-            if (this.getCurrentToken().kind == TokenKind.CommaToken)
-            {
-                separators.push(this.consumeNextToken());
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        return new ElementsList(elements, separators);
+        return new SyntaxNodes.InstantiationExpression(keyword, type, opening, constructorArguments, closing);
     }
 
     private parseVariableExpression (): SyntaxNodes.VariableExpression

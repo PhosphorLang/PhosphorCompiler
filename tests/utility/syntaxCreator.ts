@@ -19,11 +19,13 @@ export abstract class SyntaxCreator
 
     public static newModule (
         namespace = SyntaxCreator.newNamespace(),
+        isClass = false
     ): SyntaxNodes.Module
     {
         return new SyntaxNodes.Module(
             TokenCreator.newModuleKeyword(),
-            namespace
+            namespace,
+            isClass
         );
     }
 
@@ -42,6 +44,7 @@ export abstract class SyntaxCreator
         type: SyntaxNodes.TypeClause|null = null,
         identifier = TokenCreator.newIdentifier(),
         isExternal = false,
+        isMethod = false // TODO: Swap with isExternal.
     ): SyntaxNodes.FunctionDeclaration
     {
         return new SyntaxNodes.FunctionDeclaration(
@@ -52,6 +55,7 @@ export abstract class SyntaxCreator
             TokenCreator.newClosingRoundBrackets(),
             type,
             section,
+            isMethod,
             isExternal
         );
     }

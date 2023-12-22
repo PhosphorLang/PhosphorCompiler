@@ -374,6 +374,9 @@ export class Lexer
             case 'function':
                 kind = TokenKind.FunctionKeyword;
                 break;
+            case 'method':
+                kind = TokenKind.MethodKeyword;
+                break;
             case 'return':
                 kind = TokenKind.ReturnKeyword;
                 break;
@@ -398,8 +401,14 @@ export class Lexer
             case 'module':
                 kind = TokenKind.ModuleKeyword;
                 break;
+            case 'class':
+                kind = TokenKind.ClassKeyword;
+                break;
             case 'import':
                 kind = TokenKind.ImportKeyword;
+                break;
+            case 'new':
+                kind = TokenKind.NewKeyword;
                 break;
             default:
                 kind = TokenKind.IdentifierToken;

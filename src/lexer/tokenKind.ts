@@ -33,8 +33,10 @@ export enum TokenKind
     OrOperator,
     // Keywords
     ModuleKeyword,
+    ClassKeyword,
     VarKeyword,
     FunctionKeyword,
+    MethodKeyword,
     ReturnKeyword,
     HeaderKeyword,
     IfKeyword,
@@ -43,4 +45,5 @@ export enum TokenKind
     TrueKeyword,
     FalseKeyword,
     ImportKeyword,
+    NewKeyword,
 }

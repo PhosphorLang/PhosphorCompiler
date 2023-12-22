@@ -617,7 +617,7 @@ describe('Parser',
             }
         );
 
-        it('can parse a parenthesized expression.',
+        it('can parse a bracketed expression.',
             function ()
             {
                 const input = [

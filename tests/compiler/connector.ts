@@ -340,7 +340,7 @@ describe('Connector',
             }
         );
 
-        it('can connect a parenthesized expression.',
+        it('can connect a bracketed expression.',
             function ()
             {
                 const input = SyntaxCreator.newFile(

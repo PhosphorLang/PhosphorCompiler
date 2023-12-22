@@ -118,6 +118,11 @@ export class Parser
                     functions.push(functionDeclaration);
                     break;
                 }
+                case TokenKind.LineCommentToken:
+                case TokenKind.BlockCommentToken:
+                    this.consumeNextToken();
+                    // TODO: Instead of ignoring the comment here, the lexer should add it as trivia to real tokens.
+                    break;
                 default:
                     this.diagnostic.throw(
                         new Diagnostic.Error(
@@ -429,14 +434,16 @@ export class Parser
 
         while (true)
         {
-            while (this.getCurrentToken().kind == TokenKind.LineCommentToken)
+            let currentToken = this.getCurrentToken();
+            while ((currentToken.kind == TokenKind.LineCommentToken) || (currentToken.kind == TokenKind.BlockCommentToken))
             {
                 this.consumeNextToken();
+                currentToken = this.getCurrentToken();
 
                 // TODO: Instead of ignoring the comment here, the lexer should add it as trivia to real tokens.
             }
 
-            if ((this.getCurrentToken().kind == TokenKind.ClosingCurlyBracketToken) || (this.getCurrentToken().kind == TokenKind.NoToken))
+            if ((currentToken.kind == TokenKind.ClosingCurlyBracketToken) || (currentToken.kind == TokenKind.NoToken))
             {
                 break;
             }
@@ -626,7 +633,8 @@ export class Parser
 
     private isAssignment (): boolean
     {
-        const result = (this.getCurrentToken().kind == TokenKind.IdentifierToken) && (this.getFollowerToken().kind == TokenKind.AssignmentOperator);
+        const result = (this.getCurrentToken().kind == TokenKind.IdentifierToken)
+            && (this.getFollowerToken().kind == TokenKind.AssignmentOperator);
 
         return result;
     }

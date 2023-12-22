@@ -45,7 +45,7 @@ export abstract class SemanticCreator
             qualifiedName = prefix + ':' + pathName;
         }
 
-        return new SemanticSymbols.Module(name, pathName, qualifiedName, new Map(), isEntryPoint);
+        return new SemanticSymbols.Module(name, pathName, qualifiedName, null, new Map(), isEntryPoint);
     }
 
     public static newFunctionDeclaration (
@@ -66,9 +66,10 @@ export abstract class SemanticCreator
         returnType = BuildInTypes.noType,
         name = Defaults.identifier,
         isExternal = false,
+        isMethod = false, // TODO: Swap with isExternal.
     ): SemanticSymbols.Function
     {
-        return new SemanticSymbols.Function(name, returnType, parameters, isExternal);
+        return new SemanticSymbols.Function(name, returnType, parameters, isMethod, isExternal);
     }
 
     public static newFunctionParameter (type = BuildInTypes.int, name = Defaults.variableName): SemanticSymbols.FunctionParameter
@@ -82,7 +83,7 @@ export abstract class SemanticCreator
         ownerModule = SemanticCreator.newModule()
     ): SemanticNodes.CallExpression
     {
-        return new SemanticNodes.CallExpression(symbol, ownerModule, callArguments);
+        return new SemanticNodes.CallExpression(symbol, ownerModule, callArguments, null);
     }
 
     public static newVariableDeclaration (

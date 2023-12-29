@@ -7,7 +7,7 @@ function getMax (): Int
 
 function testWhileLoop (): Bool
 {
-    var counter := 0;
+    let counter := 0;
 
     while counter < getMax()
     {

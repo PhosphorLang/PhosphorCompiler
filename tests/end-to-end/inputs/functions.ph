@@ -2,14 +2,14 @@ module Functions;
 
 function add (a: Int, b: Int): Int
 {
-    var result := a + b;
+    let result := a + b;
 
     return result;
 }
 
 function testAdd (): Int
 {
-    var sum := add(1, 2);
+    let sum := add(1, 2);
 
     return sum;
 }

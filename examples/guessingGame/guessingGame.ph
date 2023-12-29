@@ -8,18 +8,18 @@ function main ()
 {
     Random.randomise();
 
-    var number := Random.getRandom(100) + 1;
+    let number := Random.getRandom(100) + 1;
 
     Io.writeLine('I have picked a number between 1 and 100. Guess it!');
 
-    var stillGuessing := true;
-    var tryCount := 0;
+    let stillGuessing := true;
+    let tryCount := 0;
 
     while stillGuessing
     {
-        var input := Io.readLine();
+        let input := Io.readLine();
 
-        var inputNumber := Conversion.stringToInt(input);
+        let inputNumber := Conversion.stringToInt(input);
 
         tryCount := tryCount + 1;
 
@@ -39,7 +39,7 @@ function main ()
         }
     }
 
-    var score := Conversion.intToString(tryCount);
+    let score := Conversion.intToString(tryCount);
 
     Io.writeLine('Your score:');
     Io.writeLine(score);

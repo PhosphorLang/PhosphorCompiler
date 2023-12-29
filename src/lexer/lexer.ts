@@ -368,8 +368,8 @@ export class Lexer
 
         switch (content)
         {
-            case 'var':
-                kind = TokenKind.VarKeyword;
+            case 'let':
+                kind = TokenKind.LetKeyword;
                 break;
             case 'function':
                 kind = TokenKind.FunctionKeyword;

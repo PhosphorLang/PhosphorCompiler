@@ -18,13 +18,13 @@ function calculateFibonacci (n: Int): Int
 function main ()
 {
     Io.writeLine('Input number:');
-    var input := Io.readLine();
+    let input := Io.readLine();
 
-    var inputNumber := Conversion.stringToInt(input);
+    let inputNumber := Conversion.stringToInt(input);
 
-    var result := calculateFibonacci(inputNumber);
+    let result := calculateFibonacci(inputNumber);
 
-    var resultString := Conversion.intToString(result);
+    let resultString := Conversion.intToString(result);
 
     Io.writeLine('Output number:');
     Io.writeLine(resultString);

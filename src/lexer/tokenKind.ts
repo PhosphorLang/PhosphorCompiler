@@ -34,7 +34,7 @@ export enum TokenKind
     // Keywords
     ModuleKeyword,
     ClassKeyword,
-    VarKeyword,
+    LetKeyword,
     FunctionKeyword,
     MethodKeyword,
     ReturnKeyword,

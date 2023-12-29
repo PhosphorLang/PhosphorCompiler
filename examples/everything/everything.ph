@@ -4,7 +4,7 @@ import Standard.Io;
 
 function add (a: Int, b: Int): Int
 {
-    var result := a + b;
+    let result := a + b;
 
     return result;
 }
@@ -16,12 +16,12 @@ function getHelloWorld (): String
 
 function main ()
 {
-    var text := getHelloWorld();
+    let text := getHelloWorld();
 
     Io.writeLine(text);
     Io.writeLine('Your name:');
 
-    var name := Io.readLine();
+    let name := Io.readLine();
 
     Io.writeLine('Your name is:');
     Io.writeLine(name);

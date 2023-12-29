@@ -150,9 +150,9 @@ export abstract class TokenCreator
         return new Token(TokenKind.ModuleKeyword, 'module');
     }
 
-    public static newVarKeyword (): Token
+    public static newLetKeyword (): Token
     {
-        return new Token(TokenKind.VarKeyword, 'var');
+        return new Token(TokenKind.LetKeyword, 'let');
     }
 
     public static newFunctionKeyword (): Token

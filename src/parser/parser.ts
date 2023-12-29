@@ -465,7 +465,7 @@ export class Parser
 
         switch (this.getCurrentToken().kind)
         {
-            case TokenKind.VarKeyword:
+            case TokenKind.LetKeyword:
                 result = this.parseVariableDeclaration();
                 break;
             case TokenKind.ReturnKeyword:

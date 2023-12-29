@@ -4,7 +4,7 @@ import Standard.Io;
 
 function main ()
 {
-    var input := Io.readLine();
+    let input := Io.readLine();
 
     Io.writeLine(input);
 }

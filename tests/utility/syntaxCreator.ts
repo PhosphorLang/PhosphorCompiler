@@ -123,7 +123,7 @@ export abstract class SyntaxCreator
     {
         const assignment = initialiser === null ? null : TokenCreator.newAssignment();
 
-        return new SyntaxNodes.VariableDeclaration(TokenCreator.newVarKeyword(), identifier, typeClause, assignment, initialiser);
+        return new SyntaxNodes.VariableDeclaration(TokenCreator.newLetKeyword(), identifier, typeClause, assignment, initialiser);
     }
 
     public static newAssignment (

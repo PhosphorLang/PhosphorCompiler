@@ -4,8 +4,8 @@ import Standard.Io;
 
 function main ()
 {
-    var counter := 0;
-    var continueLoop := true;
+    let counter := 0;
+    let continueLoop := true;
 
     while continueLoop
     {

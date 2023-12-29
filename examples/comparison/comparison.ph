@@ -5,9 +5,9 @@ import Standard.Conversion;
 
 function main ()
 {
-    var a := 1;
-    var b := 2;
-    var c := 2;
+    let a := 1;
+    let b := 2;
+    let c := 2;
 
     Io.writeLine(Conversion.intToString(a));
     Io.writeLine(Conversion.intToString(b));

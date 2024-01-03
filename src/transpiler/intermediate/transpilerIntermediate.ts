@@ -64,6 +64,8 @@ export class TranspilerIntermediate
                 return 'constant';
             case IntermediateKind.External:
                 return 'external';
+            case IntermediateKind.Global:
+                return 'global';
             case IntermediateKind.Add:
                 return 'add';
             case IntermediateKind.And:
@@ -154,6 +156,18 @@ export class TranspilerIntermediate
             );
         }
 
+        for (const global of fileIntermediate.globals)
+        {
+            this.transpileGlobal(global);
+        }
+
+        if (fileIntermediate.globals.length > 0)
+        {
+            this.instructions.push(
+                new Instructions.Instruction('') // Empty line
+            );
+        }
+
         for (const functionNode of fileIntermediate.functions)
         {
             this.transpileFunction(functionNode);
@@ -186,6 +200,17 @@ export class TranspilerIntermediate
             externalIntermediate.symbol.name,
             externalIntermediate.symbol.parameters,
             externalIntermediate.symbol.returnSize
+        );
+
+        this.instructions.push(instruction);
+    }
+
+    private transpileGlobal (globalIntermediate: Intermediates.Global): void
+    {
+        const instruction = new Instructions.Instruction(
+            this.getIntermediateInstructionString(globalIntermediate),
+            globalIntermediate.symbol.name + ':',
+            globalIntermediate.symbol.size,
         );
 
         this.instructions.push(instruction);

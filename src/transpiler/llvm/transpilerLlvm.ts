@@ -72,6 +72,7 @@ export class TranspilerLlvm
                 new LlvmInstructions.Function('define', 'void', '@_start', []),
                 new Instructions.Instruction('{'),
                 new Instructions.Label('entry'),
+                new Instructions.Instruction('call', 'void', '@":initialisation"', '()'),
                 new Instructions.Instruction('call', 'void', '@main', '()'),
                 new Instructions.Instruction('call', 'void', '@Standard.System.exit', '()'),
                 new Instructions.Instruction('ret', 'void'),
@@ -139,6 +140,17 @@ export class TranspilerLlvm
         return '@' + this.getLlvmName(intermediateSymbol);
     }
 
+    private getLlvmVariableName (intermediateSymbol: IntermediateSymbols.Variable): string
+    {
+        switch (intermediateSymbol.kind)
+        {
+            case IntermediateSymbolKind.LocalVariable:
+                return this.getLlvmLocalName(intermediateSymbol);
+            case IntermediateSymbolKind.GlobalVariable:
+                return this.getLlvmGlobalName(intermediateSymbol);
+        }
+    }
+
     private getLlvmSizeString (intermediateSize: IntermediateSize): string
     {
         switch (intermediateSize)
@@ -169,7 +181,7 @@ export class TranspilerLlvm
     {
         const registerName = this.nextVariableName;
 
-        const fromVariableName = this.getLlvmLocalName(variable);
+        const fromVariableName = this.getLlvmVariableName(variable);
         const fromSizeString = this.getLlvmSizeString(variable.size);
 
         this.instructions.push(
@@ -199,7 +211,7 @@ export class TranspilerLlvm
                 this.getLlvmSizeString(variable.size),
                 fromString + ',',
                 this.pointerSizeString,
-                this.getLlvmLocalName(variable),
+                this.getLlvmVariableName(variable),
             )
         );
     }
@@ -224,6 +236,18 @@ export class TranspilerLlvm
         }
 
         if (fileIntermediate.externals.length > 0)
+        {
+            this.instructions.push(
+                new Instructions.Instruction('') // Empty line
+            );
+        }
+
+        for (const global of fileIntermediate.globals)
+        {
+            this.transpileGlobal(global);
+        }
+
+        if (fileIntermediate.globals.length > 0)
         {
             this.instructions.push(
                 new Instructions.Instruction('') // Empty line
@@ -285,6 +309,17 @@ export class TranspilerLlvm
             this.getLlvmSizeString(externalIntermediate.symbol.returnSize),
             this.getLlvmGlobalName(externalIntermediate.symbol),
             parameters,
+        );
+
+        this.instructions.push(instruction);
+    }
+    private transpileGlobal (globalIntermediate: Intermediates.Global): void
+    {
+        const instruction = new LlvmInstructions.Assignment(
+            this.getLlvmGlobalName(globalIntermediate.symbol),
+            'global',
+            this.getLlvmSizeString(globalIntermediate.symbol.size),
+            'zeroinitializer',
         );
 
         this.instructions.push(instruction);
@@ -575,7 +610,7 @@ export class TranspilerLlvm
                 'load',
                 targetSizeString + ',',
                 this.pointerSizeString,
-                this.getLlvmLocalName(giveIntermediate.variable),
+                this.getLlvmVariableName(giveIntermediate.variable),
             ),
         );
 
@@ -615,7 +650,7 @@ export class TranspilerLlvm
     {
         this.variableIntroductions.push(
             new LlvmInstructions.Assignment(
-                this.getLlvmLocalName(introduceIntermediate.variableSymbol),
+                this.getLlvmVariableName(introduceIntermediate.variableSymbol),
                 'alloca',
                 this.getLlvmSizeString(introduceIntermediate.variableSymbol.size),
             )
@@ -739,7 +774,8 @@ export class TranspilerLlvm
 
                 break;
             }
-            case IntermediateSymbolKind.Variable:
+            case IntermediateSymbolKind.LocalVariable:
+            case IntermediateSymbolKind.GlobalVariable:
             {
                 const temporaryRegister = this.loadIntoRegister(moveIntermediate.from);
                 this.storeIntoVariable(temporaryRegister, moveIntermediate.to);

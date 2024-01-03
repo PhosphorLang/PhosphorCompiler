@@ -2,9 +2,11 @@ import Standard.Io;
 
 module ModulesExample.MyModule;
 
+variable helloFromModule := 'Hello got from MyModule!';
+
 function getHello (): String
 {
-    return 'Hello got from MyModule!';
+    return helloFromModule;
 }
 
 function sayHello ()

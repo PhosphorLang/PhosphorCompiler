@@ -17,6 +17,7 @@ import { Parser } from './parser/parser';
 import Path from 'path';
 import { TargetPlatform } from './options/targetPlatform';
 import { TranspilerIntermediate } from './transpiler/intermediate/transpilerIntermediate';
+import { ModuleSemanticSymbol } from './connector/semanticSymbols/moduleSemanticSymbol';
 
 class Main
 {
@@ -112,12 +113,18 @@ class Main
 
             const importOrderedSyntaxTrees = importer.run(entrySyntaxTree, syntaxTrees);
             const qualifiedNameToFile = new Map<string, FileSemanticNode>();
+            const modulesWithInitialisers: Set<ModuleSemanticSymbol> = new Set();
 
             for (const syntaxTree of importOrderedSyntaxTrees)
             {
                 const fileSemanticTree = connector.run(syntaxTree, qualifiedNameToFile);
                 // TODO: Check if the qualified name is already in the map.
                 qualifiedNameToFile.set(fileSemanticTree.module.qualifiedName, fileSemanticTree);
+
+                if ((fileSemanticTree.variables.length > 0) && !fileSemanticTree.module.isEntryPoint)
+                {
+                    modulesWithInitialisers.add(fileSemanticTree.module);
+                }
             }
 
             let backend: LinuxAmd64Backend;
@@ -135,7 +142,7 @@ class Main
                 const intermediateFiles: FileIntermediate[] = [];
                 for (const [, fileSemanticTree] of qualifiedNameToFile)
                 {
-                    const intermediateLanguage = lowerer.run(fileSemanticTree);
+                    const intermediateLanguage = lowerer.run(fileSemanticTree, modulesWithInitialisers);
                     intermediateFiles.push(intermediateLanguage);
                 }
 
@@ -148,7 +155,7 @@ class Main
                 const objectFiles: string[] = [];
                 for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
                 {
-                    const intermediateLanguage = lowerer.run(fileSemanticTree);
+                    const intermediateLanguage = lowerer.run(fileSemanticTree, modulesWithInitialisers);
 
                     if (this.arguments.intermediate)
                     {

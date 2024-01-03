@@ -34,7 +34,7 @@ describe('End-to-end, the compiler',
             const tokens = lexer.run(input, '');
             const syntaxTree = parser.run(tokens, '');
             const semanticTree = connector.run(syntaxTree, new Map());
-            const intermediateTree = lowerer.run(semanticTree);
+            const intermediateTree = lowerer.run(semanticTree, new Set());
             const intermediateCode = transpiler.run(intermediateTree);
 
             return intermediateCode;

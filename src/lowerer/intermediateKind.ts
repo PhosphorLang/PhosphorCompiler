@@ -13,6 +13,7 @@ export enum IntermediateKind
     Dismiss = 'Dismiss',
     Divide = 'Divide',
     Give = 'Give',
+    Global = 'Global',
     Goto = 'Goto',
     Introduce = 'Introduce',
     JumpIfEqual = 'JumpIfEqual',

@@ -391,7 +391,7 @@ export class IntermediateInterpreter
 
                 break;
             }
-            case IntermediateSymbolKind.Variable:
+            case IntermediateSymbolKind.LocalVariable:
             {
                 const value = this.getVariableFromStack(moveIntermediate.from, functionStack);
 

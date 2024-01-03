@@ -22,7 +22,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -45,7 +45,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -70,7 +70,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -107,7 +107,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -121,7 +121,7 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration()
+                                    SemanticCreator.newLocalVariableDeclaration()
                                 ]
                             )
                         )
@@ -136,7 +136,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -152,7 +152,7 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(undefined, semanticVariableSymbol),
+                                    SemanticCreator.newLocalVariableDeclaration(undefined, semanticVariableSymbol),
                                     SemanticCreator.newAssignment(
                                         SemanticCreator.newIntegerLiteral(),
                                         semanticVariableSymbol
@@ -163,7 +163,7 @@ describe('Lowerer',
                     ]
                 );
 
-                const intermediateVariableSymbol = IntermediateCreator.newVariableSymbol();
+                const intermediateVariableSymbol = IntermediateCreator.newLocalVariableSymbol();
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -180,7 +180,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -194,7 +194,7 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerLiteral()
                                     )
                                 ]
@@ -203,7 +203,7 @@ describe('Lowerer',
                     ]
                 );
 
-                const intermediateVariableSymbol = IntermediateCreator.newVariableSymbol();
+                const intermediateVariableSymbol = IntermediateCreator.newLocalVariableSymbol();
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -220,7 +220,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -236,11 +236,11 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerLiteral(),
                                         semanticVariableSymbol
                                     ),
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newVariableExpression(semanticVariableSymbol),
                                         SemanticCreator.newVariableSymbol(
                                             undefined,
@@ -253,8 +253,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const variableSymbol0 = IntermediateCreator.newVariableSymbol();
-                const variableSymbol1 = IntermediateCreator.newVariableSymbol(1);
+                const variableSymbol0 = IntermediateCreator.newLocalVariableSymbol();
+                const variableSymbol1 = IntermediateCreator.newLocalVariableSymbol(1);
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -274,7 +274,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -288,7 +288,7 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerAddition()
                                     )
                                 ]
@@ -297,8 +297,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const variableSymbol0 = IntermediateCreator.newVariableSymbol();
-                const variableSymbol1 = IntermediateCreator.newVariableSymbol(1);
+                const variableSymbol0 = IntermediateCreator.newLocalVariableSymbol();
+                const variableSymbol1 = IntermediateCreator.newLocalVariableSymbol(1);
 
                 const expectedResult = IntermediateCreator.newFile(
                     [
@@ -319,7 +319,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -333,7 +333,7 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newBinaryExpression(
                                             SemanticCreator.newIntegerLiteral(),
                                             BuildInOperators.binaryIntEqual,
@@ -347,9 +347,9 @@ describe('Lowerer',
                     ]
                 );
 
-                const resultVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
-                const leftOperandVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Native);
-                const rightOperandVariableSymbol = IntermediateCreator.newVariableSymbol(2, IntermediateSize.Native);
+                const resultVariableSymbol = IntermediateCreator.newLocalVariableSymbol(0, IntermediateSize.Int8);
+                const leftOperandVariableSymbol = IntermediateCreator.newLocalVariableSymbol(1, IntermediateSize.Native);
+                const rightOperandVariableSymbol = IntermediateCreator.newLocalVariableSymbol(2, IntermediateSize.Native);
 
                 const equalLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
@@ -389,7 +389,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -403,7 +403,7 @@ describe('Lowerer',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newBinaryExpression(
                                             SemanticCreator.newStringLiteral('string0'),
                                             BuildInOperators.binaryStringEqual,
@@ -420,9 +420,9 @@ describe('Lowerer',
                 const constantSymbol0 = IntermediateCreator.newConstantSymbol(Defaults.moduleName + '.c#0', 'string0');
                 const constantSymbol1 = IntermediateCreator.newConstantSymbol(Defaults.moduleName + '.c#1', 'string1');
 
-                const returnVariable0 = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
-                const variableSymbol1 = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Pointer);
-                const variableSymbol2 = IntermediateCreator.newVariableSymbol(2, IntermediateSize.Pointer);
+                const returnVariable0 = IntermediateCreator.newLocalVariableSymbol(0, IntermediateSize.Int8);
+                const variableSymbol1 = IntermediateCreator.newLocalVariableSymbol(1, IntermediateSize.Pointer);
+                const variableSymbol2 = IntermediateCreator.newLocalVariableSymbol(2, IntermediateSize.Pointer);
 
                 // TODO: The following shouldn't be necessary to be defined here. It should be defined somewhere more general.
                 const stringsAreEqualBuildInFunctionSymbol = IntermediateCreator.newFunctionSymbol(
@@ -474,7 +474,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -507,7 +507,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult); // An empty return statement stays unchanged.
             }
@@ -553,7 +553,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult); // An empty return statement stays unchanged.
             }
@@ -574,8 +574,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const compareVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
-                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Int8);
+                const compareVariableSymbol = IntermediateCreator.newLocalVariableSymbol(0, IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newLocalVariableSymbol(1, IntermediateSize.Int8);
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
 
                 const expectedResult = IntermediateCreator.newFile(
@@ -610,7 +610,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -635,8 +635,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const compareVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
-                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Int8);
+                const compareVariableSymbol = IntermediateCreator.newLocalVariableSymbol(0, IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newLocalVariableSymbol(1, IntermediateSize.Int8);
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const elseLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
 
@@ -674,7 +674,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -695,8 +695,8 @@ describe('Lowerer',
                     ]
                 );
 
-                const conditionVariableSymbol = IntermediateCreator.newVariableSymbol(0, IntermediateSize.Int8);
-                const falseLabelVariableSymbol = IntermediateCreator.newVariableSymbol(1, IntermediateSize.Int8);
+                const conditionVariableSymbol = IntermediateCreator.newLocalVariableSymbol(0, IntermediateSize.Int8);
+                const falseLabelVariableSymbol = IntermediateCreator.newLocalVariableSymbol(1, IntermediateSize.Int8);
                 const startLabelSymbol = IntermediateCreator.newLabelSymbol('l#0');
                 const endLabelSymbol = IntermediateCreator.newLabelSymbol('l#1');
 
@@ -734,7 +734,7 @@ describe('Lowerer',
 
                 const lowerer = new Lowerer();
 
-                const result = lowerer.run(input);
+                const result = lowerer.run(input, new Set());
 
                 assert.deepStrictEqual(result, expectedResult);
             }

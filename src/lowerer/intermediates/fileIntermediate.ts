@@ -1,6 +1,7 @@
 import { ConstantIntermediate } from './constantIntermediate';
 import { ExternalIntermediate } from './externalIntermediate';
 import { FunctionIntermediate } from './functionIntermediate';
+import { GlobalIntermediate } from './globalIntermediate';
 import { IntermediateKind } from '../intermediateKind';
 
 /**
@@ -10,23 +11,26 @@ export class FileIntermediate
 {
     public readonly kind: IntermediateKind.File;
 
-    public functions: FunctionIntermediate[];
-    public externals: ExternalIntermediate[];
     public constants: ConstantIntermediate[];
+    public externals: ExternalIntermediate[];
+    public globals: GlobalIntermediate[];
+    public functions: FunctionIntermediate[];
 
     public isEntryPoint: boolean;
 
     constructor (
-        functions: FunctionIntermediate[],
-        externals: ExternalIntermediate[],
         constants: ConstantIntermediate[],
+        externals: ExternalIntermediate[],
+        globals: GlobalIntermediate[],
+        functions: FunctionIntermediate[],
         isEntryPoint: boolean
     ){
         this.kind = IntermediateKind.File;
 
-        this.functions = functions;
-        this.externals = externals;
         this.constants = constants;
+        this.externals = externals;
+        this.globals = globals;
+        this.functions = functions;
         this.isEntryPoint = isEntryPoint;
     }
 }

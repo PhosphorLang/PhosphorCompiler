@@ -9,10 +9,11 @@ export abstract class IntermediateCreator
         functions: Intermediates.Function[] = [],
         externals: Intermediates.External[] = [],
         constants: Intermediates.Constant[] = [],
+        globals: Intermediates.Global[] = [],
         isEntryPoint = false
     ): Intermediates.File
     {
-        return new Intermediates.File(functions, externals, constants, isEntryPoint);
+        return new Intermediates.File(constants, externals, globals, functions, isEntryPoint);
     }
 
     public static newFunction (
@@ -42,18 +43,18 @@ export abstract class IntermediateCreator
         return new Intermediates.Call(functionSymbol);
     }
 
-    public static newIntroduce (symbol = IntermediateCreator.newVariableSymbol()): Intermediates.Introduce
+    public static newIntroduce (symbol = IntermediateCreator.newLocalVariableSymbol()): Intermediates.Introduce
     {
         return new Intermediates.Introduce(symbol);
     }
 
-    public static newVariableSymbol (index = 0, size = IntermediateSize.Native): IntermediateSymbols.Variable
+    public static newLocalVariableSymbol (index = 0, size = IntermediateSize.Native): IntermediateSymbols.LocalVariable
     {
-        return new IntermediateSymbols.Variable(index, size);
+        return new IntermediateSymbols.LocalVariable(index, size);
     }
 
     public static newMove (
-        to = IntermediateCreator.newVariableSymbol(),
+        to = IntermediateCreator.newLocalVariableSymbol(),
         from: IntermediateSymbols.ReadableValue = IntermediateCreator.newLiteralSymbol()
     ): Intermediates.Move
     {
@@ -65,14 +66,14 @@ export abstract class IntermediateCreator
         return new IntermediateSymbols.Literal(value, size);
     }
 
-    public static newDismiss (symbol = IntermediateCreator.newVariableSymbol()): Intermediates.Dismiss
+    public static newDismiss (symbol = IntermediateCreator.newLocalVariableSymbol()): Intermediates.Dismiss
     {
         return new Intermediates.Dismiss(symbol);
     }
 
     public static newAdd (
-        leftOperand = IntermediateCreator.newVariableSymbol(),
-        rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newVariableSymbol()
+        leftOperand = IntermediateCreator.newLocalVariableSymbol(),
+        rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newLocalVariableSymbol()
     ): Intermediates.Add
     {
         return new Intermediates.Add(leftOperand, rightOperand);
@@ -90,7 +91,7 @@ export abstract class IntermediateCreator
 
     public static newGive (
         targetSymbol: IntermediateSymbols.Parameter|IntermediateSymbols.ReturnValue = IntermediateCreator.newParameterSymbol(),
-        variable = IntermediateCreator.newVariableSymbol()
+        variable = IntermediateCreator.newLocalVariableSymbol()
     ): Intermediates.Give
     {
         return new Intermediates.Give(targetSymbol, variable);
@@ -102,7 +103,7 @@ export abstract class IntermediateCreator
     }
 
     public static newTake (
-        variableSymbol = IntermediateCreator.newVariableSymbol(),
+        variableSymbol = IntermediateCreator.newLocalVariableSymbol(),
         takableValue: IntermediateSymbols.Parameter|IntermediateSymbols.ReturnValue = IntermediateCreator.newReturnSymbol()
     ): Intermediates.Take
     {
@@ -120,8 +121,8 @@ export abstract class IntermediateCreator
     }
 
     public static newCompare (
-        leftOperand: IntermediateSymbols.Variable = IntermediateCreator.newVariableSymbol(),
-        rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newVariableSymbol()
+        leftOperand: IntermediateSymbols.Variable = IntermediateCreator.newLocalVariableSymbol(),
+        rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newLocalVariableSymbol()
     ): Intermediates.Compare
     {
         return new Intermediates.Compare(leftOperand, rightOperand);

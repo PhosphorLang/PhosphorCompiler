@@ -9,6 +9,7 @@ export { ExternalIntermediate as External } from './externalIntermediate';
 export { FileIntermediate as File } from './fileIntermediate';
 export { FunctionIntermediate as Function } from './functionIntermediate';
 export { GiveIntermediate as Give } from './giveIntermediate';
+export { GlobalIntermediate as Global } from './globalIntermediate';
 export { GotoIntermediate as Goto } from './gotoIntermediate';
 export { IntroduceIntermediate as Introduce } from './introduceIntermediate';
 export { JumpIfEqualIntermediate as JumpIfEqual } from './jumpIfEqualIntermediate';
@@ -37,6 +38,7 @@ import { ExternalIntermediate } from './externalIntermediate';
 import { FileIntermediate } from './fileIntermediate';
 import { FunctionIntermediate } from './functionIntermediate';
 import { GiveIntermediate } from './giveIntermediate';
+import { GlobalIntermediate } from './globalIntermediate';
 import { GotoIntermediate } from './gotoIntermediate';
 import { IntroduceIntermediate } from './introduceIntermediate';
 import { JumpIfEqualIntermediate } from './jumpIfEqualIntermediate';
@@ -56,10 +58,10 @@ import { TakeIntermediate } from './takeIntermediate';
 
 export type Intermediate =
     AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | ConstantIntermediate | DismissIntermediate
-    | DivideIntermediate | ExternalIntermediate | FileIntermediate | FunctionIntermediate | GiveIntermediate | GotoIntermediate
-    | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate | JumpIfLessIntermediate | JumpIfNotEqualIntermediate
-    | LabelIntermediate | ModuloIntermediate | MoveIntermediate | MultiplyIntermediate | NegateIntermediate | NotIntermediate
-    | OrIntermediate | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;
+    | DivideIntermediate | ExternalIntermediate | FileIntermediate | FunctionIntermediate | GiveIntermediate | GlobalIntermediate
+    | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate | JumpIfLessIntermediate
+    | JumpIfNotEqualIntermediate | LabelIntermediate | ModuloIntermediate | MoveIntermediate | MultiplyIntermediate | NegateIntermediate
+    | NotIntermediate | OrIntermediate | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;
 
 export type Statement =
     AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | DismissIntermediate | DivideIntermediate

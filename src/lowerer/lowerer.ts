@@ -9,6 +9,7 @@ import { BuildInTypes } from '../definitions/buildInTypes';
 import { Intermediate } from './intermediates';
 import { IntermediateKind } from './intermediateKind';
 import { IntermediateSize } from './intermediateSize';
+import { IntermediateSymbolKind } from './intermediateSymbolKind';
 import { SemanticKind } from '../connector/semanticKind';
 
 /* TODO: When (if?) the Bool type size is changed from Int8 to UInt8 (i.e. unsigned), the value of true must be changed from -1 to 255.
@@ -24,11 +25,12 @@ export class Lowerer
 {
     private constantCounter: number;
     private labelCounter: number;
-    private variableCounter: number;
+    private localVariableCounter: number;
 
-    private functions: Intermediates.Function[];
-    private externals: Intermediates.External[];
     private constants: Intermediates.Constant[];
+    private externals: Intermediates.External[];
+    private globals: Intermediates.Global[];
+    private functions: Intermediates.Function[];
 
     private functionSymbolMap: Map<SemanticSymbols.Function, IntermediateSymbols.Function>;
     private variableSymbolMap: Map<SemanticSymbols.Variable, IntermediateSymbols.Variable>;
@@ -49,11 +51,12 @@ export class Lowerer
     {
         this.constantCounter = 0;
         this.labelCounter = 0;
-        this.variableCounter = 0;
+        this.localVariableCounter = 0;
 
-        this.functions = [];
-        this.externals = [];
         this.constants = [];
+        this.externals = [];
+        this.globals = [];
+        this.functions = [];
 
         this.functionSymbolMap = new Map();
         this.variableSymbolMap = new Map();
@@ -66,18 +69,26 @@ export class Lowerer
         this.currentModule = null;
     }
 
-    public run (fileSemanticNode: SemanticNodes.File): Intermediates.File
+    /**
+     * @param fileSemanticNode
+     * @param modulesToBeInitialised
+     *  A set of semantic modules which have initialisers that must be called. Must not contain the entry
+     *  point module.
+     * @returns
+     */
+    public run (fileSemanticNode: SemanticNodes.File, modulesToBeInitialised: Set<SemanticSymbols.Module>): Intermediates.File
     {
         /* TODO: Because this is already initialised in the constructor, we should clear everything after the run not before.
          * This will also reduce the RAM usage because all the things are currently hold onto even if they are never used again. */
 
         this.constantCounter = 0;
         this.labelCounter = 0;
-        this.variableCounter = 0;
+        this.localVariableCounter = 0;
 
-        this.functions = [];
-        this.externals = [];
         this.constants = [];
+        this.externals = [];
+        this.globals = [];
+        this.functions = [];
 
         this.functionSymbolMap.clear();
         this.variableSymbolMap.clear();
@@ -89,9 +100,9 @@ export class Lowerer
 
         this.currentModule = null;
 
-        this.lowerFile(fileSemanticNode);
+        this.lowerFile(fileSemanticNode, modulesToBeInitialised);
 
-        return new Intermediates.File(this.functions, this.externals, this.constants, fileSemanticNode.module.isEntryPoint);
+        return new Intermediates.File(this.constants, this.externals, this.globals, this.functions, fileSemanticNode.module.isEntryPoint);
     }
 
     private getOrGenerateConstant (value: string): IntermediateSymbols.Constant
@@ -138,11 +149,11 @@ export class Lowerer
         return newParameter;
     }
 
-    private generateVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.Variable
+    private generateLocalVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.LocalVariable
     {
-        const newVariable = new IntermediateSymbols.Variable(this.variableCounter, size);
+        const newVariable = new IntermediateSymbols.LocalVariable(this.localVariableCounter, size);
 
-        this.variableCounter += 1;
+        this.localVariableCounter += 1;
 
         if (symbol !== undefined)
         {
@@ -238,7 +249,24 @@ export class Lowerer
         return variables;
     }
 
-    private lowerFile (file: SemanticNodes.File): void
+    private introduceIfNecessary (variable: IntermediateSymbols.Variable, intermediates: Intermediate[]): void
+    {
+        if (variable.kind == IntermediateSymbolKind.GlobalVariable)
+        {
+            return;
+        }
+
+        if (!this.variableIntroducedSet.has(variable))
+        {
+            intermediates.push(
+                new Intermediates.Introduce(variable),
+            );
+
+            this.variableIntroducedSet.add(variable);
+        }
+    }
+
+    private lowerFile (file: SemanticNodes.File, modulesToBeInitialised: Set<SemanticSymbols.Module>): void
     {
         this.currentModule = file.module;
 
@@ -246,6 +274,8 @@ export class Lowerer
         {
             this.lowerImport(importModule);
         }
+
+        this.lowerGlobals(file.variables, modulesToBeInitialised);
 
         for (const functionNode of file.functions)
         {
@@ -257,7 +287,7 @@ export class Lowerer
 
     private lowerImport (importModule: SemanticSymbols.Module): void
     {
-        for (const semanticFunctionSymbol of importModule.functionsNameToSymbol.values())
+        for (const semanticFunctionSymbol of importModule.functionNameToSymbol.values())
         {
             const intermediateFunctionSymbol = this.lowerFunctionSymbol(semanticFunctionSymbol, importModule);
 
@@ -312,7 +342,7 @@ export class Lowerer
      */
     private lowerBuildInModuleIfNeeded (moduleSymbol: SemanticSymbols.Module): void
     {
-        for (const functionSymbol of moduleSymbol.functionsNameToSymbol.values())
+        for (const functionSymbol of moduleSymbol.functionNameToSymbol.values())
         {
             if (!functionSymbol.isHeader)
             {
@@ -326,6 +356,111 @@ export class Lowerer
 
             this.buildInModuleLoweredSet.add(moduleSymbol);
         }
+    }
+
+    private lowerGlobals (globals: SemanticNodes.GlobalVariableDeclaration[], modulesToBeInitialised: Set<SemanticSymbols.Module>): void
+    {
+        const globalInitialisers: Intermediates.Statement[] = [];
+
+        for (const globalVariable of globals)
+        {
+            const globalSymbol = this.lowerGlobal(globalVariable);
+
+            if (globalVariable.initialiser !== null)
+            {
+                this.lowerExpression(globalVariable.initialiser, globalInitialisers, globalSymbol);
+            }
+        }
+
+        this.createInitialiserFunction(globalInitialisers, modulesToBeInitialised);
+    }
+
+    private lowerGlobal (globalVariable: SemanticNodes.GlobalVariableDeclaration): IntermediateSymbols.Global
+    {
+        const module = this.currentModule;
+        if (module === null)
+        {
+            throw new Error(`Lowerer error: Current module is null while lowering a global variable.`);
+        }
+
+        const qualifiedName = module.qualifiedName + '.' + globalVariable.symbol.name;
+
+        const globalSymbol = new IntermediateSymbols.Global(qualifiedName, this.typeToSize(globalVariable.symbol.type));
+
+        if (this.variableSymbolMap.has(globalVariable.symbol))
+        {
+            throw new Error(`Lowerer error: Variable for symbol "${globalVariable.symbol.name}" already exists.`);
+        }
+        this.variableSymbolMap.set(globalVariable.symbol, globalSymbol);
+
+        const globalIntermediate = new Intermediates.Global(globalSymbol);
+        this.globals.push(globalIntermediate);
+
+        return globalSymbol;
+    }
+
+    private createInitialiserFunction (initialisers: Intermediates.Statement[], modulesToBeInitialised: Set<SemanticSymbols.Module>): void
+    {
+        const module = this.currentModule;
+        if (module === null)
+        {
+            throw new Error(`Lowerer error: Current module is null while creating the initialiser function.`);
+        }
+
+        if (module.isEntryPoint)
+        {
+            if ((initialisers.length == 0) && (modulesToBeInitialised.size == 0))
+            {
+                return;
+            }
+        }
+        else
+        {
+            if (initialisers.length == 0)
+            {
+                return;
+            }
+        }
+
+        const initialisationBody = [];
+
+        if (module.isEntryPoint)
+        {
+            for (const moduleWithInitiliser of modulesToBeInitialised)
+            {
+                // TODO: Find a better way than a hardcoded name:
+                const qualifiedName = moduleWithInitiliser.qualifiedName + ':initialisation';
+
+                const functionSymbol = new IntermediateSymbols.Function(qualifiedName, IntermediateSize.Void, []);
+
+                initialisationBody.push(
+                    new Intermediates.Call(functionSymbol),
+                );
+
+                const externalFunction = new Intermediates.External(functionSymbol);
+                this.externals.push(externalFunction);
+            }
+        }
+
+        initialisationBody.push(...initialisers);
+
+        initialisationBody.push(
+            new Intermediates.Return()
+        );
+
+        let qualifiedName: string;
+        if (module.isEntryPoint)
+        {
+            qualifiedName = ':initialisation'; // TODO: Find a better way than a hardcoded name.
+        }
+        else
+        {
+            qualifiedName = module.qualifiedName + ':initialisation'; // TODO: Find a better way than a hardcoded name.
+        }
+
+        const functionSymbol = new IntermediateSymbols.Function(qualifiedName, IntermediateSize.Void, []);
+        const functionIntermediate = new Intermediates.Function(functionSymbol, initialisationBody);
+        this.functions.push(functionIntermediate);
     }
 
     private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): void
@@ -360,7 +495,7 @@ export class Lowerer
                 const parameterSymbol = this.generateParameter(this.typeToSize(parameter.type), parameterCounter);
                 parameterCounter += 1;
 
-                const parameterVariable = this.generateVariable(parameterSymbol.size, parameter);
+                const parameterVariable = this.generateLocalVariable(parameterSymbol.size, parameter);
 
                 functionBody.push(
                     new Intermediates.Introduce(parameterVariable),
@@ -413,8 +548,8 @@ export class Lowerer
             case SemanticKind.Section:
                 this.lowerSection(statement as SemanticNodes.Section, intermediates);
                 break;
-            case SemanticKind.VariableDeclaration:
-                this.lowerVariableDeclaration(statement as SemanticNodes.VariableDeclaration, intermediates);
+            case SemanticKind.LocalVariableDeclaration:
+                this.lowerLocalVariableDeclaration(statement as SemanticNodes.LocalVariableDeclaration, intermediates);
                 break;
             case SemanticKind.ReturnStatement:
                 this.lowerReturnStatement(statement as SemanticNodes.ReturnStatement, intermediates);
@@ -436,9 +571,12 @@ export class Lowerer
         }
     }
 
-    private lowerVariableDeclaration (variableDeclaration: SemanticNodes.VariableDeclaration, intermediates: Intermediate[]): void
+    private lowerLocalVariableDeclaration (
+        variableDeclaration: SemanticNodes.LocalVariableDeclaration,
+        intermediates: Intermediate[]
+    ): void
     {
-        const variable = this.generateVariable(this.typeToSize(variableDeclaration.symbol.type), variableDeclaration.symbol);
+        const variable = this.generateLocalVariable(this.typeToSize(variableDeclaration.symbol.type), variableDeclaration.symbol);
 
         if (variableDeclaration.initialiser !== null)
         {
@@ -451,7 +589,7 @@ export class Lowerer
         if (returnStatement.expression !== null)
         {
             const returnSymbol = new IntermediateSymbols.ReturnValue(0, this.typeToSize(returnStatement.expression.type));
-            const temporaryVariable = this.generateVariable(returnSymbol.size);
+            const temporaryVariable = this.generateLocalVariable(returnSymbol.size);
 
             this.lowerExpression(returnStatement.expression, intermediates, temporaryVariable);
 
@@ -469,7 +607,7 @@ export class Lowerer
 
     private lowerIfStatement (ifStatement: SemanticNodes.IfStatement, intermediates: Intermediate[]): void
     {
-        const condition = this.generateVariable(this.typeToSize(ifStatement.condition.type));
+        const condition = this.generateLocalVariable(this.typeToSize(ifStatement.condition.type));
 
         this.lowerExpression(ifStatement.condition, intermediates, condition);
 
@@ -477,7 +615,7 @@ export class Lowerer
         const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
         // NOTE: This temporary variable will be dismissed manually after the compares instead of using variableDismissIndexMap.
-        const falseLiteralVariable = this.generateVariable(falseLiteral.size);
+        const falseLiteralVariable = this.generateLocalVariable(falseLiteral.size);
 
         intermediates.push(
             new Intermediates.Introduce(falseLiteralVariable),
@@ -542,12 +680,12 @@ export class Lowerer
             new Intermediates.Label(startLabelSymbol),
         );
 
-        const condition = this.generateVariable(this.typeToSize(whileStatement.condition.type));
+        const condition = this.generateLocalVariable(this.typeToSize(whileStatement.condition.type));
 
         this.lowerExpression(whileStatement.condition, intermediates, condition);
 
         const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
-        const falseLiteralVariable = this.generateVariable(falseLiteral.size);
+        const falseLiteralVariable = this.generateLocalVariable(falseLiteral.size);
 
         intermediates.push(
             new Intermediates.Introduce(falseLiteralVariable),
@@ -666,14 +804,7 @@ export class Lowerer
                 throw new Error(`Lowerer error: Unknown literal of type "${literalExpression.type.name}"`);
         }
 
-        if (!this.variableIntroducedSet.has(targetLocation))
-        {
-            intermediates.push(
-                new Intermediates.Introduce(targetLocation),
-            );
-
-            this.variableIntroducedSet.add(targetLocation);
-        }
+        this.introduceIfNecessary(targetLocation, intermediates);
 
         intermediates.push(
             new Intermediates.Move(targetLocation, literalOrConstant),
@@ -697,14 +828,7 @@ export class Lowerer
 
         if (variable !== targetLocation)
         {
-            if (!this.variableIntroducedSet.has(targetLocation))
-            {
-                intermediates.push(
-                    new Intermediates.Introduce(targetLocation),
-                );
-
-                this.variableIntroducedSet.add(targetLocation);
-            }
+            this.introduceIfNecessary(targetLocation, intermediates);
 
             intermediates.push(
                 new Intermediates.Move(targetLocation, variable),
@@ -732,7 +856,7 @@ export class Lowerer
 
         for (const argumentExpression of argumentExpressions)
         {
-            const temporaryVariable = this.generateVariable(this.typeToSize(argumentExpression.type));
+            const temporaryVariable = this.generateLocalVariable(this.typeToSize(argumentExpression.type));
 
             this.lowerExpression(argumentExpression, intermediates, temporaryVariable);
 
@@ -766,14 +890,7 @@ export class Lowerer
                 );
             }
 
-            if (!this.variableIntroducedSet.has(targetLocation))
-            {
-                intermediates.push(
-                    new Intermediates.Introduce(targetLocation),
-                );
-
-                this.variableIntroducedSet.add(targetLocation);
-            }
+            this.introduceIfNecessary(targetLocation, intermediates);
 
             const returnValue = new IntermediateSymbols.ReturnValue(0, functionSymbol.returnSize);
 
@@ -804,14 +921,7 @@ export class Lowerer
             case BuildInOperators.unaryIntNot:
             case BuildInOperators.unaryBoolNot:
                 {
-                    if (!this.variableIntroducedSet.has(targetLocation))
-                    {
-                        intermediates.push(
-                            new Intermediates.Introduce(targetLocation),
-                        );
-
-                        this.variableIntroducedSet.add(targetLocation);
-                    }
+                    this.introduceIfNecessary(targetLocation, intermediates);
 
                     let intermediate: Intermediate;
                     switch (operator)
@@ -877,18 +987,11 @@ export class Lowerer
     {
         this.lowerExpression(binaryExpression.leftOperand, intermediates, targetLocation);
 
-        const temporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
+        const temporaryVariable = this.generateLocalVariable(this.typeToSize(binaryExpression.rightOperand.type));
 
         this.lowerExpression(binaryExpression.rightOperand, intermediates, temporaryVariable);
 
-        if (!this.variableIntroducedSet.has(targetLocation))
-        {
-            intermediates.push(
-                new Intermediates.Introduce(targetLocation),
-            );
-
-            this.variableIntroducedSet.add(targetLocation);
-        }
+        this.introduceIfNecessary(targetLocation, intermediates);
 
         const operator = binaryExpression.operator;
 
@@ -972,11 +1075,11 @@ export class Lowerer
         }
         else
         {
-            const leftTemporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.leftOperand.type));
+            const leftTemporaryVariable = this.generateLocalVariable(this.typeToSize(binaryExpression.leftOperand.type));
 
             this.lowerExpression(binaryExpression.leftOperand, intermediates, leftTemporaryVariable);
 
-            const rightTemporaryVariable = this.generateVariable(this.typeToSize(binaryExpression.rightOperand.type));
+            const rightTemporaryVariable = this.generateLocalVariable(this.typeToSize(binaryExpression.rightOperand.type));
 
             this.lowerExpression(binaryExpression.rightOperand, intermediates, rightTemporaryVariable);
 
@@ -1030,14 +1133,7 @@ export class Lowerer
                     const trueLiteral = new IntermediateSymbols.Literal('-1', IntermediateSize.Int8);
                     const falseLiteral = new IntermediateSymbols.Literal('0', IntermediateSize.Int8);
 
-                    if (!this.variableIntroducedSet.has(targetLocation))
-                    {
-                        intermediates.push(
-                            new Intermediates.Introduce(targetLocation),
-                        );
-
-                        this.variableIntroducedSet.add(targetLocation);
-                    }
+                    this.introduceIfNecessary(targetLocation, intermediates);
 
                     intermediates.push(
                         new Intermediates.Move(targetLocation, falseLiteral),

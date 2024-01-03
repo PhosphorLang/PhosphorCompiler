@@ -2,9 +2,9 @@ import { IntermediateSize } from '../intermediateSize';
 import { IntermediateSymbolBase } from './intermediateSymbolBase';
 import { IntermediateSymbolKind } from '../intermediateSymbolKind';
 
-export class VariableIntermediateSymbol extends IntermediateSymbolBase
+export class LocalVariableIntermediateSymbol extends IntermediateSymbolBase
 {
-    public readonly kind: IntermediateSymbolKind.Variable;
+    public readonly kind: IntermediateSymbolKind.LocalVariable;
 
     public readonly size: IntermediateSize;
 
@@ -16,7 +16,7 @@ export class VariableIntermediateSymbol extends IntermediateSymbolBase
 
         super(name);
 
-        this.kind = IntermediateSymbolKind.Variable;
+        this.kind = IntermediateSymbolKind.LocalVariable;
 
         this.index = index;
         this.size = size;

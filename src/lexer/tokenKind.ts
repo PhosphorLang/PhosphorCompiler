@@ -46,4 +46,5 @@ export enum TokenKind
     FalseKeyword,
     ImportKeyword,
     NewKeyword,
+    VariableKeyword,
 }

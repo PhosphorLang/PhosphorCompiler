@@ -108,6 +108,7 @@ describe('Lexer',
             new InputToTokenKind('false', TokenKind.FalseKeyword, 'the false keyword'),
             new InputToTokenKind('module', TokenKind.ModuleKeyword, 'the module keyword'),
             new InputToTokenKind('import', TokenKind.ImportKeyword, 'the import keyword'),
+            new InputToTokenKind('variable', TokenKind.VariableKeyword, 'the variable keyword'),
         ];
 
         describe('can tokenise',

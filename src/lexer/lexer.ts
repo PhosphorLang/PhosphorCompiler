@@ -368,6 +368,7 @@ export class Lexer
 
         switch (content)
         {
+            // TODO: Sorth by something:
             case 'let':
                 kind = TokenKind.LetKeyword;
                 break;
@@ -409,6 +410,9 @@ export class Lexer
                 break;
             case 'new':
                 kind = TokenKind.NewKeyword;
+                break;
+            case 'variable':
+                kind = TokenKind.VariableKeyword;
                 break;
             default:
                 kind = TokenKind.IdentifierToken;

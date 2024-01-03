@@ -86,6 +86,7 @@ export class Parser
     private parseFile (): SyntaxNodes.File
     {
         const imports: SyntaxNodes.Import[] = [];
+        const variables: SyntaxNodes.GlobalVariableDeclaration[] = [];
         const functions: SyntaxNodes.FunctionDeclaration[] = [];
         let module: SyntaxNodes.Module|null = null;
 
@@ -103,6 +104,12 @@ export class Parser
                 {
                     const importDeclaration = this.parseImport();
                     imports.push(importDeclaration);
+                    break;
+                }
+                case TokenKind.VariableKeyword:
+                {
+                    const variableDeclaration = this.parseGlobalVariableDeclaration();
+                    variables.push(variableDeclaration);
                     break;
                 }
                 case TokenKind.FunctionKeyword:
@@ -149,7 +156,7 @@ export class Parser
             );
         }
 
-        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, functions);
+        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, variables, functions);
 
         return fileRoot;
     }
@@ -224,6 +231,46 @@ export class Parser
         const namespace = new Namespace(prefixComponents, pathComponents, name);
 
         return namespace;
+    }
+
+    private parseGlobalVariableDeclaration (): SyntaxNodes.GlobalVariableDeclaration
+    {
+        // TODO: This shares a lot of code with parseLocalVariableDeclaration(). Could both be unified?
+
+        const keyword = this.consumeNextToken();
+        const identifier = this.consumeNextToken();
+        let type: SyntaxNodes.TypeClause|null = null;
+        let assignment: Token|null = null;
+        let initialiser: SyntaxNodes.Expression|null = null;
+
+        switch (this.getCurrentToken().kind)
+        {
+            case TokenKind.AssignmentOperator:
+                assignment = this.consumeNextToken();
+                initialiser = this.parseExpression();
+                break;
+            case TokenKind.ColonToken:
+                type = this.parseTypeClause();
+                if (this.getCurrentToken().kind == TokenKind.AssignmentOperator)
+                {
+                    assignment = this.consumeNextToken();
+                    initialiser = this.parseExpression();
+                }
+                break;
+            default:
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unexpected token "${this.getFollowerToken().content}" after variable declaration identifier`,
+                        Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
+                        this.getCurrentToken()
+                    )
+                );
+        }
+
+        // The semicolon:
+        this.consumeNextToken();
+
+        return new SyntaxNodes.GlobalVariableDeclaration(keyword, identifier, type, assignment, initialiser);
     }
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration
@@ -466,7 +513,7 @@ export class Parser
         switch (this.getCurrentToken().kind)
         {
             case TokenKind.LetKeyword:
-                result = this.parseVariableDeclaration();
+                result = this.parseLocalVariableDeclaration();
                 break;
             case TokenKind.ReturnKeyword:
                 result = this.parseReturnStatement();
@@ -524,7 +571,7 @@ export class Parser
         return new SyntaxNodes.ReturnStatement(keyword, expression);
     }
 
-    private parseVariableDeclaration (): SyntaxNodes.VariableDeclaration
+    private parseLocalVariableDeclaration (): SyntaxNodes.LocalVariableDeclaration
     {
         const keyword = this.consumeNextToken();
         const identifier = this.consumeNextToken();
@@ -540,6 +587,12 @@ export class Parser
                 break;
             case TokenKind.ColonToken:
                 type = this.parseTypeClause();
+
+                if (this.getCurrentToken().kind == TokenKind.AssignmentOperator)
+                {
+                    assignment = this.consumeNextToken();
+                    initialiser = this.parseExpression();
+                }
                 break;
             default:
                 this.diagnostic.throw(
@@ -551,7 +604,7 @@ export class Parser
                 );
         }
 
-        return new SyntaxNodes.VariableDeclaration(keyword, identifier, type, assignment, initialiser);
+        return new SyntaxNodes.LocalVariableDeclaration(keyword, identifier, type, assignment, initialiser);
     }
 
     private parseIfStatement (): SyntaxNodes.IfStatement

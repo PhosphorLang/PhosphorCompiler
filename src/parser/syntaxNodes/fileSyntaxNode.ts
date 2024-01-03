@@ -1,4 +1,5 @@
 import { FunctionDeclarationSyntaxNode } from './functionDeclarationSyntaxNode';
+import { GlobalVariableDeclarationSyntaxNode } from './globalVariableDeclarationSyntaxNode';
 import { ImportSyntaxNode } from './importSyntaxNode';
 import { ModuleSyntaxNode } from './moduleSyntaxNode';
 import { SyntaxKind } from '../syntaxKind';
@@ -9,6 +10,7 @@ export class FileSyntaxNode extends SyntaxNode
     public readonly fileName: string;
     public readonly module: ModuleSyntaxNode;
     public readonly imports: ImportSyntaxNode[];
+    public readonly variables: GlobalVariableDeclarationSyntaxNode[];
     public readonly functions: FunctionDeclarationSyntaxNode[];
 
     public get children (): Iterable<SyntaxNode>
@@ -16,13 +18,19 @@ export class FileSyntaxNode extends SyntaxNode
         return this.functions;
     }
 
-    constructor (name: string, module: ModuleSyntaxNode, imports: ImportSyntaxNode[], functions: FunctionDeclarationSyntaxNode[])
-    {
+    constructor (
+        name: string,
+        module: ModuleSyntaxNode,
+        imports: ImportSyntaxNode[],
+        variables: GlobalVariableDeclarationSyntaxNode[],
+        functions: FunctionDeclarationSyntaxNode[]
+    ){
         super(SyntaxKind.File);
 
         this.fileName = name;
         this.module = module;
         this.imports = imports;
+        this.variables = variables;
         this.functions = functions;
     }
 }

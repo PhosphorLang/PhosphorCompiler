@@ -12,7 +12,8 @@ export enum SyntaxKind
     ElseClause = 'ElseClause',
     // Statements
     Assignment = 'Assignment',
-    VariableDeclaration = 'VariableDeclaration',
+    LocalVariableDeclaration = 'LocalVariableDeclaration',
+    GlobalVariableDeclaration = 'GlobalVariableDeclaration',
     ReturnStatement = 'ReturnStatement',
     IfStatement = 'IfStatement',
     WhileStatement = 'WhileStatement',

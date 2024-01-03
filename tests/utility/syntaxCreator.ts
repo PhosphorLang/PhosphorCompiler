@@ -9,12 +9,13 @@ export abstract class SyntaxCreator
 {
     public static newFile (
         functions: SyntaxNodes.FunctionDeclaration[] = [],
+        variables: SyntaxNodes.GlobalVariableDeclaration[] = [],
         imports: SyntaxNodes.Import[] = [],
         fileName = Defaults.fileName,
         module = SyntaxCreator.newModule(),
     ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, module, imports, functions);
+        return new SyntaxNodes.File(fileName, module, imports, variables, functions);
     }
 
     public static newModule (
@@ -115,15 +116,21 @@ export abstract class SyntaxCreator
         return new ElementsList(expressions, separators);
     }
 
-    public static newVariableDeclaration (
+    public static newLocalVariableDeclaration (
         initialiser: SyntaxNodes.Expression|null = null,
         typeClause: SyntaxNodes.TypeClause|null = null,
         identifier = TokenCreator.newVariableIdentifier(),
-    ): SyntaxNodes.VariableDeclaration
+    ): SyntaxNodes.LocalVariableDeclaration
     {
         const assignment = initialiser === null ? null : TokenCreator.newAssignment();
 
-        return new SyntaxNodes.VariableDeclaration(TokenCreator.newLetKeyword(), identifier, typeClause, assignment, initialiser);
+        return new SyntaxNodes.LocalVariableDeclaration(
+            TokenCreator.newLetKeyword(),
+            identifier,
+            typeClause,
+            assignment,
+            initialiser
+        );
     }
 
     public static newAssignment (

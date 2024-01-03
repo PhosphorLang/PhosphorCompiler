@@ -4,7 +4,7 @@ import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 import { TypeClauseSyntaxNode } from './typeClauseSyntaxNode';
 
-export class VariableDeclarationSyntaxNode extends SyntaxNode
+export class LocalVariableDeclarationSyntaxNode extends SyntaxNode
 {
     public readonly keyword: Token;
     public readonly identifier: Token;
@@ -29,9 +29,9 @@ export class VariableDeclarationSyntaxNode extends SyntaxNode
         identifier: Token,
         type: TypeClauseSyntaxNode|null,
         assignment: Token|null,
-        initialiser: ExpressionSyntaxNode|null)
-    {
-        super(SyntaxKind.VariableDeclaration);
+        initialiser: ExpressionSyntaxNode|null
+    ) {
+        super(SyntaxKind.LocalVariableDeclaration);
 
         this.keyword = keyword;
         this.identifier = identifier;

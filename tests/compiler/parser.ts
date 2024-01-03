@@ -208,7 +208,7 @@ describe('Parser',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         undefined,
                                         SyntaxCreator.newTypeClause()
                                     )
@@ -1024,6 +1024,7 @@ describe('Parser',
                             )
                         )
                     ],
+                    [],
                     [
                         SyntaxCreator.newImport()
                     ]

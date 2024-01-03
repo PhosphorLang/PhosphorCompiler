@@ -192,7 +192,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         undefined,
                                         SyntaxCreator.newTypeClause()
                                     )
@@ -207,7 +207,7 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration()
+                                    SemanticCreator.newLocalVariableDeclaration()
                                 ]
                             )
                         )
@@ -229,7 +229,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         undefined,
                                         SyntaxCreator.newTypeClause()
                                     ),
@@ -247,7 +247,7 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(),
+                                    SemanticCreator.newLocalVariableDeclaration(),
                                     SemanticCreator.newAssignment(
                                         SemanticCreator.newIntegerLiteral()
                                     )
@@ -272,7 +272,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newIntegerLiteral()
                                     )
                                 ]
@@ -286,7 +286,7 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerLiteral()
                                     )
                                 ]
@@ -310,7 +310,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newIntegerAddition()
                                     )
                                 ]
@@ -324,7 +324,7 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerAddition()
                                     )
                                 ]
@@ -348,7 +348,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newAddition(
                                             SyntaxCreator.newIntegerLiteral(),
                                             SyntaxCreator.newBracketedExpression(
@@ -367,7 +367,7 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerAddition(
                                             SemanticCreator.newIntegerLiteral(),
                                             SemanticCreator.newIntegerAddition()
@@ -472,7 +472,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newIntegerNegation()
                                     )
                                 ]
@@ -486,7 +486,7 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerNegation()
                                     )
                                 ]
@@ -510,10 +510,10 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newIntegerLiteral()
                                     ),
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newVariableExpression(),
                                         undefined,
                                         TokenCreator.newVariableIdentifier('variableB')
@@ -529,10 +529,10 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newIntegerLiteral()
                                     ),
-                                    SemanticCreator.newVariableDeclaration(
+                                    SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newVariableExpression(),
                                         SemanticCreator.newVariableSymbol(
                                             undefined,
@@ -716,7 +716,7 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(null, null)
+                                    SyntaxCreator.newLocalVariableDeclaration(null, null)
                                 ]
                             )
                         )
@@ -738,10 +738,10 @@ describe('Connector',
                         SyntaxCreator.newFunctionDeclaration(
                             SyntaxCreator.newSection(
                                 [
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newIntegerLiteral()
                                     ),
-                                    SyntaxCreator.newVariableDeclaration(
+                                    SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newIntegerLiteral()
                                     )
                                 ]

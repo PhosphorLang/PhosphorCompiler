@@ -3,14 +3,14 @@ import { SemanticKind } from '../semanticKind';
 import { SemanticNode } from './semanticNode';
 import { VariableSemanticSymbol } from '../semanticSymbols/variableSemanticSymbol';
 
-export class VariableDeclarationSemanticNode extends SemanticNode
+export class LocalVariableDeclarationSemanticNode extends SemanticNode
 {
     public readonly symbol: VariableSemanticSymbol;
     public initialiser: ExpressionSemanticNode|null;
 
     constructor (symbol: VariableSemanticSymbol, initialiser: ExpressionSemanticNode|null)
     {
-        super(SemanticKind.VariableDeclaration);
+        super(SemanticKind.LocalVariableDeclaration);
 
         this.symbol = symbol;
         this.initialiser = initialiser;

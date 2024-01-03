@@ -10,12 +10,13 @@ export abstract class SemanticCreator
 {
     public static newFile (
         functions: SemanticNodes.FunctionDeclaration[] = [],
+        variables: SemanticNodes.GlobalVariableDeclaration[] = [],
         fileName = Defaults.fileName,
         module = SemanticCreator.newModule(),
         imports: SemanticSymbols.Module[] = []
     ): SemanticNodes.File
     {
-        return new SemanticNodes.File(fileName, module, imports, functions);
+        return new SemanticNodes.File(fileName, module, imports, variables, functions);
     }
 
     public static newModule (
@@ -45,7 +46,7 @@ export abstract class SemanticCreator
             qualifiedName = prefix + ':' + pathName;
         }
 
-        return new SemanticSymbols.Module(name, pathName, qualifiedName, null, new Map(), isEntryPoint);
+        return new SemanticSymbols.Module(name, pathName, qualifiedName, null, new Map(), new Map(), isEntryPoint);
     }
 
     public static newFunctionDeclaration (
@@ -86,12 +87,12 @@ export abstract class SemanticCreator
         return new SemanticNodes.CallExpression(symbol, ownerModule, callArguments, null);
     }
 
-    public static newVariableDeclaration (
+    public static newLocalVariableDeclaration (
         initialiser: SemanticNodes.Expression|null = null,
         symbol = SemanticCreator.newVariableSymbol()
-    ): SemanticNodes.VariableDeclaration
+    ): SemanticNodes.LocalVariableDeclaration
     {
-        return new SemanticNodes.VariableDeclaration(symbol, initialiser);
+        return new SemanticNodes.LocalVariableDeclaration(symbol, initialiser);
     }
 
     public static newVariableSymbol (

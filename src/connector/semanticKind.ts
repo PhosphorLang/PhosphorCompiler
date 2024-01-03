@@ -13,7 +13,8 @@ export enum SemanticKind
     IfStatement = 'IfStatement',
     WhileStatement = 'WhileStatement',
     ReturnStatement = 'ReturnStatement',
-    VariableDeclaration = 'VariableDeclaration',
+    LocalVariableDeclaration = 'LocalVariableDeclaration',
+    GlobalVariableDeclaration = 'GlobalVariableDeclaration',
     // Expressions
     LiteralExpression = 'LiteralExpression',
     InitialisationExpression = 'InitialisationExpression',

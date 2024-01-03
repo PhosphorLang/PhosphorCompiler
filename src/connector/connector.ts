@@ -20,6 +20,10 @@ export class Connector
      */
     private importedFiles: Map<string, SemanticNodes.File>;
     /**
+     * A list of variables, global to the file.
+     */
+    private variables: Map<string, SemanticSymbols.Variable>;
+    /**
      * A list of functions, global to the file.
      * This is filled before the function bodies are connected, so every function can reference every other function,
      * regardless of their position.
@@ -41,8 +45,9 @@ export class Connector
         this.diagnostic = diagnostic;
 
         this.importedFiles = new Map();
+        this.variables = new Map();
         this.functions = new Map();
-        this.variableStacks = [];
+        this.variableStacks = [this.variables];
         this.moduleIsClass = false;
         this.currentModule = null;
         this.currentFunction = null;
@@ -51,8 +56,9 @@ export class Connector
     public run (fileSyntaxNode: SyntaxNodes.File, qualifiedNameToFile: Map<string, SemanticNodes.File>): SemanticNodes.File
     {
         this.importedFiles.clear();
+        this.variables.clear();
         this.functions.clear();
-        this.variableStacks = [];
+        this.variableStacks = [this.variables];
         this.moduleIsClass = false;
         this.currentModule = null;
         this.currentFunction = null;
@@ -149,23 +155,30 @@ export class Connector
             this.functions.set(functionSymbol.name, functionSymbol);
         }
 
+        // Global variables:
+        const variableDeclarations: SemanticNodes.GlobalVariableDeclaration[] = [];
+        for (const variableNode of file.variables)
+        {
+            const variableDeclaration = this.connectGlobalVariableDeclaration(variableNode);
+            variableDeclarations.push(variableDeclaration);
+        }
+
         // Module:
         const moduleSymbol = this.connectModule(file.module);
         this.currentModule = moduleSymbol;
 
         // Function bodies:
-        const functionNodes: SemanticNodes.FunctionDeclaration[] = [];
-        for (const functionDeclaration of file.functions)
+        const functionDeclarations: SemanticNodes.FunctionDeclaration[] = [];
+        for (const functionNode of file.functions)
         {
-            const functionNode = this.connectFunction(functionDeclaration);
-
-            functionNodes.push(functionNode);
+            const functionDeclaration = this.connectFunction(functionNode);
+            functionDeclarations.push(functionDeclaration);
         }
 
         this.moduleIsClass = false;
         this.currentModule = null;
 
-        return new SemanticNodes.File(file.fileName, moduleSymbol, importedModules, functionNodes);
+        return new SemanticNodes.File(file.fileName, moduleSymbol, importedModules, variableDeclarations, functionDeclarations);
     }
 
     private connectModule (module: SyntaxNodes.Module): SemanticSymbols.Module
@@ -180,11 +193,20 @@ export class Connector
             classType = new SemanticSymbols.GenericType(name, []); // TODO: Implement generic classes.
         }
 
-        const functionsNameToSymbol = new Map(this.functions);
+        const variableNameToSymbol = new Map(this.variables);
+        const functionNameToSymbol = new Map(this.functions);
 
         const isEntryPoint = module.isEntryPoint;
 
-        return new SemanticSymbols.Module(name, pathName, qualifiedName, classType, functionsNameToSymbol, isEntryPoint);
+        return new SemanticSymbols.Module(
+            name,
+            pathName,
+            qualifiedName,
+            classType,
+            variableNameToSymbol,
+            functionNameToSymbol,
+            isEntryPoint
+        );
     }
 
     private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function
@@ -372,6 +394,54 @@ export class Connector
         return parameterSymbols;
     }
 
+    private connectGlobalVariableDeclaration (
+        variableDeclaration: SyntaxNodes.GlobalVariableDeclaration
+    ): SemanticNodes.GlobalVariableDeclaration
+    {
+        // TODO: This shares a lot of code with connectLocalVariableDeclaration(). Could both be unified?
+
+        const name = variableDeclaration.identifier.content;
+        const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
+        let type = this.connectTypeClause(variableDeclaration.type);
+
+        if (type === null)
+        {
+            if (initialisier === null)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `The variable "${name}" must either have a type clause or an initialiser.`,
+                        Diagnostic.Codes.VariableWithoutTypeClauseAndInitialiserError,
+                        variableDeclaration.identifier
+                    )
+                );
+            }
+            else
+            {
+                type = initialisier.type;
+            }
+        }
+
+        // TODO: Check if the type clause and the initialiser type match.
+
+        const variable = new SemanticSymbols.Variable(name, type, false);
+
+        if (this.getVariable(name) !== null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Duplicate declaration of variable "${name}".`,
+                    Diagnostic.Codes.DuplicateVariableDeclarationError,
+                    variableDeclaration.identifier
+                )
+            );
+        }
+
+        this.variables.set(variable.name, variable);
+
+        return new SemanticNodes.GlobalVariableDeclaration(variable, initialisier);
+    }
+
     private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
     {
         const functionSymbol = this.functions.get(functionDeclaration.identifier.content);
@@ -434,8 +504,8 @@ export class Connector
         {
             case SyntaxKind.Section:
                 return this.connectSection(statement as SyntaxNodes.Section);
-            case SyntaxKind.VariableDeclaration:
-                return this.connectVariableDeclaration(statement as SyntaxNodes.VariableDeclaration);
+            case SyntaxKind.LocalVariableDeclaration:
+                return this.connectLocalVariableDeclaration(statement as SyntaxNodes.LocalVariableDeclaration);
             case SyntaxKind.ReturnStatement:
                 return this.connectReturnStatement(statement as SyntaxNodes.ReturnStatement);
             case SyntaxKind.IfStatement:
@@ -449,7 +519,9 @@ export class Connector
         }
     }
 
-    private connectVariableDeclaration (variableDeclaration: SyntaxNodes.VariableDeclaration): SemanticNodes.VariableDeclaration
+    private connectLocalVariableDeclaration (
+        variableDeclaration: SyntaxNodes.LocalVariableDeclaration
+    ): SemanticNodes.LocalVariableDeclaration
     {
         const name = variableDeclaration.identifier.content;
         const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
@@ -473,6 +545,8 @@ export class Connector
             }
         }
 
+        // TODO: Check if the type clause and the initialiser type match.
+
         const variable = new SemanticSymbols.Variable(name, type, false);
 
         if (this.getVariable(name) !== null)
@@ -488,7 +562,7 @@ export class Connector
 
         this.pushVariable(variable);
 
-        return new SemanticNodes.VariableDeclaration(variable, initialisier);
+        return new SemanticNodes.LocalVariableDeclaration(variable, initialisier);
     }
 
     private connectReturnStatement (returnStatement: SyntaxNodes.ReturnStatement): SemanticNodes.ReturnStatement
@@ -675,7 +749,8 @@ export class Connector
             case SyntaxKind.FunctionParameter:
             case SyntaxKind.TypeClause:
             case SyntaxKind.Type:
-            case SyntaxKind.VariableDeclaration:
+            case SyntaxKind.LocalVariableDeclaration:
+            case SyntaxKind.GlobalVariableDeclaration:
             case SyntaxKind.Assignment:
             case SyntaxKind.IfStatement:
             case SyntaxKind.ElseClause:
@@ -759,7 +834,7 @@ export class Connector
         }
         else
         {
-            functionSymbol = inModule.functionsNameToSymbol.get(expression.identifier.content);
+            functionSymbol = inModule.functionNameToSymbol.get(expression.identifier.content);
         }
 
         if (functionSymbol === undefined)
@@ -857,7 +932,7 @@ export class Connector
         }
         else
         {
-            if (!importedFile.module.functionsNameToSymbol.has(expression.functionCall.identifier.content))
+            if (!importedFile.module.functionNameToSymbol.has(expression.functionCall.identifier.content))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(

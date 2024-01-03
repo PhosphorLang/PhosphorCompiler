@@ -8,6 +8,7 @@ export abstract class BuildInModules
         'Standard.String',
         'Standard.String',
         null,
+        new Map(),
         new Map(
             [
                 [BuildInFunctions.stringsAreEqual.name, BuildInFunctions.stringsAreEqual]
@@ -21,6 +22,7 @@ export abstract class BuildInModules
         'Standard.Memory',
         'Standard.Memory',
         null,
+        new Map(),
         new Map(
             [
                 [BuildInFunctions.allocate.name, BuildInFunctions.allocate]

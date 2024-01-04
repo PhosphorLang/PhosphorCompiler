@@ -12,14 +12,19 @@ export class GlobalVariableDeclarationSyntaxNode extends LocalVariableDeclaratio
     // @ts-expect-error Workaround to enable static typing for this class.
     private staticTyping = true;
 
+    public readonly isConstant: boolean;
+
     constructor (
         keyword: Token,
+        isConstant: boolean,
         identifier: Token,
         type: TypeClauseSyntaxNode|null,
         assignment: Token|null,
         initialiser: ExpressionSyntaxNode|null
     ) {
         super(keyword, identifier, type, assignment, initialiser);
+
+        this.isConstant = isConstant;
 
         // The readonly property "kind" must be set in this child constructor but not setable somewhere else, so we cannot use a protected
         // setter or something similiar. And sadly the readonly modifier makes it read only in child constructors, too.

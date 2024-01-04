@@ -11,4 +11,5 @@ function main ()
     Io.writeLine(hello);
 
     MyModule.sayHello();
+    MyModule.sayHello();
 }

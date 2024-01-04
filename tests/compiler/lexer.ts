@@ -111,6 +111,7 @@ describe('Lexer',
             new InputToTokenKind('class', TokenKind.ClassKeyword, 'the class keyword'),
             new InputToTokenKind('import', TokenKind.ImportKeyword, 'the import keyword'),
             new InputToTokenKind('variable', TokenKind.VariableKeyword, 'the variable keyword'),
+            new InputToTokenKind('constant', TokenKind.ConstantKeyword, 'the constant keyword'),
         ];
 
         describe('can tokenise',

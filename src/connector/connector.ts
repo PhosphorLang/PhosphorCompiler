@@ -424,7 +424,9 @@ export class Connector
 
         // TODO: Check if the type clause and the initialiser type match.
 
-        const variable = new SemanticSymbols.Variable(name, type, false);
+        const isReadonly = variableDeclaration.isConstant;
+
+        const variable = new SemanticSymbols.Variable(name, type, isReadonly);
 
         if (this.getVariable(name) !== null)
         {

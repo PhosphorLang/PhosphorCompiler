@@ -414,6 +414,9 @@ export class Lexer
             case 'variable':
                 kind = TokenKind.VariableKeyword;
                 break;
+            case 'constant':
+                kind = TokenKind.ConstantKeyword;
+                break;
             default:
                 kind = TokenKind.IdentifierToken;
         }

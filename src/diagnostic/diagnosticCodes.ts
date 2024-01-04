@@ -52,6 +52,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     UnexpectedTokenInInstantiationExpressionError = 'E1052',
     MethodInModuleWithoutClassError = 'E1053',
     AccessOfUnknownTypeError = 'E1054',
+    UnexpectedTokenInVariableExpressionError = 'E1055',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

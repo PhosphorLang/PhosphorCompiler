@@ -107,6 +107,7 @@ export class Parser
                     break;
                 }
                 case TokenKind.VariableKeyword:
+                case TokenKind.ConstantKeyword:
                 {
                     const variableDeclaration = this.parseGlobalVariableDeclaration();
                     variables.push(variableDeclaration);
@@ -238,7 +239,28 @@ export class Parser
         // TODO: This shares a lot of code with parseLocalVariableDeclaration(). Could both be unified?
 
         const keyword = this.consumeNextToken();
+
+        let isConstant: boolean;
+        switch (keyword.kind)
+        {
+            case TokenKind.VariableKeyword:
+                isConstant = false;
+                break;
+            case TokenKind.ConstantKeyword:
+                isConstant = true;
+                break;
+            default:
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unexpected token "${keyword.content}" in variable expression.`,
+                        Diagnostic.Codes.UnexpectedTokenInVariableExpressionError,
+                        keyword
+                    )
+                );
+        }
+
         const identifier = this.consumeNextToken();
+
         let type: SyntaxNodes.TypeClause|null = null;
         let assignment: Token|null = null;
         let initialiser: SyntaxNodes.Expression|null = null;
@@ -270,7 +292,7 @@ export class Parser
         // The semicolon:
         this.consumeNextToken();
 
-        return new SyntaxNodes.GlobalVariableDeclaration(keyword, identifier, type, assignment, initialiser);
+        return new SyntaxNodes.GlobalVariableDeclaration(keyword, isConstant, identifier, type, assignment, initialiser);
     }
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration

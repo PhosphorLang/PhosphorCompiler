@@ -12,12 +12,12 @@ import { IntermediateInterpreter } from './interpreter/intermediateInterpreter';
 import { Lexer } from './lexer/lexer';
 import { LinuxAmd64Backend } from './backends/linuxAmd64Backend';
 import { Lowerer } from './lowerer/lowerer';
+import { ModuleSemanticSymbol } from './connector/semanticSymbols/moduleSemanticSymbol';
 import os from 'os';
 import { Parser } from './parser/parser';
 import Path from 'path';
 import { TargetPlatform } from './options/targetPlatform';
 import { TranspilerIntermediate } from './transpiler/intermediate/transpilerIntermediate';
-import { ModuleSemanticSymbol } from './connector/semanticSymbols/moduleSemanticSymbol';
 
 class Main
 {

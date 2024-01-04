@@ -396,6 +396,13 @@ export class IntermediateInterpreter
                 const value = this.getVariableFromStack(moveIntermediate.from, functionStack);
 
                 functionStack.localVariables.set(moveIntermediate.to, value);
+
+                break;
+            }
+            case IntermediateSymbolKind.GlobalVariable:
+            {
+                // TODO: Implement.
+                throw new Error('Intermediate Interpreter error: Move of a global variable is not implemented yet.');
             }
             break;
         }

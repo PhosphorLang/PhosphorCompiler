@@ -13,7 +13,7 @@ import { Lexer } from './lexer/lexer';
 import { LinuxAmd64Backend } from './backends/linuxAmd64Backend';
 import { Lowerer } from './lowerer/lowerer';
 import { ModuleSemanticSymbol } from './connector/semanticSymbols/moduleSemanticSymbol';
-import os from 'os';
+import Os from 'os';
 import { Parser } from './parser/parser';
 import Path from 'path';
 import { TargetPlatform } from './options/targetPlatform';
@@ -195,21 +195,21 @@ class Main
         {
             if (diagnostic.errors.length != 0)
             {
-                const errorString = diagnostic.errors.join(os.EOL);
+                const errorString = diagnostic.errors.join(Os.EOL);
 
                 console.error(errorString);
             }
 
             if (diagnostic.warnings.length != 0)
             {
-                const warningString = diagnostic.warnings.join(os.EOL);
+                const warningString = diagnostic.warnings.join(Os.EOL);
 
                 console.error(warningString);
             }
 
             if (diagnostic.info.length != 0)
             {
-                const infoString = diagnostic.info.join(os.EOL);
+                const infoString = diagnostic.info.join(Os.EOL);
 
                 console.error(infoString);
             }

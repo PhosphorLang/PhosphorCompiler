@@ -13,17 +13,20 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        node: [16.x, 18.x]
+        node: [18.x, 20.x]
         experimental: [false]
         include:
           - os: ubuntu-latest
-            node: 20.x
+            node: 19.x
+            experimental: true
+          - os: ubuntu-latest
+            node: 21.x
             experimental: true
           - os: windows-latest
-            node: 16.x
+            node: 20.x
             experimental: true
           - os: macos-latest
-            node: 16.x
+            node: 20.x
             experimental: true
 
     steps:

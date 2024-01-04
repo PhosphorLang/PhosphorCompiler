@@ -1,4 +1,4 @@
-import childProcess from 'child_process';
+import ChildProcess from 'child_process';
 import path from 'path';
 
 export class GnuLinker
@@ -18,7 +18,7 @@ export class GnuLinker
             libraryImports += '-l":' + libraryFile + '" ';
         }
 
-        childProcess.execSync(
+        ChildProcess.execSync(
             'ld ' +
             '-e _start ' +
             '-s --gc-sections -n ' +

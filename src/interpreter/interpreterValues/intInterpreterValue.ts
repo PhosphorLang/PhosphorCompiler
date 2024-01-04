@@ -68,9 +68,7 @@ export class IntInterpreterValue extends InterpreterValueBase
             case 's390':
                 return IntermediateSize.Int32;
             case 'arm64':
-            case 'loong64':
             case 'ppc64':
-            case 'riscv64':
             case 's390x':
             case 'x64':
                 return IntermediateSize.Int64;

@@ -16,6 +16,7 @@ package-lock.json
 bin/**/*
 tmp/**/*
 out/**/*
+tests/tmp/**/*
 
 # Coverage directory used by tools like istanbul:
 coverage

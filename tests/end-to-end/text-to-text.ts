@@ -9,7 +9,7 @@ import { Parser } from '../../src/parser/parser';
 import Path from 'path';
 import { TranspilerIntermediate } from '../../src/transpiler/intermediate/transpilerIntermediate';
 
-describe('End-to-end, the compiler',
+describe('Text-to-text, the compiler',
     function ()
     {
         let diagnostic: Diagnostic.Diagnostic;

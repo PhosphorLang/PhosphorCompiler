@@ -52,7 +52,7 @@
     "main": "bin/main.js",
     "scripts": {
         "build": "tsc",
-        "clean": "rm -rf bin && rm -rf tmp && rm -rf coverage",
+        "clean": "rm -rf bin && rm -rf tmp && rm -rf tests/tmp rm -rf coverage",
         "coverage": "nyc npm run test",
         "coverage:coveralls": "nyc --reporter=lcov npm run test",
         "coverage:text": "nyc --reporter=text npm run test",

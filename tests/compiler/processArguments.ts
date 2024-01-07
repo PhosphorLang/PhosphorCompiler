@@ -1,8 +1,8 @@
 import 'mocha';
 import { assert } from 'chai';
-import { OptimisationLevel } from '../../src/options/optimisationLevel';
-import { ProcessArguments } from '../../src/processArguments';
-import { TargetPlatform } from '../../src/options/targetPlatform';
+import { OptimisationLevel } from '../../src/compilerInterface/optimisationLevel';
+import { ProcessArguments } from '../../src/compilerInterface/processArguments';
+import { TargetPlatform } from '../../src/compilerInterface/targetPlatform';
 
 describe('ProcessArguments',
     function ()

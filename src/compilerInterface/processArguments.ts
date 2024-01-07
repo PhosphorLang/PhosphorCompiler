@@ -1,6 +1,6 @@
 import { Command, CommanderError, Option } from 'commander';
-import { OptimisationLevel } from './options/optimisationLevel';
-import { TargetPlatform } from './options/targetPlatform';
+import { OptimisationLevel } from './optimisationLevel';
+import { TargetPlatform } from './targetPlatform';
 
 export type ProcessArgumentsError = CommanderError;
 

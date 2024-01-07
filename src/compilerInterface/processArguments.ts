@@ -8,6 +8,7 @@ export type ProcessArgumentsError = CommanderError;
 interface OptionValues
 {
     standardLibrary: string;
+    temporaryPath?: string;
     optimisation?: OptimisationLevel;
     target?: TargetPlatform;
     run?: boolean;
@@ -19,6 +20,7 @@ export class ProcessArguments
     public readonly filePath: string;
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
+    public readonly temporaryPath: string;
     public readonly optimisationLevel: OptimisationLevel;
     public readonly targetPlatform: TargetPlatform;
     public readonly run: boolean;
@@ -60,6 +62,11 @@ export class ProcessArguments
                 'standardLibrary.a',
             );
 
+        // TODO: The "set" part in the descriptions is unnecessary and should be removed.
+        const temporaryPathOption = new Option('-p, --temporaryPath <path>', 'Set the path where temporary files are stored.');
+        // TODO: Should we add the default option here? Should we do that for all optional options?
+        command.addOption(temporaryPathOption);
+
         const optimisationOption = new Option('-o, --optimisation <level>', 'Set the optimisation level');
         optimisationOption.choices(Object.values(OptimisationLevel));
         command.addOption(optimisationOption);
@@ -86,6 +93,7 @@ export class ProcessArguments
         this.outputPath = outputPath;
         this.standardLibraryPath = options.standardLibrary;
 
+        this.temporaryPath = options.temporaryPath ?? 'tmp';
         this.optimisationLevel = options.optimisation ?? OptimisationLevel.None;
         this.targetPlatform = options.target ?? TargetPlatform.LinuxAmd64; // TODO: Use the platform the compiler runs on as default.
         this.run = options.run ?? false;

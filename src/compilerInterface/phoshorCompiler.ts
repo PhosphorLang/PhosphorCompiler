@@ -31,12 +31,10 @@ export class PhosphorCompiler
 
         const standardLibraryTargetPath = Path.join(processArguments.standardLibraryPath, processArguments.targetPlatform);
 
-        // Create temporary directory for intermediate (IL, ASM, binary etc.) files:
-        // TODO: The temporary directory should be formalised or, if possible, completely removed.
-        const temporaryDirectoryPath = 'tmp';
-        if (!FileSystem.existsSync(temporaryDirectoryPath))
+        // Create the temporary directory for intermediate (IL, ASM, binary etc.) files:
+        if (!FileSystem.existsSync(processArguments.temporaryPath))
         {
-            FileSystem.mkdirSync(temporaryDirectoryPath);
+            FileSystem.mkdirSync(processArguments.temporaryPath);
         }
 
         const lexer = new Lexer(this.diagnostic);
@@ -145,13 +143,13 @@ export class PhosphorCompiler
                     const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
 
                     FileSystem.writeFileSync(
-                        Path.join(temporaryDirectoryPath, qualifiedName + '.phi'),
+                        Path.join(processArguments.temporaryPath, qualifiedName + '.phi'),
                         intermediateCode,
                         { encoding: 'utf8' }
                     );
                 }
 
-                const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, temporaryDirectoryPath);
+                const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, processArguments.temporaryPath);
                 objectFiles.push(objectFilePath);
             }
 

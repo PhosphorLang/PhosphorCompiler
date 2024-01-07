@@ -72,7 +72,27 @@ export class TranspilerLlvm
                 new LlvmInstructions.Function('define', 'void', '@_start', []),
                 new Instructions.Instruction('{'),
                 new Instructions.Label('entry'),
-                new Instructions.Instruction('call', 'void', '@":initialisation"', '()'),
+            );
+
+            // TODO: The following is ugly; we shouldn't need to go through every function to check whether an initialisation exists:
+            let hasInitialisation = false;
+            for (const fileFunction of fileIntermediate.functions)
+            {
+                if (fileFunction.symbol.name == ':initialisation')
+                {
+                    hasInitialisation = true;
+                    break;
+                }
+            }
+
+            if (hasInitialisation)
+            {
+                this.instructions.push(
+                    new Instructions.Instruction('call', 'void', '@":initialisation"', '()')
+                );
+            }
+
+            this.instructions.push(
                 new Instructions.Instruction('call', 'void', '@main', '()'),
                 new Instructions.Instruction('call', 'void', '@Standard.System.exit', '()'),
                 new Instructions.Instruction('ret', 'void'),

@@ -29,9 +29,9 @@ class Main
 
         try
         {
-            const phosphorCompiler = new PhosphorCompiler();
+            const phosphorCompiler = new PhosphorCompiler(diagnostic);
 
-            phosphorCompiler.run(this.arguments, diagnostic);
+            phosphorCompiler.run(this.arguments);
 
             diagnostic.end();
         }

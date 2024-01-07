@@ -18,7 +18,14 @@ import { TranspilerIntermediate } from '../transpiler/intermediate/transpilerInt
 
 export class PhosphorCompiler
 {
-    public run (processArguments: ProcessArguments, diagnostic: Diagnostic.Diagnostic): void
+    private diagnostic: Diagnostic.Diagnostic;
+
+    constructor (diagnostic: Diagnostic.Diagnostic)
+    {
+        this.diagnostic = diagnostic;
+    }
+
+    public run (processArguments: ProcessArguments): void
     {
         // TODO: This function should be split into smaller functions.
 
@@ -32,10 +39,10 @@ export class PhosphorCompiler
             FileSystem.mkdirSync(temporaryDirectoryPath);
         }
 
-        const lexer = new Lexer(diagnostic);
-        const parser = new Parser(diagnostic);
-        const importer = new Importer(diagnostic);
-        const connector = new Connector(diagnostic);
+        const lexer = new Lexer(this.diagnostic);
+        const parser = new Parser(this.diagnostic);
+        const importer = new Importer(this.diagnostic);
+        const connector = new Connector(this.diagnostic);
         const lowerer = new Lowerer();
 
         const searchPaths = [
@@ -78,7 +85,7 @@ export class PhosphorCompiler
 
         if (entrySyntaxTree == null)
         {
-            diagnostic.throw(
+            this.diagnostic.throw(
                 new Diagnostic.Error(
                     `The entry file '${processArguments.filePath}' was not found.`,
                     Diagnostic.Codes.FileNotFoundError

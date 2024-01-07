@@ -34,7 +34,13 @@ export class PhosphorCompiler
         // Create the temporary directory for intermediate (IL, ASM, binary etc.) files:
         if (!FileSystem.existsSync(processArguments.temporaryPath))
         {
-            FileSystem.mkdirSync(processArguments.temporaryPath);
+            FileSystem.mkdirSync(processArguments.temporaryPath, { recursive: true });
+        }
+        // Create the output directory for the final binary:
+        const outputDirectory = Path.dirname(processArguments.outputPath);
+        if (!FileSystem.existsSync(outputDirectory))
+        {
+            FileSystem.mkdirSync(outputDirectory, { recursive: true });
         }
 
         const lexer = new Lexer(this.diagnostic);

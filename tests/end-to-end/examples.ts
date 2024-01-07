@@ -44,7 +44,16 @@ describe('Examples, the compiler can compile',
             }
 
             const folderPath = Path.join(folder.path, folder.name);
-            const files = FileSystem.readdirSync(folderPath, {encoding: 'utf8'});
+            const foundFiles = FileSystem.readdirSync(folderPath, {encoding: 'utf8'});
+
+            const files: string[] = [];
+            for (const file of foundFiles)
+            {
+                if (file.endsWith('.ph'))
+                {
+                    files.push(file);
+                }
+            }
 
             let fileName: string;
             if (files.length == 1)

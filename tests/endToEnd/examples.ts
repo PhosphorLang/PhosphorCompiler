@@ -8,7 +8,7 @@ import { PhosphorCompiler } from '../../src/compilerInterface/phoshorCompiler';
 import { ProcessArguments } from '../../src/compilerInterface/processArguments';
 import { TargetPlatform } from '../../src/compilerInterface/targetPlatform';
 
-describe('Examples, the compiler can compile',
+describe('The compiler can compile example',
     function ()
     {
         let diagnostic: Diagnostic.Diagnostic;
@@ -69,12 +69,13 @@ describe('Examples, the compiler can compile',
                 continue;
             }
 
-            it(`example "${folder.name}".`,
+            it(`"${folder.name}".`,
                 function ()
                 {
                     if (process.platform != 'linux')
                     {
-                        // NOTE: The linker step of the compiler currently only supports Linux.
+                        // NOTE: The backend of the compiler currently only supports Linux.
+                        // TODO: If we skipped the backend (LLVM, Assembler, Linker), we could run the tests on all platforms.
                         this.skip();
                     }
 
@@ -90,6 +91,8 @@ describe('Examples, the compiler can compile',
 
                     const fileExists = FileSystem.existsSync(processArguments.outputPath);
                     assert.isTrue(fileExists);
+
+                    // TODO: Should we clean up after ourselves and delete the temporary directory? Only the created files?
                 }
             );
         }

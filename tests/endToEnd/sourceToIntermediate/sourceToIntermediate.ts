@@ -1,15 +1,15 @@
 import 'mocha';
-import * as Diagnostic from '../../src/diagnostic';
+import * as Diagnostic from '../../../src/diagnostic';
 import { assert } from 'chai';
-import { Connector } from '../../src/connector/connector';
+import { Connector } from '../../../src/connector/connector';
 import FileSystem from 'fs';
-import { Lexer } from '../../src/lexer/lexer';
-import { Lowerer } from '../../src/lowerer/lowerer';
-import { Parser } from '../../src/parser/parser';
+import { Lexer } from '../../../src/lexer/lexer';
+import { Lowerer } from '../../../src/lowerer/lowerer';
+import { Parser } from '../../../src/parser/parser';
 import Path from 'path';
-import { TranspilerIntermediate } from '../../src/transpiler/intermediate/transpilerIntermediate';
+import { TranspilerIntermediate } from '../../../src/transpiler/intermediate/transpilerIntermediate';
 
-describe('Text-to-text, the compiler',
+describe('The compiler returns the correct intermediate for',
     function ()
     {
         let diagnostic: Diagnostic.Diagnostic;
@@ -18,6 +18,7 @@ describe('Text-to-text, the compiler',
         let connector: Connector;
         let lowerer: Lowerer;
         let transpiler: TranspilerIntermediate;
+        // TODO: Replace the manual compilation here with the new PhosphorCompiler class.
 
         function readInputFile (fileName: string): string
         {
@@ -66,63 +67,63 @@ describe('Text-to-text, the compiler',
             }
         );
 
-        it('can compile an empty module.',
+        it('an empty module.',
             function ()
             {
                 expectCompiledEquality('emptyModule');
             }
         );
 
-        it('can compile an empty main function.',
+        it('an empty main function.',
             function ()
             {
                 expectCompiledEquality('emptyMain');
             }
         );
 
-        it('can compile function definition and call.',
+        it('function definition and call.',
             function ()
             {
                 expectCompiledEquality('functions');
             }
         );
 
-        it('can compile if and else.',
+        it('if and else.',
             function ()
             {
                 expectCompiledEquality('ifElse');
             }
         );
 
-        it('can compile a while loop.',
+        it('a while loop.',
             function ()
             {
                 expectCompiledEquality('whileLoop');
             }
         );
 
-        it('can compile math expressions.',
+        it('math expressions.',
             function ()
             {
                 expectCompiledEquality('math');
             }
         );
 
-        it('can compile bitwise expressions.',
+        it('bitwise expressions.',
             function ()
             {
                 expectCompiledEquality('bitwise');
             }
         );
 
-        it('can compile logical expressions.',
+        it('logical expressions.',
             function ()
             {
                 expectCompiledEquality('logic');
             }
         );
 
-        it('can compile string constants and operations.',
+        it('string constants and operations.',
             function ()
             {
                 expectCompiledEquality('strings');

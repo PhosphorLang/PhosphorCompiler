@@ -72,6 +72,12 @@ describe('Examples, the compiler can compile',
             it(`example "${folder.name}".`,
                 function ()
                 {
+                    if (process.platform != 'linux')
+                    {
+                        // NOTE: The linker step of the compiler currently only supports Linux.
+                        this.skip();
+                    }
+
                     const filePath = Path.join(folderPath, fileName);
 
                     const processArguments = {

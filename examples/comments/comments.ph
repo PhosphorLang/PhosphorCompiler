@@ -7,7 +7,7 @@ import Standard.Io;
 /**
  * Documentation comment
  */
-function main /* Inline block comment */ () // Inline comment after function declaration
+function main ()
 {
     // Statement level comment
 

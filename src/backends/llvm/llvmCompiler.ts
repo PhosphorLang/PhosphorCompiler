@@ -6,7 +6,7 @@ export class LlvmCompiler
     public run (inputFile: string, outputFile: string, target: LlvmCompilerTarget): void
     {
         ChildProcess.execSync(
-            'llc ' + // TODO: Switch to llvm-14 (explicit versioning).
+            'llc-14 ' +
             '--opaque-pointers ' +
             '-mtriple=' + target + ' ' +
             '-o "' + outputFile + '" ' +

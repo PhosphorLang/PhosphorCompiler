@@ -22,8 +22,31 @@ jobs:
       - name: Run linter
         run: npm run lint
 
+  standardLibraryPreparation:
+    name: Standard Library Preparation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone standard library
+        uses: actions/checkout@v3
+        with:
+          repository: "PhosphorLang/PhosphorStandardLibrary"
+
+      - name: Install standard library dependencies
+        run: sudo apt-get -yqq install nasm gcc binutils binutils-avr
+
+      - name: Build standard library
+        run: bash build.sh all
+
+      - name: Upload standard library build as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "StandardLibrary"
+          path: "bin/"
+
   testing:
     name: Running tests
+    needs: [standardLibraryPreparation]
     runs-on: ${{ matrix.os }}
 
     continue-on-error: ${{ matrix.experimental }}
@@ -51,14 +74,27 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
+        with:
+          path: "Compiler"
+
+      - name: Download standard library artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "StandardLibrary"
+          path: "StandardLibrary/bin/"
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install system dependencies
+        run: sudo apt-get -yqq install llvm-14 binutils
+
       - name: Install npm dependencies
+        working-directory: "Compiler"
         run: npm install
 
       - name: Run tests
+        working-directory: "Compiler"
         run: npm test

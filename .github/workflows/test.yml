@@ -99,3 +99,43 @@ jobs:
       - name: Run tests
         working-directory: "Compiler"
         run: npm test
+
+  coverage:
+    name: Coverage with Coveralls
+    needs: [standardLibraryPreparation]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          path: "Compiler"
+
+      - name: Download standard library artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "StandardLibrary"
+          path: "StandardLibrary/bin/"
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get -yqq install llvm-14 binutils
+
+      - name: Install npm dependencies
+        working-directory: "Compiler"
+        run: npm install
+
+      - name: Run coverage
+        working-directory: "Compiler"
+        run: npm run coverage:coveralls
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          base-path: "Compiler"
+          github-token: ${{ secrets.GITHUB_TOKEN }}

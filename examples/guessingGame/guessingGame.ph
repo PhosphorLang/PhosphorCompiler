@@ -12,8 +12,8 @@ function main ()
 
     Io.writeLine('I have picked a number between 1 and 100. Guess it!');
 
-    let stillGuessing := true;
-    let tryCount := 0;
+    let variable stillGuessing := true;
+    let variable tryCount := 0;
 
     while stillGuessing
     {

@@ -231,7 +231,8 @@ describe('Connector',
                                 [
                                     SyntaxCreator.newLocalVariableDeclaration(
                                         undefined,
-                                        SyntaxCreator.newTypeClause()
+                                        SyntaxCreator.newTypeClause(),
+                                        false
                                     ),
                                     SyntaxCreator.newAssignment(
                                         SyntaxCreator.newIntegerLiteral()
@@ -247,9 +248,13 @@ describe('Connector',
                         SemanticCreator.newFunctionDeclaration(
                             SemanticCreator.newSection(
                                 [
-                                    SemanticCreator.newLocalVariableDeclaration(),
+                                    SemanticCreator.newLocalVariableDeclaration(
+                                        undefined,
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, false)
+                                    ),
                                     SemanticCreator.newAssignment(
-                                        SemanticCreator.newIntegerLiteral()
+                                        SemanticCreator.newIntegerLiteral(),
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, false)
                                     )
                                 ]
                             )
@@ -287,7 +292,8 @@ describe('Connector',
                             SemanticCreator.newSection(
                                 [
                                     SemanticCreator.newLocalVariableDeclaration(
-                                        SemanticCreator.newIntegerLiteral()
+                                        SemanticCreator.newIntegerLiteral(),
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, true)
                                     )
                                 ]
                             )
@@ -325,7 +331,8 @@ describe('Connector',
                             SemanticCreator.newSection(
                                 [
                                     SemanticCreator.newLocalVariableDeclaration(
-                                        SemanticCreator.newIntegerAddition()
+                                        SemanticCreator.newIntegerAddition(),
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, true)
                                     )
                                 ]
                             )
@@ -371,7 +378,8 @@ describe('Connector',
                                         SemanticCreator.newIntegerAddition(
                                             SemanticCreator.newIntegerLiteral(),
                                             SemanticCreator.newIntegerAddition()
-                                        )
+                                        ),
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, true)
                                     )
                                 ]
                             )
@@ -487,7 +495,8 @@ describe('Connector',
                             SemanticCreator.newSection(
                                 [
                                     SemanticCreator.newLocalVariableDeclaration(
-                                        SemanticCreator.newIntegerNegation()
+                                        SemanticCreator.newIntegerNegation(),
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, true)
                                     )
                                 ]
                             )
@@ -516,6 +525,7 @@ describe('Connector',
                                     SyntaxCreator.newLocalVariableDeclaration(
                                         SyntaxCreator.newVariableExpression(),
                                         undefined,
+                                        true,
                                         TokenCreator.newVariableIdentifier('variableB')
                                     )
                                 ]
@@ -530,13 +540,15 @@ describe('Connector',
                             SemanticCreator.newSection(
                                 [
                                     SemanticCreator.newLocalVariableDeclaration(
-                                        SemanticCreator.newIntegerLiteral()
+                                        SemanticCreator.newIntegerLiteral(),
+                                        SemanticCreator.newVariableSymbol(undefined, undefined, true)
                                     ),
                                     SemanticCreator.newLocalVariableDeclaration(
                                         SemanticCreator.newVariableExpression(),
                                         SemanticCreator.newVariableSymbol(
                                             undefined,
-                                            'variableB'
+                                            'variableB',
+                                            true
                                         )
                                     )
                                 ]

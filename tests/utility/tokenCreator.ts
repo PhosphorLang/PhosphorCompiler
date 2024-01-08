@@ -194,4 +194,9 @@ export abstract class TokenCreator
     {
         return new Token(TokenKind.ImportKeyword, 'import');
     }
+
+    public static newVariableKeyword (): Token
+    {
+        return new Token(TokenKind.VariableKeyword, 'variable');
+    }
 }

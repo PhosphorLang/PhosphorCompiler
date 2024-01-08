@@ -98,7 +98,7 @@ export abstract class SemanticCreator
     public static newVariableSymbol (
         type = BuildInTypes.int,
         name = Defaults.variableName,
-        isReadonly = false
+        isReadonly = true
     ): SemanticSymbols.Variable
     {
         return new SemanticSymbols.Variable(name, type, isReadonly);

@@ -119,13 +119,21 @@ export abstract class SyntaxCreator
     public static newLocalVariableDeclaration (
         initialiser: SyntaxNodes.Expression|null = null,
         typeClause: SyntaxNodes.TypeClause|null = null,
+        isReadonly = true,
         identifier = TokenCreator.newVariableIdentifier(),
     ): SyntaxNodes.LocalVariableDeclaration
     {
         const assignment = initialiser === null ? null : TokenCreator.newAssignment();
 
+        let variableKeyword: Token|null = null;
+        if (!isReadonly)
+        {
+            variableKeyword = TokenCreator.newVariableKeyword();
+        }
+
         return new SyntaxNodes.LocalVariableDeclaration(
             TokenCreator.newLetKeyword(),
+            variableKeyword,
             identifier,
             typeClause,
             assignment,

@@ -596,6 +596,13 @@ export class Parser
     private parseLocalVariableDeclaration (): SyntaxNodes.LocalVariableDeclaration
     {
         const keyword = this.consumeNextToken();
+
+        let variableModifier: Token|null = null;
+        if (this.getCurrentToken().kind == TokenKind.VariableKeyword)
+        {
+            variableModifier = this.consumeNextToken();
+        }
+
         const identifier = this.consumeNextToken();
         let type: SyntaxNodes.TypeClause|null = null;
         let assignment: Token|null = null;
@@ -626,7 +633,7 @@ export class Parser
                 );
         }
 
-        return new SyntaxNodes.LocalVariableDeclaration(keyword, identifier, type, assignment, initialiser);
+        return new SyntaxNodes.LocalVariableDeclaration(keyword, variableModifier, identifier, type, assignment, initialiser);
     }
 
     private parseIfStatement (): SyntaxNodes.IfStatement

@@ -547,9 +547,11 @@ export class Connector
             }
         }
 
+        const isReadonly = variableDeclaration.variableModifier === null;
+
         // TODO: Check if the type clause and the initialiser type match.
 
-        const variable = new SemanticSymbols.Variable(name, type, false);
+        const variable = new SemanticSymbols.Variable(name, type, isReadonly);
 
         if (this.getVariable(name) !== null)
         {

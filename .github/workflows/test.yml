@@ -89,6 +89,7 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install system dependencies
+        if: runner.os == 'Linux'
         run: sudo apt-get -yqq install llvm-14 binutils
 
       - name: Install npm dependencies

@@ -53,10 +53,11 @@ describe('The compiled programme gives the correct output for',
                         this.skip();
                     }
 
+                    const executablePath = Path.join(defaultProcessArguments.outputPath, inputFolder.name);
                     const processArguments = {
                         ...defaultProcessArguments,
                         filePath: inputFilePath,
-                        outputPath: Path.join(defaultProcessArguments.outputPath, inputFolder.name),
+                        outputPath: executablePath,
                     };
 
                     phosphorCompiler.run(processArguments);
@@ -66,7 +67,7 @@ describe('The compiled programme gives the correct output for',
 
                     const expected = FileSystem.readFileSync(outputFilePath, {encoding: 'utf8'});
 
-                    const result = ChildProcess.execSync(processArguments.outputPath);
+                    const result = ChildProcess.execFileSync(executablePath);
 
                     assert.equal(result.toString(), expected);
 

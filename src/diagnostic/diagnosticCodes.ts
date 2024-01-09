@@ -53,6 +53,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     AccessOfUnknownTypeError = 'E1054',
     UnexpectedTokenInVariableExpressionError = 'E1055',
     UnknownStatementError = 'E1056',
+    UnexpectedTokenAfterFieldDeclarationIdentifierError = 'E1057',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

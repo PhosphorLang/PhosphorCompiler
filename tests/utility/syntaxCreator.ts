@@ -10,12 +10,13 @@ export abstract class SyntaxCreator
     public static newFile (
         functions: SyntaxNodes.FunctionDeclaration[] = [],
         variables: SyntaxNodes.GlobalVariableDeclaration[] = [],
+        fields: SyntaxNodes.FieldVariableDeclaration[] = [],
         imports: SyntaxNodes.Import[] = [],
         fileName = Defaults.fileName,
         module = SyntaxCreator.newModule(),
     ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, module, imports, variables, functions);
+        return new SyntaxNodes.File(fileName, module, imports, variables, fields, functions);
     }
 
     public static newModule (

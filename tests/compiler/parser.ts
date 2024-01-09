@@ -1025,6 +1025,7 @@ describe('Parser',
                         )
                     ],
                     [],
+                    [],
                     [
                         SyntaxCreator.newImport()
                     ]

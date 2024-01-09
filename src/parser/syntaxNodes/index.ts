@@ -4,6 +4,7 @@ export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressi
 export { BracketedExpressionSyntaxNode as BracketedExpression } from './bracketedExpressionSyntaxNode';
 export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSyntaxNode';
 export { ElseClauseSyntaxNode as ElseClause } from './elseClauseSyntaxNode';
+export { FieldVariableDeclarationSyntaxNode as FieldVariableDeclaration } from './fieldVariableDeclarationSyntaxNode';
 export { FileSyntaxNode as File } from './fileSyntaxNode';
 export { FunctionDeclarationSyntaxNode as FunctionDeclaration } from './functionDeclarationSyntaxNode';
 export { FunctionParameterSyntaxNode as FunctionParameter } from './functionParameterSyntaxNode';

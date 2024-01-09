@@ -48,4 +48,5 @@ export enum TokenKind
     NewKeyword,
     VariableKeyword,
     ConstantKeyword,
+    FieldKeyword,
 }

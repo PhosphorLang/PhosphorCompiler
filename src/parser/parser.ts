@@ -86,6 +86,7 @@ export class Parser
     {
         const imports: SyntaxNodes.Import[] = [];
         const variables: SyntaxNodes.GlobalVariableDeclaration[] = [];
+        const fields: SyntaxNodes.FieldVariableDeclaration[] = [];
         const functions: SyntaxNodes.FunctionDeclaration[] = [];
         let module: SyntaxNodes.Module|null = null;
 
@@ -110,6 +111,12 @@ export class Parser
                 {
                     const variableDeclaration = this.parseGlobalVariableDeclaration();
                     variables.push(variableDeclaration);
+                    break;
+                }
+                case TokenKind.FieldKeyword:
+                {
+                    const fieldDeclaration = this.parseFieldVariableDeclaration();
+                    fields.push(fieldDeclaration);
                     break;
                 }
                 case TokenKind.FunctionKeyword:
@@ -156,7 +163,7 @@ export class Parser
             );
         }
 
-        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, variables, functions);
+        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, variables, fields, functions);
 
         return fileRoot;
     }
@@ -235,7 +242,7 @@ export class Parser
 
     private parseGlobalVariableDeclaration (): SyntaxNodes.GlobalVariableDeclaration
     {
-        // TODO: This shares a lot of code with parseLocalVariableDeclaration(). Could both be unified?
+        // TODO: This shares a lot of code with parseLocalVariableDeclaration and parseFieldVariableDeclaration. Could they be unified?
 
         const keyword = this.consumeNextToken();
 
@@ -281,7 +288,7 @@ export class Parser
             default:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Unexpected token "${this.getFollowerToken().content}" after variable declaration identifier`,
+                        `Unexpected token "${this.getFollowerToken().content}" after module variable declaration identifier`,
                         Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
                         this.getCurrentToken()
                     )
@@ -292,6 +299,52 @@ export class Parser
         this.consumeNextToken();
 
         return new SyntaxNodes.GlobalVariableDeclaration(keyword, isConstant, identifier, type, assignment, initialiser);
+    }
+
+    private parseFieldVariableDeclaration (): SyntaxNodes.FieldVariableDeclaration
+    {
+        const keyword = this.consumeNextToken();
+
+        let variableModifier: Token|null = null;
+        if (this.getCurrentToken().kind == TokenKind.VariableKeyword)
+        {
+            variableModifier = this.consumeNextToken();
+        }
+
+        const identifier = this.consumeNextToken();
+        let type: SyntaxNodes.TypeClause|null = null;
+        let assignment: Token|null = null;
+        let initialiser: SyntaxNodes.Expression|null = null;
+
+        switch (this.getCurrentToken().kind)
+        {
+            case TokenKind.AssignmentOperator:
+                assignment = this.consumeNextToken();
+                initialiser = this.parseExpression();
+                break;
+            case TokenKind.ColonToken:
+                type = this.parseTypeClause();
+
+                if (this.getCurrentToken().kind == TokenKind.AssignmentOperator)
+                {
+                    assignment = this.consumeNextToken();
+                    initialiser = this.parseExpression();
+                }
+                break;
+            default:
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unexpected token "${this.getFollowerToken().content}" after field declaration identifier`,
+                        Diagnostic.Codes.UnexpectedTokenAfterFieldDeclarationIdentifierError,
+                        this.getCurrentToken()
+                    )
+                );
+        }
+
+        // The semicolon:
+        this.consumeNextToken();
+
+        return new SyntaxNodes.FieldVariableDeclaration(keyword, variableModifier, identifier, type, assignment, initialiser);
     }
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration
@@ -649,7 +702,7 @@ export class Parser
             default:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Unexpected token "${this.getFollowerToken().content}" after variable declaration identifier`,
+                        `Unexpected token "${this.getFollowerToken().content}" after local variable declaration identifier`,
                         Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
                         this.getCurrentToken()
                     )

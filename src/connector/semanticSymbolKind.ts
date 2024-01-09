@@ -4,6 +4,7 @@ export enum SemanticSymbolKind
     Function = 'Function',
     FunctionParameter = 'FunctionParameter',
     Variable = 'Variable',
+    Field = 'Field',
     GenericType = 'GenericType',
     GenericParameter = 'GenericParameter',
     ConcreteType = 'ConcreteType',

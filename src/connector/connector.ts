@@ -161,6 +161,14 @@ export class Connector
             variableDeclarations.push(variableDeclaration);
         }
 
+        // Fields:
+        const fieldDeclarations: SemanticNodes.FieldDeclaration[] = [];
+        for (const fieldNode of file.fields)
+        {
+            const fieldDeclaration = this.connectFieldVariableDeclaration(fieldNode);
+            fieldDeclarations.push(fieldDeclaration);
+        }
+
         // Module:
         const moduleSymbol = this.connectModule(file.module);
         this.currentModule = moduleSymbol;
@@ -176,7 +184,14 @@ export class Connector
         this.moduleIsClass = false;
         this.currentModule = null;
 
-        return new SemanticNodes.File(file.fileName, moduleSymbol, importedModules, variableDeclarations, functionDeclarations);
+        return new SemanticNodes.File(
+            file.fileName,
+            moduleSymbol,
+            importedModules,
+            variableDeclarations,
+            fieldDeclarations,
+            functionDeclarations
+        );
     }
 
     private connectModule (module: SyntaxNodes.Module): SemanticSymbols.Module
@@ -392,7 +407,7 @@ export class Connector
         variableDeclaration: SyntaxNodes.GlobalVariableDeclaration
     ): SemanticNodes.GlobalVariableDeclaration
     {
-        // TODO: This shares a lot of code with connectLocalVariableDeclaration(). Could both be unified?
+        // TODO: This shares a lot of code with connectLocalVariableDeclaration and connectFieldVariableDeclaration. Could they be unified?
 
         const name = variableDeclaration.identifier.content;
         const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
@@ -435,7 +450,67 @@ export class Connector
 
         this.variables.set(variable.name, variable);
 
-        return new SemanticNodes.GlobalVariableDeclaration(variable, initialisier);
+        return new SemanticNodes.GlobalVariableDeclaration(variable, false, initialisier);
+    }
+
+    private connectFieldVariableDeclaration (
+        fieldDeclaration: SyntaxNodes.FieldVariableDeclaration
+    ): SemanticNodes.GlobalVariableDeclaration
+    {
+        if (!this.moduleIsClass)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'Fields can only be declared in classes.',
+                    Diagnostic.Codes.FieldInModuleWithoutClassError,
+                    fieldDeclaration.identifier
+                )
+            );
+        }
+
+        const name = fieldDeclaration.identifier.content;
+        const initialisier = fieldDeclaration.initialiser === null ? null : this.connectExpression(fieldDeclaration.initialiser);
+        let type = this.connectTypeClause(fieldDeclaration.type);
+
+        if (type === null)
+        {
+            if (initialisier === null)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `The field "${name}" must either have a type clause or an initialiser.`,
+                        Diagnostic.Codes.FieldWithoutTypeClauseAndInitialiserError,
+                        fieldDeclaration.identifier
+                    )
+                );
+            }
+            else
+            {
+                type = initialisier.type;
+            }
+        }
+
+        const isReadonly = fieldDeclaration.variableModifier === null;
+
+        // TODO: Check if the type clause and the initialiser type match.
+
+        const field = new SemanticSymbols.Field(name, type, isReadonly);
+
+        if (this.getVariable(name) !== null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Duplicate declaration of field "${name}".`,
+                    // TODO: This would also produce an error if a variable shares the name with a field, which should be reported as such.
+                    Diagnostic.Codes.DuplicateVariableDeclarationError,
+                    fieldDeclaration.identifier
+                )
+            );
+        }
+
+        this.pushVariable(field); // FIXME: Is doing this here correct? Where should the field be added to?
+
+        return new SemanticNodes.GlobalVariableDeclaration(field, true, initialisier);
     }
 
     private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
@@ -793,6 +868,30 @@ export class Connector
                     expression.identifier
                 )
             );
+        }
+
+        if (variable.kind == SemanticSymbolKind.Field)
+        {
+            if (this.currentFunction === null)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Cannot access field "${name}" outside of a method.`,
+                        Diagnostic.Codes.FieldAccessOutsideMethodError,
+                        expression.identifier
+                    )
+                );
+            }
+            else if (!this.currentFunction.isMethod)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Cannot access field "${name}" inside a function. This is only possible inside methods.`,
+                        Diagnostic.Codes.FieldAccessInsideFunctionError,
+                        expression.identifier
+                    )
+                );
+            }
         }
 
         return new SemanticNodes.VariableExpression(variable);

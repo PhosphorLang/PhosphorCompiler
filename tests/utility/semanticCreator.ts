@@ -11,12 +11,13 @@ export abstract class SemanticCreator
     public static newFile (
         functions: SemanticNodes.FunctionDeclaration[] = [],
         variables: SemanticNodes.GlobalVariableDeclaration[] = [],
+        fields: SemanticNodes.FieldDeclaration[] = [],
         fileName = Defaults.fileName,
         module = SemanticCreator.newModule(),
         imports: SemanticSymbols.Module[] = []
     ): SemanticNodes.File
     {
-        return new SemanticNodes.File(fileName, module, imports, variables, functions);
+        return new SemanticNodes.File(fileName, module, imports, variables, fields, functions);
     }
 
     public static newModule (

@@ -4,6 +4,7 @@ export { AssignmentGenericNode as Assignment } from './assignmentGenericNode';
 export { BinaryExpressionGenericNode as BinaryExpression } from './binaryExpressionGenericNode';
 export { CallExpressionGenericNode as CallExpression } from './callExpressionGenericNode';
 export { ElseClauseGenericNode as ElseClause } from './elseClauseGenericNode';
+export { FieldDeclarationGenericNode as FieldDeclaration } from './fieldDeclarationGenericNode';
 export { FileGenericNode as File } from './fileGenericNode';
 export { FunctionDeclarationGenericNode as FunctionDeclaration } from './functionDeclarationGenericNode';
 export { GlobalVariableDeclarationGenericNode as GlobalVariableDeclaration } from './globalVariableDeclarationGenericNode';
@@ -21,6 +22,7 @@ import { AssignmentGenericNode } from './assignmentGenericNode';
 import { BinaryExpressionGenericNode } from './binaryExpressionGenericNode';
 import { CallExpressionGenericNode } from './callExpressionGenericNode';
 import { ElseClauseGenericNode } from './elseClauseGenericNode';
+import { FieldDeclarationGenericNode } from './fieldDeclarationGenericNode';
 import { FileGenericNode } from './fileGenericNode';
 import { FunctionDeclarationGenericNode } from './functionDeclarationGenericNode';
 import { GlobalVariableDeclarationGenericNode } from './globalVariableDeclarationGenericNode';
@@ -40,6 +42,7 @@ export type GenericNode<
     FunctionDeclaration,
     Section,
     GlobalVariableDeclaration,
+    FieldDeclaration,
     VariableExpression,
     IfStatement,
     ElseClause
@@ -48,7 +51,8 @@ export type GenericNode<
     | BinaryExpressionGenericNode<Expression>
     | CallExpressionGenericNode<Expression, VariableExpression>
     | ElseClauseGenericNode<Section, IfStatement>
-    | FileGenericNode<GlobalVariableDeclaration, FunctionDeclaration>
+    | FieldDeclarationGenericNode<Expression>
+    | FileGenericNode<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration>
     | FunctionDeclarationGenericNode<Section>
     | GlobalVariableDeclarationGenericNode<Expression>
     | IfStatementGenericNode<Expression, Section, ElseClause>

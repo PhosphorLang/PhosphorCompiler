@@ -4,8 +4,8 @@ import { SemanticSymbolKind } from '../semanticSymbolKind';
 
 export class VariableSemanticSymbol extends SemanticSymbol
 {
-    public readonly isReadonly: boolean;
     public readonly type: ConcreteTypeSemanticSymbol;
+    public readonly isReadonly: boolean;
 
     constructor (name: string, type: ConcreteTypeSemanticSymbol, isReadonly: boolean)
     {

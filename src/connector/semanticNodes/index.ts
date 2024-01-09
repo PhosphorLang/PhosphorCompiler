@@ -4,7 +4,8 @@ export class Assignment extends GenericNode.Assignment<Expression> {}
 export class BinaryExpression extends GenericNode.BinaryExpression<Expression> {}
 export class CallExpression extends GenericNode.CallExpression<Expression, VariableExpression> {}
 export class ElseClause extends GenericNode.ElseClause<Section, IfStatement> {}
-export class File extends GenericNode.File<GlobalVariableDeclaration, FunctionDeclaration> {}
+export class FieldDeclaration extends GenericNode.FieldDeclaration<Expression> {}
+export class File extends GenericNode.File<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration> {}
 export class FunctionDeclaration extends GenericNode.FunctionDeclaration<Section> {}
 export class GlobalVariableDeclaration extends GenericNode.GlobalVariableDeclaration<Expression> {}
 export class IfStatement extends GenericNode.IfStatement<Expression, Section, ElseClause> {}
@@ -25,6 +26,7 @@ export type SemanticNode =
     | File
     | FunctionDeclaration
     | GlobalVariableDeclaration
+    | FieldDeclaration
     | IfStatement
     | InstantiationExpression
     | LiteralExpression

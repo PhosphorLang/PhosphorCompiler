@@ -1,6 +1,7 @@
 export { SemanticSymbol } from './semanticSymbol';
 
 export { ConcreteTypeSemanticSymbol as ConcreteType } from './concreteTypeSemanticSymbol';
+export { FieldSemanticSymbol as Field } from './fieldSemanticSymbol';
 export { FunctionParameterSemanticSymbol as FunctionParameter } from './functionParameterSemanticSymbol';
 export { FunctionSemanticSymbol as Function } from './functionSemanticSymbol';
 export { ConcreteParameterSemanticSymbol as ConcreteParameter } from './concreteParameterSemanticSymbol';

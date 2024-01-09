@@ -1,16 +1,23 @@
+import * as SemanticNodes from '.';
+import * as SemanticSymbols from '../semanticSymbols';
 import { BinarySemanticOperator } from '../semanticOperators/binarySemanticOperator';
-import { ExpressionSemanticNode } from './expressionSemanticNode';
 import { SemanticKind } from '../semanticKind';
 
-export class BinaryExpressionSemanticNode extends ExpressionSemanticNode
+export class BinaryExpressionSemanticNode
 {
-    public readonly operator: BinarySemanticOperator;
-    public leftOperand: ExpressionSemanticNode;
-    public rightOperand: ExpressionSemanticNode;
+    public readonly kind: SemanticKind.BinaryExpression;
 
-    constructor (operator: BinarySemanticOperator, leftOperand: ExpressionSemanticNode, rightOperand: ExpressionSemanticNode)
+    public readonly type: SemanticSymbols.ConcreteType;
+
+    public readonly operator: BinarySemanticOperator;
+    public leftOperand: SemanticNodes.Expression;
+    public rightOperand: SemanticNodes.Expression;
+
+    constructor (operator: BinarySemanticOperator, leftOperand: SemanticNodes.Expression, rightOperand: SemanticNodes.Expression)
     {
-        super(SemanticKind.BinaryExpression, operator.resultType);
+        this.kind = SemanticKind.BinaryExpression;
+
+        this.type = operator.resultType;
 
         this.operator = operator;
         this.leftOperand = leftOperand;

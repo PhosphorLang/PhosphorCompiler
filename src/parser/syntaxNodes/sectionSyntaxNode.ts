@@ -1,24 +1,26 @@
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class SectionSyntaxNode extends SyntaxNode
+export class SectionSyntaxNode
 {
+    public readonly kind: SyntaxKind.Section;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly opening: Token;
-    public readonly statements: SyntaxNode[];
+    public readonly statements: SyntaxNodes.Statement[];
     public readonly closing: Token;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (opening: Token, statements: SyntaxNodes.Statement[], closing: Token)
     {
-        return this.statements;
-    }
-
-    constructor (opening: Token, statements: SyntaxNode[], closing: Token)
-    {
-        super(SyntaxKind.Section);
+        this.kind = SyntaxKind.Section;
 
         this.opening = opening;
         this.statements = statements;
         this.closing = closing;
+
+        this.token = this.opening;
+        this.children = this.statements;
     }
 }

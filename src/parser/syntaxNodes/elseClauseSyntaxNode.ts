@@ -1,24 +1,24 @@
-import { IfStatementSyntaxNode } from './ifStatementSyntaxNode';
-import { SectionSyntaxNode } from './sectionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class ElseClauseSyntaxNode extends SyntaxNode
+export class ElseClauseSyntaxNode
 {
+    public readonly kind: SyntaxKind.ElseClause;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly keyword: Token;
-    public readonly followUp: SectionSyntaxNode|IfStatementSyntaxNode;
+    public readonly followUp: SyntaxNodes.Section|SyntaxNodes.IfStatement;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (keyword: Token, followUp: SyntaxNodes.Section|SyntaxNodes.IfStatement)
     {
-        return [this.followUp];
-    }
-
-    constructor (keyword: Token, followUp: SectionSyntaxNode|IfStatementSyntaxNode)
-    {
-        super(SyntaxKind.ElseClause);
+        this.kind = SyntaxKind.ElseClause;
 
         this.keyword = keyword;
         this.followUp = followUp;
+
+        this.token = this.keyword;
+        this.children = [this.followUp];
     }
 }

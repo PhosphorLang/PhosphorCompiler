@@ -3,7 +3,6 @@ import * as SyntaxNodes from './syntaxNodes';
 import { ElementsList } from './elementsList';
 import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
-import { SyntaxNode } from './syntaxNodes';
 import { Token } from '../lexer/token';
 import { TokenKind } from '../lexer/tokenKind';
 
@@ -439,15 +438,15 @@ export class Parser
         }
     }
 
-    private parseTypeArguments (): ElementsList<SyntaxNodes.Type|SyntaxNodes.LiteralExpression>
+    private parseTypeArguments (): ElementsList<SyntaxNodes.TypeArgument>
     {
-        const elements: (SyntaxNodes.Type|SyntaxNodes.LiteralExpression)[] = [];
+        const elements: SyntaxNodes.TypeArgument[] = [];
         const separators: Token[] = [];
 
         while (true)
         {
             const currentToken = this.getCurrentToken();
-            let element: SyntaxNodes.Type|SyntaxNodes.LiteralExpression|null;
+            let element: SyntaxNodes.TypeArgument|null;
 
             switch (currentToken.kind)
             {
@@ -499,7 +498,7 @@ export class Parser
 
         const opening = this.consumeNextToken();
 
-        const statements: SyntaxNode[] = [];
+        const statements: SyntaxNodes.Statement[] = [];
 
         while (true)
         {
@@ -528,9 +527,9 @@ export class Parser
         return new SyntaxNodes.Section(opening, statements, closing);
     }
 
-    private parseStatement (): SyntaxNode
+    private parseStatement (): SyntaxNodes.Statement
     {
-        let result: SyntaxNode;
+        let result: SyntaxNodes.Statement|null;
 
         switch (this.getCurrentToken().kind)
         {
@@ -546,17 +545,41 @@ export class Parser
             case TokenKind.WhileKeyword:
                 result = this.parseWhileStatement();
                 break;
-            default:
+            case TokenKind.IdentifierToken:
             {
-                if (this.isAssignment())
+                switch (this.getFollowerToken().kind)
                 {
-                    result = this.parseAssignment();
+                    case TokenKind.AssignmentOperator:
+                        result = this.parseAssignment();
+                        break;
+                    case TokenKind.OpeningRoundBracketToken:
+                        result = this.parseCallExpression();
+                        break;
+                    case TokenKind.DotToken:
+                        result = this.parseAccessExpression();
+                        break;
+                    default:
+                        result = null;
+                        break;
+                        // TODO: Should this default be replaced with an explicit handling of every TokenKinds?
                 }
-                else
-                {
-                    result = this.parseExpression();
-                }
+                break;
             }
+            default:
+                result = null;
+                break;
+                // TODO: Should this default be replaced with an explicit handling of every TokenKinds?
+        }
+
+        if (result == null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Unknown statement "${this.getCurrentToken().content}"`,
+                    Diagnostic.Codes.UnknownStatementError,
+                    this.getCurrentToken()
+                )
+            );
         }
 
         if (this.getCurrentToken().kind == TokenKind.SemicolonToken)
@@ -713,14 +736,6 @@ export class Parser
         return new SyntaxNodes.WhileStatement(keyword, condition, section);
     }
 
-    private isAssignment (): boolean
-    {
-        const result = (this.getCurrentToken().kind == TokenKind.IdentifierToken)
-            && (this.getFollowerToken().kind == TokenKind.AssignmentOperator);
-
-        return result;
-    }
-
     private parseAssignment (): SyntaxNodes.Assignment
     {
         const identifierToken = this.consumeNextToken();
@@ -789,7 +804,7 @@ export class Parser
         return new SyntaxNodes.BinaryExpression(left, operator, right);
     }
 
-    private parsePrimaryExpression (): SyntaxNodes.Expression
+    private parsePrimaryExpression (): SyntaxNodes.PrimaryExpression
     {
         switch (this.getCurrentToken().kind)
         {
@@ -831,7 +846,7 @@ export class Parser
         return new SyntaxNodes.LiteralExpression(literal);
     }
 
-    private parseIdentifierExpression (): SyntaxNodes.Expression
+    private parseIdentifierExpression (): SyntaxNodes.IdentifierExpression
     {
         switch (this.getFollowerToken().kind)
         {

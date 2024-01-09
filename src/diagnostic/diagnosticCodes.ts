@@ -19,7 +19,6 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     ReturnTypeDoesNotMatchFunctionReturnTypeError = 'E1016',
     UnknownVariableError = 'E1017',
     ReadonlyAssignmentError = 'E1018',
-    UnexpectedExpressionSyntaxKindError = 'E1019',
     UnexpectedLiteralExpressionSyntaxKindError = 'E1020',
     UnknownFunctionError = 'E1021',
     WrongArgumentCountError = 'E1022',
@@ -53,6 +52,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     MethodInModuleWithoutClassError = 'E1053',
     AccessOfUnknownTypeError = 'E1054',
     UnexpectedTokenInVariableExpressionError = 'E1055',
+    UnknownStatementError = 'E1056',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

@@ -1,30 +1,26 @@
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class BracketedExpressionSyntaxNode extends ExpressionSyntaxNode
+export class BracketedExpressionSyntaxNode
 {
+    public readonly kind: SyntaxKind.BracketedExpression;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly openingToken: Token;
-    public readonly expression: ExpressionSyntaxNode;
+    public readonly expression: SyntaxNodes.Expression;
     public readonly closingToken: Token;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (openingToken: Token, expression: SyntaxNodes.Expression, closingToken: Token)
     {
-        return [this.expression];
-    }
-
-    public get token (): Token
-    {
-        return this.openingToken;
-    }
-
-    constructor (openingToken: Token, expression: ExpressionSyntaxNode, closingToken: Token)
-    {
-        super(SyntaxKind.BracketedExpression);
+        this.kind = SyntaxKind.BracketedExpression;
 
         this.openingToken = openingToken;
         this.expression = expression;
         this.closingToken = closingToken;
+
+        this.token = this.openingToken;
+        this.children = [this.expression];
     }
 }

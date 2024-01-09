@@ -1,30 +1,29 @@
+import * as SyntaxNodes from '.';
 import { ElementsList } from '../elementsList';
-import { LiteralExpressionSyntaxNode } from './literalExpressionSyntaxNode';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-type TypeArgumentsList = ElementsList<TypeSyntaxNode|LiteralExpressionSyntaxNode>;
-
-export class TypeSyntaxNode extends SyntaxNode
+export class TypeSyntaxNode
 {
+    public readonly kind: SyntaxKind.Type;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly identifier: Token;
     public readonly opening: Token|null;
-    public readonly arguments: TypeArgumentsList;
+    public readonly arguments: ElementsList<SyntaxNodes.TypeArgument>;
     public readonly closing: Token|null;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (identifier: Token, opening?: Token, typeArguments?: ElementsList<SyntaxNodes.TypeArgument>, closing?: Token)
     {
-        return this.arguments.elements;
-    }
-
-    constructor (identifier: Token, opening?: Token, typeArguments?: TypeArgumentsList, closing?: Token)
-    {
-        super(SyntaxKind.Type);
+        this.kind = SyntaxKind.Type;
 
         this.identifier = identifier;
         this.opening = opening ?? null;
         this.arguments = typeArguments ?? new ElementsList([], []);
         this.closing = closing ?? null;
+
+        this.token = this.identifier;
+        this.children = this.arguments.elements;
     }
 }

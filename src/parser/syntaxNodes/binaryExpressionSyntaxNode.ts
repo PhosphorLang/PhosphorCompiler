@@ -1,30 +1,26 @@
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class BinaryExpressionSyntaxNode extends ExpressionSyntaxNode
+export class BinaryExpressionSyntaxNode
 {
-    public readonly leftSide: ExpressionSyntaxNode;
+    public readonly kind: SyntaxKind.BinaryExpression;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
+    public readonly leftSide: SyntaxNodes.Expression;
     public readonly operator: Token;
-    public readonly rightSide: ExpressionSyntaxNode;
+    public readonly rightSide: SyntaxNodes.Expression;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (leftSide: SyntaxNodes.Expression, operator: Token, rightSide: SyntaxNodes.Expression)
     {
-        return [this.leftSide, this.rightSide];
-    }
-
-    public get token (): Token
-    {
-        return this.operator;
-    }
-
-    constructor (leftSide: ExpressionSyntaxNode, operator: Token, rightSide: ExpressionSyntaxNode)
-    {
-        super(SyntaxKind.BinaryExpression);
+        this.kind = SyntaxKind.BinaryExpression;
 
         this.leftSide = leftSide;
         this.operator = operator;
         this.rightSide = rightSide;
+
+        this.token = this.operator;
+        this.children = [this.leftSide, this.rightSide];
     }
 }

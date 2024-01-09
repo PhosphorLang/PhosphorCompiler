@@ -1,16 +1,17 @@
-import { ExpressionSemanticNode } from './expressionSemanticNode';
+import * as SemanticNodes from '.';
+import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
-import { SemanticNode } from './semanticNode';
-import { VariableSemanticSymbol } from '../semanticSymbols/variableSemanticSymbol';
 
-export class LocalVariableDeclarationSemanticNode extends SemanticNode
+export class LocalVariableDeclarationSemanticNode
 {
-    public readonly symbol: VariableSemanticSymbol;
-    public initialiser: ExpressionSemanticNode|null;
+    public readonly kind: SemanticKind.LocalVariableDeclaration;
 
-    constructor (symbol: VariableSemanticSymbol, initialiser: ExpressionSemanticNode|null)
+    public readonly symbol: SemanticSymbols.Variable;
+    public initialiser: SemanticNodes.Expression|null;
+
+    constructor (symbol: SemanticSymbols.Variable, initialiser: SemanticNodes.Expression|null)
     {
-        super(SemanticKind.LocalVariableDeclaration);
+        this.kind = SemanticKind.LocalVariableDeclaration;
 
         this.symbol = symbol;
         this.initialiser = initialiser;

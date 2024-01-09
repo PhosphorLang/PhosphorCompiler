@@ -5,10 +5,8 @@ import * as SyntaxNodes from '../parser/syntaxNodes';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { ElementsList } from '../parser/elementsList';
-import { SemanticNode } from './semanticNodes';
 import { SemanticSymbolKind } from './semanticSymbolKind';
 import { SyntaxKind } from '../parser/syntaxKind';
-import { SyntaxNode } from '../parser/syntaxNodes';
 
 export class Connector
 {
@@ -301,24 +299,22 @@ export class Connector
                     );
                 }
 
-                const literalArgument = argument as SyntaxNodes.LiteralExpression; // TODO: We should use a type guard here.
-
-                const literalType = BuildInTypes.getTypeByTokenKind(literalArgument.literal.kind);
+                const literalType = BuildInTypes.getTypeByTokenKind(argument.literal.kind);
                 if (literalType === null)
                 {
                     this.diagnostic.throw(
                         new Diagnostic.Error(
                             // TODO: This is the same error as in connectLiteralExpression. Could this be unified?
-                            `Unexpected literal "${literalArgument.literal.content}" of type "${literalArgument.kind}".`,
+                            `Unexpected literal "${argument.literal.content}" of type "${argument.kind}".`,
                             Diagnostic.Codes.UnexpectedLiteralExpressionSyntaxKindError,
-                            literalArgument.literal
+                            argument.literal
                         )
                     );
                 }
 
                 const literalConcreteParameter = new SemanticSymbols.LiteralConcreteParameter(
                     genericType.parameters[i].name,
-                    literalArgument.literal.content,
+                    argument.literal.content,
                     literalType
                 );
                 concreteArguments.push(literalConcreteParameter);
@@ -336,9 +332,7 @@ export class Connector
                     );
                 }
 
-                const typeArgument = argument as SyntaxNodes.Type; // TODO: We should use a type guard here.
-
-                const typeArgumentType = this.connectType(typeArgument);
+                const typeArgumentType = this.connectType(argument);
                 const typeConcreteParameter = new SemanticSymbols.TypeConcreteParameter(
                     genericType.parameters[i].name,
                     typeArgumentType
@@ -481,7 +475,7 @@ export class Connector
 
     private connectSection (sectionSyntaxNode: SyntaxNodes.Section): SemanticNodes.Section
     {
-        const statementNodes: SemanticNode[] = [];
+        const statementNodes: SemanticNodes.Statement[] = [];
 
         // Push a new list of variables to the variable stack:
         const variables = new Map<string, SemanticSymbols.Variable>();
@@ -500,24 +494,26 @@ export class Connector
         return new SemanticNodes.Section(statementNodes);
     }
 
-    private connectStatement (statement: SyntaxNode): SemanticNode
+    private connectStatement (statement: SyntaxNodes.Statement): SemanticNodes.Statement
     {
         switch (statement.kind)
         {
-            case SyntaxKind.Section:
-                return this.connectSection(statement as SyntaxNodes.Section);
-            case SyntaxKind.LocalVariableDeclaration:
-                return this.connectLocalVariableDeclaration(statement as SyntaxNodes.LocalVariableDeclaration);
-            case SyntaxKind.ReturnStatement:
-                return this.connectReturnStatement(statement as SyntaxNodes.ReturnStatement);
-            case SyntaxKind.IfStatement:
-                return this.connectIfStatement(statement as SyntaxNodes.IfStatement);
-            case SyntaxKind.WhileStatement:
-                return this.connectWhileStatement(statement as SyntaxNodes.WhileStatement);
+            case SyntaxKind.AccessExpression:
+                return this.connectAccessExpression(statement);
             case SyntaxKind.Assignment:
-                return this.connectAssignment(statement as SyntaxNodes.Assignment);
-            default:
-                return this.connectExpression(statement as SyntaxNodes.Expression);
+                return this.connectAssignment(statement);
+            case SyntaxKind.CallExpression:
+                return this.connectCallExpression(statement);
+            case SyntaxKind.Section:
+                return this.connectSection(statement);
+            case SyntaxKind.LocalVariableDeclaration:
+                return this.connectLocalVariableDeclaration(statement);
+            case SyntaxKind.ReturnStatement:
+                return this.connectReturnStatement(statement);
+            case SyntaxKind.IfStatement:
+                return this.connectIfStatement(statement);
+            case SyntaxKind.WhileStatement:
+                return this.connectWhileStatement(statement);
         }
     }
 
@@ -661,11 +657,11 @@ export class Connector
 
         if (elseClause.followUp.kind == SyntaxKind.Section)
         {
-            followUp = this.connectSection(elseClause.followUp as SyntaxNodes.Section);
+            followUp = this.connectSection(elseClause.followUp);
         }
         else
         {
-            followUp = this.connectIfStatement(elseClause.followUp as SyntaxNodes.IfStatement);
+            followUp = this.connectIfStatement(elseClause.followUp);
         }
 
         return new SemanticNodes.ElseClause(followUp);
@@ -728,45 +724,22 @@ export class Connector
     {
         switch (expression.kind)
         {
-            case SyntaxKind.LiteralExpression:
-                return this.connectLiteralExpression(expression as SyntaxNodes.LiteralExpression);
-            case SyntaxKind.InstantiationExpression:
-                return this.connectInstantiationExpression(expression as SyntaxNodes.InstantiationExpression);
-            case SyntaxKind.VariableExpression:
-                return this.connectVariableExpression(expression as SyntaxNodes.VariableExpression);
-            case SyntaxKind.CallExpression:
-                return this.connectCallExpression(expression as SyntaxNodes.CallExpression);
             case SyntaxKind.AccessExpression:
-                return this.connectAccessExpression(expression as SyntaxNodes.AccessExpression);
-            case SyntaxKind.BracketedExpression:
-                return this.connectBracketedExpression(expression as SyntaxNodes.BracketedExpression);
-            case SyntaxKind.UnaryExpression:
-                return this.connectUnaryExpression(expression as SyntaxNodes.UnaryExpression);
+                return this.connectAccessExpression(expression);
             case SyntaxKind.BinaryExpression:
-                return this.connectBinaryExpression(expression as SyntaxNodes.BinaryExpression);
-            case SyntaxKind.File:
-            case SyntaxKind.Section:
-            case SyntaxKind.Namespace:
-            case SyntaxKind.Module:
-            case SyntaxKind.Import:
-            case SyntaxKind.FunctionDeclaration:
-            case SyntaxKind.FunctionParameter:
-            case SyntaxKind.TypeClause:
-            case SyntaxKind.Type:
-            case SyntaxKind.LocalVariableDeclaration:
-            case SyntaxKind.GlobalVariableDeclaration:
-            case SyntaxKind.Assignment:
-            case SyntaxKind.IfStatement:
-            case SyntaxKind.ElseClause:
-            case SyntaxKind.WhileStatement:
-            case SyntaxKind.ReturnStatement:
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `Unexpected syntax of kind "${expression.kind}".`,
-                        Diagnostic.Codes.UnexpectedExpressionSyntaxKindError,
-                        expression.token
-                    )
-                );
+                return this.connectBinaryExpression(expression);
+            case SyntaxKind.BracketedExpression:
+                return this.connectBracketedExpression(expression);
+            case SyntaxKind.CallExpression:
+                return this.connectCallExpression(expression);
+            case SyntaxKind.InstantiationExpression:
+                return this.connectInstantiationExpression(expression);
+            case SyntaxKind.LiteralExpression:
+                return this.connectLiteralExpression(expression);
+            case SyntaxKind.UnaryExpression:
+                return this.connectUnaryExpression(expression);
+            case SyntaxKind.VariableExpression:
+                return this.connectVariableExpression(expression);
         }
     }
 

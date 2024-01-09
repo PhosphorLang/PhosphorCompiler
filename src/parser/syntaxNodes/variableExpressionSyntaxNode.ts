@@ -1,26 +1,22 @@
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class VariableExpressionSyntaxNode extends ExpressionSyntaxNode
+export class VariableExpressionSyntaxNode
 {
+    public readonly kind: SyntaxKind.VariableExpression;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly identifier: Token;
-
-    public get children (): Iterable<SyntaxNode>
-    {
-        return [];
-    }
-
-    public get token (): Token
-    {
-        return this.identifier;
-    }
 
     constructor (identifier: Token)
     {
-        super(SyntaxKind.VariableExpression);
+        this.kind = SyntaxKind.VariableExpression;
 
         this.identifier = identifier;
+
+        this.token = this.identifier;
+        this.children = [];
     }
 }

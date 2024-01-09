@@ -1,15 +1,15 @@
-import { IfStatementSemanticNode } from './ifStatementSemanticNode';
-import { SectionSemanticNode } from './sectionSemanticNode';
+import * as SemanticNodes from '.';
 import { SemanticKind } from '../semanticKind';
-import { SemanticNode } from './semanticNode';
 
-export class ElseClauseSemanticNode extends SemanticNode
+export class ElseClauseSemanticNode
 {
-    public followUp: SectionSemanticNode|IfStatementSemanticNode;
+    public readonly kind: SemanticKind.ElseClause;
 
-    constructor (followUp: SectionSemanticNode|IfStatementSemanticNode)
+    public followUp: SemanticNodes.Section|SemanticNodes.IfStatement;
+
+    constructor (followUp: SemanticNodes.Section|SemanticNodes.IfStatement)
     {
-        super(SemanticKind.ElseClause);
+        this.kind = SemanticKind.ElseClause;
 
         this.followUp = followUp;
     }

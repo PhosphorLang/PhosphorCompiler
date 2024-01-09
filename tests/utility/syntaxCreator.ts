@@ -61,7 +61,7 @@ export abstract class SyntaxCreator
         );
     }
 
-    public static newSection (statements: SyntaxNodes.SyntaxNode[] = []): SyntaxNodes.Section
+    public static newSection (statements: SyntaxNodes.Statement[] = []): SyntaxNodes.Section
     {
         return new SyntaxNodes.Section(TokenCreator.newOpeningCurlyBrackets(), statements, TokenCreator.newClosingCurlyBrackets());
     }

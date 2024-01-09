@@ -212,15 +212,13 @@ export class Lowerer
                 break;
             case SemanticKind.VariableExpression:
                 {
-                    const variableExpression = expression as SemanticNodes.VariableExpression;
-                    variables.push(this.getVariableFromSymbol(variableExpression.variable));
+                    variables.push(this.getVariableFromSymbol(expression.variable));
 
                     break;
                 }
             case SemanticKind.CallExpression:
                 {
-                    const callExpression = expression as SemanticNodes.CallExpression;
-                    for (const argument of callExpression.arguments)
+                    for (const argument of expression.arguments)
                     {
                         variables.push(...this.getVariablesFromExpression(argument));
                     }
@@ -229,16 +227,14 @@ export class Lowerer
                 }
             case SemanticKind.UnaryExpression:
                 {
-                    const unaryExpression = expression as SemanticNodes.UnaryExpression;
-                    variables.push(...this.getVariablesFromExpression(unaryExpression.operand));
+                    variables.push(...this.getVariablesFromExpression(expression.operand));
 
                     break;
                 }
             case SemanticKind.BinaryExpression:
                 {
-                    const binaryExpression = expression as SemanticNodes.BinaryExpression;
-                    variables.push(...this.getVariablesFromExpression(binaryExpression.leftOperand));
-                    variables.push(...this.getVariablesFromExpression(binaryExpression.rightOperand));
+                    variables.push(...this.getVariablesFromExpression(expression.leftOperand));
+                    variables.push(...this.getVariablesFromExpression(expression.rightOperand));
 
                     break;
                 }
@@ -541,33 +537,31 @@ export class Lowerer
         }
     }
 
-    private lowerStatement (statement: SemanticNodes.SemanticNode, intermediates: Intermediate[]): void
+    private lowerStatement (statement: SemanticNodes.Statement, intermediates: Intermediate[]): void
     {
         switch (statement.kind)
         {
             case SemanticKind.Section:
-                this.lowerSection(statement as SemanticNodes.Section, intermediates);
+                this.lowerSection(statement, intermediates);
                 break;
             case SemanticKind.LocalVariableDeclaration:
-                this.lowerLocalVariableDeclaration(statement as SemanticNodes.LocalVariableDeclaration, intermediates);
+                this.lowerLocalVariableDeclaration(statement, intermediates);
                 break;
             case SemanticKind.ReturnStatement:
-                this.lowerReturnStatement(statement as SemanticNodes.ReturnStatement, intermediates);
+                this.lowerReturnStatement(statement, intermediates);
                 break;
             case SemanticKind.IfStatement:
-                this.lowerIfStatement(statement as SemanticNodes.IfStatement, intermediates);
+                this.lowerIfStatement(statement, intermediates);
                 break;
             case SemanticKind.WhileStatement:
-                this.lowerWhileStatement(statement as SemanticNodes.WhileStatement, intermediates);
+                this.lowerWhileStatement(statement, intermediates);
                 break;
             case SemanticKind.Assignment:
-                this.lowerAssignment(statement as SemanticNodes.Assignment, intermediates);
+                this.lowerAssignment(statement, intermediates);
                 break;
             case SemanticKind.CallExpression:
-                this.lowerCallExpression(statement as SemanticNodes.CallExpression, intermediates);
+                this.lowerCallExpression(statement, intermediates);
                 break;
-            default:
-                throw new Error(`Lowerer error: The expression of kind "${statement.kind}" cannot be used as a statement.`);
         }
     }
 
@@ -734,25 +728,23 @@ export class Lowerer
         switch (expression.kind)
         {
             case SemanticKind.LiteralExpression:
-                this.lowerLiteralExpression(expression as SemanticNodes.LiteralExpression, intermediates, targetLocation);
+                this.lowerLiteralExpression(expression, intermediates, targetLocation);
                 break;
             case SemanticKind.VariableExpression:
-                this.lowerVariableExpression(expression as SemanticNodes.VariableExpression, intermediates, targetLocation);
+                this.lowerVariableExpression(expression, intermediates, targetLocation);
                 break;
             case SemanticKind.CallExpression:
-                this.lowerCallExpression(expression as SemanticNodes.CallExpression, intermediates, targetLocation);
+                this.lowerCallExpression(expression, intermediates, targetLocation);
                 break;
             case SemanticKind.UnaryExpression:
-                this.lowerUnaryExpression(expression as SemanticNodes.UnaryExpression, intermediates, targetLocation);
+                this.lowerUnaryExpression(expression, intermediates, targetLocation);
                 break;
             case SemanticKind.BinaryExpression:
-                this.lowerBinaryExpression(expression as SemanticNodes.BinaryExpression, intermediates, targetLocation);
+                this.lowerBinaryExpression(expression, intermediates, targetLocation);
                 break;
             case SemanticKind.InitialisationExpression:
-                this.lowerInitialisationExpression(expression as SemanticNodes.InstantiationExpression, intermediates, targetLocation);
+                this.lowerInitialisationExpression(expression, intermediates, targetLocation);
                 break;
-            default:
-                throw new Error(`Lowerer error: No implementation for expression of kind "${expression.kind}"`);
         }
     }
 

@@ -1,14 +1,15 @@
-import { ExpressionSemanticNode } from './expressionSemanticNode';
+import * as SemanticNodes from '.';
 import { SemanticKind } from '../semanticKind';
-import { SemanticNode } from './semanticNode';
 
-export class ReturnStatementSemanticNode extends SemanticNode
+export class ReturnStatementSemanticNode
 {
-    public expression: ExpressionSemanticNode|null;
+    public readonly kind: SemanticKind.ReturnStatement;
 
-    constructor (expression: ExpressionSemanticNode|null)
+    public expression: SemanticNodes.Expression|null;
+
+    constructor (expression: SemanticNodes.Expression|null)
     {
-        super(SemanticKind.ReturnStatement);
+        this.kind = SemanticKind.ReturnStatement;
 
         this.expression = expression;
     }

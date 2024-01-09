@@ -1,31 +1,26 @@
-import { CallExpressionSyntaxNode } from './callExpressionSyntaxNode';
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class AccessExpressionSyntaxNode extends ExpressionSyntaxNode
+export class AccessExpressionSyntaxNode
 {
+    public readonly kind: SyntaxKind.AccessExpression;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly identifier: Token;
     public readonly dot: Token;
-    public readonly functionCall: CallExpressionSyntaxNode;
+    public readonly functionCall: SyntaxNodes.CallExpression;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (identifier: Token, dot: Token, functionCall: SyntaxNodes.CallExpression)
     {
-        return [this.functionCall];
-    }
-
-    public get token (): Token
-    {
-        return this.identifier;
-    }
-
-    constructor (identifier: Token, dot: Token, functionCall: CallExpressionSyntaxNode)
-    {
-        super(SyntaxKind.AccessExpression);
+        this.kind = SyntaxKind.AccessExpression;
 
         this.identifier = identifier;
         this.dot = dot;
         this.functionCall = functionCall;
+
+        this.token = this.identifier;
+        this.children = [this.functionCall];
     }
 }

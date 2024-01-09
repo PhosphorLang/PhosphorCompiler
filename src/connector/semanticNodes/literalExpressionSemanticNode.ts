@@ -1,14 +1,19 @@
-import { ConcreteTypeSemanticSymbol } from '../semanticSymbols/concreteTypeSemanticSymbol';
-import { ExpressionSemanticNode } from './expressionSemanticNode';
+import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class LiteralExpressionSemanticNode extends ExpressionSemanticNode
+export class LiteralExpressionSemanticNode
 {
+    public readonly kind: SemanticKind.LiteralExpression;
+
+    public readonly type: SemanticSymbols.ConcreteType;
+
     public readonly value: string;
 
-    constructor (value: string, type: ConcreteTypeSemanticSymbol)
+    constructor (value: string, type: SemanticSymbols.ConcreteType)
     {
-        super(SemanticKind.LiteralExpression, type);
+        this.kind = SemanticKind.LiteralExpression;
+
+        this.type = type;
 
         this.value = value;
     }

@@ -1,16 +1,16 @@
-import { ExpressionSemanticNode } from './expressionSemanticNode';
-import { SectionSemanticNode } from './sectionSemanticNode';
+import * as SemanticNodes from '.';
 import { SemanticKind } from '../semanticKind';
-import { SemanticNode } from './semanticNode';
 
-export class WhileStatementSemanticNode extends SemanticNode
+export class WhileStatementSemanticNode
 {
-    public condition: ExpressionSemanticNode;
-    public section: SectionSemanticNode;
+    public readonly kind: SemanticKind.WhileStatement;
 
-    constructor (condition: ExpressionSemanticNode, section: SectionSemanticNode)
+    public condition: SemanticNodes.Expression;
+    public section: SemanticNodes.Section;
+
+    constructor (condition: SemanticNodes.Expression, section: SemanticNodes.Section)
     {
-        super(SemanticKind.WhileStatement);
+        this.kind = SemanticKind.WhileStatement;
 
         this.condition = condition;
         this.section = section;

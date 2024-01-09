@@ -1,16 +1,17 @@
-import { FunctionSemanticSymbol } from '../semanticSymbols/functionSemanticSymbol';
-import { SectionSemanticNode } from './sectionSemanticNode';
+import * as SemanticNodes from '.';
+import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
-import { SemanticNode } from './semanticNode';
 
-export class FunctionDeclarationSemanticNode extends SemanticNode
+export class FunctionDeclarationSemanticNode
 {
-    public readonly symbol: FunctionSemanticSymbol;
-    public section: SectionSemanticNode|null;
+    public readonly kind: SemanticKind.Function;
 
-    constructor (symbol: FunctionSemanticSymbol, section: SectionSemanticNode|null)
+    public readonly symbol: SemanticSymbols.Function;
+    public section: SemanticNodes.Section|null;
+
+    constructor (symbol: SemanticSymbols.Function, section: SemanticNodes.Section|null)
     {
-        super(SemanticKind.Function);
+        this.kind = SemanticKind.Function;
 
         this.symbol = symbol;
         this.section = section;

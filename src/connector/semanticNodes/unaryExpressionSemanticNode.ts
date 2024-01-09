@@ -1,15 +1,22 @@
-import { ExpressionSemanticNode } from './expressionSemanticNode';
+import * as SemanticNodes from '.';
+import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 import { UnarySemanticOperator } from '../semanticOperators/unarySemanticOperator';
 
-export class UnaryExpressionSemanticNode extends ExpressionSemanticNode
+export class UnaryExpressionSemanticNode
 {
-    public readonly operator: UnarySemanticOperator;
-    public operand: ExpressionSemanticNode;
+    public readonly kind: SemanticKind.UnaryExpression;
 
-    constructor (operator: UnarySemanticOperator, operand: ExpressionSemanticNode)
+    public readonly type: SemanticSymbols.ConcreteType;
+
+    public readonly operator: UnarySemanticOperator;
+    public operand: SemanticNodes.Expression;
+
+    constructor (operator: UnarySemanticOperator, operand: SemanticNodes.Expression)
     {
-        super(SemanticKind.UnaryExpression, operator.resultType);
+        this.kind = SemanticKind.UnaryExpression;
+
+        this.type = operator.resultType;
 
         this.operator = operator;
         this.operand = operand;

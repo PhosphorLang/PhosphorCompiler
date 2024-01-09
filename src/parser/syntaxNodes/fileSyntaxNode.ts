@@ -1,36 +1,34 @@
-import { FunctionDeclarationSyntaxNode } from './functionDeclarationSyntaxNode';
-import { GlobalVariableDeclarationSyntaxNode } from './globalVariableDeclarationSyntaxNode';
-import { ImportSyntaxNode } from './importSyntaxNode';
-import { ModuleSyntaxNode } from './moduleSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 
-export class FileSyntaxNode extends SyntaxNode
+export class FileSyntaxNode
 {
-    public readonly fileName: string;
-    public readonly module: ModuleSyntaxNode;
-    public readonly imports: ImportSyntaxNode[];
-    public readonly variables: GlobalVariableDeclarationSyntaxNode[];
-    public readonly functions: FunctionDeclarationSyntaxNode[];
+    public readonly kind: SyntaxKind.File;
+    public readonly token: null; // TODO: The "End of file" token could be used here.
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
 
-    public get children (): Iterable<SyntaxNode>
-    {
-        return this.functions;
-    }
+    public readonly fileName: string;
+    public readonly module: SyntaxNodes.Module;
+    public readonly imports: SyntaxNodes.Import[];
+    public readonly variables: SyntaxNodes.GlobalVariableDeclaration[];
+    public readonly functions: SyntaxNodes.FunctionDeclaration[];
 
     constructor (
         name: string,
-        module: ModuleSyntaxNode,
-        imports: ImportSyntaxNode[],
-        variables: GlobalVariableDeclarationSyntaxNode[],
-        functions: FunctionDeclarationSyntaxNode[]
+        module: SyntaxNodes.Module,
+        imports: SyntaxNodes.Import[],
+        variables: SyntaxNodes.GlobalVariableDeclaration[],
+        functions: SyntaxNodes.FunctionDeclaration[]
     ){
-        super(SyntaxKind.File);
+        this.kind = SyntaxKind.File;
 
         this.fileName = name;
         this.module = module;
         this.imports = imports;
         this.variables = variables;
         this.functions = functions;
+
+        this.token = null;
+        this.children = this.functions;
     }
 }

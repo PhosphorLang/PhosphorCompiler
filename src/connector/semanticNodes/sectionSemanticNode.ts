@@ -1,13 +1,15 @@
+import * as SemanticNodes from '.';
 import { SemanticKind } from '../semanticKind';
-import { SemanticNode } from './semanticNode';
 
-export class SectionSemanticNode extends SemanticNode
+export class SectionSemanticNode
 {
-    public statements: SemanticNode[];
+    public readonly kind: SemanticKind.Section;
 
-    constructor (statements: SemanticNode[])
+    public statements: SemanticNodes.Statement[];
+
+    constructor (statements: SemanticNodes.Statement[])
     {
-        super(SemanticKind.Section);
+        this.kind = SemanticKind.Section;
 
         this.statements = statements;
     }

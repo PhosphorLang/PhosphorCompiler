@@ -1,30 +1,32 @@
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class ReturnStatementSyntaxNode extends SyntaxNode
+export class ReturnStatementSyntaxNode
 {
+    public readonly kind: SyntaxKind.ReturnStatement;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly keyword: Token;
-    public readonly expression: ExpressionSyntaxNode|null;
+    public readonly expression: SyntaxNodes.Expression|null;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (keyword: Token, expression: SyntaxNodes.Expression|null)
     {
-        if (this.expression === null)
-        {
-            return [];
-        }
-        else
-        {
-            return [this.expression];
-        }
-    }
-
-    constructor (keyword: Token, expression: ExpressionSyntaxNode|null)
-    {
-        super(SyntaxKind.ReturnStatement);
+        this.kind = SyntaxKind.ReturnStatement;
 
         this.keyword = keyword;
         this.expression = expression;
+
+        this.token = this.keyword;
+
+        if (this.expression === null)
+        {
+            this.children = [];
+        }
+        else
+        {
+            this.children = [this.expression];
+        }
     }
 }

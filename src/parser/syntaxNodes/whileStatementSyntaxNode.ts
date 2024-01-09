@@ -1,26 +1,26 @@
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
-import { SectionSyntaxNode } from './sectionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
 
-export class WhileStatementSyntaxNode extends SyntaxNode
+export class WhileStatementSyntaxNode
 {
+    public readonly kind: SyntaxKind.WhileStatement;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
+
     public readonly keyword: Token;
-    public readonly condition: ExpressionSyntaxNode;
-    public readonly section: SectionSyntaxNode;
+    public readonly condition: SyntaxNodes.Expression;
+    public readonly section: SyntaxNodes.Section;
 
-    public get children (): Iterable<SyntaxNode>
+    constructor (keyword: Token, condition: SyntaxNodes.Expression, section: SyntaxNodes.Section)
     {
-        return [this.section];
-    }
-
-    constructor (keyword: Token, condition: ExpressionSyntaxNode, section: SectionSyntaxNode)
-    {
-        super(SyntaxKind.WhileStatement);
+        this.kind = SyntaxKind.WhileStatement;
 
         this.keyword = keyword;
         this.condition = condition;
         this.section = section;
+
+        this.token = this.keyword;
+        this.children = [this.section];
     }
 }

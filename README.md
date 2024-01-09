@@ -42,7 +42,7 @@ function main ()
 You need the following present on your system:
 
 - For all target platforms:
-    - [Node.js](https://nodejs.org/) >= 16.3.0
+    - [Node.js](https://nodejs.org/) >= 18.12.1
 - Linux Amd64:
     - [LLVM](https://llvm.org/) = 14.0.0
     - [GNU x86_64-linux-gnu-as](https://www.gnu.org/software/binutils/) >= 2.38

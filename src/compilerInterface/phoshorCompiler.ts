@@ -26,6 +26,7 @@ export class PhosphorCompiler
         this.diagnostic = diagnostic;
     }
 
+    // TODO: For better testing we need the ability to compile without the linking process (without the standard library).
     public run (processArguments: ProcessArguments): void
     {
         // TODO: This function should be split into smaller functions.

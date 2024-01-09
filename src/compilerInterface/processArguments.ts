@@ -7,7 +7,8 @@ export type ProcessArgumentsError = CommanderError;
 /** This is the typing for the result of command.opts. It allows typesafe handling of the options. */
 interface OptionValues
 {
-    standardLibrary: string;
+    standardLibrary?: string;
+    noStandardLibrary?: boolean;
     temporaryPath?: string;
     optimisation?: OptimisationLevel;
     target?: TargetPlatform;
@@ -20,6 +21,7 @@ export class ProcessArguments
     public readonly filePath: string;
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
+    public readonly includeStandardLibrary: boolean;
     public readonly temporaryPath: string;
     public readonly optimisationLevel: OptimisationLevel;
     public readonly targetPlatform: TargetPlatform;
@@ -32,6 +34,12 @@ export class ProcessArguments
         let outputPath = '';
 
         let command = new Command();
+
+        const version = process.env['npm_package_version'];
+        if (version !== undefined)
+        {
+            command.version(version, '-v, --version');
+        }
 
         command.exitOverride(
             (error): void =>
@@ -55,15 +63,22 @@ export class ProcessArguments
                 }
             );
 
-        command
-            .option(
-                '-s, --standardLibrary <file>',
-                'File path to the compiled standard library',
-                'standardLibrary.a',
-            );
+        const standardLibraryOption = new Option(
+            '-s, --standardLibrary <file>',
+            'File path to the compiled standard library'
+        );
+        standardLibraryOption.conflicts('noStandardLibrary');
+        command.addOption(standardLibraryOption);
+
+        const noStandardLibraryOption = new Option(
+            '--noStandardLibrary',
+            'Do not link with the standard library'
+        );
+        noStandardLibraryOption.conflicts('standardLibrary');
+        command.addOption(noStandardLibraryOption);
 
         // TODO: The "set" part in the descriptions is unnecessary and should be removed.
-        const temporaryPathOption = new Option('-p, --temporaryPath <path>', 'Set the path where temporary files are stored.');
+        const temporaryPathOption = new Option('-p, --temporaryPath <path>', 'Set the path where temporary files are stored');
         // TODO: Should we add the default option here? Should we do that for all optional options?
         command.addOption(temporaryPathOption);
 
@@ -91,7 +106,9 @@ export class ProcessArguments
         // If the following were still empty, the command parsing would have thrown an error.
         this.filePath = filePath;
         this.outputPath = outputPath;
-        this.standardLibraryPath = options.standardLibrary;
+
+        this.standardLibraryPath = options.standardLibrary ?? 'standardLibrary.a';
+        this.includeStandardLibrary = options.noStandardLibrary ?? true;
 
         this.temporaryPath = options.temporaryPath ?? 'tmp';
         this.optimisationLevel = options.optimisation ?? OptimisationLevel.None;

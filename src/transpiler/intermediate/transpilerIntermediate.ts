@@ -132,24 +132,24 @@ export class TranspilerIntermediate
 
     private transpileFile (fileIntermediate: Intermediates.File): void
     {
-        for (const constant of fileIntermediate.constants)
-        {
-            this.transpileConstant(constant);
-        }
-
-        if (fileIntermediate.constants.length > 0)
-        {
-            this.instructions.push(
-                new Instructions.Instruction('') // Empty line
-            );
-        }
-
         for (const external of fileIntermediate.externals)
         {
             this.transpileExternal(external);
         }
 
         if (fileIntermediate.externals.length > 0)
+        {
+            this.instructions.push(
+                new Instructions.Instruction('') // Empty line
+            );
+        }
+
+        for (const constant of fileIntermediate.constants)
+        {
+            this.transpileConstant(constant);
+        }
+
+        if (fileIntermediate.constants.length > 0)
         {
             this.instructions.push(
                 new Instructions.Instruction('') // Empty line

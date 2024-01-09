@@ -1,7 +1,7 @@
+external Standard.String.stringsAreEqual (Pointer, Pointer): Int8
+
 constant Strings.c#0 "abc"
 constant Strings.c#1 "def"
-
-external Standard.String.stringsAreEqual (Pointer, Pointer): Int8
 
 function Strings.testStringCompare (Pointer, Pointer): Int8
 {

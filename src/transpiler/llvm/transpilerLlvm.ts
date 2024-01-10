@@ -1,11 +1,11 @@
 import * as Instructions from '../common/instructions';
-import * as Intermediates from '../../lowerer/intermediates';
-import * as IntermediateSymbols from '../../lowerer/intermediateSymbols';
+import * as Intermediates from '../../intermediateLowerer/intermediates';
+import * as IntermediateSymbols from '../../intermediateLowerer/intermediateSymbols';
 import * as LlvmInstructions from './llvmInstructions';
 import { ArrayBuilder } from '../../utility/arrayBuilder';
-import { IntermediateKind } from '../../lowerer/intermediateKind';
-import { IntermediateSize } from '../../lowerer/intermediateSize';
-import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
+import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
+import { IntermediateSize } from '../../intermediateLowerer/intermediateSize';
+import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
 import { TextEncoder } from 'node:util';
 
 // TODO: Some of the instructions in this transpiler still have to add quotes and commas manually. Could that situation be further improved?

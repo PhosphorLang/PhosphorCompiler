@@ -1,18 +1,19 @@
 import * as Diagnostic from '../diagnostic';
 import { Connector } from '../connector/connector';
-import { FileIntermediate } from '../lowerer/intermediates/fileIntermediate';
-import { FileSemanticNode } from '../connector/semanticNodes/fileSemanticNode';
+import { FileIntermediate } from '../intermediateLowerer/intermediates/fileIntermediate';
+import { File as FileSemanticNode } from '../connector/semanticNodes';
 import { FileSyntaxNode } from '../parser/syntaxNodes/fileSyntaxNode';
 import FileSystem from 'fs';
 import { Importer } from '../importer/importer';
 import { IntermediateInterpreter } from '../interpreter/intermediateInterpreter';
 import { Lexer } from '../lexer/lexer';
 import { LinuxAmd64Backend } from '../backends/linuxAmd64Backend';
-import { Lowerer } from '../lowerer/lowerer';
+import { IntermediateLowerer } from '../intermediateLowerer/intermediateLowerer';
 import { ModuleSemanticSymbol } from '../connector/semanticSymbols/moduleSemanticSymbol';
 import { Parser } from '../parser/parser';
 import Path from 'path';
 import { ProcessArguments } from './processArguments';
+import SemanticLowerer from '../semanticLowerer/semanticLowerer';
 import { TargetPlatform } from './targetPlatform';
 import { TranspilerIntermediate } from '../transpiler/intermediate/transpilerIntermediate';
 
@@ -47,7 +48,8 @@ export class PhosphorCompiler
         const parser = new Parser(this.diagnostic);
         const importer = new Importer(this.diagnostic);
         const connector = new Connector(this.diagnostic);
-        const lowerer = new Lowerer();
+        const semanticLowerer = new SemanticLowerer();
+        const intermediateLowerer = new IntermediateLowerer();
 
         const searchPaths = [
             Path.dirname(processArguments.filePath),
@@ -128,7 +130,8 @@ export class PhosphorCompiler
             const intermediateFiles: FileIntermediate[] = [];
             for (const [, fileSemanticTree] of qualifiedNameToFile)
             {
-                const intermediateLanguage = lowerer.run(fileSemanticTree, modulesWithInitialisers);
+                const loweredTree = semanticLowerer.run(fileSemanticTree);
+                const intermediateLanguage = intermediateLowerer.run(loweredTree, modulesWithInitialisers);
                 intermediateFiles.push(intermediateLanguage);
             }
 
@@ -141,7 +144,8 @@ export class PhosphorCompiler
             const objectFiles: string[] = [];
             for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
             {
-                const intermediateLanguage = lowerer.run(fileSemanticTree, modulesWithInitialisers);
+                const loweredTree = semanticLowerer.run(fileSemanticTree);
+                const intermediateLanguage = intermediateLowerer.run(loweredTree, modulesWithInitialisers);
 
                 if (processArguments.intermediate)
                 {

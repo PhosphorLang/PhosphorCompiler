@@ -1,4 +1,4 @@
-import * as Intermediates from '../lowerer/intermediates';
+import * as Intermediates from '../intermediateLowerer/intermediates';
 import FileSystem from 'fs';
 import { GnuLinker } from '../linker/gnu/gnuLinker';
 import { LinuxAmd64GnuAssembler } from '../assembler/linuxAmd64Gnu/linuxAmd64GnuAssembler';

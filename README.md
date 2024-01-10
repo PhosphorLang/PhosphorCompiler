@@ -96,18 +96,28 @@ Removed target platforms:
 
 1. Lexer (Frontend)
     - Converts a file string into a token list by lexical analysis.
-2. Parser (Frontend)
+    - Result: Token list
+1. Parser (Frontend)
     - Converts a token list into a syntax tree by syntactical analysis.
-3. Connector (Frontend)
+    - Result: Syntax tree
+1. Connector (Frontend)
     - Converts a syntax tree into a semantic tree by semantic analysis.
-4. Lowerer (Middleend)
-    - Lowers a complex semantic tree into intermediate code which consists of much simpler instructions.
-5. Transpiler (Backend)
+    - Result: Semantic tree
+1. Semantic Lowerer (Middleend)
+    - Lowers the complex semantic tree into a simpler set of semantic nodes (i.e. desugaring).
+    - Result: Lowered tree
+1. Intermediate Lowerer (Middleend)
+    - Further lowers the lowered (semantic) tree into intermediate code which only consists of instructions.
+    - Result: Intermediate code
+1. Transpiler (Backend)
     - Transpiles the intermediate code into platform specific Assembly.
-6. Assembler (Backend)
+    - Result: Assembly code (i.a. via LLVM-IR)
+1. Assembler (Backend)
     - Creates an object file from the Assembly.
-7. Linker (Backend)
+    - Result: Object file
+1. Linker (Backend)
     - Links the object files into an executable.
+    - Result: Executable file
 
 ### **Examples**
 

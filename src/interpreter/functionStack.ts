@@ -1,4 +1,4 @@
-import * as IntermediateSymbols from '../lowerer/intermediateSymbols';
+import * as IntermediateSymbols from '../intermediateLowerer/intermediateSymbols';
 import * as InterpreterValues from './interpreterValues';
 
 export type ParameterIndexToValue = Map<number, InterpreterValues.Any>;

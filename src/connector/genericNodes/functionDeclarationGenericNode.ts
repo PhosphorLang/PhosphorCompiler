@@ -1,15 +1,14 @@
-import * as SemanticNodes from '.';
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class FunctionDeclarationSemanticNode
+export class FunctionDeclarationGenericNode <Section>
 {
     public readonly kind: SemanticKind.Function;
 
     public readonly symbol: SemanticSymbols.Function;
-    public section: SemanticNodes.Section|null;
+    public readonly section: Section|null;
 
-    constructor (symbol: SemanticSymbols.Function, section: SemanticNodes.Section|null)
+    constructor (symbol: SemanticSymbols.Function, section: Section|null)
     {
         this.kind = SemanticKind.Function;
 

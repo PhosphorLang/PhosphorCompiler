@@ -1,6 +1,6 @@
-import { IntermediateSize } from '../../lowerer/intermediateSize';
+import { IntermediateSize } from '../../intermediateLowerer/intermediateSize';
 import { InterpreterValueBase } from './interpreterValueBase';
-import { LiteralIntermediateSymbol } from '../../lowerer/intermediateSymbols/literalIntermediateSymbol';
+import { LiteralIntermediateSymbol } from '../../intermediateLowerer/intermediateSymbols/literalIntermediateSymbol';
 
 export class IntInterpreterValue extends InterpreterValueBase
 {

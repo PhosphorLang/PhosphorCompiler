@@ -3,10 +3,11 @@ import * as Diagnostic from '../../../src/diagnostic';
 import { assert } from 'chai';
 import { Connector } from '../../../src/connector/connector';
 import FileSystem from 'fs';
+import { IntermediateLowerer } from '../../../src/intermediateLowerer/intermediateLowerer';
 import { Lexer } from '../../../src/lexer/lexer';
-import { Lowerer } from '../../../src/lowerer/lowerer';
 import { Parser } from '../../../src/parser/parser';
 import Path from 'path';
+import SemanticLowerer from '../../../src/semanticLowerer/semanticLowerer';
 import { TranspilerIntermediate } from '../../../src/transpiler/intermediate/transpilerIntermediate';
 
 describe('The compiler returns the correct intermediate for',
@@ -16,7 +17,8 @@ describe('The compiler returns the correct intermediate for',
         let lexer: Lexer;
         let parser: Parser;
         let connector: Connector;
-        let lowerer: Lowerer;
+        let semanticLowerer: SemanticLowerer;
+        let intermediateLowerer: IntermediateLowerer;
         let transpiler: TranspilerIntermediate;
         // TODO: Replace the manual compilation here with the new PhosphorCompiler class.
 
@@ -35,7 +37,8 @@ describe('The compiler returns the correct intermediate for',
             const tokens = lexer.run(input, '');
             const syntaxTree = parser.run(tokens, '');
             const semanticTree = connector.run(syntaxTree, new Map());
-            const intermediateTree = lowerer.run(semanticTree, new Set());
+            const loweredTree = semanticLowerer.run(semanticTree);
+            const intermediateTree = intermediateLowerer.run(loweredTree, new Set());
             const intermediateCode = transpiler.run(intermediateTree);
 
             return intermediateCode;
@@ -62,7 +65,8 @@ describe('The compiler returns the correct intermediate for',
                 lexer = new Lexer(diagnostic);
                 parser = new Parser(diagnostic);
                 connector = new Connector(diagnostic);
-                lowerer = new Lowerer();
+                semanticLowerer = new SemanticLowerer();
+                intermediateLowerer = new IntermediateLowerer();
                 transpiler = new TranspilerIntermediate();
             }
         );

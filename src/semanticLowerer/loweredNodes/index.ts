@@ -1,53 +1,56 @@
-import * as GenericNode from '../genericNodes';
+import * as GenericNode from '../../connector/genericNodes';
 
 export class Assignment extends GenericNode.Assignment<Expression> {}
 export class BinaryExpression extends GenericNode.BinaryExpression<Expression> {}
 export class CallExpression extends GenericNode.CallExpression<Expression, VariableExpression> {}
-export class ElseClause extends GenericNode.ElseClause<Section, IfStatement> {}
 export class File extends GenericNode.File<GlobalVariableDeclaration, FunctionDeclaration> {}
 export class FunctionDeclaration extends GenericNode.FunctionDeclaration<Section> {}
 export class GlobalVariableDeclaration extends GenericNode.GlobalVariableDeclaration<Expression> {}
-export class IfStatement extends GenericNode.IfStatement<Expression, Section, ElseClause> {}
-export class InstantiationExpression extends GenericNode.InstantiationExpression<Expression> {}
 export class LiteralExpression extends GenericNode.LiteralExpression {}
 export class LocalVariableDeclaration extends GenericNode.LocalVariableDeclaration<Expression> {}
 export class ReturnStatement extends GenericNode.ReturnStatement<Expression> {}
 export class Section extends GenericNode.Section<Statement> {}
 export class UnaryExpression extends GenericNode.UnaryExpression<Expression> {}
 export class VariableExpression extends GenericNode.VariableExpression {}
-export class WhileStatement extends GenericNode.WhileStatement<Expression, Section> {}
 
-export type SemanticNode =
+export { ConditionalGotoStatementLoweredNode as ConditionalGotoStatement } from './conditionalGotoStatementLoweredNode';
+export { GotoStatementLoweredNode as GotoStatement } from './gotoStatementLoweredNode';
+export { LabelLoweredNode as Label } from './labelLoweredNode';
+
+import { ConditionalGotoStatementLoweredNode } from './conditionalGotoStatementLoweredNode';
+import { GotoStatementLoweredNode } from './gotoStatementLoweredNode';
+import { LabelLoweredNode } from './labelLoweredNode';
+
+export type LoweredNode =
     Assignment
     | BinaryExpression
     | CallExpression
-    | ElseClause
     | File
     | FunctionDeclaration
     | GlobalVariableDeclaration
-    | IfStatement
-    | InstantiationExpression
     | LiteralExpression
     | LocalVariableDeclaration
     | ReturnStatement
     | Section
     | UnaryExpression
     | VariableExpression
-    | WhileStatement;
+    | ConditionalGotoStatementLoweredNode
+    | GotoStatementLoweredNode
+    | LabelLoweredNode;
 
 export type Statement =
     Assignment
     | CallExpression
-    | IfStatement
     | LocalVariableDeclaration
     | ReturnStatement
     | Section
-    | WhileStatement;
+    | ConditionalGotoStatementLoweredNode
+    | GotoStatementLoweredNode
+    | LabelLoweredNode;
 
 export type Expression =
     BinaryExpression
     | CallExpression
-    | InstantiationExpression
     | LiteralExpression
     | UnaryExpression
     | VariableExpression;

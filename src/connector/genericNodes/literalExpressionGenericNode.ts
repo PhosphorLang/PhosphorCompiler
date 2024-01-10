@@ -1,7 +1,7 @@
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class LiteralExpressionSemanticNode
+export class LiteralExpressionGenericNode
 {
     public readonly kind: SemanticKind.LiteralExpression;
 

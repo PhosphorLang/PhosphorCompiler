@@ -1,13 +1,12 @@
-import * as SemanticNodes from '.';
 import { SemanticKind } from '../semanticKind';
 
-export class ReturnStatementSemanticNode
+export class ReturnStatementGenericNode <Expression>
 {
     public readonly kind: SemanticKind.ReturnStatement;
 
-    public expression: SemanticNodes.Expression|null;
+    public readonly expression: Expression|null;
 
-    constructor (expression: SemanticNodes.Expression|null)
+    constructor (expression: Expression|null)
     {
         this.kind = SemanticKind.ReturnStatement;
 

@@ -191,4 +191,25 @@ export abstract class SemanticCreator
     {
         return new SemanticSymbols.Label(name);
     }
+
+    /*
+    public static newLabel (labelSymbol = SemanticCreator.newLabelSymbol()): SemanticNodes.Label
+    {
+        return new SemanticNodes.Label(labelSymbol);
+    }
+
+    public static newGotoStatement (labelSymbol = SemanticCreator.newLabelSymbol()): SemanticNodes.GotoStatement
+    {
+        return new SemanticNodes.GotoStatement(labelSymbol);
+    }
+
+    public static newConditionalGotoStatement (
+        labelSymbol = SemanticCreator.newLabelSymbol(),
+        condition: SemanticNodes.Expression = SemanticCreator.newTrueBooleanLiteral(),
+        conditionResult?: boolean
+    ): SemanticNodes.ConditionalGotoStatement
+    {
+        return new SemanticNodes.ConditionalGotoStatement(labelSymbol, condition, conditionResult);
+    }
+    */
 }

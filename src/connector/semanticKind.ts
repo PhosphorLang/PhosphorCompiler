@@ -17,7 +17,7 @@ export enum SemanticKind
     GlobalVariableDeclaration = 'GlobalVariableDeclaration',
     // Expressions
     LiteralExpression = 'LiteralExpression',
-    InitialisationExpression = 'InitialisationExpression',
+    InstantiationExpression = 'InstantiationExpression',
     VariableExpression = 'VariableExpression',
     CallExpression = 'CallExpression',
     UnaryExpression = 'UnaryExpression',

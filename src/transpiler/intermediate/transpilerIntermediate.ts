@@ -1,8 +1,8 @@
 import * as Instructions from '../common/instructions';
-import * as Intermediates from '../../lowerer/intermediates';
-import { IntermediateKind } from '../../lowerer/intermediateKind';
-import { IntermediateSymbol } from '../../lowerer/intermediateSymbols';
-import { IntermediateSymbolKind } from '../../lowerer/intermediateSymbolKind';
+import * as Intermediates from '../../intermediateLowerer/intermediates';
+import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
+import { IntermediateSymbol } from '../../intermediateLowerer/intermediateSymbols';
+import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
 
 export class TranspilerIntermediate
 {

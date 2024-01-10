@@ -1,9 +1,9 @@
-import * as Intermediates from '../lowerer/intermediates';
-import * as IntermediateSymbols from '../lowerer/intermediateSymbols';
+import * as Intermediates from '../intermediateLowerer/intermediates';
+import * as IntermediateSymbols from '../intermediateLowerer/intermediateSymbols';
 import * as InterpreterValues from './interpreterValues';
 import { FunctionStack, ParameterIndexToValue, ReturnIndexToValue } from './functionStack';
-import { IntermediateKind } from '../lowerer/intermediateKind';
-import { IntermediateSymbolKind } from '../lowerer/intermediateSymbolKind';
+import { IntermediateKind } from '../intermediateLowerer/intermediateKind';
+import { IntermediateSymbolKind } from '../intermediateLowerer/intermediateSymbolKind';
 import { StandardLibrary } from './standardLibrary';
 
 /**

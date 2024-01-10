@@ -1,23 +1,22 @@
-import * as SemanticNodes from '.';
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class FileSemanticNode
+export class FileGenericNode <GlobalVariableDeclaration, FunctionDeclaration>
 {
     public readonly kind: SemanticKind.File;
 
     public readonly name: string;
     public readonly module: SemanticSymbols.Module;
     public readonly imports: SemanticSymbols.Module[];
-    public readonly variables: SemanticNodes.GlobalVariableDeclaration[];
-    public readonly functions: SemanticNodes.FunctionDeclaration[];
+    public readonly variables: GlobalVariableDeclaration[];
+    public readonly functions: FunctionDeclaration[];
 
     constructor (
         name: string,
         module: SemanticSymbols.Module,
         imports: SemanticSymbols.Module[],
-        variables: SemanticNodes.GlobalVariableDeclaration[],
-        functions: SemanticNodes.FunctionDeclaration[]
+        variables: GlobalVariableDeclaration[],
+        functions: FunctionDeclaration[]
     ) {
         this.kind = SemanticKind.File;
 

@@ -1,8 +1,7 @@
-import * as SemanticNodes from '.';
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class CallExpressionSemanticNode
+export class CallExpressionGenericNode <Expression, VariableExpression>
 {
     public readonly kind: SemanticKind.CallExpression;
 
@@ -10,14 +9,14 @@ export class CallExpressionSemanticNode
 
     public readonly functionSymbol: SemanticSymbols.Function;
     public readonly ownerModule: SemanticSymbols.Module;
-    public arguments: SemanticNodes.Expression[];
-    public readonly thisReference: SemanticNodes.VariableExpression|null;
+    public readonly arguments: Expression[];
+    public readonly thisReference: VariableExpression|null;
 
     constructor (
         functionSymbol: SemanticSymbols.Function,
         ownerModule: SemanticSymbols.Module,
-        callArguments: SemanticNodes.Expression[],
-        thisReference: SemanticNodes.VariableExpression|null
+        callArguments: Expression[],
+        thisReference: VariableExpression|null
     ){
         this.kind = SemanticKind.CallExpression;
 

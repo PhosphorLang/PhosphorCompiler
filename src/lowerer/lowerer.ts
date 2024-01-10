@@ -35,13 +35,6 @@ export class Lowerer
     private functionSymbolMap: Map<SemanticSymbols.Function, IntermediateSymbols.Function>;
     private variableSymbolMap: Map<SemanticSymbols.Variable, IntermediateSymbols.Variable>;
     private valueToConstantMap: Map<string, IntermediateSymbols.Constant>;
-    /**
-     * Maps an intermediate variable to the index after its last use (where it must be dismissed). \
-     * The index is only valid inside a function and applies to the intermediates of the function. \
-     * TODO: It is a bit ugly to have this here (globally). Is there a better way without sacrificing convenience?
-     */
-    private variableDismissIndexMap: Map<IntermediateSymbols.Variable, number>;
-
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
     private buildInModuleLoweredSet: Set<SemanticSymbols.Module>;
 
@@ -61,7 +54,6 @@ export class Lowerer
         this.functionSymbolMap = new Map();
         this.variableSymbolMap = new Map();
         this.valueToConstantMap = new Map();
-        this.variableDismissIndexMap = new Map();
 
         this.variableIntroducedSet = new Set();
         this.buildInModuleLoweredSet = new Set();
@@ -93,7 +85,6 @@ export class Lowerer
         this.functionSymbolMap.clear();
         this.variableSymbolMap.clear();
         this.valueToConstantMap.clear();
-        this.variableDismissIndexMap.clear();
 
         this.variableIntroducedSet.clear();
         this.buildInModuleLoweredSet.clear();
@@ -480,8 +471,6 @@ export class Lowerer
                 throw new Error(`Lowerer error: The section of a non-external function is null."`);
             }
 
-            this.variableDismissIndexMap.clear();
-
             const functionBody: Intermediates.Statement[] = [];
             let parameterCounter = 0;
 
@@ -497,8 +486,6 @@ export class Lowerer
                     new Intermediates.Introduce(parameterVariable),
                     new Intermediates.Take(parameterVariable, parameterSymbol)
                 );
-
-                this.variableDismissIndexMap.set(parameterVariable, functionBody.length);
             }
 
             this.lowerSection(functionDeclaration.section, functionBody);
@@ -509,18 +496,6 @@ export class Lowerer
                 functionBody.push(
                     new Intermediates.Return()
                 );
-            }
-
-            // I hate this magic, but sorting shouldn't be a ten-liner either, so here an explanation:
-            // We need the indices for the dismisses be sorted descending because they need to be inserted backwards into the function body,
-            // otherwise all following indices would be invalidated.
-            // This one-liner does that: Create a new map from the old map by sorting the entries descendingly by the value (the index).
-            const sortedDismissIndexes = new Map([...this.variableDismissIndexMap.entries()].sort((a, b) => b[1] - a[1]));
-
-            // Insert Dismiss statements for each variable's last use:
-            for (const [variable, lastUse] of sortedDismissIndexes)
-            {
-                functionBody.splice(lastUse, 0, new Intermediates.Dismiss(variable));
             }
 
             const functionIntermediate = new Intermediates.Function(functionSymbol, functionBody);
@@ -590,8 +565,6 @@ export class Lowerer
             intermediates.push(
                 new Intermediates.Give(returnSymbol, temporaryVariable),
             );
-
-            this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
         }
 
         intermediates.push(
@@ -620,10 +593,7 @@ export class Lowerer
         {
             intermediates.push(
                 new Intermediates.Compare(condition, falseLiteralVariable),
-                new Intermediates.Dismiss(falseLiteralVariable),
             );
-
-            this.variableDismissIndexMap.set(condition, intermediates.length);
 
             intermediates.push(
                 new Intermediates.JumpIfEqual(endLabelSymbol),
@@ -641,10 +611,7 @@ export class Lowerer
 
             intermediates.push(
                 new Intermediates.Compare(condition, falseLiteralVariable),
-                new Intermediates.Dismiss(falseLiteralVariable),
             );
-
-            this.variableDismissIndexMap.set(condition, intermediates.length);
 
             intermediates.push(
                 new Intermediates.JumpIfEqual(elseLabelSymbol),
@@ -685,7 +652,6 @@ export class Lowerer
             new Intermediates.Introduce(falseLiteralVariable),
             new Intermediates.Move(falseLiteralVariable, falseLiteral),
             new Intermediates.Compare(condition, falseLiteralVariable),
-            new Intermediates.Dismiss(falseLiteralVariable),
         );
 
         this.variableDismissIndexMap.set(condition, intermediates.length);
@@ -700,13 +666,6 @@ export class Lowerer
             new Intermediates.Goto(startLabelSymbol),
             new Intermediates.Label(endLabelSymbol),
         );
-
-        // All variables used in the while statement's condition must only be freed after the while loop has finished:
-        const variablesInContidion = this.getVariablesFromExpression(whileStatement.condition);
-        for (const variable of variablesInContidion)
-        {
-            this.variableDismissIndexMap.set(variable, intermediates.length);
-        }
     }
 
     private lowerAssignment (assignment: SemanticNodes.Assignment, intermediates: Intermediate[]): void
@@ -801,8 +760,6 @@ export class Lowerer
         intermediates.push(
             new Intermediates.Move(targetLocation, literalOrConstant),
         );
-
-        this.variableDismissIndexMap.set(targetLocation, intermediates.length);
     }
 
     private lowerVariableExpression (
@@ -825,9 +782,6 @@ export class Lowerer
             intermediates.push(
                 new Intermediates.Move(targetLocation, variable),
             );
-
-            this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-            this.variableDismissIndexMap.set(variable, intermediates.length);
         }
     }
 
@@ -858,8 +812,6 @@ export class Lowerer
             intermediates.push(
                 new Intermediates.Give(parameter, temporaryVariable),
             );
-
-            this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
         }
 
         const functionSymbol = this.functionSymbolMap.get(callExpression.functionSymbol);
@@ -889,8 +841,6 @@ export class Lowerer
             intermediates.push(
                 new Intermediates.Take(targetLocation, returnValue),
             );
-
-            this.variableDismissIndexMap.set(targetLocation, intermediates.length);
         }
     }
 
@@ -930,8 +880,6 @@ export class Lowerer
                     }
 
                     intermediates.push(intermediate);
-
-                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
 
                     break;
                 }
@@ -1032,10 +980,6 @@ export class Lowerer
                     `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
                 );
         }
-
-        // NOTE: This relies on the fact that, currently, the default branch of the switch statement aboth throws an error.
-        this.variableDismissIndexMap.set(targetLocation, intermediates.length);
-        this.variableDismissIndexMap.set(temporaryVariable, intermediates.length);
     }
 
     /**
@@ -1090,9 +1034,6 @@ export class Lowerer
                         new Intermediates.Compare(leftTemporaryVariable, rightTemporaryVariable),
                     );
 
-                    this.variableDismissIndexMap.set(leftTemporaryVariable, intermediates.length);
-                    this.variableDismissIndexMap.set(rightTemporaryVariable, intermediates.length);
-
                     const trueLabel = this.generateLabel();
                     const endLabel = this.generateLabel();
 
@@ -1134,8 +1075,6 @@ export class Lowerer
                         new Intermediates.Move(targetLocation, trueLiteral),
                         new Intermediates.Label(endLabel),
                     );
-
-                    this.variableDismissIndexMap.set(targetLocation, intermediates.length);
 
                     break;
                 }

@@ -4,10 +4,8 @@ function Logic.testNot (Int8): Int8
     take v#0 p#0
     introduce v#1
     move v#1 v#0
-    dismiss v#0
     not v#1
     give r#0 v#1
-    dismiss v#1
     return
 }
 
@@ -19,14 +17,10 @@ function Logic.testAnd (Int8, Int8): Int8
     take v#3 p#1
     introduce v#4
     move v#4 v#2
-    dismiss v#2
     introduce v#5
     move v#5 v#3
-    dismiss v#3
     and v#4 v#5
-    dismiss v#5
     give r#0 v#4
-    dismiss v#4
     return
 }
 
@@ -38,14 +32,10 @@ function Logic.testOr (Int8, Int8): Int8
     take v#7 p#1
     introduce v#8
     move v#8 v#6
-    dismiss v#6
     introduce v#9
     move v#9 v#7
-    dismiss v#7
     or v#8 v#9
-    dismiss v#9
     give r#0 v#8
-    dismiss v#8
     return
 }
 
@@ -57,13 +47,9 @@ function Logic.testEqual (Native, Native): Int8
     take v#11 p#1
     introduce v#13
     move v#13 v#10
-    dismiss v#10
     introduce v#14
     move v#14 v#11
-    dismiss v#11
     compare v#13 v#14
-    dismiss v#14
-    dismiss v#13
     jumpIfEqual l#0
     introduce v#12
     move v#12 Int8(0)
@@ -72,7 +58,6 @@ function Logic.testEqual (Native, Native): Int8
     move v#12 Int8(-1)
     l#1:
     give r#0 v#12
-    dismiss v#12
     return
 }
 
@@ -84,13 +69,9 @@ function Logic.testNotEqual (Native, Native): Int8
     take v#16 p#1
     introduce v#18
     move v#18 v#15
-    dismiss v#15
     introduce v#19
     move v#19 v#16
-    dismiss v#16
     compare v#18 v#19
-    dismiss v#19
-    dismiss v#18
     jumpIfNotEqual l#2
     introduce v#17
     move v#17 Int8(0)
@@ -99,7 +80,6 @@ function Logic.testNotEqual (Native, Native): Int8
     move v#17 Int8(-1)
     l#3:
     give r#0 v#17
-    dismiss v#17
     return
 }
 
@@ -111,13 +91,9 @@ function Logic.testLess (Native, Native): Int8
     take v#21 p#1
     introduce v#23
     move v#23 v#20
-    dismiss v#20
     introduce v#24
     move v#24 v#21
-    dismiss v#21
     compare v#23 v#24
-    dismiss v#24
-    dismiss v#23
     jumpIfLess l#4
     introduce v#22
     move v#22 Int8(0)
@@ -126,7 +102,6 @@ function Logic.testLess (Native, Native): Int8
     move v#22 Int8(-1)
     l#5:
     give r#0 v#22
-    dismiss v#22
     return
 }
 
@@ -138,13 +113,9 @@ function Logic.testGreater (Native, Native): Int8
     take v#26 p#1
     introduce v#28
     move v#28 v#25
-    dismiss v#25
     introduce v#29
     move v#29 v#26
-    dismiss v#26
     compare v#28 v#29
-    dismiss v#29
-    dismiss v#28
     jumpIfGreater l#6
     introduce v#27
     move v#27 Int8(0)
@@ -153,7 +124,6 @@ function Logic.testGreater (Native, Native): Int8
     move v#27 Int8(-1)
     l#7:
     give r#0 v#27
-    dismiss v#27
     return
 }
 
@@ -162,61 +132,48 @@ function Logic.main (): Void
     introduce v#30
     move v#30 Int8(-1)
     give p#0 v#30
-    dismiss v#30
     call Logic.testNot
     introduce v#31
     move v#31 Int8(-1)
     give p#0 v#31
-    dismiss v#31
     introduce v#32
     move v#32 Int8(0)
     give p#1 v#32
-    dismiss v#32
     call Logic.testAnd
     introduce v#33
     move v#33 Int8(-1)
     give p#0 v#33
-    dismiss v#33
     introduce v#34
     move v#34 Int8(0)
     give p#1 v#34
-    dismiss v#34
     call Logic.testOr
     introduce v#35
     move v#35 Native(1)
     give p#0 v#35
-    dismiss v#35
     introduce v#36
     move v#36 Native(2)
     give p#1 v#36
-    dismiss v#36
     call Logic.testEqual
     introduce v#37
     move v#37 Native(1)
     give p#0 v#37
-    dismiss v#37
     introduce v#38
     move v#38 Native(2)
     give p#1 v#38
-    dismiss v#38
     call Logic.testNotEqual
     introduce v#39
     move v#39 Native(1)
     give p#0 v#39
-    dismiss v#39
     introduce v#40
     move v#40 Native(2)
     give p#1 v#40
-    dismiss v#40
     call Logic.testLess
     introduce v#41
     move v#41 Native(1)
     give p#0 v#41
-    dismiss v#41
     introduce v#42
     move v#42 Native(2)
     give p#1 v#42
-    dismiss v#42
     call Logic.testGreater
     return
 }

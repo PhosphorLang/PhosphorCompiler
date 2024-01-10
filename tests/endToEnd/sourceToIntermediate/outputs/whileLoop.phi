@@ -3,7 +3,6 @@ function WhileLoop.getMax (): Native
     introduce v#0
     move v#0 Native(4)
     give r#0 v#0
-    dismiss v#0
     return
 }
 
@@ -18,8 +17,6 @@ function WhileLoop.testWhileLoop (): Int8
     introduce v#4
     take v#4 r#0
     compare v#3 v#4
-    dismiss v#4
-    dismiss v#3
     jumpIfLess l#2
     introduce v#2
     move v#2 Int8(0)
@@ -30,20 +27,15 @@ function WhileLoop.testWhileLoop (): Int8
     introduce v#5
     move v#5 Int8(0)
     compare v#2 v#5
-    dismiss v#5
-    dismiss v#2
     jumpIfEqual l#1
     introduce v#6
     move v#6 Native(1)
     add v#1 v#6
-    dismiss v#6
     goto l#0
     l#1:
-    dismiss v#1
     introduce v#7
     move v#7 Int8(-1)
     give r#0 v#7
-    dismiss v#7
     return
 }
 

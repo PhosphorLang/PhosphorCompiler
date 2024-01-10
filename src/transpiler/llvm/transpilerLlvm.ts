@@ -433,11 +433,6 @@ export class TranspilerLlvm
             case IntermediateKind.Compare:
                 this.transpileCompare(statementIntermediate);
                 break;
-            case IntermediateKind.Dismiss:
-                // Nothing to do here.
-                // Note that we could delete the variables from the map here. But then we would need to handle the dismisses between
-                // a compare and jump in a special way. (Have a look at transpileCompare for more information about this.)
-                break;
             case IntermediateKind.Divide:
                 this.transpileDivide(statementIntermediate);
                 break;

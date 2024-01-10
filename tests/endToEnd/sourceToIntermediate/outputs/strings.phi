@@ -11,19 +11,14 @@ function Strings.testStringCompare (Pointer, Pointer): Int8
     take v#1 p#1
     introduce v#3
     move v#3 v#0
-    dismiss v#0
     give p#0 v#3
-    dismiss v#3
     introduce v#4
     move v#4 v#1
-    dismiss v#1
     give p#1 v#4
-    dismiss v#4
     call Standard.String.stringsAreEqual
     introduce v#2
     take v#2 r#0
     give r#0 v#2
-    dismiss v#2
     return
 }
 
@@ -32,20 +27,16 @@ function Strings.main (): Void
     introduce v#5
     move v#5 Strings.c#0
     give p#0 v#5
-    dismiss v#5
     introduce v#6
     move v#6 Strings.c#1
     give p#1 v#6
-    dismiss v#6
     call Strings.testStringCompare
     introduce v#7
     move v#7 Strings.c#0
     give p#0 v#7
-    dismiss v#7
     introduce v#8
     move v#8 Strings.c#0
     give p#1 v#8
-    dismiss v#8
     call Strings.testStringCompare
     return
 }

@@ -74,8 +74,6 @@ export class TranspilerIntermediate
                 return 'call';
             case IntermediateKind.Compare:
                 return 'compare';
-            case IntermediateKind.Dismiss:
-                return 'dismiss';
             case IntermediateKind.Divide:
                 return 'divide';
             case IntermediateKind.Goto:
@@ -264,7 +262,6 @@ export class TranspilerIntermediate
                     this.getIntermediateSymbolString(statementIntermediate.functionSymbol),
                 ];
                 break;
-            case IntermediateKind.Dismiss:
             case IntermediateKind.Introduce:
                 parameters = [
                     this.getIntermediateSymbolString(statementIntermediate.variableSymbol),

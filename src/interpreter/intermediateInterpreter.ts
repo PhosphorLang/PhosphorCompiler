@@ -137,9 +137,6 @@ export class IntermediateInterpreter
             case IntermediateKind.Compare:
                 this.interpretCompare(statementIntermediate, functionStack);
                 break;
-            case IntermediateKind.Dismiss:
-                // Ignored.
-                break;
             case IntermediateKind.Divide:
                 this.interpretDivide(statementIntermediate, functionStack);
                 break;

@@ -66,11 +66,6 @@ export abstract class IntermediateCreator
         return new IntermediateSymbols.Literal(value, size);
     }
 
-    public static newDismiss (symbol = IntermediateCreator.newLocalVariableSymbol()): Intermediates.Dismiss
-    {
-        return new Intermediates.Dismiss(symbol);
-    }
-
     public static newAdd (
         leftOperand = IntermediateCreator.newLocalVariableSymbol(),
         rightOperand: IntermediateSymbols.Variable = IntermediateCreator.newLocalVariableSymbol()

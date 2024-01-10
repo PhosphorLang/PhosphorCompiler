@@ -3,7 +3,6 @@ export { AndIntermediate as And } from './andIntermediate';
 export { CallIntermediate as Call } from './callIntermediate';
 export { CompareIntermediate as Compare } from './compareIntermediate';
 export { ConstantIntermediate as Constant } from './constantIntermediate';
-export { DismissIntermediate as Dismiss } from './dismissIntermediate';
 export { DivideIntermediate as Divide } from './divideIntermediate';
 export { ExternalIntermediate as External } from './externalIntermediate';
 export { FileIntermediate as File } from './fileIntermediate';
@@ -32,7 +31,6 @@ import { AndIntermediate } from './andIntermediate';
 import { CallIntermediate } from './callIntermediate';
 import { CompareIntermediate } from './compareIntermediate';
 import { ConstantIntermediate } from './constantIntermediate';
-import { DismissIntermediate } from './dismissIntermediate';
 import { DivideIntermediate } from './divideIntermediate';
 import { ExternalIntermediate } from './externalIntermediate';
 import { FileIntermediate } from './fileIntermediate';
@@ -57,14 +55,14 @@ import { SubtractIntermediate } from './subtractIntermediate';
 import { TakeIntermediate } from './takeIntermediate';
 
 export type Intermediate =
-    AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | ConstantIntermediate | DismissIntermediate
+    AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | ConstantIntermediate
     | DivideIntermediate | ExternalIntermediate | FileIntermediate | FunctionIntermediate | GiveIntermediate | GlobalIntermediate
     | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate | JumpIfLessIntermediate
     | JumpIfNotEqualIntermediate | LabelIntermediate | ModuloIntermediate | MoveIntermediate | MultiplyIntermediate | NegateIntermediate
     | NotIntermediate | OrIntermediate | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;
 
 export type Statement =
-    AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | DismissIntermediate | DivideIntermediate
+    AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | DivideIntermediate
     | GiveIntermediate | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate
     | JumpIfLessIntermediate | JumpIfNotEqualIntermediate | LabelIntermediate | ModuloIntermediate | MoveIntermediate
     | MultiplyIntermediate | NegateIntermediate | NotIntermediate | OrIntermediate | ReturnIntermediate | SubtractIntermediate

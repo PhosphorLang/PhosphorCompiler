@@ -10,7 +10,6 @@ export enum IntermediateKind
     And = 'And',
     Call = 'Call',
     Compare = 'Compare',
-    Dismiss = 'Dismiss',
     Divide = 'Divide',
     Give = 'Give',
     Global = 'Global',

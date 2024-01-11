@@ -75,6 +75,14 @@ export default class SemanticLowerer
             loweredGlobalVariables.push(loweredGlobalVariable);
         }
 
+        const loweredFields: LoweredNodes.FieldDeclaration[] = [];
+        for (const field of file.fields)
+        {
+            const loweredField = this.lowerFieldDeclaration(field);
+
+            loweredFields.push(loweredField);
+        }
+
         const loweredFunctions: LoweredNodes.FunctionDeclaration[] = [];
         for (const functionNode of file.functions)
         {
@@ -91,7 +99,7 @@ export default class SemanticLowerer
         }
         const loweredImports = Array.from(loweredImportsSet);
 
-        return new LoweredNodes.File(file.name, file.module, loweredImports, loweredGlobalVariables, loweredFunctions);
+        return new LoweredNodes.File(file.name, file.module, loweredImports, loweredGlobalVariables, loweredFields, loweredFunctions);
     }
 
     private lowerGlobalVariableDeclaration (
@@ -106,6 +114,18 @@ export default class SemanticLowerer
         }
 
         return new LoweredNodes.GlobalVariableDeclaration(globalVariableDeclaration.symbol, loweredInitialiser);
+    }
+
+    private lowerFieldDeclaration (fieldDeclaration: SemanticNodes.FieldDeclaration): LoweredNodes.FieldDeclaration
+    {
+        let loweredInitialiser: LoweredNodes.Expression|null = null;
+
+        if (fieldDeclaration.initialiser !== null)
+        {
+            loweredInitialiser = this.lowerExpression(fieldDeclaration.initialiser);
+        }
+
+        return new LoweredNodes.FieldDeclaration(fieldDeclaration.symbol, loweredInitialiser);
     }
 
     private lowerFunction (functionDeclaration: SemanticNodes.FunctionDeclaration): LoweredNodes.FunctionDeclaration

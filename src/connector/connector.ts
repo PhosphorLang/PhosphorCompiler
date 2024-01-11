@@ -450,12 +450,12 @@ export class Connector
 
         this.variables.set(variable.name, variable);
 
-        return new SemanticNodes.GlobalVariableDeclaration(variable, false, initialisier);
+        return new SemanticNodes.GlobalVariableDeclaration(variable, initialisier);
     }
 
     private connectFieldVariableDeclaration (
         fieldDeclaration: SyntaxNodes.FieldVariableDeclaration
-    ): SemanticNodes.GlobalVariableDeclaration
+    ): SemanticNodes.FieldDeclaration
     {
         if (!this.moduleIsClass)
         {
@@ -510,7 +510,7 @@ export class Connector
 
         this.pushVariable(field); // FIXME: Is doing this here correct? Where should the field be added to?
 
-        return new SemanticNodes.GlobalVariableDeclaration(field, true, initialisier);
+        return new SemanticNodes.FieldDeclaration(field, initialisier);
     }
 
     private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration

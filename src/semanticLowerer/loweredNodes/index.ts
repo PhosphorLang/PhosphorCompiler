@@ -3,7 +3,8 @@ import * as GenericNode from '../../connector/genericNodes';
 export class Assignment extends GenericNode.Assignment<Expression> {}
 export class BinaryExpression extends GenericNode.BinaryExpression<Expression> {}
 export class CallExpression extends GenericNode.CallExpression<Expression, VariableExpression> {}
-export class File extends GenericNode.File<GlobalVariableDeclaration, FunctionDeclaration> {}
+export class FieldDeclaration extends GenericNode.FieldDeclaration<Expression> {}
+export class File extends GenericNode.File<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration> {}
 export class FunctionDeclaration extends GenericNode.FunctionDeclaration<Section> {}
 export class GlobalVariableDeclaration extends GenericNode.GlobalVariableDeclaration<Expression> {}
 export class LiteralExpression extends GenericNode.LiteralExpression {}
@@ -28,6 +29,7 @@ export type LoweredNode =
     | File
     | FunctionDeclaration
     | GlobalVariableDeclaration
+    | FieldDeclaration
     | LiteralExpression
     | LocalVariableDeclaration
     | ReturnStatement

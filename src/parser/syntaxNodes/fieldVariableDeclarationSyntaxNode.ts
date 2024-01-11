@@ -1,41 +1,31 @@
-import { ExpressionSyntaxNode } from './expressionSyntaxNode';
+import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
-import { SyntaxNode } from './syntaxNode';
 import { Token } from '../../lexer/token';
-import { TypeClauseSyntaxNode } from './typeClauseSyntaxNode';
 
-export class FieldVariableDeclarationSyntaxNode extends SyntaxNode
+export class FieldVariableDeclarationSyntaxNode
 {
     // TODO: LocalVariable, GlobalVariable and FieldVariable share a lot of code. Could they get a common base class?
+
+    public readonly kind: SyntaxKind.FieldVariableDeclaration;
+    public readonly token: Token;
+    public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
 
     public readonly keyword: Token;
     public readonly variableModifier: Token|null;
     public readonly identifier: Token;
-    public readonly type: TypeClauseSyntaxNode|null;
+    public readonly type: SyntaxNodes.TypeClause|null;
     public readonly assignment: Token|null;
-    public readonly initialiser: ExpressionSyntaxNode|null;
-
-    public get children (): Iterable<SyntaxNode>
-    {
-        if (this.initialiser === null)
-        {
-            return [];
-        }
-        else
-        {
-            return [this.initialiser];
-        }
-    }
+    public readonly initialiser: SyntaxNodes.Expression|null;
 
     constructor (
         keyword: Token,
         variableModifier: Token|null,
         identifier: Token,
-        type: TypeClauseSyntaxNode|null,
+        type: SyntaxNodes.TypeClause|null,
         assignment: Token|null,
-        initialiser: ExpressionSyntaxNode|null
+        initialiser: SyntaxNodes.Expression|null
     ) {
-        super(SyntaxKind.FieldVariableDeclaration);
+        this.kind = SyntaxKind.FieldVariableDeclaration;
 
         this.keyword = keyword;
         this.variableModifier = variableModifier;
@@ -43,5 +33,16 @@ export class FieldVariableDeclarationSyntaxNode extends SyntaxNode
         this.type = type;
         this.assignment = assignment;
         this.initialiser = initialiser;
+
+        this.token = this.keyword;
+
+        if (this.initialiser === null)
+        {
+            this.children = [];
+        }
+        else
+        {
+            this.children = [this.initialiser];
+        }
     }
 }

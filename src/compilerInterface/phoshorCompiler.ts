@@ -6,9 +6,9 @@ import { FileSyntaxNode } from '../parser/syntaxNodes/fileSyntaxNode';
 import FileSystem from 'fs';
 import { Importer } from '../importer/importer';
 import { IntermediateInterpreter } from '../interpreter/intermediateInterpreter';
+import { IntermediateLowerer } from '../intermediateLowerer/intermediateLowerer';
 import { Lexer } from '../lexer/lexer';
 import { LinuxAmd64Backend } from '../backends/linuxAmd64Backend';
-import { IntermediateLowerer } from '../intermediateLowerer/intermediateLowerer';
 import { ModuleSemanticSymbol } from '../connector/semanticSymbols/moduleSemanticSymbol';
 import { Parser } from '../parser/parser';
 import Path from 'path';
@@ -108,7 +108,7 @@ export class PhosphorCompiler
         {
             const fileSemanticTree = connector.run(syntaxTree, qualifiedNameToFile);
             // TODO: Check if the qualified name is already in the map.
-            qualifiedNameToFile.set(fileSemanticTree.module.qualifiedName, fileSemanticTree);
+            qualifiedNameToFile.set(fileSemanticTree.module.namespace.qualifiedName, fileSemanticTree);
 
             if ((fileSemanticTree.variables.length > 0) && !fileSemanticTree.module.isEntryPoint)
             {

@@ -1,8 +1,8 @@
+import * as SemanticSymbols from '../connector/semanticSymbols';
 import { BinarySemanticOperator } from '../connector/semanticOperators/binarySemanticOperator';
 import { BuildInTypes } from './buildInTypes';
 import { SemanticOperatorKind } from '../connector/semanticOperatorKind';
 import { TokenKind } from '../lexer/tokenKind';
-import { TypeSemanticSymbol } from '../connector/semanticSymbols/typeSemanticSymbol';
 import { UnarySemanticOperator } from '../connector/semanticOperators/unarySemanticOperator';
 
 export abstract class BuildInOperators
@@ -95,7 +95,7 @@ export abstract class BuildInOperators
         }
     }
 
-    public static getUnaryOperator (tokenKind: TokenKind, operandType: TypeSemanticSymbol): UnarySemanticOperator|null
+    public static getUnaryOperator (tokenKind: TokenKind, operandType: SemanticSymbols.Type): UnarySemanticOperator|null
     {
         const operatorKind = BuildInOperators.tokenKindToSemanticOperatorKind(tokenKind);
 
@@ -115,7 +115,11 @@ export abstract class BuildInOperators
         return null;
     }
 
-    public static getBinaryOperator (tokenKind: TokenKind, leftType: TypeSemanticSymbol, rightType: TypeSemanticSymbol): BinarySemanticOperator|null
+    public static getBinaryOperator (
+        tokenKind: TokenKind,
+        leftType: SemanticSymbols.Type,
+        rightType: SemanticSymbols.Type
+    ): BinarySemanticOperator|null
     {
         const operatorKind = BuildInOperators.tokenKindToSemanticOperatorKind(tokenKind);
 

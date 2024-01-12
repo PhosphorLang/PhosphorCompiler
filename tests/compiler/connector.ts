@@ -547,7 +547,7 @@ describe('Connector',
                                         SemanticCreator.newVariableExpression(),
                                         SemanticCreator.newVariableSymbol(
                                             undefined,
-                                            'variableB',
+                                            SemanticCreator.newNamespace(undefined, undefined, 'variableB'),
                                             true
                                         )
                                     )

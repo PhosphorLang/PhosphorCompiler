@@ -1,4 +1,4 @@
-function IfElse.testIfElse (): Int8
+function IfElse~testIfElse (): Int8
 {
     introduce v#1
     move v#1 Native(2)
@@ -81,8 +81,8 @@ function IfElse.testIfElse (): Int8
     return
 }
 
-function IfElse.main (): Void
+function IfElse~main (): Void
 {
-    call IfElse.testIfElse
+    call IfElse~testIfElse
     return
 }

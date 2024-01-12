@@ -2,9 +2,11 @@ import * as Diagnostic from '../diagnostic';
 import * as SemanticNodes from './semanticNodes';
 import * as SemanticSymbols from './semanticSymbols';
 import * as SyntaxNodes from '../parser/syntaxNodes';
+import { FunctionContext, ModuleContext } from './connectorContext';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { ElementsList } from '../parser/elementsList';
+import { Namespace } from '../parser/namespace';
 import { SemanticSymbolKind } from './semanticSymbolKind';
 import { SyntaxKind } from '../parser/syntaxKind';
 
@@ -32,11 +34,7 @@ export class Connector
      * While connecting the function bodies, at the beginning of each section a new list is pushed, at the end of the section it is removed.
      * With this we keep track of which variables are accessible at which point in the code.
      */
-    private variableStacks: Map<string, SemanticSymbols.Variable>[];
-
-    private moduleIsClass: boolean;
-    private currentModule: SemanticSymbols.Module|null;
-    private currentFunction: SemanticSymbols.Function|null;
+    private variableStacks: Map<string, SemanticSymbols.VariableLike>[];
 
     constructor (diagnostic: Diagnostic.Diagnostic)
     {
@@ -46,9 +44,6 @@ export class Connector
         this.variables = new Map();
         this.functions = new Map();
         this.variableStacks = [this.variables];
-        this.moduleIsClass = false;
-        this.currentModule = null;
-        this.currentFunction = null;
     }
 
     public run (fileSyntaxNode: SyntaxNodes.File, qualifiedNameToFile: Map<string, SemanticNodes.File>): SemanticNodes.File
@@ -57,29 +52,26 @@ export class Connector
         this.variables.clear();
         this.functions.clear();
         this.variableStacks = [this.variables];
-        this.moduleIsClass = false;
-        this.currentModule = null;
-        this.currentFunction = null;
 
         const result = this.connectFile(fileSyntaxNode, qualifiedNameToFile);
 
         return result;
     }
 
-    private pushVariable (variable: SemanticSymbols.Variable): void
+    private pushVariable (variable: SemanticSymbols.VariableLike): void
     {
         const currentVariableStack = this.variableStacks[this.variableStacks.length - 1];
 
-        currentVariableStack.set(variable.name, variable);
+        currentVariableStack.set(variable.namespace.qualifiedName, variable);
     }
 
-    private getVariable (name: string): SemanticSymbols.Variable|null
+    private getVariable (qualifiedName: string): SemanticSymbols.VariableLike|null
     {
         for (const variableStack of this.variableStacks)
         {
             for (const variable of variableStack.values())
             {
-                if (variable.name == name)
+                if (variable.namespace.qualifiedName == qualifiedName)
                 {
                     return variable;
                 }
@@ -108,7 +100,7 @@ export class Connector
                 );
             }
 
-            const duplicateFile = this.importedFiles.get(importSyntaxNode.namespace.name);
+            const duplicateFile = this.importedFiles.get(importSyntaxNode.namespace.moduleName);
 
             if (duplicateFile != undefined)
             {
@@ -127,8 +119,8 @@ export class Connector
                 {
                     this.diagnostic.throw(
                         new Diagnostic.Error(
-                            `Name conflict for import of "${duplicateFile.module.qualifiedName}" and `
-                                + `"${importedFile.module.qualifiedName}". Use "as" to rename one of them.`,
+                            `Name conflict for import of "${duplicateFile.module.namespace.qualifiedName}" and `
+                                + `"${importedFile.module.namespace.qualifiedName}". Use "as" to rename one of them.`,
                             Diagnostic.Codes.ImportNameConflictError,
                             importSyntaxNode.keyword
                         )
@@ -137,27 +129,41 @@ export class Connector
             }
             else
             {
-                this.importedFiles.set(importSyntaxNode.namespace.name, importedFile);
+                this.importedFiles.set(importSyntaxNode.namespace.moduleName, importedFile);
 
                 importedModules.push(importedFile.module);
             }
         }
 
-        this.moduleIsClass = file.module.isClass;
-
         // Function declarations:
         for (const functionDeclaration of file.functions)
         {
-            const functionSymbol = this.connectFunctionDeclaration(functionDeclaration);
-
-            this.functions.set(functionSymbol.name, functionSymbol);
+            this.preconnectFunctionDeclaration(functionDeclaration, file.module.namespace);
         }
+
+        // Global variables declarations:
+        for (const variableNode of file.variables)
+        {
+            this.preconnectGlobalVariableDeclaration(variableNode, file.module.namespace);
+        }
+
+        // Field declarations:
+        for (const fieldNode of file.fields)
+        {
+            this.preconnectFieldVariableDeclaration(fieldNode, file.module.namespace);
+        }
+
+        // Module:
+        const moduleSymbol = this.connectModule(file.module);
+        const moduleContext: ModuleContext = {
+            module: moduleSymbol
+        };
 
         // Global variables:
         const variableDeclarations: SemanticNodes.GlobalVariableDeclaration[] = [];
         for (const variableNode of file.variables)
         {
-            const variableDeclaration = this.connectGlobalVariableDeclaration(variableNode);
+            const variableDeclaration = this.connectGlobalVariableDeclaration(variableNode, moduleContext);
             variableDeclarations.push(variableDeclaration);
         }
 
@@ -165,24 +171,17 @@ export class Connector
         const fieldDeclarations: SemanticNodes.FieldDeclaration[] = [];
         for (const fieldNode of file.fields)
         {
-            const fieldDeclaration = this.connectFieldVariableDeclaration(fieldNode);
+            const fieldDeclaration = this.connectFieldVariableDeclaration(fieldNode, moduleContext);
             fieldDeclarations.push(fieldDeclaration);
         }
-
-        // Module:
-        const moduleSymbol = this.connectModule(file.module);
-        this.currentModule = moduleSymbol;
 
         // Function bodies:
         const functionDeclarations: SemanticNodes.FunctionDeclaration[] = [];
         for (const functionNode of file.functions)
         {
-            const functionDeclaration = this.connectFunction(functionNode);
+            const functionDeclaration = this.connectFunctionDeclaration(functionNode, moduleContext);
             functionDeclarations.push(functionDeclaration);
         }
-
-        this.moduleIsClass = false;
-        this.currentModule = null;
 
         return new SemanticNodes.File(
             file.fileName,
@@ -196,14 +195,10 @@ export class Connector
 
     private connectModule (module: SyntaxNodes.Module): SemanticSymbols.Module
     {
-        const name = module.namespace.name;
-        const pathName = module.namespace.pathName;
-        const qualifiedName = module.namespace.qualifiedName;
-
         let classType: SemanticSymbols.GenericType|null = null;
         if (module.isClass)
         {
-            classType = new SemanticSymbols.GenericType(name, []); // TODO: Implement generic classes.
+            classType = new SemanticSymbols.GenericType(module.namespace, []); // TODO: Implement generic classes.
         }
 
         const variableNameToSymbol = new Map(this.variables);
@@ -212,9 +207,7 @@ export class Connector
         const isEntryPoint = module.isEntryPoint;
 
         return new SemanticSymbols.Module(
-            name,
-            pathName,
-            qualifiedName,
+            module.namespace,
             classType,
             variableNameToSymbol,
             functionNameToSymbol,
@@ -222,26 +215,28 @@ export class Connector
         );
     }
 
-    private connectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticSymbols.Function
+    private preconnectFunctionDeclaration (functionDeclaration: SyntaxNodes.FunctionDeclaration, moduleNamespace: Namespace): void
     {
-        const name = functionDeclaration.identifier.content;
+        const namespace = Namespace.constructFromNamespace(moduleNamespace, functionDeclaration.identifier.content);
         const returnType = this.connectTypeClause(functionDeclaration.type) ?? BuildInTypes.noType;
-        const parameters = this.connectParameters(functionDeclaration.parameters);
+        const parameters = this.connectParameters(functionDeclaration.parameters, moduleNamespace);
         const isMethod = functionDeclaration.isMethod;
         const isHeader = functionDeclaration.isHeader;
 
-        if (isMethod && !this.moduleIsClass)
+        if (this.functions.has(namespace.qualifiedName))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    'Methods can only be declared in classes.',
-                    Diagnostic.Codes.MethodInModuleWithoutClassError,
+                    `Duplicate declaration of function "${namespace.baseName}".`,
+                    Diagnostic.Codes.DuplicateFunctionDeclarationError,
                     functionDeclaration.identifier
                 )
             );
         }
 
-        return new SemanticSymbols.Function(name, returnType, parameters, isMethod, isHeader);
+        const functionSymbol = new SemanticSymbols.Function(namespace, returnType, parameters, isMethod, isHeader);
+
+        this.functions.set(namespace.qualifiedName, functionSymbol);
     }
 
     private connectTypeClause (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.ConcreteType|null
@@ -258,18 +253,20 @@ export class Connector
 
     private connectType (typeSyntaxNode: SyntaxNodes.Type): SemanticSymbols.ConcreteType
     {
-        let type = BuildInTypes.getTypeByName(typeSyntaxNode.identifier.content);
+        const typeName = typeSyntaxNode.identifier.content;
+
+        let type = BuildInTypes.getTypeByName(typeName);
 
         if (type === null)
         {
-            const importedClass = this.importedFiles.get(typeSyntaxNode.identifier.content);
+            const importedClass = this.importedFiles.get(typeName);
             type = importedClass?.module.classType ?? null;
 
             if (type === null)
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Unknown type "${typeSyntaxNode.identifier.content}"`,
+                        `Unknown type "${typeName}"`,
                         Diagnostic.Codes.UnknownTypeError,
                         typeSyntaxNode.identifier
                     )
@@ -279,17 +276,17 @@ export class Connector
 
         if (type.kind === SemanticSymbolKind.ConcreteType)
         {
-            return type as SemanticSymbols.ConcreteType; // TODO: We should use a type guard here.
+            return type;
         }
 
-        const genericType = type as SemanticSymbols.GenericType; // TODO: We should use a type guard here.
+        const genericType = type;
         // TODO: Check if it really a SemanticSymbolKind.GenericType here.
 
         if (genericType.parameters.length !== typeSyntaxNode.arguments.elements.length)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Wrong argument count for generic type "${genericType.name}"`,
+                    `Wrong argument count for generic type "${genericType.namespace.baseName}"`,
                     Diagnostic.Codes.WrongGenericArgumentCountError,
                     typeSyntaxNode.identifier
                 )
@@ -307,7 +304,7 @@ export class Connector
                 {
                     this.diagnostic.throw(
                         new Diagnostic.Error(
-                            `Generic argument "${genericType.parameters[i].name}" must be a literal.`,
+                            `Generic argument "${genericType.parameters[i].namespace.baseName}" must be a literal.`,
                             Diagnostic.Codes.GenericArgumentMustBeLiteralError,
                             typeSyntaxNode.identifier // TODO: Would be better to have the token of the parameter here.
                         )
@@ -328,7 +325,7 @@ export class Connector
                 }
 
                 const literalConcreteParameter = new SemanticSymbols.LiteralConcreteParameter(
-                    genericType.parameters[i].name,
+                    genericType.parameters[i].namespace,
                     argument.literal.content,
                     literalType
                 );
@@ -340,7 +337,7 @@ export class Connector
                 {
                     this.diagnostic.throw(
                         new Diagnostic.Error(
-                            `Generic argument "${genericType.parameters[i].name}" must be a type.`,
+                            `Generic argument "${genericType.parameters[i].namespace.baseName}" must be a type.`,
                             Diagnostic.Codes.GenericArgumentMustBeTypeError,
                             typeSyntaxNode.identifier // TODO: Would be better to have the token of the parameter here.
                         )
@@ -349,17 +346,20 @@ export class Connector
 
                 const typeArgumentType = this.connectType(argument);
                 const typeConcreteParameter = new SemanticSymbols.TypeConcreteParameter(
-                    genericType.parameters[i].name,
+                    genericType.parameters[i].namespace,
                     typeArgumentType
                 );
                 concreteArguments.push(typeConcreteParameter);
             }
         }
 
-        return new SemanticSymbols.ConcreteType(genericType.name, concreteArguments);
+        return new SemanticSymbols.ConcreteType(genericType.namespace, concreteArguments);
     }
 
-    private connectParameters (parameters: ElementsList<SyntaxNodes.FunctionParameter>): SemanticSymbols.FunctionParameter[]
+    private connectParameters (
+        parameters: ElementsList<SyntaxNodes.FunctionParameter>,
+        moduleNamespace: Namespace
+    ): SemanticSymbols.FunctionParameter[]
     {
         const parameterSymbols: SemanticSymbols.FunctionParameter[] = [];
 
@@ -367,20 +367,20 @@ export class Connector
 
         for (const parameter of parameters.elements)
         {
-            const name = parameter.identifier.content;
+            const namespace = Namespace.constructFromNamespace(moduleNamespace, parameter.identifier.content);
 
-            if (names.has(name))
+            if (names.has(namespace.qualifiedName))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Duplicate parameter name "${name}"`,
+                        `Duplicate parameter name "${namespace.baseName}"`,
                         Diagnostic.Codes.DuplicateParameterNameError,
                         parameter.identifier
                     )
                 );
             }
 
-            names.add(name);
+            names.add(namespace.qualifiedName);
 
             const type = this.connectTypeClause(parameter.type);
 
@@ -395,7 +395,8 @@ export class Connector
                 );
             }
 
-            const parameterSymbol = new SemanticSymbols.FunctionParameter(name, type);
+
+            const parameterSymbol = new SemanticSymbols.FunctionParameter(namespace, type);
 
             parameterSymbols.push(parameterSymbol);
         }
@@ -403,61 +404,122 @@ export class Connector
         return parameterSymbols;
     }
 
-    private connectGlobalVariableDeclaration (
-        variableDeclaration: SyntaxNodes.GlobalVariableDeclaration
-    ): SemanticNodes.GlobalVariableDeclaration
+    private preconnectGlobalVariableDeclaration (
+        variableDeclaration: SyntaxNodes.GlobalVariableDeclaration,
+        moduleNamespace: Namespace
+    ): void
     {
-        // TODO: This shares a lot of code with connectLocalVariableDeclaration and connectFieldVariableDeclaration. Could they be unified?
+        const namespace = Namespace.constructFromNamespace(moduleNamespace, variableDeclaration.identifier.content);
 
-        const name = variableDeclaration.identifier.content;
-        const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
-        let type = this.connectTypeClause(variableDeclaration.type);
-
+        const type = this.connectTypeClause(variableDeclaration.type);
         if (type === null)
-        {
-            if (initialisier === null)
-            {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `The variable "${name}" must either have a type clause or an initialiser.`,
-                        Diagnostic.Codes.VariableWithoutTypeClauseAndInitialiserError,
-                        variableDeclaration.identifier
-                    )
-                );
-            }
-            else
-            {
-                type = initialisier.type;
-            }
-        }
-
-        // TODO: Check if the type clause and the initialiser type match.
-
-        const isReadonly = variableDeclaration.isConstant;
-
-        const variable = new SemanticSymbols.Variable(name, type, isReadonly);
-
-        if (this.getVariable(name) !== null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Duplicate declaration of variable "${name}".`,
+                    `The module variable "${namespace.baseName}" is missing a type clause.`,
+                    Diagnostic.Codes.GlobalVariableDeclarationIsMissingTypeClauseError,
+                    variableDeclaration.identifier
+                )
+            );
+        }
+
+        const isReadonly = variableDeclaration.isConstant;
+
+        const variable = new SemanticSymbols.Variable(namespace, type, isReadonly);
+
+        if (this.getVariable(namespace.qualifiedName) !== null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Duplicate declaration of variable "${namespace.baseName}".`,
                     Diagnostic.Codes.DuplicateVariableDeclarationError,
                     variableDeclaration.identifier
                 )
             );
         }
 
-        this.variables.set(variable.name, variable);
+        this.variables.set(variable.namespace.qualifiedName, variable);
+    }
+
+    private connectGlobalVariableDeclaration (
+        variableDeclaration: SyntaxNodes.GlobalVariableDeclaration,
+        context: ModuleContext
+    ): SemanticNodes.GlobalVariableDeclaration
+    {
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, variableDeclaration.identifier.content);
+
+        const variable = this.getVariable(namespace.qualifiedName);
+        if (variable === null)
+        {
+            throw new Error('Connector error: Global variable symbol not found.');
+        }
+        else if (variable.kind !== SemanticSymbolKind.Variable)
+        {
+            throw new Error('Connector error: Global variable symbol is not a variable.');
+        }
+
+        const initialisier = variableDeclaration.initialiser === null
+            ? null
+            : this.connectExpression(variableDeclaration.initialiser, context);
+
+        if (initialisier !== null && !initialisier.type.equals(variable.type))
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `The type of the initialiser for the module variable "${namespace.baseName}" does not match the type clause.`,
+                    Diagnostic.Codes.InitialiserTypeDoesNotMatchGlobalVariableTypeClauseError,
+                    variableDeclaration.identifier
+                )
+            );
+        }
 
         return new SemanticNodes.GlobalVariableDeclaration(variable, initialisier);
     }
 
+    private preconnectFieldVariableDeclaration (
+        fieldDeclaration: SyntaxNodes.FieldVariableDeclaration,
+        moduleNamespace: Namespace
+    ): void
+    {
+        const namespace = Namespace.constructFromNamespace(moduleNamespace, fieldDeclaration.identifier.content);
+
+        const type = this.connectTypeClause(fieldDeclaration.type);
+        if (type === null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `The field "${namespace.baseName}" is missing a type clause.`,
+                    Diagnostic.Codes.FieldDeclarationIsMissingTypeClauseError,
+                    fieldDeclaration.identifier
+                )
+            );
+        }
+
+        const isReadonly = fieldDeclaration.variableModifier === null;
+
+        const field = new SemanticSymbols.Field(namespace, type, isReadonly);
+
+        if (this.getVariable(namespace.qualifiedName) !== null)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Duplicate declaration of field "${namespace.baseName}".`,
+                    // TODO: This would also produce an error if a variable shares the name with a field, which should be reported as such.
+                    Diagnostic.Codes.DuplicateVariableDeclarationError,
+                    fieldDeclaration.identifier
+                )
+            );
+        }
+
+        this.pushVariable(field); // FIXME: Is doing this here correct? Where should the field be added to?
+    }
+
     private connectFieldVariableDeclaration (
-        fieldDeclaration: SyntaxNodes.FieldVariableDeclaration
+        fieldDeclaration: SyntaxNodes.FieldVariableDeclaration,
+        context: ModuleContext
     ): SemanticNodes.FieldDeclaration
     {
-        if (!this.moduleIsClass)
+        if (context.module.classType === null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -468,61 +530,57 @@ export class Connector
             );
         }
 
-        const name = fieldDeclaration.identifier.content;
-        const initialisier = fieldDeclaration.initialiser === null ? null : this.connectExpression(fieldDeclaration.initialiser);
-        let type = this.connectTypeClause(fieldDeclaration.type);
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, fieldDeclaration.identifier.content);
 
-        if (type === null)
+        const field = this.getVariable(namespace.qualifiedName);
+        if (field === null)
         {
-            if (initialisier === null)
-            {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `The field "${name}" must either have a type clause or an initialiser.`,
-                        Diagnostic.Codes.FieldWithoutTypeClauseAndInitialiserError,
-                        fieldDeclaration.identifier
-                    )
-                );
-            }
-            else
-            {
-                type = initialisier.type;
-            }
+            throw new Error('Connector error: Field symbol not found.');
+        }
+        else if (field.kind !== SemanticSymbolKind.Field)
+        {
+            throw new Error('Connector error: Field symbol is not a field.');
         }
 
-        const isReadonly = fieldDeclaration.variableModifier === null;
+        const initialisier = fieldDeclaration.initialiser === null ? null : this.connectExpression(fieldDeclaration.initialiser, context);
 
-        // TODO: Check if the type clause and the initialiser type match.
-
-        const field = new SemanticSymbols.Field(name, type, isReadonly);
-
-        if (this.getVariable(name) !== null)
+        if (initialisier !== null && !initialisier.type.equals(field.type))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Duplicate declaration of field "${name}".`,
-                    // TODO: This would also produce an error if a variable shares the name with a field, which should be reported as such.
-                    Diagnostic.Codes.DuplicateVariableDeclarationError,
+                    `The type of the initialiser for the field "${namespace.baseName}" does not match the type clause.`,
+                    Diagnostic.Codes.InitialiserTypeDoesNotMatchFieldDeclarationTypeClauseError,
                     fieldDeclaration.identifier
                 )
             );
         }
 
-        this.pushVariable(field); // FIXME: Is doing this here correct? Where should the field be added to?
-
         return new SemanticNodes.FieldDeclaration(field, initialisier);
     }
 
-    private connectFunction (functionDeclaration: SyntaxNodes.FunctionDeclaration): SemanticNodes.FunctionDeclaration
+    private connectFunctionDeclaration (
+        functionDeclaration: SyntaxNodes.FunctionDeclaration,
+        context: ModuleContext
+    ): SemanticNodes.FunctionDeclaration
     {
-        const functionSymbol = this.functions.get(functionDeclaration.identifier.content);
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, functionDeclaration.identifier.content);
+        const functionSymbol = this.functions.get(namespace.qualifiedName);
         if (functionSymbol === undefined)
         {
             // NOTE: The function symbol must exist because we added it previously based on the same function declarations.
             throw new Error('Connector error: Function symbol not found.');
         }
 
-        this.currentFunction = functionSymbol;
+        if (functionSymbol.isMethod && (context.module.classType === null))
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'Methods can only be declared in classes.',
+                    Diagnostic.Codes.MethodInModuleWithoutClassError,
+                    functionDeclaration.identifier
+                )
+            );
+        }
 
         // Push a new list of variables to the variable stack:
         const variables = new Map<string, SemanticSymbols.Variable>();
@@ -534,21 +592,24 @@ export class Connector
             this.pushVariable(parameter);
         }
 
+        const connectorContext: FunctionContext = {
+            module: context.module,
+            function: functionSymbol
+        };
+
         let section: SemanticNodes.Section|null = null;
         if (functionDeclaration.body !== null)
         {
-            section = this.connectSection(functionDeclaration.body);
+            section = this.connectSection(functionDeclaration.body, connectorContext);
         }
 
         // Remove the list of variables from the variable stack:
         this.variableStacks.pop();
 
-        this.currentFunction = null;
-
         return new SemanticNodes.FunctionDeclaration(functionSymbol, section);
     }
 
-    private connectSection (sectionSyntaxNode: SyntaxNodes.Section): SemanticNodes.Section
+    private connectSection (sectionSyntaxNode: SyntaxNodes.Section, context: FunctionContext): SemanticNodes.Section
     {
         const statementNodes: SemanticNodes.Statement[] = [];
 
@@ -558,7 +619,7 @@ export class Connector
 
         for (const statement of sectionSyntaxNode.statements)
         {
-            const statementNode = this.connectStatement(statement);
+            const statementNode = this.connectStatement(statement, context);
 
             statementNodes.push(statementNode);
         }
@@ -569,35 +630,38 @@ export class Connector
         return new SemanticNodes.Section(statementNodes);
     }
 
-    private connectStatement (statement: SyntaxNodes.Statement): SemanticNodes.Statement
+    private connectStatement (statement: SyntaxNodes.Statement, context: FunctionContext): SemanticNodes.Statement
     {
         switch (statement.kind)
         {
             case SyntaxKind.AccessExpression:
-                return this.connectAccessExpression(statement);
+                return this.connectAccessExpression(statement, context);
             case SyntaxKind.Assignment:
-                return this.connectAssignment(statement);
+                return this.connectAssignment(statement, context);
             case SyntaxKind.CallExpression:
-                return this.connectCallExpression(statement);
+                return this.connectCallExpression(statement, context);
             case SyntaxKind.Section:
-                return this.connectSection(statement);
+                return this.connectSection(statement, context);
             case SyntaxKind.LocalVariableDeclaration:
-                return this.connectLocalVariableDeclaration(statement);
+                return this.connectLocalVariableDeclaration(statement, context);
             case SyntaxKind.ReturnStatement:
-                return this.connectReturnStatement(statement);
+                return this.connectReturnStatement(statement, context);
             case SyntaxKind.IfStatement:
-                return this.connectIfStatement(statement);
+                return this.connectIfStatement(statement, context);
             case SyntaxKind.WhileStatement:
-                return this.connectWhileStatement(statement);
+                return this.connectWhileStatement(statement, context);
         }
     }
 
     private connectLocalVariableDeclaration (
-        variableDeclaration: SyntaxNodes.LocalVariableDeclaration
+        variableDeclaration: SyntaxNodes.LocalVariableDeclaration,
+        context: ModuleContext
     ): SemanticNodes.LocalVariableDeclaration
     {
-        const name = variableDeclaration.identifier.content;
-        const initialisier = variableDeclaration.initialiser === null ? null : this.connectExpression(variableDeclaration.initialiser);
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, variableDeclaration.identifier.content);
+        const initialisier = variableDeclaration.initialiser === null
+            ? null
+            : this.connectExpression(variableDeclaration.initialiser, context);
         let type = this.connectTypeClause(variableDeclaration.type);
 
         if (type === null)
@@ -606,7 +670,7 @@ export class Connector
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `The variable "${name}" must either have a type clause or an initialiser.`,
+                        `The variable "${namespace.baseName}" must either have a type clause or an initialiser.`,
                         Diagnostic.Codes.VariableWithoutTypeClauseAndInitialiserError,
                         variableDeclaration.identifier
                     )
@@ -622,45 +686,38 @@ export class Connector
 
         // TODO: Check if the type clause and the initialiser type match.
 
-        const variable = new SemanticSymbols.Variable(name, type, isReadonly);
 
-        if (this.getVariable(name) !== null)
+        if (this.getVariable(namespace.qualifiedName) !== null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Duplicate declaration of variable "${name}".`,
+                    `Duplicate declaration of variable "${namespace.baseName}".`,
                     Diagnostic.Codes.DuplicateVariableDeclarationError,
                     variableDeclaration.identifier
                 )
             );
         }
 
+        const variable = new SemanticSymbols.Variable(namespace, type, isReadonly);
+
         this.pushVariable(variable);
 
         return new SemanticNodes.LocalVariableDeclaration(variable, initialisier);
     }
 
-    private connectReturnStatement (returnStatement: SyntaxNodes.ReturnStatement): SemanticNodes.ReturnStatement
+    private connectReturnStatement (
+        returnStatement: SyntaxNodes.ReturnStatement,
+        context: FunctionContext
+    ): SemanticNodes.ReturnStatement
     {
-        if (this.currentFunction === null)
-        {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    'Return statements must be placed inside a function body.',
-                    Diagnostic.Codes.ReturnStatementOutsideFunctionBodyError,
-                    returnStatement.keyword
-                )
-            );
-        }
-
         let expression: SemanticNodes.Expression|null = null;
 
         if (returnStatement.expression !== null)
         {
-            expression = this.connectExpression(returnStatement.expression);
+            expression = this.connectExpression(returnStatement.expression, context);
         }
 
-        if (this.currentFunction.returnType.equals(BuildInTypes.noType))
+        if (context.function.returnType.equals(BuildInTypes.noType))
         {
             if (expression !== null)
             {
@@ -685,7 +742,7 @@ export class Connector
                     )
                 );
             }
-            else if (!expression.type.equals(this.currentFunction.returnType))
+            else if (!expression.type.equals(context.function.returnType))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -700,9 +757,9 @@ export class Connector
         return new SemanticNodes.ReturnStatement(expression);
     }
 
-    private connectIfStatement (ifStatement: SyntaxNodes.IfStatement): SemanticNodes.IfStatement
+    private connectIfStatement (ifStatement: SyntaxNodes.IfStatement, context: FunctionContext): SemanticNodes.IfStatement
     {
-        const condition = this.connectExpression(ifStatement.condition);
+        const condition = this.connectExpression(ifStatement.condition, context);
 
         if (!condition.type.equals(BuildInTypes.bool))
         {
@@ -715,36 +772,36 @@ export class Connector
             );
         }
 
-        const section = this.connectSection(ifStatement.section);
+        const section = this.connectSection(ifStatement.section, context);
         let elseClause: SemanticNodes.ElseClause|null = null;
 
         if (ifStatement.elseClause !== null)
         {
-            elseClause = this.connectElseClause(ifStatement.elseClause);
+            elseClause = this.connectElseClause(ifStatement.elseClause, context);
         }
 
         return new SemanticNodes.IfStatement(condition, section, elseClause);
     }
 
-    private connectElseClause (elseClause: SyntaxNodes.ElseClause): SemanticNodes.ElseClause
+    private connectElseClause (elseClause: SyntaxNodes.ElseClause, context: FunctionContext): SemanticNodes.ElseClause
     {
         let followUp: SemanticNodes.Section|SemanticNodes.IfStatement;
 
         if (elseClause.followUp.kind == SyntaxKind.Section)
         {
-            followUp = this.connectSection(elseClause.followUp);
+            followUp = this.connectSection(elseClause.followUp, context);
         }
         else
         {
-            followUp = this.connectIfStatement(elseClause.followUp);
+            followUp = this.connectIfStatement(elseClause.followUp, context);
         }
 
         return new SemanticNodes.ElseClause(followUp);
     }
 
-    private connectWhileStatement (whileStatement: SyntaxNodes.WhileStatement): SemanticNodes.WhileStatement
+    private connectWhileStatement (whileStatement: SyntaxNodes.WhileStatement, context: FunctionContext): SemanticNodes.WhileStatement
     {
-        const condition = this.connectExpression(whileStatement.condition);
+        const condition = this.connectExpression(whileStatement.condition, context);
 
         if (!condition.type.equals(BuildInTypes.bool))
         {
@@ -757,22 +814,22 @@ export class Connector
             );
         }
 
-        const section = this.connectSection(whileStatement.section);
+        const section = this.connectSection(whileStatement.section, context);
 
         return new SemanticNodes.WhileStatement(condition, section);
     }
 
-    private connectAssignment (assignment: SyntaxNodes.Assignment): SemanticNodes.Assignment
+    private connectAssignment (assignment: SyntaxNodes.Assignment, context: ModuleContext): SemanticNodes.Assignment
     {
-        const name = assignment.identifier.content;
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, assignment.identifier.content);
 
-        const variable = this.getVariable(name);
+        const variable = this.getVariable(namespace.qualifiedName);
 
         if (variable === null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Unknown variable "${name}"`,
+                    `Unknown variable "${namespace.baseName}"`,
                     Diagnostic.Codes.UnknownVariableError,
                     assignment.identifier
                 )
@@ -783,38 +840,38 @@ export class Connector
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `"${name}" is readonly, an assignment is not allowed.`,
+                    `"${namespace.baseName}" is readonly, an assignment is not allowed.`,
                     Diagnostic.Codes.ReadonlyAssignmentError,
                     assignment.identifier
                 )
             );
         }
 
-        const expression = this.connectExpression(assignment.expression);
+        const expression = this.connectExpression(assignment.expression, context);
 
         return new SemanticNodes.Assignment(variable, expression);
     }
 
-    private connectExpression (expression: SyntaxNodes.Expression): SemanticNodes.Expression
+    private connectExpression (expression: SyntaxNodes.Expression, context: FunctionContext|ModuleContext): SemanticNodes.Expression
     {
         switch (expression.kind)
         {
             case SyntaxKind.AccessExpression:
-                return this.connectAccessExpression(expression);
+                return this.connectAccessExpression(expression, context);
             case SyntaxKind.BinaryExpression:
-                return this.connectBinaryExpression(expression);
+                return this.connectBinaryExpression(expression, context);
             case SyntaxKind.BracketedExpression:
-                return this.connectBracketedExpression(expression);
+                return this.connectBracketedExpression(expression, context);
             case SyntaxKind.CallExpression:
-                return this.connectCallExpression(expression);
+                return this.connectCallExpression(expression, context);
             case SyntaxKind.InstantiationExpression:
-                return this.connectInstantiationExpression(expression);
+                return this.connectInstantiationExpression(expression, context);
             case SyntaxKind.LiteralExpression:
                 return this.connectLiteralExpression(expression);
             case SyntaxKind.UnaryExpression:
-                return this.connectUnaryExpression(expression);
+                return this.connectUnaryExpression(expression, context);
             case SyntaxKind.VariableExpression:
-                return this.connectVariableExpression(expression);
+                return this.connectVariableExpression(expression, context);
         }
     }
 
@@ -837,14 +894,17 @@ export class Connector
         return new SemanticNodes.LiteralExpression(value, type);
     }
 
-    private connectInstantiationExpression (expression: SyntaxNodes.InstantiationExpression): SemanticNodes.InstantiationExpression
+    private connectInstantiationExpression (
+        expression: SyntaxNodes.InstantiationExpression,
+        context: ModuleContext
+    ): SemanticNodes.InstantiationExpression
     {
         const type = this.connectType(expression.type);
 
         const elements: SemanticNodes.Expression[] = [];
         for (const element of expression.arguments.elements)
         {
-            const connectedExpression = this.connectExpression(element);
+            const connectedExpression = this.connectExpression(element, context);
             elements.push(connectedExpression);
 
             // TODO: As soon as there is a constructor, we must check the arguments' types here.
@@ -853,17 +913,19 @@ export class Connector
         return new SemanticNodes.InstantiationExpression(type, elements);
     }
 
-    private connectVariableExpression (expression: SyntaxNodes.VariableExpression): SemanticNodes.VariableExpression
+    private connectVariableExpression (
+        expression: SyntaxNodes.VariableExpression,
+        context: FunctionContext|ModuleContext
+    ): SemanticNodes.VariableExpression
     {
-        const name = expression.identifier.content;
-
-        const variable = this.getVariable(name);
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, expression.identifier.content);
+        const variable = this.getVariable(namespace.qualifiedName);
 
         if (variable === null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Unknown variable "${name}"`,
+                    `Unknown variable "${namespace.baseName}"`,
                     Diagnostic.Codes.UnknownVariableError,
                     expression.identifier
                 )
@@ -872,21 +934,21 @@ export class Connector
 
         if (variable.kind == SemanticSymbolKind.Field)
         {
-            if (this.currentFunction === null)
+            if (!('function' in context)) // TODO: This is ugly and unsafe Typescript magic.
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Cannot access field "${name}" outside of a method.`,
+                        `Cannot access field "${namespace.baseName}" outside of a method.`,
                         Diagnostic.Codes.FieldAccessOutsideMethodError,
                         expression.identifier
                     )
                 );
             }
-            else if (!this.currentFunction.isMethod)
+            else if (!context.function.isMethod)
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Cannot access field "${name}" inside a function. This is only possible inside methods.`,
+                        `Cannot access field "${namespace.baseName}" inside a function. This is only possible inside methods.`,
                         Diagnostic.Codes.FieldAccessInsideFunctionError,
                         expression.identifier
                     )
@@ -899,39 +961,22 @@ export class Connector
 
     private connectCallExpression (
         expression: SyntaxNodes.CallExpression,
+        context: ModuleContext,
         inModule: SemanticSymbols.Module|null = null,
-        thisReference: SemanticSymbols.Variable|null = null
+        thisReference: SemanticSymbols.VariableLike|null = null
     ): SemanticNodes.CallExpression
     {
-        let functionSymbol: SemanticSymbols.Function|undefined;
-        if (inModule === null)
-        {
-            functionSymbol = this.functions.get(expression.identifier.content);
-        }
-        else
-        {
-            functionSymbol = inModule.functionNameToSymbol.get(expression.identifier.content);
-        }
+        const thisModule = inModule ?? context.module;
 
+        const namespace = Namespace.constructFromNamespace(thisModule.namespace, expression.identifier.content);
+
+        const functionSymbol = thisModule.functionNameToSymbol.get(namespace.qualifiedName);
         if (functionSymbol === undefined)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Unknown function "${expression.identifier.content}"`,
+                    `Unknown function "${namespace.baseName}"`,
                     Diagnostic.Codes.UnknownFunctionError,
-                    expression.identifier
-                )
-            );
-        }
-
-        const module = inModule ?? this.currentModule;
-
-        if (module === null)
-        {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    `Cannot call function "${expression.identifier.content}" outside of a module.`,
-                    Diagnostic.Codes.CallOutsideModuleError,
                     expression.identifier
                 )
             );
@@ -941,7 +986,7 @@ export class Connector
 
         for (const argumentExpression of expression.arguments.elements)
         {
-            const callArgument = this.connectExpression(argumentExpression);
+            const callArgument = this.connectExpression(argumentExpression, context);
             callArguments.push(callArgument);
         }
 
@@ -949,7 +994,7 @@ export class Connector
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Wrong argument count for function "${expression.identifier.content}"`,
+                    `Wrong argument count for function "${namespace.baseName}"`,
                     Diagnostic.Codes.WrongArgumentCountError,
                     expression.identifier
                 )
@@ -962,7 +1007,7 @@ export class Connector
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Wrong type for argument "${functionSymbol.parameters[i].name}".`,
+                        `Wrong type for argument "${functionSymbol.parameters[i].namespace.baseName}".`,
                         Diagnostic.Codes.WrongArgumentTypeError,
                         expression.identifier
                     )
@@ -976,23 +1021,29 @@ export class Connector
             thisExpression = new SemanticNodes.VariableExpression(thisReference);
         }
 
-        return new SemanticNodes.CallExpression(functionSymbol, module, callArguments, thisExpression);
+        return new SemanticNodes.CallExpression(functionSymbol, thisModule, callArguments, thisExpression);
     }
 
-    private connectAccessExpression (expression: SyntaxNodes.AccessExpression): SemanticNodes.CallExpression
+    private connectAccessExpression (
+        expression: SyntaxNodes.AccessExpression,
+        context: ModuleContext
+    ): SemanticNodes.CallExpression
     {
-        const foundVariable = this.getVariable(expression.identifier.content);
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, expression.identifier.content);
+
+        const foundVariable = this.getVariable(namespace.qualifiedName);
+
         if (foundVariable === null)
         {
-            return this.connectModuleAccessExpression(expression);
+            return this.connectModuleAccessExpression(expression, context);
         }
         else
         {
-            return this.connectObjectAccessExpression(expression, foundVariable);
+            return this.connectObjectAccessExpression(expression, context, foundVariable);
         }
     }
 
-    private connectModuleAccessExpression (expression: SyntaxNodes.AccessExpression): SemanticNodes.CallExpression
+    private connectModuleAccessExpression (expression: SyntaxNodes.AccessExpression, context: ModuleContext): SemanticNodes.CallExpression
     {
         const importedFile = this.importedFiles.get(expression.identifier.content);
 
@@ -1008,11 +1059,16 @@ export class Connector
         }
         else
         {
-            if (!importedFile.module.functionNameToSymbol.has(expression.functionCall.identifier.content))
+            const calledFunctionNamespace = Namespace.constructFromNamespace(
+                importedFile.module.namespace,
+                expression.functionCall.identifier.content
+            );
+
+            if (!importedFile.module.functionNameToSymbol.has(calledFunctionNamespace.qualifiedName))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Unknown function "${expression.functionCall.identifier.content}" in module "${importedFile.module.name}"`,
+                        `Unknown function "${calledFunctionNamespace.baseName}" in module "${importedFile.module.namespace.moduleName}"`,
                         Diagnostic.Codes.UnknownFunctionError,
                         expression.functionCall.identifier
                     )
@@ -1020,52 +1076,55 @@ export class Connector
             }
             else
             {
-                return this.connectCallExpression(expression.functionCall, importedFile.module);
+                return this.connectCallExpression(expression.functionCall, context, importedFile.module);
             }
         }
     }
 
     private connectObjectAccessExpression (
         expression: SyntaxNodes.AccessExpression,
-        objectToAccess?: SemanticSymbols.Variable
+        context: ModuleContext,
+        objectToAccess?: SemanticSymbols.VariableLike
     ): SemanticNodes.CallExpression
     {
-        const objectVariable = objectToAccess ?? this.getVariable(expression.identifier.content);
+        const namespace = Namespace.constructFromNamespace(context.module.namespace, expression.identifier.content);
+
+        const objectVariable = objectToAccess ?? this.getVariable(namespace.qualifiedName);
         if (objectVariable === null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Unknown variable "${expression.identifier.content}"`,
+                    `Unknown variable "${namespace.baseName}"`,
                     Diagnostic.Codes.UnknownVariableError,
                     expression.identifier
                 )
             );
         }
 
-        const importedFile = this.importedFiles.get(objectVariable.type.name);
+        const importedFile = this.importedFiles.get(objectVariable.type.namespace.baseName);
         // TODO: Should we look for the class type by symbols instead of the module name here?
         if (importedFile === undefined)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Cannot access "${expression.identifier.content}" of unkown type "${objectVariable.type.name}"`,
+                    `Cannot access "${namespace.baseName}" of unkown type "${objectVariable.type.namespace.baseName}"`,
                     Diagnostic.Codes.AccessOfUnknownTypeError,
                     expression.identifier
                 )
             );
         }
 
-        return this.connectCallExpression(expression.functionCall, importedFile.module, objectVariable);
+        return this.connectCallExpression(expression.functionCall, context, importedFile.module, objectVariable);
     }
 
-    private connectBracketedExpression (expression: SyntaxNodes.BracketedExpression): SemanticNodes.Expression
+    private connectBracketedExpression (expression: SyntaxNodes.BracketedExpression, context: ModuleContext): SemanticNodes.Expression
     {
-        return this.connectExpression(expression.expression);
+        return this.connectExpression(expression.expression, context);
     }
 
-    private connectUnaryExpression (expression: SyntaxNodes.UnaryExpression): SemanticNodes.UnaryExpression
+    private connectUnaryExpression (expression: SyntaxNodes.UnaryExpression, context: ModuleContext): SemanticNodes.UnaryExpression
     {
-        const operand = this.connectExpression(expression.operand);
+        const operand = this.connectExpression(expression.operand, context);
 
         const operator = BuildInOperators.getUnaryOperator(expression.operator.kind, operand.type);
 
@@ -1083,10 +1142,10 @@ export class Connector
         return new SemanticNodes.UnaryExpression(operator, operand);
     }
 
-    private connectBinaryExpression (expression: SyntaxNodes.BinaryExpression): SemanticNodes.BinaryExpression
+    private connectBinaryExpression (expression: SyntaxNodes.BinaryExpression, context: ModuleContext): SemanticNodes.BinaryExpression
     {
-        const leftOperand = this.connectExpression(expression.leftSide);
-        const rightOperand = this.connectExpression(expression.rightSide);
+        const leftOperand = this.connectExpression(expression.leftSide, context);
+        const rightOperand = this.connectExpression(expression.rightSide, context);
 
         const operator = BuildInOperators.getBinaryOperator(expression.operator.kind, leftOperand.type, rightOperand.type);
 
@@ -1094,7 +1153,8 @@ export class Connector
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Unknown binary operator "${expression.operator.content}" for "${leftOperand.type.name}" with "${rightOperand.type.name}"`,
+                    `Unknown binary operator "${expression.operator.content}" for "${leftOperand.type.namespace.baseName}"`
+                    + ` with "${rightOperand.type.namespace.baseName}"`,
                     Diagnostic.Codes.UnknownBinaryOperatorError,
                     expression.operator
                 )

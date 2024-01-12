@@ -1,4 +1,4 @@
-function Logic.testNot (Int8): Int8
+function Logic~testNot (Int8): Int8
 {
     introduce v#0
     take v#0 p#0
@@ -9,7 +9,7 @@ function Logic.testNot (Int8): Int8
     return
 }
 
-function Logic.testAnd (Int8, Int8): Int8
+function Logic~testAnd (Int8, Int8): Int8
 {
     introduce v#2
     take v#2 p#0
@@ -24,7 +24,7 @@ function Logic.testAnd (Int8, Int8): Int8
     return
 }
 
-function Logic.testOr (Int8, Int8): Int8
+function Logic~testOr (Int8, Int8): Int8
 {
     introduce v#6
     take v#6 p#0
@@ -39,7 +39,7 @@ function Logic.testOr (Int8, Int8): Int8
     return
 }
 
-function Logic.testEqual (Native, Native): Int8
+function Logic~testEqual (Native, Native): Int8
 {
     introduce v#10
     take v#10 p#0
@@ -61,7 +61,7 @@ function Logic.testEqual (Native, Native): Int8
     return
 }
 
-function Logic.testNotEqual (Native, Native): Int8
+function Logic~testNotEqual (Native, Native): Int8
 {
     introduce v#15
     take v#15 p#0
@@ -83,7 +83,7 @@ function Logic.testNotEqual (Native, Native): Int8
     return
 }
 
-function Logic.testLess (Native, Native): Int8
+function Logic~testLess (Native, Native): Int8
 {
     introduce v#20
     take v#20 p#0
@@ -105,7 +105,7 @@ function Logic.testLess (Native, Native): Int8
     return
 }
 
-function Logic.testGreater (Native, Native): Int8
+function Logic~testGreater (Native, Native): Int8
 {
     introduce v#25
     take v#25 p#0
@@ -127,53 +127,53 @@ function Logic.testGreater (Native, Native): Int8
     return
 }
 
-function Logic.main (): Void
+function Logic~main (): Void
 {
     introduce v#30
     move v#30 Int8(-1)
     give p#0 v#30
-    call Logic.testNot
+    call Logic~testNot
     introduce v#31
     move v#31 Int8(-1)
     give p#0 v#31
     introduce v#32
     move v#32 Int8(0)
     give p#1 v#32
-    call Logic.testAnd
+    call Logic~testAnd
     introduce v#33
     move v#33 Int8(-1)
     give p#0 v#33
     introduce v#34
     move v#34 Int8(0)
     give p#1 v#34
-    call Logic.testOr
+    call Logic~testOr
     introduce v#35
     move v#35 Native(1)
     give p#0 v#35
     introduce v#36
     move v#36 Native(2)
     give p#1 v#36
-    call Logic.testEqual
+    call Logic~testEqual
     introduce v#37
     move v#37 Native(1)
     give p#0 v#37
     introduce v#38
     move v#38 Native(2)
     give p#1 v#38
-    call Logic.testNotEqual
+    call Logic~testNotEqual
     introduce v#39
     move v#39 Native(1)
     give p#0 v#39
     introduce v#40
     move v#40 Native(2)
     give p#1 v#40
-    call Logic.testLess
+    call Logic~testLess
     introduce v#41
     move v#41 Native(1)
     give p#0 v#41
     introduce v#42
     move v#42 Native(2)
     give p#1 v#42
-    call Logic.testGreater
+    call Logic~testGreater
     return
 }

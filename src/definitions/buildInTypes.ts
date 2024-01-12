@@ -1,25 +1,27 @@
 import * as SemanticSymbols from '../connector/semanticSymbols';
+import { Namespace } from '../parser/namespace';
 import { TokenKind } from '../lexer/tokenKind';
 
 export abstract class BuildInTypes
 {
-    public static readonly noType = new SemanticSymbols.ConcreteType('NoType', []);
-    public static readonly int = new SemanticSymbols.ConcreteType('Int', []); // TODO: Is often misused for UInts. Should be corrected.
-    public static readonly bool = new SemanticSymbols.ConcreteType('Bool', []);
-    public static readonly string = new SemanticSymbols.ConcreteType('String', []);
-    public static readonly pointer = new SemanticSymbols.ConcreteType('Pointer', []);
+    public static readonly noType = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'NoType'), []);
+    // TODO: Ints are often misused for UInts. Should be corrected:
+    public static readonly int = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Int'), []);
+    public static readonly bool = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Bool'), []);
+    public static readonly string = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'String'), []);
+    public static readonly pointer = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Pointer'), []);
 
     public static getTypeByName (name: string): SemanticSymbols.Type|null
     {
         switch (name)
         {
-            case 'Int':
+            case this.int.namespace.baseName:
                 return this.int;
-            case 'String':
+            case this.string.namespace.baseName:
                 return this.string;
-            case 'Bool':
+            case this.bool.namespace.baseName:
                 return this.bool;
-            case 'Pointer':
+            case this.pointer.namespace.baseName:
                 return this.pointer;
             default:
                 return null;

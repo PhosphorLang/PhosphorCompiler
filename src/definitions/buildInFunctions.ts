@@ -1,6 +1,6 @@
+import * as SemanticSymbols from '../connector/semanticSymbols';
 import { BuildInTypes } from './buildInTypes';
-import { FunctionParameterSemanticSymbol } from '../connector/semanticSymbols/functionParameterSemanticSymbol';
-import { FunctionSemanticSymbol } from '../connector/semanticSymbols/functionSemanticSymbol';
+import { Namespace } from '../parser/namespace';
 
 /**
  * This class contains all functions that the compiler may insert and thus expects them to be present. These are especially functions
@@ -13,22 +13,31 @@ import { FunctionSemanticSymbol } from '../connector/semanticSymbols/functionSem
  */
 export abstract class BuildInFunctions
 {
-    public static readonly stringsAreEqual = new FunctionSemanticSymbol(
-        'stringsAreEqual',
+    public static readonly stringsAreEqual = new SemanticSymbols.Function(
+        Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual'),
         BuildInTypes.bool,
         [
-            new FunctionParameterSemanticSymbol('string1', BuildInTypes.string),
-            new FunctionParameterSemanticSymbol('string2', BuildInTypes.string)
+            new SemanticSymbols.FunctionParameter(
+                Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual', 'string1'),
+                BuildInTypes.string
+            ),
+            new SemanticSymbols.FunctionParameter(
+                Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual', 'string2'),
+                BuildInTypes.string
+            )
         ],
         false,
         true
     );
 
-    public static readonly allocate = new FunctionSemanticSymbol(
-        'allocate',
+    public static readonly allocate = new SemanticSymbols.Function(
+        Namespace.constructFromStrings('Standard', 'Memory', 'allocate'),
         BuildInTypes.pointer,
         [
-            new FunctionParameterSemanticSymbol('size', BuildInTypes.int) // FIXME: This should be UInt.
+            new SemanticSymbols.FunctionParameter(
+                Namespace.constructFromStrings('Standard', 'Memory', 'allocate', 'size'),
+                BuildInTypes.int // FIXME: This should be UInt.
+            )
         ],
         false,
         true

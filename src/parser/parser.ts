@@ -235,7 +235,7 @@ export class Parser
             );
         }
 
-        const namespace = new Namespace(prefixComponents, pathComponents, name);
+        const namespace = Namespace.constructFromTokens(prefixComponents, pathComponents, name);
 
         return namespace;
     }

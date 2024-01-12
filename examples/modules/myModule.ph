@@ -3,8 +3,8 @@ import Standard.Io;
 
 module ModulesExample.MyModule;
 
-constant helloFromModule := 'Hello got from MyModule!';
-variable sayHelloCounter := 0;
+constant helloFromModule: String := 'Hello got from MyModule!';
+variable sayHelloCounter: Int := 0;
 
 function getHello (): String
 {

@@ -1,16 +1,23 @@
-import { ConcreteTypeSemanticSymbol } from './concreteTypeSemanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
-import { VariableSemanticSymbol } from './variableSemanticSymbol';
 
-export class FunctionParameterSemanticSymbol extends VariableSemanticSymbol
+export class FunctionParameterSemanticSymbol extends SemanticSymbolBase
 {
-    constructor (name: string, type: ConcreteTypeSemanticSymbol)
-    {
-        super(name, type, true);
+    public readonly kind: SemanticSymbolKind.FunctionParameter;
 
-        // The readonly property "kind" must be set in this child constructor but not setable somewhere else, so we cannot use a protected
-        // setter or something similiar. And sadly the readonly modifier makes it read only in child constructors, too.
-        // @ts-expect-error Reason: See above.
+    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly isReadonly: true;
+
+    constructor (namespace: Namespace, type: SemanticSymbols.ConcreteType)
+    {
+        super(namespace);
+
         this.kind = SemanticSymbolKind.FunctionParameter;
+
+        this.isReadonly = true;
+
+        this.type = type;
     }
 }

@@ -1,4 +1,4 @@
-function Math.testUnaryPlus (Native): Native
+function Math~testUnaryPlus (Native): Native
 {
     introduce v#0
     take v#0 p#0
@@ -8,7 +8,7 @@ function Math.testUnaryPlus (Native): Native
     return
 }
 
-function Math.testUnaryMinus (Native): Native
+function Math~testUnaryMinus (Native): Native
 {
     introduce v#2
     take v#2 p#0
@@ -19,7 +19,7 @@ function Math.testUnaryMinus (Native): Native
     return
 }
 
-function Math.testAddition (Native, Native): Native
+function Math~testAddition (Native, Native): Native
 {
     introduce v#4
     take v#4 p#0
@@ -34,7 +34,7 @@ function Math.testAddition (Native, Native): Native
     return
 }
 
-function Math.testSubtraction (Native, Native): Native
+function Math~testSubtraction (Native, Native): Native
 {
     introduce v#8
     take v#8 p#0
@@ -49,7 +49,7 @@ function Math.testSubtraction (Native, Native): Native
     return
 }
 
-function Math.testMultiplication (Native, Native): Native
+function Math~testMultiplication (Native, Native): Native
 {
     introduce v#12
     take v#12 p#0
@@ -64,7 +64,7 @@ function Math.testMultiplication (Native, Native): Native
     return
 }
 
-function Math.testDivision (Native, Native): Native
+function Math~testDivision (Native, Native): Native
 {
     introduce v#16
     take v#16 p#0
@@ -79,7 +79,7 @@ function Math.testDivision (Native, Native): Native
     return
 }
 
-function Math.testModulo (Native, Native): Native
+function Math~testModulo (Native, Native): Native
 {
     introduce v#20
     take v#20 p#0
@@ -94,50 +94,50 @@ function Math.testModulo (Native, Native): Native
     return
 }
 
-function Math.main (): Void
+function Math~main (): Void
 {
     introduce v#24
     move v#24 Native(1)
     give p#0 v#24
-    call Math.testUnaryMinus
+    call Math~testUnaryMinus
     introduce v#25
     move v#25 Native(1)
     give p#0 v#25
-    call Math.testUnaryPlus
+    call Math~testUnaryPlus
     introduce v#26
     move v#26 Native(1)
     give p#0 v#26
     introduce v#27
     move v#27 Native(2)
     give p#1 v#27
-    call Math.testAddition
+    call Math~testAddition
     introduce v#28
     move v#28 Native(1)
     give p#0 v#28
     introduce v#29
     move v#29 Native(2)
     give p#1 v#29
-    call Math.testSubtraction
+    call Math~testSubtraction
     introduce v#30
     move v#30 Native(1)
     give p#0 v#30
     introduce v#31
     move v#31 Native(2)
     give p#1 v#31
-    call Math.testMultiplication
+    call Math~testMultiplication
     introduce v#32
     move v#32 Native(3)
     give p#0 v#32
     introduce v#33
     move v#33 Native(2)
     give p#1 v#33
-    call Math.testDivision
+    call Math~testDivision
     introduce v#34
     move v#34 Native(3)
     give p#0 v#34
     introduce v#35
     move v#35 Native(2)
     give p#1 v#35
-    call Math.testModulo
+    call Math~testModulo
     return
 }

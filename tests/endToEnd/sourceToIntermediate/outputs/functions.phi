@@ -1,4 +1,4 @@
-function Functions.add (Native, Native): Native
+function Functions~add (Native, Native): Native
 {
     introduce v#0
     take v#0 p#0
@@ -15,7 +15,7 @@ function Functions.add (Native, Native): Native
     return
 }
 
-function Functions.testAdd (): Native
+function Functions~testAdd (): Native
 {
     introduce v#6
     move v#6 Native(1)
@@ -23,7 +23,7 @@ function Functions.testAdd (): Native
     introduce v#7
     move v#7 Native(2)
     give p#1 v#7
-    call Functions.add
+    call Functions~add
     introduce v#5
     take v#5 r#0
     introduce v#8
@@ -32,8 +32,8 @@ function Functions.testAdd (): Native
     return
 }
 
-function Functions.main (): Void
+function Functions~main (): Void
 {
-    call Functions.testAdd
+    call Functions~testAdd
     return
 }

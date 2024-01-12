@@ -1,15 +1,20 @@
-import { ConcreteTypeSemanticSymbol } from './concreteTypeSemanticSymbol';
-import { SemanticSymbol } from './semanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class VariableSemanticSymbol extends SemanticSymbol
+export class VariableSemanticSymbol extends SemanticSymbolBase
 {
-    public readonly type: ConcreteTypeSemanticSymbol;
+    public readonly kind: SemanticSymbolKind.Variable;
+
+    public readonly type: SemanticSymbols.ConcreteType;
     public readonly isReadonly: boolean;
 
-    constructor (name: string, type: ConcreteTypeSemanticSymbol, isReadonly: boolean)
+    constructor (namespace: Namespace, type: SemanticSymbols.ConcreteType, isReadonly: boolean)
     {
-        super(SemanticSymbolKind.Variable, name);
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.Variable;
 
         this.type = type;
         this.isReadonly = isReadonly;

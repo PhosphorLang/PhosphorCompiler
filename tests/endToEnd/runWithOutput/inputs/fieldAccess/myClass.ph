@@ -1,7 +1,7 @@
 class MyClass;
 
-field fieldConstant := 'fieldConstant';
-field variable fieldVariable := 'fieldVariable';
+field fieldConstant: String := 'fieldConstant';
+field variable fieldVariable: String := 'fieldVariable';
 
 method setField (value: String)
 {

@@ -7,9 +7,9 @@ export class VariableExpressionGenericNode
 
     public readonly type: SemanticSymbols.ConcreteType;
 
-    public readonly variable: SemanticSymbols.Variable;
+    public readonly variable: SemanticSymbols.VariableLike;
 
-    constructor (variable: SemanticSymbols.Variable)
+    constructor (variable: SemanticSymbols.VariableLike)
     {
         this.kind = SemanticKind.VariableExpression;
 

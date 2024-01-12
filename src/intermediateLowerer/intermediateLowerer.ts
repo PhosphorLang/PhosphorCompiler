@@ -29,7 +29,7 @@ export class IntermediateLowerer
     private functions: Intermediates.Function[];
 
     private functionSymbolMap: Map<SemanticSymbols.Function, IntermediateSymbols.Function>;
-    private variableSymbolMap: Map<SemanticSymbols.Variable, IntermediateSymbols.Variable>;
+    private variableSymbolMap: Map<SemanticSymbols.VariableLike, IntermediateSymbols.Variable>;
     private valueToConstantMap: Map<string, IntermediateSymbols.Constant>;
     private semanticLabelNameToIntermediateLabelMap: Map<string, IntermediateSymbols.Label>;
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
@@ -104,7 +104,7 @@ export class IntermediateLowerer
             throw new Error(`Intermediate Lowerer error: Current module is null while defining a constant.`);
         }
 
-        const qualifiedName = this.currentModule.qualifiedName + '.' + `c#${this.constantCounter}`;
+        const qualifiedName = this.currentModule.namespace.qualifiedName + '~' + `c#${this.constantCounter}`;
 
         const newConstant = new IntermediateSymbols.Constant(qualifiedName, value);
 
@@ -122,15 +122,15 @@ export class IntermediateLowerer
     {
         let intermediateLabelSymbol: IntermediateSymbols.Label;
 
-        if (this.semanticLabelNameToIntermediateLabelMap.has(semanticLabelSymbol.name))
+        if (this.semanticLabelNameToIntermediateLabelMap.has(semanticLabelSymbol.namespace.qualifiedName))
         {
-            intermediateLabelSymbol = this.semanticLabelNameToIntermediateLabelMap.get(semanticLabelSymbol.name)!;
+            intermediateLabelSymbol = this.semanticLabelNameToIntermediateLabelMap.get(semanticLabelSymbol.namespace.qualifiedName)!;
         }
         else
         {
             intermediateLabelSymbol = this.generateLabel();
 
-            this.semanticLabelNameToIntermediateLabelMap.set(semanticLabelSymbol.name, intermediateLabelSymbol);
+            this.semanticLabelNameToIntermediateLabelMap.set(semanticLabelSymbol.namespace.qualifiedName, intermediateLabelSymbol);
         }
 
         return intermediateLabelSymbol;
@@ -152,7 +152,7 @@ export class IntermediateLowerer
         return newParameter;
     }
 
-    private generateLocalVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.LocalVariable
+    private generateLocalVariable (size: IntermediateSize, symbol?: SemanticSymbols.VariableLike): IntermediateSymbols.LocalVariable
     {
         const newVariable = new IntermediateSymbols.LocalVariable(this.localVariableCounter, size);
 
@@ -162,7 +162,7 @@ export class IntermediateLowerer
         {
             if (this.variableSymbolMap.has(symbol))
             {
-                throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.name}" already exists.`);
+                throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.namespace.qualifiedName}" already exists.`);
             }
 
             this.variableSymbolMap.set(symbol, newVariable);
@@ -171,13 +171,13 @@ export class IntermediateLowerer
         return newVariable;
     }
 
-    private getVariableFromSymbol (symbol: SemanticSymbols.Variable): IntermediateSymbols.Variable
+    private getVariableFromSymbol (symbol: SemanticSymbols.VariableLike): IntermediateSymbols.Variable
     {
         const existingVariable = this.variableSymbolMap.get(symbol);
 
         if (existingVariable === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.name}" does not exist.`);
+            throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.namespace.qualifiedName}" does not exist.`);
         }
 
         return existingVariable;
@@ -266,18 +266,18 @@ export class IntermediateLowerer
             parameterSizes.push(parameterSize);
         }
 
-        let qualifiedName: string;
-        if (module.isEntryPoint && semanticFunctionSymbol.name == 'main') // TODO: Find a better way than a hardcoded name.
+        let intermediateName: string;
+        if (module.isEntryPoint && semanticFunctionSymbol.namespace.baseName == 'main') // TODO: Find a better way than a hardcoded name.
         {
-            qualifiedName = semanticFunctionSymbol.name;
+            intermediateName = semanticFunctionSymbol.namespace.baseName;
         }
         else
         {
-            qualifiedName = module.qualifiedName + '.' + semanticFunctionSymbol.name;
+            intermediateName = semanticFunctionSymbol.namespace.qualifiedName;
         }
 
         const intermediateFunctionSymbol = new IntermediateSymbols.Function(
-            qualifiedName,
+            intermediateName,
             this.typeToSize(semanticFunctionSymbol.returnType),
             parameterSizes
         );
@@ -312,13 +312,16 @@ export class IntermediateLowerer
             throw new Error(`Intermediate Lowerer error: Current module is null while lowering a global variable.`);
         }
 
-        const qualifiedName = module.qualifiedName + '.' + globalVariable.symbol.name;
-
-        const globalSymbol = new IntermediateSymbols.Global(qualifiedName, this.typeToSize(globalVariable.symbol.type));
+        const globalSymbol = new IntermediateSymbols.Global(
+            globalVariable.symbol.namespace.qualifiedName,
+            this.typeToSize(globalVariable.symbol.type)
+        );
 
         if (this.variableSymbolMap.has(globalVariable.symbol))
         {
-            throw new Error(`Intermediate Lowerer error: Variable for symbol "${globalVariable.symbol.name}" already exists.`);
+            throw new Error(
+                `Intermediate Lowerer error: Variable for symbol "${globalVariable.symbol.namespace.qualifiedName}" already exists.`
+            );
         }
         this.variableSymbolMap.set(globalVariable.symbol, globalSymbol);
 
@@ -358,7 +361,7 @@ export class IntermediateLowerer
             for (const moduleWithInitiliser of modulesToBeInitialised)
             {
                 // TODO: Find a better way than a hardcoded name:
-                const qualifiedName = moduleWithInitiliser.qualifiedName + ':initialisation';
+                const qualifiedName = moduleWithInitiliser.namespace.qualifiedName + ':initialisation';
 
                 const functionSymbol = new IntermediateSymbols.Function(qualifiedName, IntermediateSize.Void, []);
 
@@ -384,7 +387,7 @@ export class IntermediateLowerer
         }
         else
         {
-            qualifiedName = module.qualifiedName + ':initialisation'; // TODO: Find a better way than a hardcoded name.
+            qualifiedName = module.namespace.qualifiedName + ':initialisation'; // TODO: Find a better way than a hardcoded name.
         }
 
         const functionSymbol = new IntermediateSymbols.Function(qualifiedName, IntermediateSize.Void, []);
@@ -500,7 +503,9 @@ export class IntermediateLowerer
 
         if (labelSymbol === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Label "${gotoStatement.labelSymbol.name}" in goto statement not found.`);
+            throw new Error(
+                `Intermediate Lowerer error: Label "${gotoStatement.labelSymbol.namespace.qualifiedName}" in goto statement not found.`
+            );
         }
 
         intermediates.push(
@@ -517,7 +522,9 @@ export class IntermediateLowerer
 
         if (labelSymbol === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Label "${conditionalGotoStatement.labelSymbol.name}" in conditional goto statement not found.`);
+            throw new Error(
+                `Intermediate Lowerer error: Label "${conditionalGotoStatement.labelSymbol.namespace.qualifiedName}"`
+                + ` in conditional goto statement not found.`);
         }
 
         const condition = this.generateLocalVariable(this.typeToSize(conditionalGotoStatement.condition.type));
@@ -652,7 +659,7 @@ export class IntermediateLowerer
                     break;
                 }
             default:
-                throw new Error(`Intermediate Lowerer error: Unknown literal of type "${literalExpression.type.name}"`);
+                throw new Error(`Intermediate Lowerer error: Unknown literal of type "${literalExpression.type.namespace.qualifiedName}"`);
         }
 
         this.introduceIfNecessary(targetLocation, intermediates);
@@ -672,7 +679,9 @@ export class IntermediateLowerer
 
         if (variable === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Variable "${variableExpression.variable.name}" used before declaration.`);
+            throw new Error(
+                `Intermediate Lowerer error: Variable "${variableExpression.variable.namespace.qualifiedName}" used before declaration.`
+            );
         }
 
         if (variable !== targetLocation)
@@ -718,7 +727,9 @@ export class IntermediateLowerer
 
         if (functionSymbol === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Function "${callExpression.functionSymbol.name}" used before declaration.`);
+            throw new Error(
+                `Intermediate Lowerer error: Function "${callExpression.functionSymbol.namespace.qualifiedName}" used before declaration.`
+            );
         }
 
         intermediates.push(
@@ -730,7 +741,8 @@ export class IntermediateLowerer
             if (functionSymbol.returnSize == IntermediateSize.Void)
             {
                 throw new Error(
-                    `Intermediate Lowerer error: Function "${callExpression.functionSymbol.name}" has no return value but is used as an expression.`
+                    `Intermediate Lowerer error: Function "${callExpression.functionSymbol.namespace.qualifiedName}"`
+                    + ` has no return value but is used as an expression.`
                 );
             }
 
@@ -785,8 +797,9 @@ export class IntermediateLowerer
                 }
             default:
                 throw new Error(
-                    `Intermediate Lowerer error: The operator "${operator.kind}" for operand of "${operator.operandType.name}" and ` +
-                    `result of "${operator.resultType.name}" is not implemented.`
+                    `Intermediate Lowerer error: The operator "${operator.kind}" for operand of`
+                    + ` "${operator.operandType.namespace.qualifiedName}" and result of "${operator.resultType.namespace.qualifiedName}"`
+                    + ` is not implemented.`
                 );
         }
     }
@@ -876,8 +889,9 @@ export class IntermediateLowerer
                 break;
             default:
                 throw new Error(
-                    `Intermediate Lowerer error: The size-retaining operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
-                    `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
+                    `Intermediate Lowerer error: The size-retaining operator "${operator.kind}" for the operands of`
+                    + ` "${operator.leftType.namespace.qualifiedName}" and "${operator.rightType.namespace.qualifiedName}"`
+                    + ` with the result type of "${operator.resultType.namespace.qualifiedName}" is not implemented.`
                 );
         }
     }
@@ -960,8 +974,9 @@ export class IntermediateLowerer
             }
             default:
                 throw new Error(
-                    `Intermediate Lowerer error: The size-changing operator "${operator.kind}" for the operands of "${operator.leftType.name}" ` +
-                    `and "${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
+                    `Intermediate Lowerer error: The size-changing operator "${operator.kind}" for the operands of`
+                    + ` "${operator.leftType.namespace.qualifiedName}" and "${operator.rightType.namespace.qualifiedName}" with the`
+                    + ` result type of "${operator.resultType.namespace.qualifiedName}" is not implemented.`
                 );
         }
     }

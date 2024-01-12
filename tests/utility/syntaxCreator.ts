@@ -37,7 +37,7 @@ export abstract class SyntaxCreator
         pathComponents: Token[] = []
     ): Namespace
     {
-        return new Namespace(prefixComponents, pathComponents, name);
+        return Namespace.constructFromTokens(prefixComponents, pathComponents, name);
     }
 
     public static newFunctionDeclaration (

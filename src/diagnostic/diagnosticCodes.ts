@@ -59,6 +59,11 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     DuplicateFieldDeclarationError = 'E1060',
     FieldAccessOutsideMethodError = 'E1061',
     FieldAccessInsideFunctionError = 'E1062',
+    DuplicateFunctionDeclarationError = 'E1063',
+    GlobalVariableDeclarationIsMissingTypeClauseError = 'E1064',
+    InitialiserTypeDoesNotMatchGlobalVariableTypeClauseError = 'E1065',
+    FieldDeclarationIsMissingTypeClauseError = 'E1066',
+    InitialiserTypeDoesNotMatchFieldDeclarationTypeClauseError = 'E1067',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

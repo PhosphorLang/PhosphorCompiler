@@ -5,6 +5,7 @@ import { BuildInFunctions } from '../definitions/buildInFunctions';
 import { BuildInModules } from '../definitions/buildInModules';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
+import { Namespace } from '../parser/namespace';
 import { SemanticKind } from '../connector/semanticKind';
 
 /**
@@ -17,16 +18,20 @@ export default class SemanticLowerer
 
     private buildInImports: Set<SemanticSymbols.Module>;
 
+    private currentModule: SemanticSymbols.Module|null;
+
     constructor ()
     {
         this.labelCounter = 0;
         this.buildInImports = new Set();
+        this.currentModule = null;
     }
 
     public run (fileSemanticNode: SemanticNodes.File): LoweredNodes.File
     {
         this.labelCounter = 0;
         this.buildInImports = new Set();
+        this.currentModule = null;
 
         const loweredFile = this.lowerFile(fileSemanticNode);
 
@@ -35,7 +40,14 @@ export default class SemanticLowerer
 
     private generateLabel (): SemanticSymbols.Label
     {
-        const newLabel = new SemanticSymbols.Label(`l#${this.labelCounter}`);
+        if (this.currentModule === null)
+        {
+            throw new Error(`Semantic Lowerer error: Tried to generate label outside of a module.`);
+        }
+
+        const namespace = Namespace.constructFromNamespace(this.currentModule.namespace, `l#${this.labelCounter}`);
+
+        const newLabel = new SemanticSymbols.Label(namespace);
 
         this.labelCounter++;
 
@@ -54,7 +66,8 @@ export default class SemanticLowerer
             if (!functionSymbol.isHeader)
             {
                 throw new Error(
-                    `Semantic Lowerer error: Tried to lower build-in module "${moduleSymbol.name}" which includes non-header function.`
+                    `Semantic Lowerer error: Tried to lower build-in module "${moduleSymbol.namespace.qualifiedName}"`
+                    + ` which includes non-header function.`
                 );
             }
         }
@@ -67,6 +80,8 @@ export default class SemanticLowerer
 
     private lowerFile (file: SemanticNodes.File): LoweredNodes.File
     {
+        this.currentModule = file.module;
+
         const loweredGlobalVariables: LoweredNodes.GlobalVariableDeclaration[] = [];
         for (const globalVariable of file.variables)
         {
@@ -98,6 +113,8 @@ export default class SemanticLowerer
             loweredImportsSet.add(buildInImport);
         }
         const loweredImports = Array.from(loweredImportsSet);
+
+        this.currentModule = null;
 
         return new LoweredNodes.File(file.name, file.module, loweredImports, loweredGlobalVariables, loweredFields, loweredFunctions);
     }

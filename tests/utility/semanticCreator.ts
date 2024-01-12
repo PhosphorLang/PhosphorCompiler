@@ -4,6 +4,7 @@ import { BinarySemanticOperator } from '../../src/connector/semanticOperators/bi
 import { BuildInOperators } from '../../src/definitions/buildInOperators';
 import { BuildInTypes } from '../../src/definitions/buildInTypes';
 import { Defaults } from './defaults';
+import { Namespace } from '../../src/parser/namespace';
 import { UnarySemanticOperator } from '../../src/connector/semanticOperators/unarySemanticOperator';
 
 export abstract class SemanticCreator
@@ -21,33 +22,11 @@ export abstract class SemanticCreator
     }
 
     public static newModule (
-        name = Defaults.moduleName,
-        path = "",
-        prefix = "",
+        namespace = SemanticCreator.newNamespace(Defaults.moduleName),
         isEntryPoint = false
     ): SemanticSymbols.Module
     {
-        let pathName: string;
-        if (path.length === 0)
-        {
-            pathName = name;
-        }
-        else
-        {
-            pathName = path + '.' + name;
-        }
-
-        let qualifiedName: string;
-        if (prefix.length === 0)
-        {
-            qualifiedName = pathName;
-        }
-        else
-        {
-            qualifiedName = prefix + ':' + pathName;
-        }
-
-        return new SemanticSymbols.Module(name, pathName, qualifiedName, null, new Map(), new Map(), isEntryPoint);
+        return new SemanticSymbols.Module(namespace, null, new Map(), new Map(), isEntryPoint);
     }
 
     public static newFunctionDeclaration (
@@ -66,17 +45,20 @@ export abstract class SemanticCreator
     public static newFunctionSymbol (
         parameters: SemanticSymbols.FunctionParameter[] = [],
         returnType = BuildInTypes.noType,
-        name = Defaults.identifier,
+        namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.identifier),
         isExternal = false,
         isMethod = false, // TODO: Swap with isExternal.
     ): SemanticSymbols.Function
     {
-        return new SemanticSymbols.Function(name, returnType, parameters, isMethod, isExternal);
+        return new SemanticSymbols.Function(namespace, returnType, parameters, isMethod, isExternal);
     }
 
-    public static newFunctionParameter (type = BuildInTypes.int, name = Defaults.variableName): SemanticSymbols.FunctionParameter
+    public static newFunctionParameter (
+        type = BuildInTypes.int,
+        namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.variableName),
+    ): SemanticSymbols.FunctionParameter
     {
-        return new SemanticSymbols.FunctionParameter(name, type);
+        return new SemanticSymbols.FunctionParameter(namespace, type);
     }
 
     public static newFunctionCall (
@@ -98,11 +80,11 @@ export abstract class SemanticCreator
 
     public static newVariableSymbol (
         type = BuildInTypes.int,
-        name = Defaults.variableName,
+        namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.variableName),
         isReadonly = true
     ): SemanticSymbols.Variable
     {
-        return new SemanticSymbols.Variable(name, type, isReadonly);
+        return new SemanticSymbols.Variable(namespace, type, isReadonly);
     }
 
     public static newAssignment (expression: SemanticNodes.Expression, variable = SemanticCreator.newVariableSymbol()): SemanticNodes.Assignment
@@ -188,29 +170,39 @@ export abstract class SemanticCreator
         return new SemanticNodes.WhileStatement(condition, section);
     }
 
-    public static newLabelSymbol (name = Defaults.labelName): SemanticSymbols.Label
+    public static newLabelSymbol (
+        namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.labelName),
+    ): SemanticSymbols.Label
     {
-        return new SemanticSymbols.Label(name);
+        return new SemanticSymbols.Label(namespace);
     }
 
-    /*
-    public static newLabel (labelSymbol = SemanticCreator.newLabelSymbol()): SemanticNodes.Label
+    public static newNamespace (
+        moduleName = Defaults.moduleName,
+        modulePath: string|null = null,
+        memberName: string|null = null,
+        memberPath: string|null = null,
+    ): Namespace
     {
-        return new SemanticNodes.Label(labelSymbol);
-    }
+        if (memberPath === null)
+        {
+            if (memberName === null)
+            {
+                return Namespace.constructFromStrings(modulePath, moduleName);
+            }
+            else
+            {
+                return Namespace.constructFromStrings(modulePath, moduleName, memberName);
+            }
+        }
+        else if (memberName === null)
+        {
+            throw new Error('memberPath must be null if memberName is null');
+        }
+        else
+        {
+            return Namespace.constructFromStrings(modulePath, moduleName, memberPath, memberName);
+        }
 
-    public static newGotoStatement (labelSymbol = SemanticCreator.newLabelSymbol()): SemanticNodes.GotoStatement
-    {
-        return new SemanticNodes.GotoStatement(labelSymbol);
     }
-
-    public static newConditionalGotoStatement (
-        labelSymbol = SemanticCreator.newLabelSymbol(),
-        condition: SemanticNodes.Expression = SemanticCreator.newTrueBooleanLiteral(),
-        conditionResult?: boolean
-    ): SemanticNodes.ConditionalGotoStatement
-    {
-        return new SemanticNodes.ConditionalGotoStatement(labelSymbol, condition, conditionResult);
-    }
-    */
 }

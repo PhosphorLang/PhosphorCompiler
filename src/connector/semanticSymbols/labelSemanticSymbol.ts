@@ -1,10 +1,15 @@
-import { SemanticSymbol } from './semanticSymbol';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class LabelSemanticSymbol extends SemanticSymbol
+export class LabelSemanticSymbol extends SemanticSymbolBase
 {
-    constructor (name: string)
+    public readonly kind: SemanticSymbolKind.Label;
+
+    constructor (namespace: Namespace)
     {
-        super(SemanticSymbolKind.Label, name);
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.Label;
     }
 }

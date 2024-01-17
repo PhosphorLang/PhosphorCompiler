@@ -10,6 +10,7 @@ export class ModuleSemanticSymbol extends SemanticSymbolBase
     public readonly classType: SemanticSymbols.GenericType|null;
 
     public readonly variableNameToSymbol: Map<string, SemanticSymbols.Variable>;
+    public readonly fieldNameToSymbol: Map<string, SemanticSymbols.Field>;
     public readonly functionNameToSymbol: Map<string, SemanticSymbols.Function>;
 
     public readonly isEntryPoint: boolean;
@@ -18,6 +19,7 @@ export class ModuleSemanticSymbol extends SemanticSymbolBase
         namespace: Namespace,
         classType: SemanticSymbols.GenericType|null,
         variableNameToSymbol: Map<string, SemanticSymbols.Variable>,
+        fieldNameToSymbol: Map<string, SemanticSymbols.Field>,
         functionNameToSymbol: Map<string, SemanticSymbols.Function>,
         isEntryPoint: boolean,
     ) {
@@ -27,6 +29,7 @@ export class ModuleSemanticSymbol extends SemanticSymbolBase
 
         this.classType = classType;
         this.variableNameToSymbol = variableNameToSymbol;
+        this.fieldNameToSymbol = fieldNameToSymbol;
         this.functionNameToSymbol = functionNameToSymbol;
         this.isEntryPoint = isEntryPoint;
     }

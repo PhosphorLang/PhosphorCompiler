@@ -12,11 +12,11 @@ export class TakeIntermediate
     public readonly kind: IntermediateKind.Take;
 
     // TODO: Harmonise the naming of the properties for all intermediates!
-    public variableSymbol: IntermediateSymbols.Variable;
+    public variableSymbol: IntermediateSymbols.WritableValue;
     public takableValue: IntermediateSymbols.Parameter | IntermediateSymbols.ReturnValue;
 
     constructor (
-        variableSymbol: IntermediateSymbols.Variable,
+        variableSymbol: IntermediateSymbols.WritableValue,
         takableValue: IntermediateSymbols.Parameter | IntermediateSymbols.ReturnValue
     ) {
         this.kind = IntermediateKind.Take;

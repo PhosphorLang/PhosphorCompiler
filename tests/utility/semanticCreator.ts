@@ -26,7 +26,7 @@ export abstract class SemanticCreator
         isEntryPoint = false
     ): SemanticSymbols.Module
     {
-        return new SemanticSymbols.Module(namespace, null, new Map(), new Map(), isEntryPoint);
+        return new SemanticSymbols.Module(namespace, null, new Map(), new Map(), new Map(), isEntryPoint);
     }
 
     public static newFunctionDeclaration (
@@ -46,11 +46,11 @@ export abstract class SemanticCreator
         parameters: SemanticSymbols.FunctionParameter[] = [],
         returnType = BuildInTypes.noType,
         namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.identifier),
+        thisReference = SemanticCreator.newFunctionParameter(),
         isExternal = false,
-        isMethod = false, // TODO: Swap with isExternal.
     ): SemanticSymbols.Function
     {
-        return new SemanticSymbols.Function(namespace, returnType, parameters, isMethod, isExternal);
+        return new SemanticSymbols.Function(namespace, returnType, parameters, thisReference, isExternal);
     }
 
     public static newFunctionParameter (
@@ -63,11 +63,10 @@ export abstract class SemanticCreator
 
     public static newFunctionCall (
         callArguments: SemanticNodes.Expression[] = [],
-        symbol = SemanticCreator.newFunctionSymbol(),
-        ownerModule = SemanticCreator.newModule()
+        symbol = SemanticCreator.newFunctionSymbol()
     ): SemanticNodes.CallExpression
     {
-        return new SemanticNodes.CallExpression(symbol, ownerModule, callArguments, null);
+        return new SemanticNodes.CallExpression(symbol, callArguments, null);
     }
 
     public static newLocalVariableDeclaration (
@@ -87,7 +86,10 @@ export abstract class SemanticCreator
         return new SemanticSymbols.Variable(namespace, type, isReadonly);
     }
 
-    public static newAssignment (expression: SemanticNodes.Expression, variable = SemanticCreator.newVariableSymbol()): SemanticNodes.Assignment
+    public static newAssignment (
+        expression: SemanticNodes.Expression,
+        variable = SemanticCreator.newVariableExpression()
+    ): SemanticNodes.Assignment
     {
         return new SemanticNodes.Assignment(variable, expression);
     }

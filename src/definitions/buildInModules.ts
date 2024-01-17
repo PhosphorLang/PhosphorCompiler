@@ -8,6 +8,7 @@ export abstract class BuildInModules
         Namespace.constructFromStrings('Standard', 'String'),
         null,
         new Map(),
+        new Map(),
         new Map(
             [
                 [BuildInFunctions.stringsAreEqual.namespace.qualifiedName, BuildInFunctions.stringsAreEqual]
@@ -19,6 +20,7 @@ export abstract class BuildInModules
     public static readonly memory = new SemanticSymbols.Module(
         Namespace.constructFromStrings('Standard', 'Memory'),
         null,
+        new Map(),
         new Map(),
         new Map(
             [

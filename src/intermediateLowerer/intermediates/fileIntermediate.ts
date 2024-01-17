@@ -3,6 +3,7 @@ import { ExternalIntermediate } from './externalIntermediate';
 import { FunctionIntermediate } from './functionIntermediate';
 import { GlobalIntermediate } from './globalIntermediate';
 import { IntermediateKind } from '../intermediateKind';
+import { StructureIntermediate } from './structureIntermediate';
 
 /**
  * The main intermediate class that contains/wraps all other intermediates.
@@ -16,6 +17,8 @@ export class FileIntermediate
     public globals: GlobalIntermediate[];
     public functions: FunctionIntermediate[];
 
+    public structure: StructureIntermediate|null;
+
     public isEntryPoint: boolean;
 
     constructor (
@@ -23,6 +26,7 @@ export class FileIntermediate
         externals: ExternalIntermediate[],
         globals: GlobalIntermediate[],
         functions: FunctionIntermediate[],
+        structure: StructureIntermediate|null,
         isEntryPoint: boolean
     ){
         this.kind = IntermediateKind.File;
@@ -31,6 +35,9 @@ export class FileIntermediate
         this.externals = externals;
         this.globals = globals;
         this.functions = functions;
+
+        this.structure = structure;
+
         this.isEntryPoint = isEntryPoint;
     }
 }

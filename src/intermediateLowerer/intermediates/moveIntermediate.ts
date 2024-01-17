@@ -9,10 +9,10 @@ export class MoveIntermediate
 {
     public readonly kind: IntermediateKind.Move;
 
-    public to: IntermediateSymbols.Variable;
+    public to: IntermediateSymbols.WritableValue;
     public from: IntermediateSymbols.ReadableValue;
 
-    constructor (to: IntermediateSymbols.Variable, from: IntermediateSymbols.ReadableValue)
+    constructor (to: IntermediateSymbols.WritableValue, from: IntermediateSymbols.ReadableValue)
     {
         this.kind = IntermediateKind.Move;
 

@@ -5,6 +5,7 @@ export { BinaryExpressionGenericNode as BinaryExpression } from './binaryExpress
 export { CallExpressionGenericNode as CallExpression } from './callExpressionGenericNode';
 export { ElseClauseGenericNode as ElseClause } from './elseClauseGenericNode';
 export { FieldDeclarationGenericNode as FieldDeclaration } from './fieldDeclarationGenericNode';
+export { FieldExpressionGenericNode as FieldExpression } from './fieldExpressionGenericNode';
 export { FileGenericNode as File } from './fileGenericNode';
 export { FunctionDeclarationGenericNode as FunctionDeclaration } from './functionDeclarationGenericNode';
 export { GlobalVariableDeclarationGenericNode as GlobalVariableDeclaration } from './globalVariableDeclarationGenericNode';
@@ -23,6 +24,7 @@ import { BinaryExpressionGenericNode } from './binaryExpressionGenericNode';
 import { CallExpressionGenericNode } from './callExpressionGenericNode';
 import { ElseClauseGenericNode } from './elseClauseGenericNode';
 import { FieldDeclarationGenericNode } from './fieldDeclarationGenericNode';
+import { FieldExpressionGenericNode } from './fieldExpressionGenericNode';
 import { FileGenericNode } from './fileGenericNode';
 import { FunctionDeclarationGenericNode } from './functionDeclarationGenericNode';
 import { GlobalVariableDeclarationGenericNode } from './globalVariableDeclarationGenericNode';
@@ -44,14 +46,16 @@ export type GenericNode<
     GlobalVariableDeclaration,
     FieldDeclaration,
     VariableExpression,
+    FieldExpression,
     IfStatement,
     ElseClause
 > =
-    AssignmentGenericNode<Expression>
+    AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
     | BinaryExpressionGenericNode<Expression>
     | CallExpressionGenericNode<Expression, VariableExpression>
     | ElseClauseGenericNode<Section, IfStatement>
     | FieldDeclarationGenericNode<Expression>
+    | FieldExpressionGenericNode<VariableExpression>
     | FileGenericNode<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration>
     | FunctionDeclarationGenericNode<Section>
     | GlobalVariableDeclarationGenericNode<Expression>
@@ -65,8 +69,8 @@ export type GenericNode<
     | VariableExpressionGenericNode
     | WhileStatementGenericNode<Expression, Section>;
 
-export type GenericStatement<Expression, Statement, Section, ElseClause, VariableExpression> =
-    AssignmentGenericNode<Expression>
+export type GenericStatement<Expression, Statement, Section, ElseClause, VariableExpression, FieldExpression> =
+    AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
     | CallExpressionGenericNode<Expression, VariableExpression>
     | IfStatementGenericNode<Expression, Section, ElseClause>
     | LocalVariableDeclarationGenericNode<Expression>
@@ -77,6 +81,7 @@ export type GenericStatement<Expression, Statement, Section, ElseClause, Variabl
 export type GenericExpression<Expression, VariableExpression> =
     BinaryExpressionGenericNode<Expression>
     | CallExpressionGenericNode<Expression, VariableExpression>
+    | FieldExpressionGenericNode<VariableExpression>
     | InstantiationExpressionGenericNode<Expression>
     | LiteralExpressionGenericNode
     | UnaryExpressionGenericNode<Expression>

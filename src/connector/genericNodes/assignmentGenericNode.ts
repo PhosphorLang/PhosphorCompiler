@@ -1,18 +1,17 @@
-import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class AssignmentGenericNode <Expression>
+export class AssignmentGenericNode <Expression, FieldExpression, VariableExpression>
 {
     public readonly kind: SemanticKind.Assignment;
 
-    public readonly variable: SemanticSymbols.VariableLike;
-    public readonly expression: Expression;
+    public readonly to: FieldExpression|VariableExpression;
+    public readonly from: Expression;
 
-    constructor (variable: SemanticSymbols.VariableLike, expression: Expression)
+    constructor (to: FieldExpression|VariableExpression, from: Expression)
     {
         this.kind = SemanticKind.Assignment;
 
-        this.variable = variable;
-        this.expression = expression;
+        this.to = to;
+        this.from = from;
     }
 }

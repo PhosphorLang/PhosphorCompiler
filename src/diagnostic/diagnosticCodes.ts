@@ -64,6 +64,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     InitialiserTypeDoesNotMatchGlobalVariableTypeClauseError = 'E1065',
     FieldDeclarationIsMissingTypeClauseError = 'E1066',
     InitialiserTypeDoesNotMatchFieldDeclarationTypeClauseError = 'E1067',
+    ParameterAssignmentError = 'E1068',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

@@ -127,8 +127,8 @@ export class PhosphorCompiler
         const objectFiles: string[] = [];
         for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
         {
-            const loweredTree = semanticLowerer.run(fileSemanticTree);
-            const intermediateLanguage = intermediateLowerer.run(loweredTree, modulesWithInitialisers);
+            const loweredTree = semanticLowerer.run(fileSemanticTree, modulesWithInitialisers);
+            const intermediateLanguage = intermediateLowerer.run(loweredTree);
 
             if (processArguments.intermediate)
             {

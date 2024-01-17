@@ -26,7 +26,7 @@ export abstract class BuildInFunctions
                 BuildInTypes.string
             )
         ],
-        false,
+        null,
         true
     );
 
@@ -39,7 +39,7 @@ export abstract class BuildInFunctions
                 BuildInTypes.int // FIXME: This should be UInt.
             )
         ],
-        false,
+        null,
         true
     );
 }

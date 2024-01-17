@@ -40,8 +40,11 @@ export type Type =
     | GenericTypeSemanticSymbol;
 
 export type VariableLike =
-    | FieldSemanticSymbol
     | FunctionParameterSemanticSymbol
+    | VariableSemanticSymbol;
+
+export type Writable =
+    FieldSemanticSymbol
     | VariableSemanticSymbol;
 
 export type ConcreteParameter =

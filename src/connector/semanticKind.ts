@@ -20,8 +20,10 @@ export enum SemanticKind
     LiteralExpression = 'LiteralExpression',
     InstantiationExpression = 'InstantiationExpression',
     VariableExpression = 'VariableExpression',
+    FieldExpression = 'FieldExpression',
     CallExpression = 'CallExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',
+    SizeOfExpression = 'SizeOfExpression',
     // TODO: Sort groups alphabetically.
 }

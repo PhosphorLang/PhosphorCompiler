@@ -100,17 +100,18 @@ export default class SemanticLowerer
         }
 
         const loweredFunctions: LoweredNodes.FunctionDeclaration[] = [];
-        for (const functionNode of file.functions)
-        {
-            const loweredFunction = this.lowerFunctionDeclaration(functionNode);
-
-            loweredFunctions.push(loweredFunction);
-        }
 
         for (const additionalFunction of this.additionalFunctions)
         {
             loweredFunctions.push(additionalFunction);
             this.currentModule.functionNameToSymbol.set(additionalFunction.symbol.namespace.qualifiedName, additionalFunction.symbol);
+        }
+
+        for (const functionNode of file.functions)
+        {
+            const loweredFunction = this.lowerFunctionDeclaration(functionNode);
+
+            loweredFunctions.push(loweredFunction);
         }
 
         // TODO: This set back and forth is a bit ugly:
@@ -207,10 +208,10 @@ export default class SemanticLowerer
 
         // TODO: Find a better way than a hardcoded name:
         const namespace = Namespace.constructFromNamespace(module.namespace, ':moduleInitialiser');
-        const functionSymbol = new SemanticSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
+        const moduleInitialiserFunctionSymbol = new SemanticSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
 
         const section = new LoweredNodes.Section(initialisationBody);
-        const functionDeclaration = new LoweredNodes.FunctionDeclaration(functionSymbol, section);
+        const functionDeclaration = new LoweredNodes.FunctionDeclaration(moduleInitialiserFunctionSymbol, section);
 
         // TODO: The "additionalFunctions" field could be replaced by returning the function declaration here.
         this.additionalFunctions.push(functionDeclaration);
@@ -324,6 +325,32 @@ export default class SemanticLowerer
             }
 
             loweredSection = this.lowerSection(functionDeclaration.section);
+
+            if (this.currentModule === null)
+            {
+                throw new Error('Semantic Lowerer error: Current module is null while lowering a function declaration.');
+            }
+
+            // TODO: Find a better way than a hardcoded name:
+            if (this.currentModule.isEntryPoint && (functionDeclaration.symbol.namespace.memberName === 'main'))
+            {
+                let moduleInitialiserFunctionSymbol: SemanticSymbols.Function|null = null;
+                // TODO: It is bad that we have to search for the module initialiser function here:
+                for (const functionDeclaration of this.additionalFunctions)
+                {
+                    // TODO: Find a better way than a hardcoded name:
+                    if (functionDeclaration.symbol.namespace.memberName === ':moduleInitialiser')
+                    {
+                        moduleInitialiserFunctionSymbol = functionDeclaration.symbol;
+                    }
+                }
+
+                if (moduleInitialiserFunctionSymbol !== null)
+                {
+                    const callModuleInitialiserStatement = new LoweredNodes.CallExpression(moduleInitialiserFunctionSymbol, [], null);
+                    loweredSection.statements.unshift(callModuleInitialiserStatement);
+                }
+            }
         }
 
         return new LoweredNodes.FunctionDeclaration(functionDeclaration.symbol, loweredSection);

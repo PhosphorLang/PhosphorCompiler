@@ -1,0 +1,6 @@
+myMainConstant
+myMainVariable
+myChangedMainVariable
+myModuleConstant
+myModuleVariable
+myChangedModuleVariable

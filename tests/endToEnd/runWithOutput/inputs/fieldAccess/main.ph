@@ -10,6 +10,6 @@ function main ()
     Io.writeLine(myClass.getConstant());
     Io.writeLine(myClass.getField());
 
-    myClass.setField('changedVariable');
+    myClass.setField('changedField');
     Io.writeLine(myClass.getField());
 }

@@ -1,11 +1,9 @@
 import * as Diagnostic from '../diagnostic';
 import { Connector } from '../connector/connector';
-import { FileIntermediate } from '../intermediateLowerer/intermediates/fileIntermediate';
 import { File as FileSemanticNode } from '../connector/semanticNodes';
 import { FileSyntaxNode } from '../parser/syntaxNodes/fileSyntaxNode';
 import FileSystem from 'fs';
 import { Importer } from '../importer/importer';
-import { IntermediateInterpreter } from '../interpreter/intermediateInterpreter';
 import { IntermediateLowerer } from '../intermediateLowerer/intermediateLowerer';
 import { Lexer } from '../lexer/lexer';
 import { LinuxAmd64Backend } from '../backends/linuxAmd64Backend';
@@ -126,48 +124,31 @@ export class PhosphorCompiler
 
         // TODO: Check if the exit codes of assemblers/linkers/compilers in the backends is non-zero in case of errors.
 
-        if (processArguments.run)
+        const objectFiles: string[] = [];
+        for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
         {
-            const intermediateFiles: FileIntermediate[] = [];
-            for (const [, fileSemanticTree] of qualifiedNameToFile)
+            const loweredTree = semanticLowerer.run(fileSemanticTree);
+            const intermediateLanguage = intermediateLowerer.run(loweredTree, modulesWithInitialisers);
+
+            if (processArguments.intermediate)
             {
-                const loweredTree = semanticLowerer.run(fileSemanticTree);
-                const intermediateLanguage = intermediateLowerer.run(loweredTree, modulesWithInitialisers);
-                intermediateFiles.push(intermediateLanguage);
+                const intermediateTranspiler = new TranspilerIntermediate();
+                const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
+
+                FileSystem.writeFileSync(
+                    Path.join(processArguments.temporaryPath, qualifiedName + '.phi'),
+                    intermediateCode,
+                    { encoding: 'utf8' }
+                );
             }
 
-            const intermediateInterpreter = new IntermediateInterpreter();
-
-            intermediateInterpreter.run(intermediateFiles);
+            const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, processArguments.temporaryPath);
+            objectFiles.push(objectFilePath);
         }
-        else
-        {
-            const objectFiles: string[] = [];
-            for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
-            {
-                const loweredTree = semanticLowerer.run(fileSemanticTree);
-                const intermediateLanguage = intermediateLowerer.run(loweredTree, modulesWithInitialisers);
 
-                if (processArguments.intermediate)
-                {
-                    const intermediateTranspiler = new TranspilerIntermediate();
-                    const intermediateCode = intermediateTranspiler.run(intermediateLanguage);
+        const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
 
-                    FileSystem.writeFileSync(
-                        Path.join(processArguments.temporaryPath, qualifiedName + '.phi'),
-                        intermediateCode,
-                        { encoding: 'utf8' }
-                    );
-                }
-
-                const objectFilePath = backend.compile(intermediateLanguage, qualifiedName, processArguments.temporaryPath);
-                objectFiles.push(objectFilePath);
-            }
-
-            const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
-
-            backend.link(objectFiles, standardLibraryFilePath, processArguments.outputPath);
-        }
+        backend.link(objectFiles, standardLibraryFilePath, processArguments.outputPath);
     }
 
     private getSourceFilesInPathRecursively (directoryPath: string): string[]

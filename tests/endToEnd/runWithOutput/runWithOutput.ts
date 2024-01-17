@@ -23,7 +23,6 @@ describe('The compiled programme gives the correct output for',
             temporaryPath: 'tests/tmp/tmp',
             optimisationLevel: OptimisationLevel.None,
             targetPlatform: TargetPlatform.LinuxAmd64,
-            run: false,
             intermediate: false,
         };
 

@@ -12,7 +12,6 @@ interface OptionValues
     temporaryPath?: string;
     optimisation?: OptimisationLevel;
     target?: TargetPlatform;
-    run?: boolean;
     intermediate?: boolean;
 }
 
@@ -25,7 +24,6 @@ export class ProcessArguments
     public readonly temporaryPath: string;
     public readonly optimisationLevel: OptimisationLevel;
     public readonly targetPlatform: TargetPlatform;
-    public readonly run: boolean;
     public readonly intermediate: boolean;
 
     constructor (argv?: string[])
@@ -90,11 +88,6 @@ export class ProcessArguments
         targetOption.choices(Object.values(TargetPlatform));
         command.addOption(targetOption);
 
-        const runOption = new Option('-r, --run', 'Run the programme with the interpreter instead of compiling it');
-        command.addOption(runOption);
-        /* TODO: Instead of an optional parameter it should be either necessary to specify the run option or output file and
-                 standard library. */
-
         const intermediateOption = new Option('-i, --intermediate', 'Generate intermediate code');
         command.addOption(intermediateOption);
 
@@ -113,7 +106,6 @@ export class ProcessArguments
         this.temporaryPath = options.temporaryPath ?? 'tmp';
         this.optimisationLevel = options.optimisation ?? OptimisationLevel.None;
         this.targetPlatform = options.target ?? TargetPlatform.LinuxAmd64; // TODO: Use the platform the compiler runs on as default.
-        this.run = options.run ?? false;
         this.intermediate = options.intermediate ?? false;
     }
 }

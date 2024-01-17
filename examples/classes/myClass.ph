@@ -2,6 +2,8 @@ import Standard.Io;
 
 class ClassesExample.MyClass;
 
+field variable currentHello: String := 'Hello from method!';
+
 function sayHelloFromFunction ()
 {
     Io.writeLine('Hello from function!');
@@ -9,5 +11,10 @@ function sayHelloFromFunction ()
 
 method sayHelloFromMethod ()
 {
-    Io.writeLine('Hello from method!');
+    Io.writeLine(currentHello);
+}
+
+method setHelloField (value: String)
+{
+    currentHello := value;
 }

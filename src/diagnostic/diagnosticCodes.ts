@@ -65,6 +65,8 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     FieldDeclarationIsMissingTypeClauseError = 'E1066',
     InitialiserTypeDoesNotMatchFieldDeclarationTypeClauseError = 'E1067',
     ParameterAssignmentError = 'E1068',
+    MethodAccessOutsideMethodError = 'E1069',
+    MethodAccessInsideFunctionError = 'E1070',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

@@ -1071,7 +1071,7 @@ export class Connector
 
     private connectCallExpression (
         expression: SyntaxNodes.CallExpression,
-        context: ModuleContext,
+        context: FunctionContext|ModuleContext,
         inModule: SemanticSymbols.Module|null = null,
         thisReference: SemanticSymbols.VariableLike|null = null
     ): SemanticNodes.CallExpression
@@ -1129,6 +1129,36 @@ export class Connector
         if (thisReference !== null)
         {
             thisExpression = new SemanticNodes.VariableExpression(thisReference);
+        }
+        else
+        {
+            // TODO: This if-construct should be improved. It is a bit ugly and could be incorrect.
+
+            if (functionSymbol.thisReference !== null)
+            {
+                if (!('function' in context)) // TODO: This is ugly and unsafe Typescript magic.
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Cannot access a method "${namespace.baseName}" outside of another method.`,
+                            Diagnostic.Codes.MethodAccessOutsideMethodError,
+                            expression.identifier
+                        )
+                    );
+                }
+                else if (context.function.thisReference === null)
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Cannot access a method "${namespace.baseName}" inside a function. This is only possible inside other methods.`,
+                            Diagnostic.Codes.MethodAccessInsideFunctionError,
+                            expression.identifier
+                        )
+                    );
+                }
+
+                thisExpression = new SemanticNodes.VariableExpression(context.function.thisReference);
+            }
         }
 
         return new SemanticNodes.CallExpression(functionSymbol, callArguments, thisExpression);

@@ -53,6 +53,7 @@ export class PhosphorCompiler
         const searchPaths = [
             Path.dirname(processArguments.filePath),
             standardLibraryTargetPath,
+            ...processArguments.headerPaths
         ];
 
         const sourceFiles: string[] = [];
@@ -146,9 +147,12 @@ export class PhosphorCompiler
             objectFiles.push(objectFilePath);
         }
 
-        const standardLibraryFilePath = Path.join(standardLibraryTargetPath, 'standardLibrary.a');
+        const libaryPaths = [
+            Path.join(standardLibraryTargetPath, 'standardLibrary.a'),
+            ...processArguments.externalLibraries
+        ];
 
-        backend.link(objectFiles, standardLibraryFilePath, processArguments.outputPath);
+        backend.link(objectFiles, libaryPaths, processArguments.outputPath);
     }
 
     private getSourceFilesInPathRecursively (directoryPath: string): string[]

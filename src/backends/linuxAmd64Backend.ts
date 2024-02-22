@@ -31,10 +31,10 @@ export class LinuxAmd64Backend
         return temporaryObjectFilePath;
     }
 
-    public link (inputFilePaths: string[], standardLibraryPath: string, outputFilePath: string): void
+    public link (inputFilePaths: string[], libraryPaths: string[], outputFilePath: string): void
     {
         const linker = new GnuLinker(); // TODO: Should we switch to the LLVM linker (llvm-ld alias lld)?
 
-        linker.run(outputFilePath, inputFilePaths, [standardLibraryPath]);
+        linker.run(outputFilePath, inputFilePaths, libraryPaths);
     }
 }

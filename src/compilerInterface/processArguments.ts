@@ -13,6 +13,8 @@ interface OptionValues
     optimisation?: OptimisationLevel;
     target?: TargetPlatform;
     intermediate?: boolean;
+    externalLibrary?: string[];
+    headerPath?: string[];
 }
 
 export class ProcessArguments
@@ -25,6 +27,8 @@ export class ProcessArguments
     public readonly optimisationLevel: OptimisationLevel;
     public readonly targetPlatform: TargetPlatform;
     public readonly intermediate: boolean;
+    public readonly externalLibraries: string[] = [];
+    public readonly headerPaths: string[] = [];
 
     constructor (argv?: string[])
     {
@@ -91,6 +95,12 @@ export class ProcessArguments
         const intermediateOption = new Option('-i, --intermediate', 'Generate intermediate code');
         command.addOption(intermediateOption);
 
+        const externalLibrariesOption = new Option('-e, --externalLibrary <library...>', 'Link with an external library');
+        command.addOption(externalLibrariesOption);
+
+        const headerPathsOption = new Option('-h, --headerPath <path...>', 'Add a path to the header search paths');
+        command.addOption(headerPathsOption);
+
         command = command.parse(argv, { from: argv === undefined ? 'node' : 'user' });
 
         // TODO: Check how the typing changed here (in the whole commander library):
@@ -107,5 +117,8 @@ export class ProcessArguments
         this.optimisationLevel = options.optimisation ?? OptimisationLevel.None;
         this.targetPlatform = options.target ?? TargetPlatform.LinuxAmd64; // TODO: Use the platform the compiler runs on as default.
         this.intermediate = options.intermediate ?? false;
+
+        this.externalLibraries = options.externalLibrary ?? [];
+        this.headerPaths = options.headerPath ?? [];
     }
 }

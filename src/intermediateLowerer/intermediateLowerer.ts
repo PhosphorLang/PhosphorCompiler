@@ -229,6 +229,12 @@ export class IntermediateLowerer
 
         this.lowerGlobals(file.variables, modulesToBeInitialised);
 
+        // Pre-lowering of the function symbols for them to be available in every other function regardless of their order:
+        for (const functionNode of file.functions)
+        {
+            this.lowerFunctionSymbol(functionNode.symbol, file.module);
+        }
+
         for (const functionNode of file.functions)
         {
             this.lowerFunction(functionNode);
@@ -399,7 +405,14 @@ export class IntermediateLowerer
             throw new Error(`Intermediate Lowerer error: Current module is null while lowering a function.`);
         }
 
-        const functionSymbol = this.lowerFunctionSymbol(functionDeclaration.symbol, this.currentModule);
+        const functionSymbol = this.functionSymbolMap.get(functionDeclaration.symbol.namespace.qualifiedName);
+
+        if (functionSymbol === undefined)
+        {
+            throw new Error(
+                `Intermediate Lowerer error: No pre-lowered symbol found for function "${functionDeclaration.symbol.namespace.qualifiedName}".`
+            );
+        }
 
         if (functionDeclaration.symbol.isHeader)
         {

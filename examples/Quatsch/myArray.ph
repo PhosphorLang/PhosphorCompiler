@@ -1,4 +1,4 @@
-class MyArray.Array;
+class Quatsch.Array;
 
 import Standard.String;
 
@@ -16,7 +16,7 @@ method get (index: Int): String
 
 method set (index: Int, value: String)
 {
-    data := String.setIndex(data, index, value);
+    String.setIndex(data, index, value);
 }
 
 method concatenate (other: String)

@@ -1,7 +1,7 @@
-module MyArray.Main;
+module Quatsch.Main;
 
 import Standard.Io;
-import MyArray.Array;
+import Quatsch.Array;
 
 function main ()
 {

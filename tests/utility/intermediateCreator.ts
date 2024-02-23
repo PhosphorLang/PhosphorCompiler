@@ -10,10 +10,11 @@ export abstract class IntermediateCreator
         externals: Intermediates.External[] = [],
         constants: Intermediates.Constant[] = [],
         globals: Intermediates.Global[] = [],
+        structure: Intermediates.Structure = IntermediateCreator.newStructure(),
         isEntryPoint = false
     ): Intermediates.File
     {
-        return new Intermediates.File(constants, externals, globals, functions, isEntryPoint);
+        return new Intermediates.File(constants, externals, globals, functions, structure, isEntryPoint);
     }
 
     public static newFunction (
@@ -31,6 +32,21 @@ export abstract class IntermediateCreator
     ): IntermediateSymbols.Function
     {
         return new IntermediateSymbols.Function(name, returnSize, parameters);
+    }
+
+    public static newStructure (
+        symbol: IntermediateSymbols.Structure = IntermediateCreator.newStructureSymbol()
+    ): Intermediates.Structure
+    {
+        return new Intermediates.Structure(symbol);
+    }
+
+    public static newStructureSymbol (
+        name = Defaults.identifier,
+        fields: IntermediateSymbols.Field[] = []
+    ): IntermediateSymbols.Structure
+    {
+        return new IntermediateSymbols.Structure(name, fields);
     }
 
     public static newReturn (): Intermediates.Return

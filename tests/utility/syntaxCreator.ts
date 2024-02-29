@@ -232,9 +232,9 @@ export abstract class SyntaxCreator
         return SyntaxCreator.newUnaryExpression(SyntaxCreator.newIntegerLiteral(), TokenCreator.newMinus());
     }
 
-    public static newVariableExpression (identifier = TokenCreator.newVariableIdentifier()): SyntaxNodes.VariableExpression
+    public static newIdentifierExpression (identifier = TokenCreator.newVariableIdentifier()): SyntaxNodes.IdentifierExpression
     {
-        return new SyntaxNodes.VariableExpression(identifier);
+        return new SyntaxNodes.IdentifierExpression(identifier);
     }
 
     public static newIfStatement (

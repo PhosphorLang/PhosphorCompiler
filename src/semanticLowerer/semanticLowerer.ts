@@ -554,6 +554,8 @@ export default class SemanticLowerer
                 return this.lowerInstantiationExpression(expression);
             case SemanticKind.LiteralExpression:
                 return this.lowerLiteralExpression(expression);
+            case SemanticKind.ModuleExpression:
+                throw new Error(`Semantic Lowerer error: Unexpected module expression.`);
             case SemanticKind.UnaryExpression:
                 return this.lowerUnaryExpression(expression);
             case SemanticKind.VariableExpression:
@@ -571,10 +573,10 @@ export default class SemanticLowerer
             loweredArguments.push(loweredArgument);
         }
 
-        let loweredThisReference: LoweredNodes.VariableExpression|null = null;
+        let loweredThisReference: LoweredNodes.Expression|null = null;
         if (callExpression.thisReference !== null)
         {
-            loweredThisReference = this.lowerVariableExpression(callExpression.thisReference);
+            loweredThisReference = this.lowerExpression(callExpression.thisReference);
         }
 
         return new LoweredNodes.CallExpression(
@@ -668,7 +670,7 @@ export default class SemanticLowerer
 
     private lowerFieldExpression (fieldExpression: SemanticNodes.FieldExpression): LoweredNodes.FieldExpression
     {
-        const loweredThisReference = this.lowerVariableExpression(fieldExpression.thisReference);
+        const loweredThisReference = this.lowerExpression(fieldExpression.thisReference);
 
         return new LoweredNodes.FieldExpression(fieldExpression.field, loweredThisReference);
     }

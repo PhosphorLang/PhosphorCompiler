@@ -8,19 +8,22 @@ export class AccessExpressionSyntaxNode
     public readonly token: Token;
     public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
 
-    public readonly identifier: Token;
+    public readonly primaryExpression: SyntaxNodes.AccessExpression|SyntaxNodes.PrimaryExpression;
     public readonly dot: Token;
-    public readonly functionCall: SyntaxNodes.CallExpression;
+    public readonly member: SyntaxNodes.CallExpression|SyntaxNodes.IdentifierExpression;
 
-    constructor (identifier: Token, dot: Token, functionCall: SyntaxNodes.CallExpression)
-    {
+    constructor (
+        primaryExpression: SyntaxNodes.PrimaryExpression,
+        dot: Token,
+        member: SyntaxNodes.CallExpression|SyntaxNodes.IdentifierExpression
+    ) {
         this.kind = SyntaxKind.AccessExpression;
 
-        this.identifier = identifier;
+        this.primaryExpression = primaryExpression;
         this.dot = dot;
-        this.functionCall = functionCall;
+        this.member = member;
 
-        this.token = this.identifier;
-        this.children = [this.functionCall];
+        this.token = this.dot;
+        this.children = [this.member];
     }
 }

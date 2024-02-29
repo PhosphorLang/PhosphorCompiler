@@ -812,7 +812,7 @@ describe('Parser',
                                     SyntaxCreator.newFunctionCall(
                                         SyntaxCreator.newCallArgumentsList(
                                             [
-                                                SyntaxCreator.newVariableExpression()
+                                                SyntaxCreator.newIdentifierExpression()
                                             ]
                                         )
                                     )

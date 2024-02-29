@@ -557,7 +557,7 @@ export class IntermediateLowerer
                 );
             }
 
-            // TODO: Should we lowere the to expression or would that be redundant?
+            // TODO: Should we lower the to expression or would that be redundant?
             this.lowerExpression(assignment.from, intermediates, variable);
         }
         else
@@ -581,7 +581,7 @@ export class IntermediateLowerer
             this.lowerExpression(assignment.from, intermediates, temporaryVariable);
 
             const thisReference = this.generateLocalVariable(IntermediateSize.Pointer);
-            this.lowerVariableExpression(assignment.to.thisReference, intermediates, thisReference);
+            this.lowerExpression(assignment.to.thisReference, intermediates, thisReference);
 
             // TODO: We must not lower the field expression, must we?
 
@@ -754,7 +754,7 @@ export class IntermediateLowerer
         }
 
         const thisReference = this.generateLocalVariable(IntermediateSize.Pointer);
-        this.lowerVariableExpression(fieldExpression.thisReference, intermediates, thisReference);
+        this.lowerExpression(fieldExpression.thisReference, intermediates, thisReference);
 
         this.introduceIfNecessary(targetLocation, intermediates);
 

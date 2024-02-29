@@ -9,6 +9,7 @@ import { ElementsList } from '../parser/elementsList';
 import { Namespace } from '../parser/namespace';
 import { SemanticSymbolKind } from './semanticSymbolKind';
 import { SyntaxKind } from '../parser/syntaxKind';
+import { SemanticKind } from './semanticKind';
 
 export class Connector
 {
@@ -687,7 +688,25 @@ export class Connector
         switch (statement.kind)
         {
             case SyntaxKind.AccessExpression:
-                return this.connectAccessExpression(statement, context);
+            {
+                const accessExpression = this.connectAccessExpression(statement, context);
+
+                if (accessExpression.kind === SemanticKind.CallExpression)
+                {
+                    return accessExpression;
+                }
+                else
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Expression "${accessExpression.kind}" is not allowed as a statement.`,
+                            Diagnostic.Codes.ExpressionNotAllowedAsStatementError,
+                            statement.member.token
+                        )
+                    );
+                }
+                break;
+            }
             case SyntaxKind.Assignment:
                 return this.connectAssignment(statement, context);
             case SyntaxKind.CallExpression:
@@ -972,8 +991,8 @@ export class Connector
                 return this.connectLiteralExpression(expression);
             case SyntaxKind.UnaryExpression:
                 return this.connectUnaryExpression(expression, context);
-            case SyntaxKind.VariableExpression:
-                return this.connectVariableExpression(expression, context);
+            case SyntaxKind.IdentifierExpression:
+                return this.connectIdentifierExpression(expression, context);
         }
     }
 
@@ -1015,13 +1034,51 @@ export class Connector
         return new SemanticNodes.InstantiationExpression(type, elements);
     }
 
-    private connectVariableExpression (
-        expression: SyntaxNodes.VariableExpression,
+    private connectIdentifierExpression (
+        expression: SyntaxNodes.IdentifierExpression,
         context: FunctionContext|ModuleContext
-    ): SemanticNodes.VariableExpression|SemanticNodes.FieldExpression
+    ): SemanticNodes.VariableExpression|SemanticNodes.FieldExpression|SemanticNodes.ModuleExpression
     {
         const namespace = Namespace.constructFromNamespace(context.module.namespace, expression.identifier.content);
 
+        const variableExpression = this.tryConnectIdentifierAsVariableExpression(namespace);
+
+        if (variableExpression !== null)
+        {
+            return variableExpression;
+        }
+        else
+        {
+            const fieldExpression = this.tryConnectIdentifierAsFieldExpression(expression, namespace, context);
+
+            if (fieldExpression !== null)
+            {
+                return fieldExpression;
+            }
+            else
+            {
+                const moduleExpression = this.tryConnectIdentifierAsModuleExpression(expression);
+
+                if (moduleExpression !== null)
+                {
+                    return moduleExpression;
+                }
+                else
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Unknown identifier "${namespace.baseName}"`,
+                            Diagnostic.Codes.UnknownIdentifierError,
+                            expression.identifier
+                        )
+                    );
+                }
+            }
+        }
+    }
+
+    private tryConnectIdentifierAsVariableExpression (namespace: Namespace): SemanticNodes.VariableExpression|null
+    {
         const variable = this.getVariable(namespace.qualifiedName);
 
         if (variable !== null)
@@ -1030,19 +1087,21 @@ export class Connector
         }
         else
         {
-            const field = this.fields.get(namespace.qualifiedName);
+            return null;
+        }
+    }
 
-            if (field === undefined)
-            {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `Unknown variable "${namespace.baseName}"`,
-                        Diagnostic.Codes.UnknownVariableError,
-                        expression.identifier
-                    )
-                );
-            }
-            else if (!('function' in context)) // TODO: This is ugly and unsafe Typescript magic.
+    private tryConnectIdentifierAsFieldExpression (
+        expression: SyntaxNodes.IdentifierExpression,
+        namespace: Namespace,
+        context: FunctionContext|ModuleContext
+    ): SemanticNodes.FieldExpression|null
+    {
+        const field = this.fields.get(namespace.qualifiedName);
+
+        if (field !== undefined)
+        {
+            if (!('function' in context)) // TODO: This is ugly and unsafe Typescript magic.
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -1067,13 +1126,29 @@ export class Connector
 
             return new SemanticNodes.FieldExpression(field, thisExpression);
         }
+        else
+        {
+            return null;
+        }
+    }
+
+    private tryConnectIdentifierAsModuleExpression (expression: SyntaxNodes.IdentifierExpression): SemanticNodes.ModuleExpression|null
+    {
+        const importedFile = this.importedFiles.get(expression.identifier.content);
+
+        if (importedFile !== undefined)
+        {
+            return new SemanticNodes.ModuleExpression(importedFile.module);
+        }
+
+        return null;
     }
 
     private connectCallExpression (
         expression: SyntaxNodes.CallExpression,
         context: FunctionContext|ModuleContext,
         inModule: SemanticSymbols.Module|null = null,
-        thisReference: SemanticSymbols.VariableLike|null = null
+        thisReference: SemanticNodes.Expression|null = null
     ): SemanticNodes.CallExpression
     {
         const thisModule = inModule ?? context.module;
@@ -1125,10 +1200,11 @@ export class Connector
             }
         }
 
-        let thisExpression: SemanticNodes.VariableExpression|null = null;
+        // TODO: This let-if construct needs to be improved now that thisReference is an expression and not a symbol.
+        let thisExpression: SemanticNodes.Expression|null = null;
         if (thisReference !== null)
         {
-            thisExpression = new SemanticNodes.VariableExpression(thisReference);
+            thisExpression = thisReference;
         }
         else
         {
@@ -1167,94 +1243,169 @@ export class Connector
     private connectAccessExpression (
         expression: SyntaxNodes.AccessExpression,
         context: ModuleContext
-    ): SemanticNodes.CallExpression
+    ): SemanticNodes.CallExpression|SemanticNodes.FieldExpression|SemanticNodes.VariableExpression
     {
-        const namespace = Namespace.constructFromNamespace(context.module.namespace, expression.identifier.content);
+        const primaryExpression = this.connectExpression(expression.primaryExpression, context);
 
-        const foundVariable = this.getVariable(namespace.qualifiedName);
-
-        if (foundVariable === null)
+        if (primaryExpression.kind == SemanticKind.ModuleExpression)
         {
-            return this.connectModuleAccessExpression(expression, context);
+            // TODO: This is the only place where ModulExpressions are valid. We need to prevent them from being used elsewhere.
+
+            return this.connectModuleAccessExpression(expression, primaryExpression, context);
         }
         else
         {
-            return this.connectObjectAccessExpression(expression, context, foundVariable);
+            return this.connectObjectAccessExpression(expression, primaryExpression, context);
         }
     }
 
-    private connectModuleAccessExpression (expression: SyntaxNodes.AccessExpression, context: ModuleContext): SemanticNodes.CallExpression
+    private connectModuleAccessExpression (
+        expression: SyntaxNodes.AccessExpression,
+        primaryExpression: SemanticNodes.ModuleExpression,
+        context: ModuleContext
+    ): SemanticNodes.CallExpression|SemanticNodes.VariableExpression
     {
-        const importedFile = this.importedFiles.get(expression.identifier.content);
+        const memberNamespace = Namespace.constructFromNamespace(
+            primaryExpression.module.namespace,
+            expression.member.identifier.content
+        );
 
-        if (importedFile === undefined)
+        if (expression.member.kind == SyntaxKind.CallExpression)
         {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    `Unknown module "${expression.identifier.content}"`,
-                    Diagnostic.Codes.UnknownModuleError,
-                    expression.identifier
-                )
-            );
-        }
-        else
-        {
-            const calledFunctionNamespace = Namespace.constructFromNamespace(
-                importedFile.module.namespace,
-                expression.functionCall.identifier.content
-            );
+            // Function call
 
-            if (!importedFile.module.functionNameToSymbol.has(calledFunctionNamespace.qualifiedName))
+            const functionSymbol = primaryExpression.module.functionNameToSymbol.get(memberNamespace.qualifiedName);
+
+            if (functionSymbol !== undefined)
             {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `Unknown function "${calledFunctionNamespace.baseName}" in module "${importedFile.module.namespace.moduleName}"`,
-                        Diagnostic.Codes.UnknownFunctionError,
-                        expression.functionCall.identifier
-                    )
-                );
+                if (functionSymbol.thisReference === null)
+                {
+                    const callExpression = this.connectCallExpression(expression.member, context, primaryExpression.module);
+                    return callExpression;
+                }
+                else
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Cannot access method "${expression.member.identifier.content}" by module name.`
+                                + ` A class instance is needed.`,
+                            Diagnostic.Codes.MethodAccessByModuleNameError,
+                            expression.member.identifier
+                        )
+                    );
+
+                }
             }
             else
             {
-                return this.connectCallExpression(expression.functionCall, context, importedFile.module);
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unknown function "${expression.member.identifier.content}" in module`
+                            + ` "${primaryExpression.module.namespace.moduleName}"`,
+                        Diagnostic.Codes.UnknownFunctionError,
+                        expression.member.identifier
+                    )
+                );
             }
+        }
+        else
+        {
+            // Variable access
+
+            const variable = primaryExpression.module.variableNameToSymbol.get(memberNamespace.qualifiedName);
+
+            if (variable === undefined)
+            {
+                const field = primaryExpression.module.fieldNameToSymbol.get(memberNamespace.qualifiedName);
+                if (field !== undefined)
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Cannot access field "${expression.member.identifier.content}" by module name.`
+                                + ` A class instance is needed.`,
+                            Diagnostic.Codes.FieldAccessByModuleNameError,
+                            expression.member.identifier
+                        )
+                    );
+                }
+                else
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Unknown variable "${expression.member.identifier.content}" in module`
+                                + ` "${primaryExpression.module.namespace.moduleName}"`,
+                            Diagnostic.Codes.UnknownVariableError,
+                            expression.member.identifier
+                        )
+                    );
+                }
+            }
+
+            return new SemanticNodes.VariableExpression(variable);
         }
     }
 
     private connectObjectAccessExpression (
         expression: SyntaxNodes.AccessExpression,
-        context: ModuleContext,
-        objectToAccess?: SemanticSymbols.VariableLike
-    ): SemanticNodes.CallExpression
+        primaryExpression: SemanticNodes.Expression,
+        context: ModuleContext
+    ): SemanticNodes.CallExpression|SemanticNodes.FieldExpression|SemanticNodes.VariableExpression
     {
-        const namespace = Namespace.constructFromNamespace(context.module.namespace, expression.identifier.content);
-
-        const objectVariable = objectToAccess ?? this.getVariable(namespace.qualifiedName);
-        if (objectVariable === null)
-        {
-            this.diagnostic.throw(
-                new Diagnostic.Error(
-                    `Unknown variable "${namespace.baseName}"`,
-                    Diagnostic.Codes.UnknownVariableError,
-                    expression.identifier
-                )
-            );
-        }
-
-        const importedFile = this.importedFiles.get(objectVariable.type.namespace.baseName);
+        const importedFile = this.importedFiles.get(primaryExpression.type.namespace.baseName);
         // TODO: Should we look for the class type by symbols instead of the module name here?
         if (importedFile === undefined)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Cannot access "${namespace.baseName}" of unkown type "${objectVariable.type.namespace.baseName}"`,
-                    Diagnostic.Codes.AccessOfUnknownTypeError,
-                    expression.identifier
+                    `Cannot access object of type "${primaryExpression.type.namespace.baseName}" because it has no module.`,
+                    Diagnostic.Codes.AccessOfObjectOfTypeWithUnknownModuleError,
+                    expression.dot
                 )
             );
         }
+        const module = importedFile.module;
 
-        return this.connectCallExpression(expression.functionCall, context, importedFile.module, objectVariable);
+        const memberNamespace = Namespace.constructFromNamespace(
+            module.namespace,
+            expression.member.identifier.content
+        );
+
+        if (expression.member.kind == SyntaxKind.CallExpression)
+        {
+            // Function call
+            return this.connectCallExpression(expression.member, context, module, primaryExpression);
+        }
+        else
+        {
+            // Variable/field access
+
+            const field = module.fieldNameToSymbol.get(memberNamespace.qualifiedName);
+
+            if (field !== undefined)
+            {
+                return new SemanticNodes.FieldExpression(field, primaryExpression);
+            }
+            else
+            {
+                const variable = module.variableNameToSymbol.get(memberNamespace.qualifiedName);
+
+                if (variable !== undefined)
+                {
+                    return new SemanticNodes.VariableExpression(variable);
+                }
+                else
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Unknown identifier "${expression.member.identifier.content}" in object of type`
+                            + ` "${module.namespace.baseName}"`,
+                            Diagnostic.Codes.UnknownIdentifierInObjectAccessError,
+                            expression.member.identifier
+                        )
+                    );
+                }
+            }
+        }
     }
 
     private connectBracketedExpression (expression: SyntaxNodes.BracketedExpression, context: ModuleContext): SemanticNodes.Expression

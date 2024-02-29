@@ -67,6 +67,12 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     ParameterAssignmentError = 'E1068',
     MethodAccessOutsideMethodError = 'E1069',
     MethodAccessInsideFunctionError = 'E1070',
+    ExpressionNotAllowedAsStatementError = 'E1071',
+    UnknownIdentifierError = 'E1072',
+    FieldAccessByModuleNameError = 'E1073',
+    MethodAccessByModuleNameError = 'E1074',
+    AccessOfObjectOfTypeWithUnknownModuleError = 'E1075',
+    UnknownIdentifierInObjectAccessError = 'E1076',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

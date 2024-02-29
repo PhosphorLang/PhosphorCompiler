@@ -23,7 +23,7 @@ export class CallExpressionSyntaxNode
         this.arguments = callArguments;
         this.closing = closing;
 
-        this.token = this.identifier;
+        this.token = this.opening;
         this.children = this.arguments.elements;
     }
 }

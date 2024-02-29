@@ -24,7 +24,7 @@ export enum SyntaxKind
     BinaryExpression = 'BinaryExpression',
     BracketedExpression = 'BracketedExpression',
     LiteralExpression = 'LiteralExpression',
-    VariableExpression = 'VariableExpression',
+    IdentifierExpression = 'IdentifierExpression',
     CallExpression = 'CallExpression',
     InstantiationExpression = 'InstantiationExpression',
 }

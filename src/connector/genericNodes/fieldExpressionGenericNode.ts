@@ -1,16 +1,16 @@
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class FieldExpressionGenericNode <VariableExpression>
+export class FieldExpressionGenericNode <Expression>
 {
     public readonly kind: SemanticKind.FieldExpression;
 
     public readonly type: SemanticSymbols.ConcreteType;
 
     public readonly field: SemanticSymbols.Field;
-    public readonly thisReference: VariableExpression;
+    public readonly thisReference: Expression;
 
-    constructor (field: SemanticSymbols.Field, thisReference: VariableExpression)
+    constructor (field: SemanticSymbols.Field, thisReference: Expression)
     {
         this.kind = SemanticKind.FieldExpression;
 

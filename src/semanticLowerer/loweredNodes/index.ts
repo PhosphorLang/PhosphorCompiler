@@ -3,8 +3,8 @@ import * as SemanticSymbols from '../..//connector/semanticSymbols';
 
 export class Assignment extends GenericNode.Assignment<Expression, FieldExpression, VariableExpression> {}
 export class BinaryExpression extends GenericNode.BinaryExpression<Expression> {}
-export class CallExpression extends GenericNode.CallExpression<Expression, VariableExpression> {}
-export class FieldExpression extends GenericNode.FieldExpression<VariableExpression> {}
+export class CallExpression extends GenericNode.CallExpression<Expression> {}
+export class FieldExpression extends GenericNode.FieldExpression<Expression> {}
 export class File extends GenericNode.File<SemanticSymbols.Variable, SemanticSymbols.Field, FunctionDeclaration> {}
 export class FunctionDeclaration extends GenericNode.FunctionDeclaration<Section> {}
 export class LiteralExpression extends GenericNode.LiteralExpression {}

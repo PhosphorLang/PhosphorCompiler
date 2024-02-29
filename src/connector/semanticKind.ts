@@ -21,6 +21,7 @@ export enum SemanticKind
     InstantiationExpression = 'InstantiationExpression',
     VariableExpression = 'VariableExpression',
     FieldExpression = 'FieldExpression',
+    ModuleExpression = 'ModuleExpression',
     CallExpression = 'CallExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',

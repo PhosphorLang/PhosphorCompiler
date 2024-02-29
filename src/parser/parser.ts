@@ -5,6 +5,7 @@ import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
 import { Token } from '../lexer/token';
 import { TokenKind } from '../lexer/tokenKind';
+import { SyntaxKind } from './syntaxKind';
 
 export class Parser
 {
@@ -199,7 +200,7 @@ export class Parser
                 case TokenKind.IdentifierToken:
                     pathComponents.push(nextToken);
                     break;
-                case TokenKind.DotToken:
+                case TokenKind.AccessOperator:
                     break;
                 case TokenKind.ColonToken:
                 {
@@ -600,28 +601,37 @@ export class Parser
                 break;
             case TokenKind.IdentifierToken:
             {
-                switch (this.getFollowerToken().kind)
+                if (this.getFollowerToken().kind == TokenKind.AssignmentOperator)
                 {
-                    case TokenKind.AssignmentOperator:
-                        result = this.parseAssignment();
-                        break;
-                    case TokenKind.OpeningRoundBracketToken:
-                        result = this.parseCallExpression();
-                        break;
-                    case TokenKind.DotToken:
-                        result = this.parseAccessExpression();
-                        break;
-                    default:
-                        result = null;
-                        break;
-                        // TODO: Should this default be replaced with an explicit handling of every TokenKinds?
+                    result = this.parseAssignment();
+                    break;
                 }
-                break;
+                // Fallthrough otherwise, meaning parse it as an expression.
             }
             default:
-                result = null;
+            {
+                const expression = this.parseExpression();
+
+                switch (expression.kind)
+                {
+                    case SyntaxKind.AccessExpression:
+                    case SyntaxKind.CallExpression:
+                        result = expression;
+                        break;
+                    default:
+                        this.diagnostic.throw(
+                            new Diagnostic.Error(
+                                `Expression "${expression.kind}" is not allowed as a statement.`,
+                                Diagnostic.Codes.ExpressionNotAllowedAsStatementError,
+                                this.getCurrentToken()
+                            )
+                        );
+                    // TODO: Should this default be replaced with an explicit handling of every TokenKind?
+                }
+
                 break;
-                // TODO: Should this default be replaced with an explicit handling of every TokenKinds?
+                // TODO: Should this default be replaced with an explicit handling of every TokenKind?
+            }
         }
 
         if (result == null)
@@ -811,6 +821,11 @@ export class Parser
         else
         {
             left = this.parsePrimaryExpression();
+
+            if (this.getCurrentToken().kind == TokenKind.AccessOperator)
+            {
+                left = this.parseAccessExpression(left);
+            }
         }
 
         while (this.isBinaryExpression(parentPriority))
@@ -869,7 +884,14 @@ export class Parser
             case TokenKind.FalseKeyword:
                 return this.parseLiteralExpression();
             case TokenKind.IdentifierToken:
-                return this.parseIdentifierExpression();
+                if (this.getFollowerToken().kind == TokenKind.OpeningRoundBracketToken)
+                {
+                    return this.parseCallExpression();
+                }
+                else
+                {
+                    return this.parseIdentifierExpression();
+                }
             case TokenKind.NewKeyword:
                 return this.parseInstantiationExpression();
             default:
@@ -899,26 +921,21 @@ export class Parser
         return new SyntaxNodes.LiteralExpression(literal);
     }
 
-    private parseIdentifierExpression (): SyntaxNodes.IdentifierExpression
+    private parseAccessExpression (primaryExpression: SyntaxNodes.PrimaryExpression): SyntaxNodes.AccessExpression
     {
-        switch (this.getFollowerToken().kind)
-        {
-            case TokenKind.DotToken:
-                return this.parseAccessExpression();
-            case TokenKind.OpeningRoundBracketToken:
-                return this.parseCallExpression();
-            default:
-                return this.parseVariableExpression();
-        }
-    }
-
-    private parseAccessExpression (): SyntaxNodes.AccessExpression
-    {
-        const identifier = this.consumeNextToken();
         const dot = this.consumeNextToken();
-        const functionCall = this.parseCallExpression();
 
-        return new SyntaxNodes.AccessExpression(identifier, dot, functionCall);
+        let member: SyntaxNodes.CallExpression|SyntaxNodes.IdentifierExpression;
+        if (this.getFollowerToken().kind == TokenKind.OpeningRoundBracketToken)
+        {
+            member = this.parseCallExpression();
+        }
+        else
+        {
+            member = this.parseIdentifierExpression();
+        }
+
+        return new SyntaxNodes.AccessExpression(primaryExpression, dot, member);
     }
 
     private parseCallExpression (): SyntaxNodes.CallExpression
@@ -965,10 +982,10 @@ export class Parser
         return new SyntaxNodes.InstantiationExpression(keyword, type, opening, constructorArguments, closing);
     }
 
-    private parseVariableExpression (): SyntaxNodes.VariableExpression
+    private parseIdentifierExpression (): SyntaxNodes.IdentifierExpression
     {
         const identifier = this.consumeNextToken();
 
-        return new SyntaxNodes.VariableExpression(identifier);
+        return new SyntaxNodes.IdentifierExpression(identifier);
     }
 }

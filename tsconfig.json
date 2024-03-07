@@ -1,31 +1,12 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "target": "es2022",
-        "lib": [
-            "ES2022"
-        ],
-
-        "outDir": "bin",
-
-        "strict": true,
-        "noImplicitReturns": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitOverride": true,
-
-        "allowJs": false,
-        "esModuleInterop": true,
-
-        "sourceMap": true,
-        "removeComments": true,
-
-        "incremental": true
-    },
-    "include": [
-        "src/**/*.ts"
+    "files": [],
+    "include": [],
+    "references": [
+        {
+            "path:": "./src"
+        },
+        {
+            "path": "./tests"
+        }
     ]
 }

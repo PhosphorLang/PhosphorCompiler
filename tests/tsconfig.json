@@ -8,10 +8,17 @@
         "allowJs": false,
         "esModuleInterop": true,
 
-        "sourceMap": true
+        "sourceMap": true,
+
+        "composite": true,
+        "noEmit": true
     },
+    "references": [
+        {
+            "path": "../src"
+        }
+    ],
     "include": [
-        "./**/*.ts",
-        "../src/**/*.ts"
+        "./**/*.ts"
     ]
 }

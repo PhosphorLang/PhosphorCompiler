@@ -51,16 +51,17 @@
     ],
     "main": "bin/main.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -b",
+        "build:release": "tsc -p tsconfig.release.json",
         "clean": "rm -rf bin && rm -rf tmp && rm -rf tests/tmp rm -rf coverage",
         "coverage": "nyc npm run test",
         "coverage:coveralls": "nyc --reporter=lcov npm run test",
         "coverage:text": "nyc --reporter=text npm run test",
         "fullCheck": "npm run build && npm run lint && npm test",
         "lint": "eslint \"src/**/*.ts\"",
-        "prepack": "npm run clean && tsc -p tsconfig.release.json",
+        "prepack": "npm run clean && npm run build:release",
         "start": "node bin/main.js",
-        "test": "mocha --timeout 60000 -r ts-node/register 'tests/**/*.ts'"
+        "test": "TS_NODE_PROJECT='tests/tsconfig.json' mocha --timeout 60000 -r ts-node/register 'tests/**/*.ts'"
     },
     "private": true
 }

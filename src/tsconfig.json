@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es2022",
+        "lib": [
+            "ES2022"
+        ],
+
+        "outDir": "../bin",
+
+        "strict": true,
+        "noImplicitReturns": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitOverride": true,
+
+        "allowJs": false,
+        "esModuleInterop": true,
+
+        "sourceMap": true,
+        "removeComments": true,
+        "declaration": true,
+        "declarationMap": true,
+        "noEmitOnError": true,
+
+        "composite": true,
+        "incremental": true
+    },
+    "include": [
+        "./**/*.ts"
+    ]
+}

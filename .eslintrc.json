@@ -5,7 +5,7 @@
         "node": true
     },
     "parserOptions": {
-        "project": "./tsconfig.json",
+        "project": "./src/tsconfig.json",
         "sourceType": "module"
     },
     "extends": [

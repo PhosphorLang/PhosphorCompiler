@@ -4,7 +4,7 @@ import Standard.Io;
 module ModulesExample.MyModule;
 
 constant helloFromModule: String := 'Hello got from MyModule!';
-variable sayHelloCounter: Int := 0;
+variable sayHelloCounter: Integer := 0;
 
 function getHello (): String
 {

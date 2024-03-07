@@ -1,6 +1,6 @@
 module IfElse;
 
-function testIfElse (): Bool
+function testIfElse (): Boolean
 {
     if 2 = 2
     {

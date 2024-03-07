@@ -14,7 +14,7 @@ export class SizeOfExpressionLoweredNode
     {
         this.kind = SemanticKind.SizeOfExpression;
 
-        this.type = BuildInTypes.int; // FIXME: Must be UInt.
+        this.type = BuildInTypes.integer; // FIXME: Must be UInt.
 
         this.parameter = parameter;
     }

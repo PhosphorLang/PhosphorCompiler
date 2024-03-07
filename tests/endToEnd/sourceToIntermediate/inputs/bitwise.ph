@@ -1,16 +1,16 @@
 module Bitwise;
 
-function testNot (a: Int): Int
+function testNot (a: Integer): Integer
 {
     return !a;
 }
 
-function testAnd (a: Int, b: Int): Int
+function testAnd (a: Integer, b: Integer): Integer
 {
     return a & b;
 }
 
-function testOr (a: Int, b: Int): Int
+function testOr (a: Integer, b: Integer): Integer
 {
     return a | b;
 }

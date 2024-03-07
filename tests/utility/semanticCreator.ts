@@ -54,7 +54,7 @@ export abstract class SemanticCreator
     }
 
     public static newFunctionParameter (
-        type = BuildInTypes.int,
+        type = BuildInTypes.integer,
         namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.variableName),
     ): SemanticSymbols.FunctionParameter
     {
@@ -78,7 +78,7 @@ export abstract class SemanticCreator
     }
 
     public static newVariableSymbol (
-        type = BuildInTypes.int,
+        type = BuildInTypes.integer,
         namespace = SemanticCreator.newNamespace(Defaults.moduleName, null, Defaults.variableName),
         isReadonly = true
     ): SemanticSymbols.Variable
@@ -96,7 +96,7 @@ export abstract class SemanticCreator
 
     public static newIntegerLiteral (value = Defaults.integer): SemanticNodes.LiteralExpression
     {
-        return new SemanticNodes.LiteralExpression(value, BuildInTypes.int);
+        return new SemanticNodes.LiteralExpression(value, BuildInTypes.integer);
     }
 
     public static newStringLiteral (value = Defaults.string): SemanticNodes.LiteralExpression
@@ -106,12 +106,12 @@ export abstract class SemanticCreator
 
     public static newTrueBooleanLiteral (): SemanticNodes.LiteralExpression
     {
-        return new SemanticNodes.LiteralExpression('true', BuildInTypes.bool);
+        return new SemanticNodes.LiteralExpression('true', BuildInTypes.boolean);
     }
 
     public static newFalseBooleanLiteral (): SemanticNodes.LiteralExpression
     {
-        return new SemanticNodes.LiteralExpression('false', BuildInTypes.bool);
+        return new SemanticNodes.LiteralExpression('false', BuildInTypes.boolean);
     }
 
     public static newUnaryExpression (operand: SemanticNodes.Expression, operator: UnarySemanticOperator): SemanticNodes.UnaryExpression

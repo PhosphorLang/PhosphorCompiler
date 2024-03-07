@@ -1,36 +1,36 @@
 module Logic;
 
-function testNot (a: Bool): Bool
+function testNot (a: Boolean): Boolean
 {
     return !a;
 }
 
-function testAnd (a: Bool, b: Bool): Bool
+function testAnd (a: Boolean, b: Boolean): Boolean
 {
     return a & b;
 }
 
-function testOr (a: Bool, b: Bool): Bool
+function testOr (a: Boolean, b: Boolean): Boolean
 {
     return a | b;
 }
 
-function testEqual (a: Int, b: Int): Bool
+function testEqual (a: Integer, b: Integer): Boolean
 {
     return a = b;
 }
 
-function testNotEqual (a: Int, b: Int): Bool
+function testNotEqual (a: Integer, b: Integer): Boolean
 {
     return a != b;
 }
 
-function testLess (a: Int, b: Int): Bool
+function testLess (a: Integer, b: Integer): Boolean
 {
     return a < b;
 }
 
-function testGreater (a: Int, b: Int): Bool
+function testGreater (a: Integer, b: Integer): Boolean
 {
     return a > b;
 }

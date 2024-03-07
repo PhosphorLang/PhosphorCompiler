@@ -832,11 +832,11 @@ export class Connector
     {
         const condition = this.connectExpression(ifStatement.condition, context);
 
-        if (!condition.type.equals(BuildInTypes.bool))
+        if (!condition.type.equals(BuildInTypes.boolean))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    'The return type of the condition in an if statement must be Bool.',
+                    'The return type of the condition in an if statement must be Boolean.',
                     Diagnostic.Codes.UnexpectedNonBooleanExpressionInIfStatementError,
                     ifStatement.condition.token
                 )
@@ -874,11 +874,11 @@ export class Connector
     {
         const condition = this.connectExpression(whileStatement.condition, context);
 
-        if (!condition.type.equals(BuildInTypes.bool))
+        if (!condition.type.equals(BuildInTypes.boolean))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    'The return type of the condition in an while statement must be Bool.',
+                    'The return type of the condition in an while statement must be Boolean.',
                     Diagnostic.Codes.UnexpectedNonBooleanExpressionInWhileStatementError,
                     whileStatement.condition.token
                 )

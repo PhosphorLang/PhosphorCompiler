@@ -7,34 +7,34 @@ import { UnarySemanticOperator } from '../connector/semanticOperators/unarySeman
 
 export abstract class BuildInOperators
 {
-    public static readonly unaryIntAddition = new UnarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int);
-    public static readonly unaryIntSubtraction = new UnarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int);
+    public static readonly unaryIntAddition = new UnarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.integer, BuildInTypes.integer);
+    public static readonly unaryIntSubtraction = new UnarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.integer, BuildInTypes.integer);
 
-    public static readonly unaryIntNot = new UnarySemanticOperator(SemanticOperatorKind.Not, BuildInTypes.int, BuildInTypes.int);
+    public static readonly unaryIntNot = new UnarySemanticOperator(SemanticOperatorKind.Not, BuildInTypes.integer, BuildInTypes.integer);
 
-    public static readonly unaryBoolNot = new UnarySemanticOperator(SemanticOperatorKind.Not, BuildInTypes.bool, BuildInTypes.bool);
+    public static readonly unaryBoolNot = new UnarySemanticOperator(SemanticOperatorKind.Not, BuildInTypes.boolean, BuildInTypes.boolean);
 
-    public static readonly binaryIntAddition = new BinarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
-    public static readonly binaryIntSubtraction = new BinarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
-    public static readonly binaryIntMultiplication = new BinarySemanticOperator(SemanticOperatorKind.Multiplication, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
-    public static readonly binaryIntDivision = new BinarySemanticOperator(SemanticOperatorKind.Division, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
-    public static readonly binaryIntModulo = new BinarySemanticOperator(SemanticOperatorKind.Modulo, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+    public static readonly binaryIntAddition = new BinarySemanticOperator(SemanticOperatorKind.Addition, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
+    public static readonly binaryIntSubtraction = new BinarySemanticOperator(SemanticOperatorKind.Subtraction, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
+    public static readonly binaryIntMultiplication = new BinarySemanticOperator(SemanticOperatorKind.Multiplication, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
+    public static readonly binaryIntDivision = new BinarySemanticOperator(SemanticOperatorKind.Division, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
+    public static readonly binaryIntModulo = new BinarySemanticOperator(SemanticOperatorKind.Modulo, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
 
-    public static readonly binaryIntAnd = new BinarySemanticOperator(SemanticOperatorKind.And, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
-    public static readonly binaryIntOr = new BinarySemanticOperator(SemanticOperatorKind.Or, BuildInTypes.int, BuildInTypes.int, BuildInTypes.int);
+    public static readonly binaryIntAnd = new BinarySemanticOperator(SemanticOperatorKind.And, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
+    public static readonly binaryIntOr = new BinarySemanticOperator(SemanticOperatorKind.Or, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.integer);
 
-    public static readonly binaryBoolAnd = new BinarySemanticOperator(SemanticOperatorKind.And, BuildInTypes.bool, BuildInTypes.bool, BuildInTypes.bool);
-    public static readonly binaryBoolOr = new BinarySemanticOperator(SemanticOperatorKind.Or, BuildInTypes.bool, BuildInTypes.bool, BuildInTypes.bool);
+    public static readonly binaryBoolAnd = new BinarySemanticOperator(SemanticOperatorKind.And, BuildInTypes.boolean, BuildInTypes.boolean, BuildInTypes.boolean);
+    public static readonly binaryBoolOr = new BinarySemanticOperator(SemanticOperatorKind.Or, BuildInTypes.boolean, BuildInTypes.boolean, BuildInTypes.boolean);
 
-    public static readonly binaryIntEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.int, BuildInTypes.int, BuildInTypes.bool);
-    public static readonly binaryIntNotEqual = new BinarySemanticOperator(SemanticOperatorKind.NotEqual, BuildInTypes.int, BuildInTypes.int, BuildInTypes.bool);
-    public static readonly binaryIntLess = new BinarySemanticOperator(SemanticOperatorKind.Less, BuildInTypes.int, BuildInTypes.int, BuildInTypes.bool);
-    public static readonly binaryIntGreater = new BinarySemanticOperator(SemanticOperatorKind.Greater, BuildInTypes.int, BuildInTypes.int, BuildInTypes.bool);
+    public static readonly binaryIntEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.boolean);
+    public static readonly binaryIntNotEqual = new BinarySemanticOperator(SemanticOperatorKind.NotEqual, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.boolean);
+    public static readonly binaryIntLess = new BinarySemanticOperator(SemanticOperatorKind.Less, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.boolean);
+    public static readonly binaryIntGreater = new BinarySemanticOperator(SemanticOperatorKind.Greater, BuildInTypes.integer, BuildInTypes.integer, BuildInTypes.boolean);
 
-    public static readonly binaryBoolEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.bool, BuildInTypes.bool, BuildInTypes.bool);
-    public static readonly binaryBoolNotEqual = new BinarySemanticOperator(SemanticOperatorKind.NotEqual, BuildInTypes.bool, BuildInTypes.bool, BuildInTypes.bool);
+    public static readonly binaryBoolEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.boolean, BuildInTypes.boolean, BuildInTypes.boolean);
+    public static readonly binaryBoolNotEqual = new BinarySemanticOperator(SemanticOperatorKind.NotEqual, BuildInTypes.boolean, BuildInTypes.boolean, BuildInTypes.boolean);
 
-    public static readonly binaryStringEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.string, BuildInTypes.string, BuildInTypes.bool);
+    public static readonly binaryStringEqual = new BinarySemanticOperator(SemanticOperatorKind.Equal, BuildInTypes.string, BuildInTypes.string, BuildInTypes.boolean);
 
     private static unaryOperators: UnarySemanticOperator[] = [
         BuildInOperators.unaryIntAddition,

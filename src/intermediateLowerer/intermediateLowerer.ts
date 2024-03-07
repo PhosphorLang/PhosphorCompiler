@@ -10,7 +10,7 @@ import { IntermediateSize } from './intermediateSize';
 import { IntermediateSymbolKind } from './intermediateSymbolKind';
 import { SemanticKind } from '../connector/semanticKind';
 
-/* TODO: When (if?) the Bool type size is changed from Int8 to UInt8 (i.e. unsigned), the value of true must be changed from -1 to 255.
+/* TODO: When (if?) the Boolean type size is changed from Int8 to UInt8 (i.e. unsigned), the value of true must be changed from -1 to 255.
          -> Should we rather introduce a boolean type in the intermediate language? */
 // TODO: Could there be a better name than "lowerer" for the transformation into intermediate code?
 
@@ -181,9 +181,9 @@ export class IntermediateLowerer
     {
         switch (type)
         {
-            case BuildInTypes.int:
+            case BuildInTypes.integer:
                 return IntermediateSize.Native;
-            case BuildInTypes.bool:
+            case BuildInTypes.boolean:
                 return IntermediateSize.Int8;
             case BuildInTypes.noType:
                 return IntermediateSize.Void;
@@ -668,13 +668,13 @@ export class IntermediateLowerer
 
         switch (literalExpression.type)
         {
-            case BuildInTypes.int:
+            case BuildInTypes.integer:
                 {
                     literalOrConstant = new IntermediateSymbols.Literal(literalExpression.value, this.typeToSize(literalExpression.type));
 
                     break;
                 }
-            case BuildInTypes.bool:
+            case BuildInTypes.boolean:
                 {
                     let value: string;
 
@@ -689,7 +689,7 @@ export class IntermediateLowerer
                     }
                     else
                     {
-                        throw new Error(`Intermediate Lowerer error: Unknown Bool value of "${literalExpression.value}"`);
+                        throw new Error(`Intermediate Lowerer error: Unknown Boolean value of "${literalExpression.value}"`);
                     }
 
                     literalOrConstant = new IntermediateSymbols.Literal(value, this.typeToSize(literalExpression.type));

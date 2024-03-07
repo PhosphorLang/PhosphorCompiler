@@ -1,36 +1,36 @@
 module Math;
 
-function testUnaryPlus (a: Int): Int
+function testUnaryPlus (a: Integer): Integer
 {
     return +a;
 }
 
-function testUnaryMinus (a: Int): Int
+function testUnaryMinus (a: Integer): Integer
 {
     return -a;
 }
 
-function testAddition (a: Int, b: Int): Int
+function testAddition (a: Integer, b: Integer): Integer
 {
     return a + b;
 }
 
-function testSubtraction (a: Int, b: Int): Int
+function testSubtraction (a: Integer, b: Integer): Integer
 {
     return a - b;
 }
 
-function testMultiplication (a: Int, b: Int): Int
+function testMultiplication (a: Integer, b: Integer): Integer
 {
     return a * b;
 }
 
-function testDivision (a: Int, b: Int): Int
+function testDivision (a: Integer, b: Integer): Integer
 {
     return a / b;
 }
 
-function testModulo (a: Int, b: Int): Int
+function testModulo (a: Integer, b: Integer): Integer
 {
     return a % b;
 }

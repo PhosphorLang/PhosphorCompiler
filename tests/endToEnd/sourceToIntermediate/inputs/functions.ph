@@ -1,13 +1,13 @@
 module Functions;
 
-function add (a: Int, b: Int): Int
+function add (a: Integer, b: Integer): Integer
 {
     let result := a + b;
 
     return result;
 }
 
-function testAdd (): Int
+function testAdd (): Integer
 {
     let sum := add(1, 2);
 

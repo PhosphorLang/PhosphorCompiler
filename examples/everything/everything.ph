@@ -2,7 +2,7 @@ module Everything;
 
 import Standard.Io;
 
-function add (a: Int, b: Int): Int
+function add (a: Integer, b: Integer): Integer
 {
     let result := a + b;
 

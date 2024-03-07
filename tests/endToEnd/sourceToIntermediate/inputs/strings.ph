@@ -1,6 +1,6 @@
 module Strings;
 
-function testStringCompare (a: String, b: String): Bool
+function testStringCompare (a: String, b: String): Boolean
 {
     return a = b;
 }

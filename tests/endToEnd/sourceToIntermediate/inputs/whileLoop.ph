@@ -1,11 +1,11 @@
 module WhileLoop;
 
-function getMax (): Int
+function getMax (): Integer
 {
     return 4;
 }
 
-function testWhileLoop (): Bool
+function testWhileLoop (): Boolean
 {
     let variable counter := 0;
 

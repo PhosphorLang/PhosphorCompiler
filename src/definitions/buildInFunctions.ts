@@ -15,7 +15,7 @@ export abstract class BuildInFunctions
 {
     public static readonly stringsAreEqual = new SemanticSymbols.Function(
         Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual'),
-        BuildInTypes.bool,
+        BuildInTypes.boolean,
         [
             new SemanticSymbols.FunctionParameter(
                 Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual', 'string1'),
@@ -36,7 +36,7 @@ export abstract class BuildInFunctions
         [
             new SemanticSymbols.FunctionParameter(
                 Namespace.constructFromStrings('Standard', 'Memory', 'allocate', 'size'),
-                BuildInTypes.int // FIXME: This should be UInt.
+                BuildInTypes.integer // FIXME: This should be UInt.
             )
         ],
         null,

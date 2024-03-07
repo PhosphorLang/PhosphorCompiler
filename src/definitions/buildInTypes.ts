@@ -6,8 +6,8 @@ export abstract class BuildInTypes
 {
     public static readonly noType = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'NoType'), []);
     // TODO: Ints are often misused for UInts. Should be corrected:
-    public static readonly int = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Int'), []);
-    public static readonly bool = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Bool'), []);
+    public static readonly integer = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Integer'), []);
+    public static readonly boolean = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Boolean'), []);
     public static readonly string = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'String'), []);
     public static readonly pointer = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Pointer'), []);
 
@@ -15,12 +15,12 @@ export abstract class BuildInTypes
     {
         switch (name)
         {
-            case this.int.namespace.baseName:
-                return this.int;
+            case this.integer.namespace.baseName:
+                return this.integer;
             case this.string.namespace.baseName:
                 return this.string;
-            case this.bool.namespace.baseName:
-                return this.bool;
+            case this.boolean.namespace.baseName:
+                return this.boolean;
             case this.pointer.namespace.baseName:
                 return this.pointer;
             default:
@@ -33,12 +33,12 @@ export abstract class BuildInTypes
         switch (tokenKind)
         {
             case TokenKind.IntegerToken:
-                return this.int;
+                return this.integer;
             case TokenKind.StringToken:
                 return this.string;
             case TokenKind.TrueKeyword:
             case TokenKind.FalseKeyword:
-                return this.bool;
+                return this.boolean;
             default:
                 return null;
         }

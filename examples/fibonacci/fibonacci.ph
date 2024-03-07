@@ -3,7 +3,7 @@ module Fibonacci;
 import Standard.Io;
 import Standard.Conversion;
 
-function calculateFibonacci (n: Int): Int
+function calculateFibonacci (n: Integer): Integer
 {
     if n < 2
     {

@@ -1,7 +1,7 @@
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class FileGenericNode <GlobalVariableDeclaration, FunctionDeclaration>
+export class FileGenericNode <GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration>
 {
     public readonly kind: SemanticKind.File;
 
@@ -9,6 +9,7 @@ export class FileGenericNode <GlobalVariableDeclaration, FunctionDeclaration>
     public readonly module: SemanticSymbols.Module;
     public readonly imports: SemanticSymbols.Module[];
     public readonly variables: GlobalVariableDeclaration[];
+    public readonly fields: FieldDeclaration[];
     public readonly functions: FunctionDeclaration[];
 
     constructor (
@@ -16,6 +17,7 @@ export class FileGenericNode <GlobalVariableDeclaration, FunctionDeclaration>
         module: SemanticSymbols.Module,
         imports: SemanticSymbols.Module[],
         variables: GlobalVariableDeclaration[],
+        fields: FieldDeclaration[],
         functions: FunctionDeclaration[]
     ) {
         this.kind = SemanticKind.File;
@@ -24,6 +26,7 @@ export class FileGenericNode <GlobalVariableDeclaration, FunctionDeclaration>
         this.module = module;
         this.imports = imports;
         this.variables = variables;
+        this.fields = fields;
         this.functions = functions;
     }
 }

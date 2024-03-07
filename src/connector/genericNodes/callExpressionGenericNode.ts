@@ -1,29 +1,26 @@
 import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class CallExpressionGenericNode <Expression, VariableExpression>
+export class CallExpressionGenericNode <Expression>
 {
     public readonly kind: SemanticKind.CallExpression;
 
     public readonly type: SemanticSymbols.ConcreteType;
 
     public readonly functionSymbol: SemanticSymbols.Function;
-    public readonly ownerModule: SemanticSymbols.Module;
     public readonly arguments: Expression[];
-    public readonly thisReference: VariableExpression|null;
+    public readonly thisReference: Expression|null;
 
     constructor (
         functionSymbol: SemanticSymbols.Function,
-        ownerModule: SemanticSymbols.Module,
         callArguments: Expression[],
-        thisReference: VariableExpression|null
+        thisReference: Expression|null
     ){
         this.kind = SemanticKind.CallExpression;
 
         this.type = functionSymbol.returnType;
 
         this.functionSymbol = functionSymbol;
-        this.ownerModule = ownerModule;
         this.arguments = callArguments;
         this.thisReference = thisReference;
     }

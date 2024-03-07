@@ -20,7 +20,7 @@ export abstract class TokenCreator
         return new Token(TokenKind.IdentifierToken, identifier);
     }
 
-    public static newTypeIdentifier (identifier = BuildInTypes.int.name): Token
+    public static newTypeIdentifier (identifier = BuildInTypes.int.namespace.baseName): Token
     {
         return new Token(TokenKind.IdentifierToken, identifier);
     }

@@ -1,27 +1,31 @@
-import { ConcreteTypeSemanticSymbol } from './concreteTypeSemanticSymbol';
-import { FunctionParameterSemanticSymbol } from './functionParameterSemanticSymbol';
-import { SemanticSymbol } from './semanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class FunctionSemanticSymbol extends SemanticSymbol
+export class FunctionSemanticSymbol extends SemanticSymbolBase
 {
-    public readonly parameters: FunctionParameterSemanticSymbol[];
-    public readonly returnType: ConcreteTypeSemanticSymbol;
-    public readonly isMethod: boolean;
+    public readonly kind: SemanticSymbolKind.Function;
+
+    public readonly returnType: SemanticSymbols.ConcreteType;
+    public readonly parameters: SemanticSymbols.FunctionParameter[];
+    public readonly thisReference: SemanticSymbols.FunctionParameter|null;
     public readonly isHeader: boolean;
 
     constructor (
-        name: string,
-        returnType: ConcreteTypeSemanticSymbol,
-        parameters: FunctionParameterSemanticSymbol[],
-        isMethod: boolean,
+        namespace: Namespace,
+        returnType: SemanticSymbols.ConcreteType,
+        parameters: SemanticSymbols.FunctionParameter[],
+        thisReference: SemanticSymbols.FunctionParameter|null,
         isHeader: boolean
     ) {
-        super(SemanticSymbolKind.Function, name);
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.Function;
 
         this.returnType = returnType;
         this.parameters = parameters;
-        this.isMethod = isMethod;
+        this.thisReference = thisReference;
         this.isHeader = isHeader;
     }
 }

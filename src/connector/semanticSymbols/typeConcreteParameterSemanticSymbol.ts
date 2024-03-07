@@ -1,28 +1,20 @@
-import { ConcreteParameterSemanticSymbol } from './concreteParameterSemanticSymbol';
-import { ConcreteTypeSemanticSymbol } from './concreteTypeSemanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class TypeConcreteParameterSemanticSymbol extends ConcreteParameterSemanticSymbol
+export class TypeConcreteParameterSemanticSymbol extends SemanticSymbolBase
 {
-    constructor (name: string, type: ConcreteTypeSemanticSymbol)
-    {
-        super(SemanticSymbolKind.TypeConcreteParameter, name, type);
-    }
+    public readonly kind: SemanticSymbolKind.TypeConcreteParameter;
 
-    public override equals (genericParameter: ConcreteParameterSemanticSymbol): boolean
-    {
-        if (this === genericParameter)
-        {
-            return true;
-        }
+    public readonly type: SemanticSymbols.ConcreteType;
 
-        if (genericParameter instanceof TypeConcreteParameterSemanticSymbol)
-        {
-            return (this.name == genericParameter.name) && this.type.equals(genericParameter.type);
-        }
-        else
-        {
-            return false;
-        }
+    constructor (namespace: Namespace, type: SemanticSymbols.ConcreteType)
+    {
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.TypeConcreteParameter;
+
+        this.type = type;
     }
 }

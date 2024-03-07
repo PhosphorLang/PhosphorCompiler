@@ -9,10 +9,10 @@ export class OrIntermediate
 {
     public readonly kind: IntermediateKind.Or;
 
-    public leftOperand: IntermediateSymbols.Variable;
+    public leftOperand: IntermediateSymbols.WritableValue;
     public rightOperand: IntermediateSymbols.Variable;
 
-    constructor (leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable)
+    constructor (leftOperand: IntermediateSymbols.WritableValue, rightOperand: IntermediateSymbols.Variable)
     {
         this.kind = IntermediateKind.Or;
 

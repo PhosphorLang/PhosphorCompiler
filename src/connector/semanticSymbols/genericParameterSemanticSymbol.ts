@@ -1,24 +1,19 @@
-import { SemanticSymbol } from './semanticSymbol';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class GenericParameterSemanticSymbol extends SemanticSymbol
+export class GenericParameterSemanticSymbol extends SemanticSymbolBase
 {
+    public readonly kind: SemanticSymbolKind.GenericParameter;
+
     public readonly isLiteral: boolean;
 
-    constructor (name: string, isLiteral: boolean)
+    constructor (namespace: Namespace, isLiteral: boolean)
     {
-        super(SemanticSymbolKind.GenericParameter, name);
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.GenericParameter;
 
         this.isLiteral = isLiteral;
-    }
-
-    public equals (genericParameter: GenericParameterSemanticSymbol): boolean
-    {
-        if (this === genericParameter)
-        {
-            return true;
-        }
-
-        return (this.name === genericParameter.name) && (this.isLiteral === genericParameter.isLiteral);
     }
 }

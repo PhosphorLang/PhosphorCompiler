@@ -1,48 +1,20 @@
-import { GenericParameterSemanticSymbol } from './genericParameterSemanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
-import { TypeSemanticSymbol } from './typeSemanticSymbol';
 
-export class GenericTypeSemanticSymbol extends TypeSemanticSymbol
+export class GenericTypeSemanticSymbol extends SemanticSymbolBase
 {
-    public readonly parameters: GenericParameterSemanticSymbol[] = [];
+    public readonly kind: SemanticSymbolKind.GenericType;
 
-    constructor (name: string, parameters: GenericParameterSemanticSymbol[])
+    public readonly parameters: SemanticSymbols.GenericParameter[] = [];
+
+    constructor (namespace: Namespace, parameters: SemanticSymbols.GenericParameter[])
     {
-        super(SemanticSymbolKind.GenericType, name);
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.GenericType;
 
         this.parameters = parameters;
-    }
-
-    public override equals (type: TypeSemanticSymbol): boolean
-    {
-        if (this === type)
-        {
-            return true;
-        }
-
-        if (this.name !== type.name)
-        {
-            return false;
-        }
-
-        if (!(type instanceof GenericTypeSemanticSymbol))
-        {
-            return false;
-        }
-
-        if (this.parameters.length !== type.parameters.length)
-        {
-            return false;
-        }
-
-        for (let i = 0; i < this.parameters.length; i++)
-        {
-            if (!this.parameters[i].equals(type.parameters[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

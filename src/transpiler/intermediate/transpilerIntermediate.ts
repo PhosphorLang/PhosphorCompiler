@@ -1,6 +1,7 @@
 import * as Instructions from '../common/instructions';
 import * as Intermediates from '../../intermediateLowerer/intermediates';
 import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
+import { IntermediateSize } from '../../intermediateLowerer/intermediateSize';
 import { IntermediateSymbol } from '../../intermediateLowerer/intermediateSymbols';
 import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
 
@@ -66,6 +67,12 @@ export class TranspilerIntermediate
                 return 'external';
             case IntermediateKind.Global:
                 return 'global';
+            case IntermediateKind.Structure:
+                return 'structure';
+            case IntermediateKind.LoadField:
+                return 'loadField';
+            case IntermediateKind.StoreField:
+                return 'storeField';
             case IntermediateKind.Add:
                 return 'add';
             case IntermediateKind.And:
@@ -106,6 +113,8 @@ export class TranspilerIntermediate
                 return 'take';
             case IntermediateKind.Return:
                 return 'return';
+            case IntermediateKind.SizeOf:
+                return 'sizeOf';
             case IntermediateKind.Subtract:
                 return 'subtract';
             case IntermediateKind.File:
@@ -166,6 +175,15 @@ export class TranspilerIntermediate
             );
         }
 
+        if (fileIntermediate.structure !== null)
+        {
+            this.transpileStructure(fileIntermediate.structure);
+
+            this.instructions.push(
+                new Instructions.Instruction('') // Empty line
+            );
+        }
+
         for (const functionNode of fileIntermediate.functions)
         {
             this.transpileFunction(functionNode);
@@ -209,6 +227,23 @@ export class TranspilerIntermediate
             this.getIntermediateInstructionString(globalIntermediate),
             globalIntermediate.symbol.name + ':',
             globalIntermediate.symbol.size,
+        );
+
+        this.instructions.push(instruction);
+    }
+
+    private transpileStructure (structureIntermediate: Intermediates.Structure): void
+    {
+        const fieldSizes: IntermediateSize[] = [];
+        for (const field of structureIntermediate.symbol.fields)
+        {
+            fieldSizes.push(field.size);
+        }
+
+        const instruction = new Instructions.Structure(
+            this.getIntermediateInstructionString(structureIntermediate),
+            structureIntermediate.symbol.name,
+            fieldSizes,
         );
 
         this.instructions.push(instruction);
@@ -282,6 +317,22 @@ export class TranspilerIntermediate
                     this.getIntermediateSymbolString(statementIntermediate.from),
                 ];
                 break;
+            case IntermediateKind.LoadField:
+                parameters = [
+                    this.getIntermediateSymbolString(statementIntermediate.to),
+                    this.getIntermediateSymbolString(statementIntermediate.structure),
+                    this.getIntermediateSymbolString(statementIntermediate.thisReference),
+                    this.getIntermediateSymbolString(statementIntermediate.field),
+                ];
+                break;
+            case IntermediateKind.StoreField:
+                parameters = [
+                    this.getIntermediateSymbolString(statementIntermediate.from),
+                    this.getIntermediateSymbolString(statementIntermediate.structure),
+                    this.getIntermediateSymbolString(statementIntermediate.thisReference),
+                    this.getIntermediateSymbolString(statementIntermediate.field),
+                ];
+                break;
             case IntermediateKind.Negate:
             case IntermediateKind.Not:
                 parameters = [
@@ -303,7 +354,12 @@ export class TranspilerIntermediate
             case IntermediateKind.Return:
                 parameters = [];
                 break;
-
+            case IntermediateKind.SizeOf:
+                parameters = [
+                    this.getIntermediateSymbolString(statementIntermediate.to),
+                    this.getIntermediateSymbolString(statementIntermediate.structure),
+                ];
+                break;
             case IntermediateKind.Label:
                 this.instructions.push(
                     new Instructions.Label(

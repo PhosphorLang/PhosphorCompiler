@@ -11,6 +11,7 @@ export class FileSyntaxNode
     public readonly module: SyntaxNodes.Module;
     public readonly imports: SyntaxNodes.Import[];
     public readonly variables: SyntaxNodes.GlobalVariableDeclaration[];
+    public readonly fields: SyntaxNodes.FieldVariableDeclaration[];
     public readonly functions: SyntaxNodes.FunctionDeclaration[];
 
     constructor (
@@ -18,6 +19,7 @@ export class FileSyntaxNode
         module: SyntaxNodes.Module,
         imports: SyntaxNodes.Import[],
         variables: SyntaxNodes.GlobalVariableDeclaration[],
+        fields: SyntaxNodes.FieldVariableDeclaration[],
         functions: SyntaxNodes.FunctionDeclaration[]
     ){
         this.kind = SyntaxKind.File;
@@ -26,6 +28,7 @@ export class FileSyntaxNode
         this.module = module;
         this.imports = imports;
         this.variables = variables;
+        this.fields = fields;
         this.functions = functions;
 
         this.token = null;

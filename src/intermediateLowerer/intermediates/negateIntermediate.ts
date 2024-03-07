@@ -8,9 +8,9 @@ export class NegateIntermediate
 {
     public readonly kind: IntermediateKind.Negate;
 
-    public operand: IntermediateSymbols.Variable;
+    public operand: IntermediateSymbols.WritableValue;
 
-    constructor (operand: IntermediateSymbols.Variable)
+    constructor (operand: IntermediateSymbols.WritableValue)
     {
         this.kind = IntermediateKind.Negate;
 

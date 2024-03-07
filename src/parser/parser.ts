@@ -5,6 +5,7 @@ import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
 import { Token } from '../lexer/token';
 import { TokenKind } from '../lexer/tokenKind';
+import { SyntaxKind } from './syntaxKind';
 
 export class Parser
 {
@@ -86,6 +87,7 @@ export class Parser
     {
         const imports: SyntaxNodes.Import[] = [];
         const variables: SyntaxNodes.GlobalVariableDeclaration[] = [];
+        const fields: SyntaxNodes.FieldVariableDeclaration[] = [];
         const functions: SyntaxNodes.FunctionDeclaration[] = [];
         let module: SyntaxNodes.Module|null = null;
 
@@ -110,6 +112,12 @@ export class Parser
                 {
                     const variableDeclaration = this.parseGlobalVariableDeclaration();
                     variables.push(variableDeclaration);
+                    break;
+                }
+                case TokenKind.FieldKeyword:
+                {
+                    const fieldDeclaration = this.parseFieldVariableDeclaration();
+                    fields.push(fieldDeclaration);
                     break;
                 }
                 case TokenKind.FunctionKeyword:
@@ -156,7 +164,7 @@ export class Parser
             );
         }
 
-        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, variables, functions);
+        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, variables, fields, functions);
 
         return fileRoot;
     }
@@ -192,7 +200,7 @@ export class Parser
                 case TokenKind.IdentifierToken:
                     pathComponents.push(nextToken);
                     break;
-                case TokenKind.DotToken:
+                case TokenKind.AccessOperator:
                     break;
                 case TokenKind.ColonToken:
                 {
@@ -228,14 +236,14 @@ export class Parser
             );
         }
 
-        const namespace = new Namespace(prefixComponents, pathComponents, name);
+        const namespace = Namespace.constructFromTokens(prefixComponents, pathComponents, name);
 
         return namespace;
     }
 
     private parseGlobalVariableDeclaration (): SyntaxNodes.GlobalVariableDeclaration
     {
-        // TODO: This shares a lot of code with parseLocalVariableDeclaration(). Could both be unified?
+        // TODO: This shares a lot of code with parseLocalVariableDeclaration and parseFieldVariableDeclaration. Could they be unified?
 
         const keyword = this.consumeNextToken();
 
@@ -281,7 +289,7 @@ export class Parser
             default:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Unexpected token "${this.getFollowerToken().content}" after variable declaration identifier`,
+                        `Unexpected token "${this.getFollowerToken().content}" after module variable declaration identifier`,
                         Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
                         this.getCurrentToken()
                     )
@@ -292,6 +300,52 @@ export class Parser
         this.consumeNextToken();
 
         return new SyntaxNodes.GlobalVariableDeclaration(keyword, isConstant, identifier, type, assignment, initialiser);
+    }
+
+    private parseFieldVariableDeclaration (): SyntaxNodes.FieldVariableDeclaration
+    {
+        const keyword = this.consumeNextToken();
+
+        let variableModifier: Token|null = null;
+        if (this.getCurrentToken().kind == TokenKind.VariableKeyword)
+        {
+            variableModifier = this.consumeNextToken();
+        }
+
+        const identifier = this.consumeNextToken();
+        let type: SyntaxNodes.TypeClause|null = null;
+        let assignment: Token|null = null;
+        let initialiser: SyntaxNodes.Expression|null = null;
+
+        switch (this.getCurrentToken().kind)
+        {
+            case TokenKind.AssignmentOperator:
+                assignment = this.consumeNextToken();
+                initialiser = this.parseExpression();
+                break;
+            case TokenKind.ColonToken:
+                type = this.parseTypeClause();
+
+                if (this.getCurrentToken().kind == TokenKind.AssignmentOperator)
+                {
+                    assignment = this.consumeNextToken();
+                    initialiser = this.parseExpression();
+                }
+                break;
+            default:
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `Unexpected token "${this.getFollowerToken().content}" after field declaration identifier`,
+                        Diagnostic.Codes.UnexpectedTokenAfterFieldDeclarationIdentifierError,
+                        this.getCurrentToken()
+                    )
+                );
+        }
+
+        // The semicolon:
+        this.consumeNextToken();
+
+        return new SyntaxNodes.FieldVariableDeclaration(keyword, variableModifier, identifier, type, assignment, initialiser);
     }
 
     private parseFunctionModifier (modifiers: Token[] = []): SyntaxNodes.FunctionDeclaration
@@ -547,28 +601,37 @@ export class Parser
                 break;
             case TokenKind.IdentifierToken:
             {
-                switch (this.getFollowerToken().kind)
+                if (this.getFollowerToken().kind == TokenKind.AssignmentOperator)
                 {
-                    case TokenKind.AssignmentOperator:
-                        result = this.parseAssignment();
-                        break;
-                    case TokenKind.OpeningRoundBracketToken:
-                        result = this.parseCallExpression();
-                        break;
-                    case TokenKind.DotToken:
-                        result = this.parseAccessExpression();
-                        break;
-                    default:
-                        result = null;
-                        break;
-                        // TODO: Should this default be replaced with an explicit handling of every TokenKinds?
+                    result = this.parseAssignment();
+                    break;
                 }
-                break;
+                // Fallthrough otherwise, meaning parse it as an expression.
             }
             default:
-                result = null;
+            {
+                const expression = this.parseExpression();
+
+                switch (expression.kind)
+                {
+                    case SyntaxKind.AccessExpression:
+                    case SyntaxKind.CallExpression:
+                        result = expression;
+                        break;
+                    default:
+                        this.diagnostic.throw(
+                            new Diagnostic.Error(
+                                `Expression "${expression.kind}" is not allowed as a statement.`,
+                                Diagnostic.Codes.ExpressionNotAllowedAsStatementError,
+                                this.getCurrentToken()
+                            )
+                        );
+                    // TODO: Should this default be replaced with an explicit handling of every TokenKind?
+                }
+
                 break;
-                // TODO: Should this default be replaced with an explicit handling of every TokenKinds?
+                // TODO: Should this default be replaced with an explicit handling of every TokenKind?
+            }
         }
 
         if (result == null)
@@ -649,7 +712,7 @@ export class Parser
             default:
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Unexpected token "${this.getFollowerToken().content}" after variable declaration identifier`,
+                        `Unexpected token "${this.getFollowerToken().content}" after local variable declaration identifier`,
                         Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError,
                         this.getCurrentToken()
                     )
@@ -758,6 +821,11 @@ export class Parser
         else
         {
             left = this.parsePrimaryExpression();
+
+            if (this.getCurrentToken().kind == TokenKind.AccessOperator)
+            {
+                left = this.parseAccessExpression(left);
+            }
         }
 
         while (this.isBinaryExpression(parentPriority))
@@ -816,7 +884,14 @@ export class Parser
             case TokenKind.FalseKeyword:
                 return this.parseLiteralExpression();
             case TokenKind.IdentifierToken:
-                return this.parseIdentifierExpression();
+                if (this.getFollowerToken().kind == TokenKind.OpeningRoundBracketToken)
+                {
+                    return this.parseCallExpression();
+                }
+                else
+                {
+                    return this.parseIdentifierExpression();
+                }
             case TokenKind.NewKeyword:
                 return this.parseInstantiationExpression();
             default:
@@ -846,26 +921,21 @@ export class Parser
         return new SyntaxNodes.LiteralExpression(literal);
     }
 
-    private parseIdentifierExpression (): SyntaxNodes.IdentifierExpression
+    private parseAccessExpression (primaryExpression: SyntaxNodes.PrimaryExpression): SyntaxNodes.AccessExpression
     {
-        switch (this.getFollowerToken().kind)
-        {
-            case TokenKind.DotToken:
-                return this.parseAccessExpression();
-            case TokenKind.OpeningRoundBracketToken:
-                return this.parseCallExpression();
-            default:
-                return this.parseVariableExpression();
-        }
-    }
-
-    private parseAccessExpression (): SyntaxNodes.AccessExpression
-    {
-        const identifier = this.consumeNextToken();
         const dot = this.consumeNextToken();
-        const functionCall = this.parseCallExpression();
 
-        return new SyntaxNodes.AccessExpression(identifier, dot, functionCall);
+        let member: SyntaxNodes.CallExpression|SyntaxNodes.IdentifierExpression;
+        if (this.getFollowerToken().kind == TokenKind.OpeningRoundBracketToken)
+        {
+            member = this.parseCallExpression();
+        }
+        else
+        {
+            member = this.parseIdentifierExpression();
+        }
+
+        return new SyntaxNodes.AccessExpression(primaryExpression, dot, member);
     }
 
     private parseCallExpression (): SyntaxNodes.CallExpression
@@ -912,10 +982,10 @@ export class Parser
         return new SyntaxNodes.InstantiationExpression(keyword, type, opening, constructorArguments, closing);
     }
 
-    private parseVariableExpression (): SyntaxNodes.VariableExpression
+    private parseIdentifierExpression (): SyntaxNodes.IdentifierExpression
     {
         const identifier = this.consumeNextToken();
 
-        return new SyntaxNodes.VariableExpression(identifier);
+        return new SyntaxNodes.IdentifierExpression(identifier);
     }
 }

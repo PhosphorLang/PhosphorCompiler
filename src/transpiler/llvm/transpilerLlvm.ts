@@ -160,7 +160,7 @@ export class TranspilerLlvm
         return '@' + this.getLlvmName(intermediateSymbol);
     }
 
-    private getLlvmVariableName (intermediateSymbol: IntermediateSymbols.Variable): string
+    private getLlvmVariableName (intermediateSymbol: IntermediateSymbols.WritableValue): string
     {
         switch (intermediateSymbol.kind)
         {
@@ -197,7 +197,7 @@ export class TranspilerLlvm
      * @param variable The variable to load from.
      * @returns The name of the register.
      */
-    private loadIntoRegister (variable: IntermediateSymbols.Variable): string
+    private loadIntoRegister (variable: IntermediateSymbols.WritableValue): string
     {
         const registerName = this.nextVariableName;
 
@@ -223,7 +223,7 @@ export class TranspilerLlvm
      * @param fromString The string that describes the value to store (e.g. a register name).
      * @param variable The variable to store into.
      */
-    private storeIntoVariable (fromString: string, variable: IntermediateSymbols.Variable): void
+    private storeIntoVariable (fromString: string, variable: IntermediateSymbols.WritableValue): void
     {
         this.instructions.push(
             new Instructions.Instruction(
@@ -234,6 +234,22 @@ export class TranspilerLlvm
                 this.getLlvmVariableName(variable),
             )
         );
+    }
+
+    private getElementPointerStringForStructure (
+        structure: IntermediateSymbols.Structure,
+        thisReference: IntermediateSymbols.WritableValue,
+        fieldIndex: number
+    ): string
+    {
+        const baseType = this.getLlvmLocalName(structure);
+        const pointerType = this.getLlvmSizeString(IntermediateSize.Pointer);
+        const basePointer = this.loadIntoRegister(thisReference);
+        const byteSize = this.getLlvmSizeString(IntermediateSize.Int32);
+
+        const fromString = `getelementptr ${baseType}, ${pointerType} ${basePointer}, ${byteSize} 0, ${byteSize} ${fieldIndex}`;
+
+        return fromString;
     }
 
     private transpileFile (fileIntermediate: Intermediates.File): void
@@ -269,6 +285,15 @@ export class TranspilerLlvm
 
         if (fileIntermediate.globals.length > 0)
         {
+            this.instructions.push(
+                new Instructions.Instruction('') // Empty line
+            );
+        }
+
+        if (fileIntermediate.structure !== null)
+        {
+            this.transpileStructure(fileIntermediate.structure);
+
             this.instructions.push(
                 new Instructions.Instruction('') // Empty line
             );
@@ -333,6 +358,7 @@ export class TranspilerLlvm
 
         this.instructions.push(instruction);
     }
+
     private transpileGlobal (globalIntermediate: Intermediates.Global): void
     {
         const instruction = new LlvmInstructions.Assignment(
@@ -340,6 +366,26 @@ export class TranspilerLlvm
             'global',
             this.getLlvmSizeString(globalIntermediate.symbol.size),
             'zeroinitializer',
+        );
+
+        this.instructions.push(instruction);
+    }
+
+    private transpileStructure (structureIntermediate: Intermediates.Structure): void
+    {
+        const fieldSizeStrings: string[] = [];
+        for (const field of structureIntermediate.symbol.fields)
+        {
+            const fieldSizeString = this.getLlvmSizeString(field.size);
+            fieldSizeStrings.push(fieldSizeString);
+        }
+
+        const fieldsString = '{' + fieldSizeStrings.join(', ') + '}';
+
+        const instruction = new LlvmInstructions.Assignment(
+            this.getLlvmLocalName(structureIntermediate.symbol),
+            'type',
+            fieldsString
         );
 
         this.instructions.push(instruction);
@@ -460,6 +506,9 @@ export class TranspilerLlvm
             case IntermediateKind.Label:
                 this.transpileLabel(statementIntermediate);
                 break;
+            case IntermediateKind.LoadField:
+                this.transpileLoadField(statementIntermediate);
+                break;
             case IntermediateKind.Modulo:
                 this.transpileModulo(statementIntermediate);
                 break;
@@ -481,6 +530,12 @@ export class TranspilerLlvm
             case IntermediateKind.Return:
                 this.transpileReturn();
                 break;
+            case IntermediateKind.SizeOf:
+                this.transpileSizeOf(statementIntermediate);
+                break;
+            case IntermediateKind.StoreField:
+                this.transpileStoreField(statementIntermediate);
+                break;
             case IntermediateKind.Subtract:
                 this.transpileSubtract(statementIntermediate);
                 break;
@@ -488,6 +543,38 @@ export class TranspilerLlvm
                 this.transpileTake(statementIntermediate);
                 break;
         }
+    }
+
+    private transpileSizeOf (sizeOfIntermediate: Intermediates.SizeOf): void
+    {
+        // NOTE: The SizeOfExpression in LLVM is a trick.
+        // By utilising the getelementptr instruction, we can get the size of a type:
+        // %sizePointer = getelementptr (%MyType, ptr null, i8 1)
+        // %size = ptrtoint ptr %sizePointer to ToSize
+        // It is quaranteed to be optimised away into a constant by the LLVM compiler.
+
+        const structureTypeString = this.getLlvmLocalName(sizeOfIntermediate.structure);
+        const pointerType = this.getLlvmSizeString(IntermediateSize.Pointer);
+        const byteSizeString = this.getLlvmSizeString(IntermediateSize.Int8);
+
+        const fromString = `getelementptr ${structureTypeString}, ${pointerType} null, ${byteSizeString} 1`;
+
+        const sizePointerRegister = this.nextVariableName;
+        const sizeRegister = this.nextVariableName;
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(sizePointerRegister, fromString),
+            new LlvmInstructions.Assignment(
+                sizeRegister,
+                'ptrtoint',
+                pointerType,
+                sizePointerRegister,
+                'to',
+                this.getLlvmSizeString(sizeOfIntermediate.to.size),
+            ),
+        );
+
+        this.storeIntoVariable(sizeRegister, sizeOfIntermediate.to);
     }
 
     private transpileAdd (addIntermediate: Intermediates.Add): void
@@ -755,6 +842,63 @@ export class TranspilerLlvm
         this.instructions.push(
             new Instructions.Label(labelName),
         );
+    }
+
+    private transpileLoadField (loadFieldIntermediate: Intermediates.LoadField): void
+    {
+        const fieldPointerRegister = this.nextVariableName;
+
+        const fromString = this.getElementPointerStringForStructure(
+            loadFieldIntermediate.structure,
+            loadFieldIntermediate.thisReference,
+            loadFieldIntermediate.field.index
+        );
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(fieldPointerRegister, fromString),
+        );
+
+        const fieldValueRegister = this.nextVariableName;
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(
+                fieldValueRegister,
+                'load',
+                this.getLlvmSizeString(loadFieldIntermediate.field.size) + ',',
+                this.pointerSizeString,
+                fieldPointerRegister,
+            ),
+        );
+
+        this.storeIntoVariable(fieldValueRegister, loadFieldIntermediate.to);
+    }
+
+    private transpileStoreField (storeFieldIntermediate: Intermediates.StoreField): void
+    {
+        const fieldPointerRegister = this.nextVariableName;
+
+        const fromString = this.getElementPointerStringForStructure(
+            storeFieldIntermediate.structure,
+            storeFieldIntermediate.thisReference,
+            storeFieldIntermediate.field.index
+        );
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(fieldPointerRegister, fromString),
+        );
+
+        const temporaryRegister = this.loadIntoRegister(storeFieldIntermediate.from);
+
+        this.instructions.push(
+            new Instructions.Instruction(
+                'store',
+                this.getLlvmSizeString(storeFieldIntermediate.from.size),
+                temporaryRegister + ',',
+                this.pointerSizeString,
+                fieldPointerRegister,
+            )
+        );
+
     }
 
     private transpileModulo (moduloIntermediate: Intermediates.Modulo): void

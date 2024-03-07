@@ -1,44 +1,36 @@
-import { FunctionSemanticSymbol } from './functionSemanticSymbol';
-import { GenericTypeSemanticSymbol } from './genericTypeSemanticSymbol';
-import { SemanticSymbol } from './semanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
-import { VariableSemanticSymbol } from './variableSemanticSymbol';
 
-export class ModuleSemanticSymbol extends SemanticSymbol
+export class ModuleSemanticSymbol extends SemanticSymbolBase
 {
-    /** The name of the module including the path. */
-    public readonly pathName: string;
-    /** The full name of the module including the path and prefix. */
-    public readonly qualifiedName: string;
+    public readonly kind: SemanticSymbolKind.Module;
 
-    public readonly classType: GenericTypeSemanticSymbol|null;
+    public readonly classType: SemanticSymbols.GenericType|null;
 
-    public readonly variableNameToSymbol: Map<string, VariableSemanticSymbol>;
-    public readonly functionNameToSymbol: Map<string, FunctionSemanticSymbol>;
+    public readonly variableNameToSymbol: Map<string, SemanticSymbols.Variable>;
+    public readonly fieldNameToSymbol: Map<string, SemanticSymbols.Field>;
+    public readonly functionNameToSymbol: Map<string, SemanticSymbols.Function>;
 
     public readonly isEntryPoint: boolean;
 
     constructor (
-        name: string,
-        pathName: string,
-        qualifiedName: string,
-        classType: GenericTypeSemanticSymbol|null,
-        variableNameToSymbol: Map<string, VariableSemanticSymbol>,
-        functionNameToSymbol: Map<string, FunctionSemanticSymbol>,
+        namespace: Namespace,
+        classType: SemanticSymbols.GenericType|null,
+        variableNameToSymbol: Map<string, SemanticSymbols.Variable>,
+        fieldNameToSymbol: Map<string, SemanticSymbols.Field>,
+        functionNameToSymbol: Map<string, SemanticSymbols.Function>,
         isEntryPoint: boolean,
     ) {
-        super(SemanticSymbolKind.Module, name);
+        super(namespace);
 
-        this.pathName = pathName;
-        this.qualifiedName = qualifiedName;
+        this.kind = SemanticSymbolKind.Module;
+
         this.classType = classType;
         this.variableNameToSymbol = variableNameToSymbol;
+        this.fieldNameToSymbol = fieldNameToSymbol;
         this.functionNameToSymbol = functionNameToSymbol;
         this.isEntryPoint = isEntryPoint;
-    }
-
-    public equals (type: ModuleSemanticSymbol): boolean
-    {
-        return this.qualifiedName === type.qualifiedName;
     }
 }

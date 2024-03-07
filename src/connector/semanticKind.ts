@@ -15,12 +15,16 @@ export enum SemanticKind
     ReturnStatement = 'ReturnStatement',
     LocalVariableDeclaration = 'LocalVariableDeclaration',
     GlobalVariableDeclaration = 'GlobalVariableDeclaration',
+    FieldDeclaration = 'FieldDeclaration',
     // Expressions
     LiteralExpression = 'LiteralExpression',
     InstantiationExpression = 'InstantiationExpression',
     VariableExpression = 'VariableExpression',
+    FieldExpression = 'FieldExpression',
+    ModuleExpression = 'ModuleExpression',
     CallExpression = 'CallExpression',
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',
+    SizeOfExpression = 'SizeOfExpression',
     // TODO: Sort groups alphabetically.
 }

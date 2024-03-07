@@ -27,9 +27,11 @@ export class IntermediateLowerer
     private externals: Intermediates.External[];
     private globals: Intermediates.Global[];
     private functions: Intermediates.Function[];
+    private structure: Intermediates.Structure|null;
 
-    private functionSymbolMap: Map<SemanticSymbols.Function, IntermediateSymbols.Function>;
-    private variableSymbolMap: Map<SemanticSymbols.Variable, IntermediateSymbols.Variable>;
+    private functionSymbolMap: Map<string, IntermediateSymbols.Function>;
+    private variableSymbolMap: Map<SemanticSymbols.VariableLike, IntermediateSymbols.Variable>; // TODO: Use the qualified name as key.
+    private fieldSymbolMap: Map<SemanticSymbols.Field, IntermediateSymbols.Field>; // TODO: Use the qualified name as key.
     private valueToConstantMap: Map<string, IntermediateSymbols.Constant>;
     private semanticLabelNameToIntermediateLabelMap: Map<string, IntermediateSymbols.Label>;
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
@@ -46,9 +48,11 @@ export class IntermediateLowerer
         this.externals = [];
         this.globals = [];
         this.functions = [];
+        this.structure = null;
 
         this.functionSymbolMap = new Map();
         this.variableSymbolMap = new Map();
+        this.fieldSymbolMap = new Map();
         this.valueToConstantMap = new Map();
         this.semanticLabelNameToIntermediateLabelMap = new Map();
         this.variableIntroducedSet = new Set();
@@ -56,14 +60,7 @@ export class IntermediateLowerer
         this.currentModule = null;
     }
 
-    /**
-     * @param fileNode
-     * @param modulesToBeInitialised
-     *  A set of semantic modules which have initialisers that must be called. Must not contain the entry
-     *  point module.
-     * @returns
-     */
-    public run (fileNode: LoweredNodes.File, modulesToBeInitialised: Set<SemanticSymbols.Module>): Intermediates.File
+    public run (fileNode: LoweredNodes.File): Intermediates.File
     {
         /* TODO: Because this is already initialised in the constructor, we should clear everything after the run not before.
          * This will also reduce the RAM usage because all the things are currently hold onto even if they are never used again. */
@@ -76,18 +73,27 @@ export class IntermediateLowerer
         this.externals = [];
         this.globals = [];
         this.functions = [];
+        this.structure = null;
 
         this.functionSymbolMap.clear();
         this.variableSymbolMap.clear();
+        this.fieldSymbolMap.clear();
         this.valueToConstantMap.clear();
         this.semanticLabelNameToIntermediateLabelMap.clear();
         this.variableIntroducedSet.clear();
 
         this.currentModule = null;
 
-        this.lowerFile(fileNode, modulesToBeInitialised);
+        this.lowerFile(fileNode);
 
-        return new Intermediates.File(this.constants, this.externals, this.globals, this.functions, fileNode.module.isEntryPoint);
+        return new Intermediates.File(
+            this.constants,
+            this.externals,
+            this.globals,
+            this.functions,
+            this.structure,
+            fileNode.module.isEntryPoint
+        );
     }
 
     private getOrGenerateConstant (value: string): IntermediateSymbols.Constant
@@ -104,7 +110,7 @@ export class IntermediateLowerer
             throw new Error(`Intermediate Lowerer error: Current module is null while defining a constant.`);
         }
 
-        const qualifiedName = this.currentModule.qualifiedName + '.' + `c#${this.constantCounter}`;
+        const qualifiedName = this.currentModule.namespace.qualifiedName + '~' + `c#${this.constantCounter}`;
 
         const newConstant = new IntermediateSymbols.Constant(qualifiedName, value);
 
@@ -122,15 +128,15 @@ export class IntermediateLowerer
     {
         let intermediateLabelSymbol: IntermediateSymbols.Label;
 
-        if (this.semanticLabelNameToIntermediateLabelMap.has(semanticLabelSymbol.name))
+        if (this.semanticLabelNameToIntermediateLabelMap.has(semanticLabelSymbol.namespace.qualifiedName))
         {
-            intermediateLabelSymbol = this.semanticLabelNameToIntermediateLabelMap.get(semanticLabelSymbol.name)!;
+            intermediateLabelSymbol = this.semanticLabelNameToIntermediateLabelMap.get(semanticLabelSymbol.namespace.qualifiedName)!;
         }
         else
         {
             intermediateLabelSymbol = this.generateLabel();
 
-            this.semanticLabelNameToIntermediateLabelMap.set(semanticLabelSymbol.name, intermediateLabelSymbol);
+            this.semanticLabelNameToIntermediateLabelMap.set(semanticLabelSymbol.namespace.qualifiedName, intermediateLabelSymbol);
         }
 
         return intermediateLabelSymbol;
@@ -152,7 +158,7 @@ export class IntermediateLowerer
         return newParameter;
     }
 
-    private generateLocalVariable (size: IntermediateSize, symbol?: SemanticSymbols.Variable): IntermediateSymbols.LocalVariable
+    private generateLocalVariable (size: IntermediateSize, symbol?: SemanticSymbols.VariableLike): IntermediateSymbols.LocalVariable
     {
         const newVariable = new IntermediateSymbols.LocalVariable(this.localVariableCounter, size);
 
@@ -162,25 +168,13 @@ export class IntermediateLowerer
         {
             if (this.variableSymbolMap.has(symbol))
             {
-                throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.name}" already exists.`);
+                throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.namespace.qualifiedName}" already exists.`);
             }
 
             this.variableSymbolMap.set(symbol, newVariable);
         }
 
         return newVariable;
-    }
-
-    private getVariableFromSymbol (symbol: SemanticSymbols.Variable): IntermediateSymbols.Variable
-    {
-        const existingVariable = this.variableSymbolMap.get(symbol);
-
-        if (existingVariable === undefined)
-        {
-            throw new Error(`Intermediate Lowerer error: Variable for symbol "${symbol.name}" does not exist.`);
-        }
-
-        return existingVariable;
     }
 
     private typeToSize (type: SemanticSymbols.Type): IntermediateSize
@@ -201,7 +195,7 @@ export class IntermediateLowerer
         }
     }
 
-    private introduceIfNecessary (variable: IntermediateSymbols.Variable, intermediates: Intermediate[]): void
+    private introduceIfNecessary (variable: IntermediateSymbols.WritableValue, intermediates: Intermediate[]): void
     {
         if (variable.kind == IntermediateSymbolKind.GlobalVariable)
         {
@@ -218,7 +212,7 @@ export class IntermediateLowerer
         }
     }
 
-    private lowerFile (file: LoweredNodes.File, modulesToBeInitialised: Set<SemanticSymbols.Module>): void
+    private lowerFile (file: LoweredNodes.File): void
     {
         this.currentModule = file.module;
 
@@ -227,7 +221,12 @@ export class IntermediateLowerer
             this.lowerImport(importModule);
         }
 
-        this.lowerGlobals(file.variables, modulesToBeInitialised);
+        for (const globalVariable of file.variables)
+        {
+            this.lowerGlobal(globalVariable);
+        }
+
+        this.lowerFields(file.fields);
 
         // Pre-lowering of the function symbols for them to be available in every other function regardless of their order:
         for (const functionNode of file.functions)
@@ -261,7 +260,7 @@ export class IntermediateLowerer
     {
         const parameterSizes: IntermediateSize[] = [];
 
-        if (semanticFunctionSymbol.isMethod)
+        if (semanticFunctionSymbol.thisReference !== null)
         {
             parameterSizes.push(IntermediateSize.Pointer);
         }
@@ -272,61 +271,35 @@ export class IntermediateLowerer
             parameterSizes.push(parameterSize);
         }
 
-        let qualifiedName: string;
-        if (module.isEntryPoint && semanticFunctionSymbol.name == 'main') // TODO: Find a better way than a hardcoded name.
+        let intermediateName: string;
+        if (module.isEntryPoint && semanticFunctionSymbol.namespace.baseName == 'main') // TODO: Find a better way than a hardcoded name.
         {
-            qualifiedName = semanticFunctionSymbol.name;
+            intermediateName = semanticFunctionSymbol.namespace.baseName;
         }
         else
         {
-            qualifiedName = module.qualifiedName + '.' + semanticFunctionSymbol.name;
+            intermediateName = semanticFunctionSymbol.namespace.qualifiedName;
         }
 
         const intermediateFunctionSymbol = new IntermediateSymbols.Function(
-            qualifiedName,
+            intermediateName,
             this.typeToSize(semanticFunctionSymbol.returnType),
             parameterSizes
         );
 
-        this.functionSymbolMap.set(semanticFunctionSymbol, intermediateFunctionSymbol);
+        this.functionSymbolMap.set(semanticFunctionSymbol.namespace.qualifiedName, intermediateFunctionSymbol);
 
         return intermediateFunctionSymbol;
     }
 
-    private lowerGlobals (globals: LoweredNodes.GlobalVariableDeclaration[], modulesToBeInitialised: Set<SemanticSymbols.Module>): void
+    private lowerGlobal (globalVariable: SemanticSymbols.Variable): IntermediateSymbols.Global
     {
-        const globalInitialisers: Intermediates.Statement[] = [];
+        const globalSymbol = new IntermediateSymbols.Global(
+            globalVariable.namespace.qualifiedName,
+            this.typeToSize(globalVariable.type)
+        );
 
-        for (const globalVariable of globals)
-        {
-            const globalSymbol = this.lowerGlobal(globalVariable);
-
-            if (globalVariable.initialiser !== null)
-            {
-                this.lowerExpression(globalVariable.initialiser, globalInitialisers, globalSymbol);
-            }
-        }
-
-        this.createInitialiserFunction(globalInitialisers, modulesToBeInitialised);
-    }
-
-    private lowerGlobal (globalVariable: LoweredNodes.GlobalVariableDeclaration): IntermediateSymbols.Global
-    {
-        const module = this.currentModule;
-        if (module === null)
-        {
-            throw new Error(`Intermediate Lowerer error: Current module is null while lowering a global variable.`);
-        }
-
-        const qualifiedName = module.qualifiedName + '.' + globalVariable.symbol.name;
-
-        const globalSymbol = new IntermediateSymbols.Global(qualifiedName, this.typeToSize(globalVariable.symbol.type));
-
-        if (this.variableSymbolMap.has(globalVariable.symbol))
-        {
-            throw new Error(`Intermediate Lowerer error: Variable for symbol "${globalVariable.symbol.name}" already exists.`);
-        }
-        this.variableSymbolMap.set(globalVariable.symbol, globalSymbol);
+        this.variableSymbolMap.set(globalVariable, globalSymbol);
 
         const globalIntermediate = new Intermediates.Global(globalSymbol);
         this.globals.push(globalIntermediate);
@@ -334,68 +307,42 @@ export class IntermediateLowerer
         return globalSymbol;
     }
 
-    private createInitialiserFunction (initialisers: Intermediates.Statement[], modulesToBeInitialised: Set<SemanticSymbols.Module>): void
+    private lowerFields (fields: SemanticSymbols.Field[]): void
     {
+        if (fields.length == 0)
+        {
+            this.structure = null;
+            return;
+        }
+
         const module = this.currentModule;
         if (module === null)
         {
-            throw new Error(`Intermediate Lowerer error: Current module is null while creating the initialiser function.`);
+            throw new Error(`Intermediate Lowerer error: Current module is null while lowering fields.`);
         }
 
-        if (module.isEntryPoint)
+        const fieldSymbols: IntermediateSymbols.Field[] = [];
+        for (let index = 0; index < fields.length; index += 1)
         {
-            if ((initialisers.length == 0) && (modulesToBeInitialised.size == 0))
-            {
-                return;
-            }
-        }
-        else
-        {
-            if (initialisers.length == 0)
-            {
-                return;
-            }
-        }
+            const semanticFieldSymbol = fields[index];
 
-        const initialisationBody = [];
+            const fieldSymbol = new IntermediateSymbols.Field(
+                semanticFieldSymbol.namespace.qualifiedName,
+                this.typeToSize(semanticFieldSymbol.type),
+                index
+            );
 
-        if (module.isEntryPoint)
-        {
-            for (const moduleWithInitiliser of modulesToBeInitialised)
-            {
-                // TODO: Find a better way than a hardcoded name:
-                const qualifiedName = moduleWithInitiliser.qualifiedName + ':initialisation';
-
-                const functionSymbol = new IntermediateSymbols.Function(qualifiedName, IntermediateSize.Void, []);
-
-                initialisationBody.push(
-                    new Intermediates.Call(functionSymbol),
-                );
-
-                const externalFunction = new Intermediates.External(functionSymbol);
-                this.externals.push(externalFunction);
-            }
+            this.fieldSymbolMap.set(semanticFieldSymbol, fieldSymbol);
+            fieldSymbols.push(fieldSymbol);
         }
 
-        initialisationBody.push(...initialisers);
+        // TODO: Find a better way than a hardcoded name.
+        // TODO: Using ":" as a separator is ambiguous because it is also used in the qualified name.
+        const qualifiedName = module.namespace.qualifiedName + ':class';
 
-        initialisationBody.push(
-            new Intermediates.Return()
-        );
+        const structureSymbol = new IntermediateSymbols.Structure(qualifiedName, fieldSymbols);
 
-        let qualifiedName: string;
-        if (module.isEntryPoint)
-        {
-            qualifiedName = ':initialisation'; // TODO: Find a better way than a hardcoded name.
-        }
-        else
-        {
-            qualifiedName = module.qualifiedName + ':initialisation'; // TODO: Find a better way than a hardcoded name.
-        }
-
-        const functionSymbol = new IntermediateSymbols.Function(qualifiedName, IntermediateSize.Void, []);
-        const functionIntermediate = new Intermediates.Function(functionSymbol, initialisationBody);
-        this.functions.push(functionIntermediate);
+        this.structure = new Intermediates.Structure(structureSymbol);
     }
 
     private lowerFunction (functionDeclaration: LoweredNodes.FunctionDeclaration): void
@@ -429,8 +376,17 @@ export class IntermediateLowerer
             const functionBody: Intermediates.Statement[] = [];
             let parameterCounter = 0;
 
+            const parameters: SemanticSymbols.FunctionParameter[] = [];
+
+            if (functionDeclaration.symbol.thisReference !== null)
+            {
+                parameters.push(functionDeclaration.symbol.thisReference);
+            }
+
+            parameters.push(...functionDeclaration.symbol.parameters);
+
             // Receive all parameters for them to be available as variables:
-            for (const parameter of functionDeclaration.symbol.parameters)
+            for (const parameter of parameters)
             {
                 const parameterSymbol = this.generateParameter(this.typeToSize(parameter.type), parameterCounter);
                 parameterCounter += 1;
@@ -513,7 +469,9 @@ export class IntermediateLowerer
 
         if (labelSymbol === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Label "${gotoStatement.labelSymbol.name}" in goto statement not found.`);
+            throw new Error(
+                `Intermediate Lowerer error: Label "${gotoStatement.labelSymbol.namespace.qualifiedName}" in goto statement not found.`
+            );
         }
 
         intermediates.push(
@@ -530,7 +488,9 @@ export class IntermediateLowerer
 
         if (labelSymbol === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Label "${conditionalGotoStatement.labelSymbol.name}" in conditional goto statement not found.`);
+            throw new Error(
+                `Intermediate Lowerer error: Label "${conditionalGotoStatement.labelSymbol.namespace.qualifiedName}"`
+                + ` in conditional goto statement not found.`);
         }
 
         const condition = this.generateLocalVariable(this.typeToSize(conditionalGotoStatement.condition.type));
@@ -586,44 +546,122 @@ export class IntermediateLowerer
 
     private lowerAssignment (assignment: LoweredNodes.Assignment, intermediates: Intermediate[]): void
     {
-        const variable = this.getVariableFromSymbol(assignment.variable);
-
-        if (assignment.expression !== null)
+        if (assignment.to.kind == SemanticKind.VariableExpression)
         {
-            this.lowerExpression(assignment.expression, intermediates, variable);
+            const variable = this.variableSymbolMap.get(assignment.to.variable);
+
+            if (variable === undefined)
+            {
+                throw new Error(
+                    `Intermediate Lowerer error: Variable for symbol "${assignment.to.variable.namespace.qualifiedName}" does not exist.`
+                );
+            }
+
+            // TODO: Should we lower the to expression or would that be redundant?
+            this.lowerExpression(assignment.from, intermediates, variable);
+        }
+        else
+        {
+            const field = this.fieldSymbolMap.get(assignment.to.field);
+
+            if (field === undefined)
+            {
+                throw new Error(
+                    `Intermediate Lowerer error: Field for symbol "${assignment.to.field.namespace.qualifiedName}" does not exist.`
+                );
+            }
+
+            if (this.structure === null)
+            {
+                throw new Error(`Intermediate Lowerer error: Structure is null while accessing a field.`);
+            }
+
+            const temporaryVariable = this.generateLocalVariable(this.typeToSize(assignment.to.type));
+            this.introduceIfNecessary(temporaryVariable, intermediates);
+            this.lowerExpression(assignment.from, intermediates, temporaryVariable);
+
+            const thisReference = this.generateLocalVariable(IntermediateSize.Pointer);
+            this.lowerExpression(assignment.to.thisReference, intermediates, thisReference);
+
+            // TODO: We must not lower the field expression, must we?
+
+            intermediates.push(
+                new Intermediates.StoreField(temporaryVariable, this.structure.symbol, thisReference, field),
+            );
         }
     }
 
     private lowerExpression (
         expression: LoweredNodes.Expression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         switch (expression.kind)
         {
-            case SemanticKind.LiteralExpression:
-                this.lowerLiteralExpression(expression, intermediates, targetLocation);
-                break;
-            case SemanticKind.VariableExpression:
-                this.lowerVariableExpression(expression, intermediates, targetLocation);
+            case SemanticKind.BinaryExpression:
+                this.lowerBinaryExpression(expression, intermediates, targetLocation);
                 break;
             case SemanticKind.CallExpression:
                 this.lowerCallExpression(expression, intermediates, targetLocation);
                 break;
+            case SemanticKind.FieldExpression:
+                this.lowerFieldExpression(expression, intermediates, targetLocation);
+                break;
+            case SemanticKind.LiteralExpression:
+                this.lowerLiteralExpression(expression, intermediates, targetLocation);
+                break;
+            case SemanticKind.SizeOfExpression:
+                this.lowerSizeOfExpression(expression, intermediates, targetLocation);
+                break;
             case SemanticKind.UnaryExpression:
                 this.lowerUnaryExpression(expression, intermediates, targetLocation);
                 break;
-            case SemanticKind.BinaryExpression:
-                this.lowerBinaryExpression(expression, intermediates, targetLocation);
+            case SemanticKind.VariableExpression:
+                this.lowerVariableExpression(expression, intermediates, targetLocation);
                 break;
+        }
+    }
+
+    private lowerSizeOfExpression (
+        sizeOfExpression: LoweredNodes.SizeOfExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.WritableValue
+    ): void
+    {
+        if (this.currentModule === null)
+        {
+            throw new Error('Intermediate Lowerer error: Current module is null while lowering a sizeOf expression.');
+        }
+
+        if (sizeOfExpression.parameter.namespace.qualifiedName !== this.currentModule.namespace.qualifiedName)
+        {
+            throw new Error('Intermediate Lowerer error: The sizeOf expression is not implemented for parameters from other modules.');
+        }
+
+        this.introduceIfNecessary(targetLocation, intermediates);
+
+        if (this.structure === null)
+        {
+            intermediates.push(
+                new Intermediates.Move(
+                    targetLocation,
+                    new IntermediateSymbols.Literal('0', IntermediateSize.Native)
+                ),
+            );
+        }
+        else
+        {
+            intermediates.push(
+                new Intermediates.SizeOf(targetLocation, this.structure.symbol),
+            );
         }
     }
 
     private lowerLiteralExpression (
         literalExpression: LoweredNodes.LiteralExpression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         let literalOrConstant: IntermediateSymbols.Literal | IntermediateSymbols.Constant;
@@ -665,7 +703,7 @@ export class IntermediateLowerer
                     break;
                 }
             default:
-                throw new Error(`Intermediate Lowerer error: Unknown literal of type "${literalExpression.type.name}"`);
+                throw new Error(`Intermediate Lowerer error: Unknown literal of type "${literalExpression.type.namespace.qualifiedName}"`);
         }
 
         this.introduceIfNecessary(targetLocation, intermediates);
@@ -678,14 +716,16 @@ export class IntermediateLowerer
     private lowerVariableExpression (
         variableExpression: LoweredNodes.VariableExpression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         const variable = this.variableSymbolMap.get(variableExpression.variable);
 
         if (variable === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Variable "${variableExpression.variable.name}" used before declaration.`);
+            throw new Error(
+                `Intermediate Lowerer error: Variable "${variableExpression.variable.namespace.qualifiedName}" used before declaration.`
+            );
         }
 
         if (variable !== targetLocation)
@@ -698,10 +738,40 @@ export class IntermediateLowerer
         }
     }
 
+    private lowerFieldExpression (
+        fieldExpression: LoweredNodes.FieldExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.WritableValue
+    ): void
+    {
+        const field = this.fieldSymbolMap.get(fieldExpression.field);
+
+        if (field === undefined)
+        {
+            throw new Error(
+                `Intermediate Lowerer error: Field "${fieldExpression.field.namespace.qualifiedName}" used before declaration.`
+            );
+        }
+
+        const thisReference = this.generateLocalVariable(IntermediateSize.Pointer);
+        this.lowerExpression(fieldExpression.thisReference, intermediates, thisReference);
+
+        this.introduceIfNecessary(targetLocation, intermediates);
+
+        if (this.structure === null)
+        {
+            throw new Error(`Intermediate Lowerer error: Structure is null while accessing a field.`);
+        }
+
+        intermediates.push(
+            new Intermediates.LoadField(targetLocation, this.structure.symbol, thisReference, field),
+        );
+    }
+
     private lowerCallExpression (
         callExpression: LoweredNodes.CallExpression,
         intermediates: Intermediate[],
-        targetLocation?: IntermediateSymbols.Variable
+        targetLocation?: IntermediateSymbols.WritableValue
     ): void
     {
         let parameterCounter = 0;
@@ -727,11 +797,13 @@ export class IntermediateLowerer
             );
         }
 
-        const functionSymbol = this.functionSymbolMap.get(callExpression.functionSymbol);
+        const functionSymbol = this.functionSymbolMap.get(callExpression.functionSymbol.namespace.qualifiedName);
 
         if (functionSymbol === undefined)
         {
-            throw new Error(`Intermediate Lowerer error: Function "${callExpression.functionSymbol.name}" used before declaration.`);
+            throw new Error(
+                `Intermediate Lowerer error: Function "${callExpression.functionSymbol.namespace.qualifiedName}" used before declaration.`
+            );
         }
 
         intermediates.push(
@@ -743,7 +815,8 @@ export class IntermediateLowerer
             if (functionSymbol.returnSize == IntermediateSize.Void)
             {
                 throw new Error(
-                    `Intermediate Lowerer error: Function "${callExpression.functionSymbol.name}" has no return value but is used as an expression.`
+                    `Intermediate Lowerer error: Function "${callExpression.functionSymbol.namespace.qualifiedName}"`
+                    + ` has no return value but is used as an expression.`
                 );
             }
 
@@ -760,7 +833,7 @@ export class IntermediateLowerer
     private lowerUnaryExpression (
         unaryExpression: LoweredNodes.UnaryExpression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         this.lowerExpression(unaryExpression.operand, intermediates, targetLocation);
@@ -798,8 +871,9 @@ export class IntermediateLowerer
                 }
             default:
                 throw new Error(
-                    `Intermediate Lowerer error: The operator "${operator.kind}" for operand of "${operator.operandType.name}" and ` +
-                    `result of "${operator.resultType.name}" is not implemented.`
+                    `Intermediate Lowerer error: The operator "${operator.kind}" for operand of`
+                    + ` "${operator.operandType.namespace.qualifiedName}" and result of "${operator.resultType.namespace.qualifiedName}"`
+                    + ` is not implemented.`
                 );
         }
     }
@@ -807,7 +881,7 @@ export class IntermediateLowerer
     private lowerBinaryExpression (
         binaryExpression: LoweredNodes.BinaryExpression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         // We differentiate between size-retaining operations, where the result has the same size as the left operand, and size-changing
@@ -835,7 +909,7 @@ export class IntermediateLowerer
     private lowerSizeRetainingBinaryExpression (
         binaryExpression: LoweredNodes.BinaryExpression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         this.lowerExpression(binaryExpression.leftOperand, intermediates, targetLocation);
@@ -889,8 +963,9 @@ export class IntermediateLowerer
                 break;
             default:
                 throw new Error(
-                    `Intermediate Lowerer error: The size-retaining operator "${operator.kind}" for the operands of "${operator.leftType.name}" and ` +
-                    `"${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
+                    `Intermediate Lowerer error: The size-retaining operator "${operator.kind}" for the operands of`
+                    + ` "${operator.leftType.namespace.qualifiedName}" and "${operator.rightType.namespace.qualifiedName}"`
+                    + ` with the result type of "${operator.resultType.namespace.qualifiedName}" is not implemented.`
                 );
         }
     }
@@ -901,7 +976,7 @@ export class IntermediateLowerer
     private lowerSizeChangingBinaryExpression (
         binaryExpression: LoweredNodes.BinaryExpression,
         intermediates: Intermediate[],
-        targetLocation: IntermediateSymbols.Variable
+        targetLocation: IntermediateSymbols.WritableValue
     ): void
     {
         const leftTemporaryVariable = this.generateLocalVariable(this.typeToSize(binaryExpression.leftOperand.type));
@@ -973,8 +1048,9 @@ export class IntermediateLowerer
             }
             default:
                 throw new Error(
-                    `Intermediate Lowerer error: The size-changing operator "${operator.kind}" for the operands of "${operator.leftType.name}" ` +
-                    `and "${operator.rightType.name}" with the result type of "${operator.resultType.name}" is not implemented.`
+                    `Intermediate Lowerer error: The size-changing operator "${operator.kind}" for the operands of`
+                    + ` "${operator.leftType.namespace.qualifiedName}" and "${operator.rightType.namespace.qualifiedName}" with the`
+                    + ` result type of "${operator.resultType.namespace.qualifiedName}" is not implemented.`
                 );
         }
     }

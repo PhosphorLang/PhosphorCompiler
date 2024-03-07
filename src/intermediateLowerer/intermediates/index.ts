@@ -16,6 +16,7 @@ export { JumpIfGreaterIntermediate as JumpIfGreater } from './jumpIfGreaterInter
 export { JumpIfLessIntermediate as JumpIfLess } from './jumpIfLessIntermediate';
 export { JumpIfNotEqualIntermediate as JumpIfNotEqual } from './jumpIfNotEqualIntermediate';
 export { LabelIntermediate as Label } from './labelIntermediate';
+export { LoadFieldIntermediate as LoadField } from './loadFieldIntermediate';
 export { ModuloIntermediate as Modulo } from './moduloIntermediate';
 export { MoveIntermediate as Move } from './moveIntermediate';
 export { MultiplyIntermediate as Multiply } from './multiplyIntermediate';
@@ -23,6 +24,9 @@ export { NegateIntermediate as Negate } from './negateIntermediate';
 export { NotIntermediate as Not } from './notIntermediate';
 export { OrIntermediate as Or } from './orIntermediate';
 export { ReturnIntermediate as Return } from './returnIntermediate';
+export { SizeOfIntermediate as SizeOf } from './sizeOfIntermediate';
+export { StoreFieldIntermediate as StoreField } from './storeFieldIntermediate';
+export { StructureIntermediate as Structure } from './structureIntermediate';
 export { SubtractIntermediate as Subtract } from './subtractIntermediate';
 export { TakeIntermediate as Take } from './takeIntermediate';
 
@@ -44,6 +48,7 @@ import { JumpIfGreaterIntermediate } from './jumpIfGreaterIntermediate';
 import { JumpIfLessIntermediate } from './jumpIfLessIntermediate';
 import { JumpIfNotEqualIntermediate } from './jumpIfNotEqualIntermediate';
 import { LabelIntermediate } from './labelIntermediate';
+import { LoadFieldIntermediate } from './loadFieldIntermediate';
 import { ModuloIntermediate } from './moduloIntermediate';
 import { MoveIntermediate } from './moveIntermediate';
 import { MultiplyIntermediate } from './multiplyIntermediate';
@@ -51,19 +56,68 @@ import { NegateIntermediate } from './negateIntermediate';
 import { NotIntermediate } from './notIntermediate';
 import { OrIntermediate } from './orIntermediate';
 import { ReturnIntermediate } from './returnIntermediate';
+import { SizeOfIntermediate } from './sizeOfIntermediate';
+import { StoreFieldIntermediate } from './storeFieldIntermediate';
+import { StructureIntermediate } from './structureIntermediate';
 import { SubtractIntermediate } from './subtractIntermediate';
 import { TakeIntermediate } from './takeIntermediate';
 
 export type Intermediate =
-    AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | ConstantIntermediate
-    | DivideIntermediate | ExternalIntermediate | FileIntermediate | FunctionIntermediate | GiveIntermediate | GlobalIntermediate
-    | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate | JumpIfLessIntermediate
-    | JumpIfNotEqualIntermediate | LabelIntermediate | ModuloIntermediate | MoveIntermediate | MultiplyIntermediate | NegateIntermediate
-    | NotIntermediate | OrIntermediate | ReturnIntermediate | SubtractIntermediate | TakeIntermediate;
+    LoadFieldIntermediate
+    | AddIntermediate
+    | AndIntermediate
+    | CallIntermediate
+    | CompareIntermediate
+    | ConstantIntermediate
+    | DivideIntermediate
+    | ExternalIntermediate
+    | FileIntermediate
+    | FunctionIntermediate
+    | GiveIntermediate
+    | GlobalIntermediate
+    | GotoIntermediate
+    | IntroduceIntermediate
+    | JumpIfEqualIntermediate
+    | JumpIfGreaterIntermediate
+    | JumpIfLessIntermediate
+    | JumpIfNotEqualIntermediate
+    | LabelIntermediate
+    | ModuloIntermediate
+    | MoveIntermediate
+    | MultiplyIntermediate
+    | NegateIntermediate
+    | NotIntermediate
+    | OrIntermediate
+    | ReturnIntermediate
+    | SizeOfIntermediate
+    | StoreFieldIntermediate
+    | StructureIntermediate
+    | SubtractIntermediate
+    | TakeIntermediate;
 
 export type Statement =
-    AddIntermediate | AndIntermediate | CallIntermediate | CompareIntermediate | DivideIntermediate
-    | GiveIntermediate | GotoIntermediate | IntroduceIntermediate | JumpIfEqualIntermediate | JumpIfGreaterIntermediate
-    | JumpIfLessIntermediate | JumpIfNotEqualIntermediate | LabelIntermediate | ModuloIntermediate | MoveIntermediate
-    | MultiplyIntermediate | NegateIntermediate | NotIntermediate | OrIntermediate | ReturnIntermediate | SubtractIntermediate
+    AddIntermediate
+    | AndIntermediate
+    | CallIntermediate
+    | CompareIntermediate
+    | DivideIntermediate
+    | GiveIntermediate
+    | GotoIntermediate
+    | IntroduceIntermediate
+    | JumpIfEqualIntermediate
+    | JumpIfGreaterIntermediate
+    | JumpIfLessIntermediate
+    | JumpIfNotEqualIntermediate
+    | LabelIntermediate
+    | LoadFieldIntermediate
+    | ModuloIntermediate
+    | MoveIntermediate
+    | MultiplyIntermediate
+    | NegateIntermediate
+    | NotIntermediate
+    | OrIntermediate
+    | ReturnIntermediate
+    | SizeOfIntermediate
+    | StoreFieldIntermediate
+    | SubtractIntermediate
     | TakeIntermediate;

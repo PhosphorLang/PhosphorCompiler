@@ -1,51 +1,23 @@
-import { ConcreteParameterSemanticSymbol } from './concreteParameterSemanticSymbol';
+import * as SemanticSymbols from '.';
+import { Namespace } from '../../parser/namespace';
+import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
-import { TypeSemanticSymbol } from './typeSemanticSymbol';
 
-export class ConcreteTypeSemanticSymbol extends TypeSemanticSymbol
+export class ConcreteTypeSemanticSymbol extends SemanticSymbolBase
 {
     // TODO: Add size and unifiy it with the ones used in the intermediates and the transpilers.
     // TODO: The ConcreteType should reference the GenericType if it is derived from one.
 
-    public readonly parameters: ConcreteParameterSemanticSymbol[] = [];
+    public readonly kind: SemanticSymbolKind.ConcreteType;
 
-    constructor (name: string, parameters: ConcreteParameterSemanticSymbol[])
+    public readonly parameters: SemanticSymbols.ConcreteParameter[] = [];
+
+    constructor (namespace: Namespace, parameters: SemanticSymbols.ConcreteParameter[])
     {
-        super(SemanticSymbolKind.ConcreteType, name);
+        super(namespace);
+
+        this.kind = SemanticSymbolKind.ConcreteType;
 
         this.parameters = parameters;
-    }
-
-    public override equals (type: TypeSemanticSymbol): boolean
-    {
-        if (this === type)
-        {
-            return true;
-        }
-
-        if (this.name !== type.name)
-        {
-            return false;
-        }
-
-        if (!(type instanceof ConcreteTypeSemanticSymbol))
-        {
-            return false;
-        }
-
-        if (this.parameters.length !== type.parameters.length)
-        {
-            return false;
-        }
-
-        for (let i = 0; i < this.parameters.length; i++)
-        {
-            if (!this.parameters[i].equals(type.parameters[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

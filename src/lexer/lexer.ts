@@ -117,7 +117,7 @@ export class Lexer
                 kind = TokenKind.ClosingSquareBracketToken;
                 break;
             case '.':
-                kind = TokenKind.DotToken;
+                kind = TokenKind.AccessOperator;
                 break;
             case ':':
                 if (this.getNextChar() === '=')
@@ -416,6 +416,9 @@ export class Lexer
                 break;
             case 'constant':
                 kind = TokenKind.ConstantKeyword;
+                break;
+            case 'field':
+                kind = TokenKind.FieldKeyword;
                 break;
             default:
                 kind = TokenKind.IdentifierToken;

@@ -1,31 +1,30 @@
+import * as SemanticSymbols from '../connector/semanticSymbols';
 import { BuildInFunctions } from './buildInFunctions';
-import { ModuleSemanticSymbol } from '../connector/semanticSymbols/moduleSemanticSymbol';
+import { Namespace } from '../parser/namespace';
 
 export abstract class BuildInModules
 {
-    public static readonly string = new ModuleSemanticSymbol(
-        'String',
-        'Standard.String',
-        'Standard.String',
+    public static readonly string = new SemanticSymbols.Module(
+        Namespace.constructFromStrings('Standard', 'String'),
         null,
+        new Map(),
         new Map(),
         new Map(
             [
-                [BuildInFunctions.stringsAreEqual.name, BuildInFunctions.stringsAreEqual]
+                [BuildInFunctions.stringsAreEqual.namespace.qualifiedName, BuildInFunctions.stringsAreEqual]
             ]
         ),
         false
     );
 
-    public static readonly memory = new ModuleSemanticSymbol(
-        'Memory',
-        'Standard.Memory',
-        'Standard.Memory',
+    public static readonly memory = new SemanticSymbols.Module(
+        Namespace.constructFromStrings('Standard', 'Memory'),
         null,
+        new Map(),
         new Map(),
         new Map(
             [
-                [BuildInFunctions.allocate.name, BuildInFunctions.allocate]
+                [BuildInFunctions.allocate.namespace.qualifiedName, BuildInFunctions.allocate]
             ]
         ),
         false

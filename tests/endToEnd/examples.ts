@@ -22,7 +22,6 @@ describe('The compiler can compile example',
             temporaryPath: 'tests/tmp/tmp',
             optimisationLevel: OptimisationLevel.None,
             targetPlatform: TargetPlatform.LinuxAmd64,
-            run: false,
             intermediate: false,
         };
 

@@ -4,10 +4,12 @@ export { BinaryExpressionSyntaxNode as BinaryExpression } from './binaryExpressi
 export { BracketedExpressionSyntaxNode as BracketedExpression } from './bracketedExpressionSyntaxNode';
 export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSyntaxNode';
 export { ElseClauseSyntaxNode as ElseClause } from './elseClauseSyntaxNode';
+export { FieldVariableDeclarationSyntaxNode as FieldVariableDeclaration } from './fieldVariableDeclarationSyntaxNode';
 export { FileSyntaxNode as File } from './fileSyntaxNode';
 export { FunctionDeclarationSyntaxNode as FunctionDeclaration } from './functionDeclarationSyntaxNode';
 export { FunctionParameterSyntaxNode as FunctionParameter } from './functionParameterSyntaxNode';
 export { GlobalVariableDeclarationSyntaxNode as GlobalVariableDeclaration } from './globalVariableDeclarationSyntaxNode';
+export { IdentifierExpressionSyntaxNode as IdentifierExpression } from './identifierExpressionSyntaxNode';
 export { IfStatementSyntaxNode as IfStatement } from './ifStatementSyntaxNode';
 export { ImportSyntaxNode as Import } from './importSyntaxNode';
 export { InstantiationExpressionSyntaxNode as InstantiationExpression } from './instantiationExpressionSyntaxNode';
@@ -19,7 +21,6 @@ export { SectionSyntaxNode as Section } from './sectionSyntaxNode';
 export { TypeClauseSyntaxNode as TypeClause } from './typeClauseSyntaxNode';
 export { TypeSyntaxNode as Type } from './typeSyntaxNode';
 export { UnaryExpressionSyntaxNode as UnaryExpression } from './unaryExpressionSyntaxNode';
-export { VariableExpressionSyntaxNode as VariableExpression } from './variableExpressionSyntaxNode';
 export { WhileStatementSyntaxNode as WhileStatement } from './whileStatementSyntaxNode';
 
 import { AccessExpressionSyntaxNode } from './accessExpressionSyntaxNode';
@@ -32,6 +33,7 @@ import { FileSyntaxNode } from './fileSyntaxNode';
 import { FunctionDeclarationSyntaxNode } from './functionDeclarationSyntaxNode';
 import { FunctionParameterSyntaxNode } from './functionParameterSyntaxNode';
 import { GlobalVariableDeclarationSyntaxNode } from './globalVariableDeclarationSyntaxNode';
+import { IdentifierExpressionSyntaxNode } from './identifierExpressionSyntaxNode';
 import { IfStatementSyntaxNode } from './ifStatementSyntaxNode';
 import { ImportSyntaxNode } from './importSyntaxNode';
 import { InstantiationExpressionSyntaxNode } from './instantiationExpressionSyntaxNode';
@@ -43,29 +45,58 @@ import { SectionSyntaxNode } from './sectionSyntaxNode';
 import { TypeClauseSyntaxNode } from './typeClauseSyntaxNode';
 import { TypeSyntaxNode } from './typeSyntaxNode';
 import { UnaryExpressionSyntaxNode } from './unaryExpressionSyntaxNode';
-import { VariableExpressionSyntaxNode } from './variableExpressionSyntaxNode';
 import { WhileStatementSyntaxNode } from './whileStatementSyntaxNode';
 
 export type SyntaxNode =
-    AccessExpressionSyntaxNode | AssignmentSyntaxNode | BinaryExpressionSyntaxNode | BracketedExpressionSyntaxNode
-    | CallExpressionSyntaxNode | ElseClauseSyntaxNode | FileSyntaxNode | FunctionDeclarationSyntaxNode | FunctionParameterSyntaxNode
-    | GlobalVariableDeclarationSyntaxNode | IfStatementSyntaxNode | ImportSyntaxNode | InstantiationExpressionSyntaxNode
-    | LiteralExpressionSyntaxNode | LocalVariableDeclarationSyntaxNode | ModuleSyntaxNode | ReturnStatementSyntaxNode
-    | SectionSyntaxNode | TypeClauseSyntaxNode | TypeSyntaxNode | UnaryExpressionSyntaxNode | VariableExpressionSyntaxNode
+    AccessExpressionSyntaxNode
+    | AssignmentSyntaxNode
+    | BinaryExpressionSyntaxNode
+    | BracketedExpressionSyntaxNode
+    | CallExpressionSyntaxNode
+    | ElseClauseSyntaxNode
+    | FileSyntaxNode
+    | FunctionDeclarationSyntaxNode
+    | FunctionParameterSyntaxNode
+    | GlobalVariableDeclarationSyntaxNode
+    | IdentifierExpressionSyntaxNode
+    | IfStatementSyntaxNode
+    | ImportSyntaxNode
+    | InstantiationExpressionSyntaxNode
+    | LiteralExpressionSyntaxNode
+    | LocalVariableDeclarationSyntaxNode
+    | ModuleSyntaxNode
+    | ReturnStatementSyntaxNode
+    | SectionSyntaxNode
+    | TypeClauseSyntaxNode
+    | TypeSyntaxNode
+    | UnaryExpressionSyntaxNode
     | WhileStatementSyntaxNode;
 
 export type Statement =
-    AccessExpressionSyntaxNode | AssignmentSyntaxNode | CallExpressionSyntaxNode | IfStatementSyntaxNode
-    | LocalVariableDeclarationSyntaxNode | ReturnStatementSyntaxNode | SectionSyntaxNode | WhileStatementSyntaxNode;
+    AccessExpressionSyntaxNode
+    | AssignmentSyntaxNode
+    | CallExpressionSyntaxNode
+    | IfStatementSyntaxNode
+    | LocalVariableDeclarationSyntaxNode
+    | ReturnStatementSyntaxNode
+    | SectionSyntaxNode
+    | WhileStatementSyntaxNode;
 
 export type Expression =
-    AccessExpressionSyntaxNode | BinaryExpressionSyntaxNode | BracketedExpressionSyntaxNode | CallExpressionSyntaxNode
-    | InstantiationExpressionSyntaxNode | LiteralExpressionSyntaxNode | UnaryExpressionSyntaxNode | VariableExpressionSyntaxNode;
+    AccessExpressionSyntaxNode
+    | BinaryExpressionSyntaxNode
+    | BracketedExpressionSyntaxNode
+    | CallExpressionSyntaxNode
+    | IdentifierExpressionSyntaxNode
+    | InstantiationExpressionSyntaxNode
+    | LiteralExpressionSyntaxNode
+    | UnaryExpressionSyntaxNode;
 
 export type PrimaryExpression =
-    AccessExpressionSyntaxNode | BracketedExpressionSyntaxNode | CallExpressionSyntaxNode | InstantiationExpressionSyntaxNode
-    | LiteralExpressionSyntaxNode | VariableExpressionSyntaxNode;
-
-export type IdentifierExpression = AccessExpressionSyntaxNode | CallExpressionSyntaxNode | VariableExpressionSyntaxNode;
+    BracketedExpressionSyntaxNode
+    | CallExpressionSyntaxNode
+    | IdentifierExpressionSyntaxNode
+    | InstantiationExpressionSyntaxNode
+    | LiteralExpressionSyntaxNode;
 
 export type TypeArgument = TypeSyntaxNode | LiteralExpressionSyntaxNode;

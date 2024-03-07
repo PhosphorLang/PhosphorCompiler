@@ -2,9 +2,9 @@ import * as SyntaxNodes from '.';
 import { SyntaxKind } from '../syntaxKind';
 import { Token } from '../../lexer/token';
 
-export class VariableExpressionSyntaxNode
+export class IdentifierExpressionSyntaxNode
 {
-    public readonly kind: SyntaxKind.VariableExpression;
+    public readonly kind: SyntaxKind.IdentifierExpression;
     public readonly token: Token;
     public readonly children: Iterable<SyntaxNodes.SyntaxNode>;
 
@@ -12,7 +12,7 @@ export class VariableExpressionSyntaxNode
 
     constructor (identifier: Token)
     {
-        this.kind = SyntaxKind.VariableExpression;
+        this.kind = SyntaxKind.IdentifierExpression;
 
         this.identifier = identifier;
 

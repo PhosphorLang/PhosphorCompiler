@@ -5,6 +5,7 @@ export enum IntermediateKind
     Function = 'Function',
     Constant = 'Constant',
     External = 'External',
+    Structure = 'Structure',
     // Statements:
     Add = 'Add',
     And = 'And',
@@ -20,6 +21,7 @@ export enum IntermediateKind
     JumpIfLess = 'JumpIfLess',
     JumpIfNotEqual = 'JumpIfNotEqual',
     Label = 'Label',
+    LoadField = 'LoadField',
     Move = 'Move',
     Modulo = 'Modulo',
     Multiply = 'Multiply',
@@ -27,6 +29,8 @@ export enum IntermediateKind
     Not = 'Not',
     Or = 'Or',
     Return = 'Return',
+    SizeOf = 'SizeOf',
+    StoreField = 'StoreField',
     Subtract = 'Subtract',
     Take = 'Take',
 }

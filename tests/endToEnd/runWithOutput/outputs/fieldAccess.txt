@@ -1,0 +1,3 @@
+fieldConstant
+fieldVariable
+changedField

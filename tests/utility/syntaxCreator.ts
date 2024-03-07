@@ -10,12 +10,13 @@ export abstract class SyntaxCreator
     public static newFile (
         functions: SyntaxNodes.FunctionDeclaration[] = [],
         variables: SyntaxNodes.GlobalVariableDeclaration[] = [],
+        fields: SyntaxNodes.FieldVariableDeclaration[] = [],
         imports: SyntaxNodes.Import[] = [],
         fileName = Defaults.fileName,
         module = SyntaxCreator.newModule(),
     ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, module, imports, variables, functions);
+        return new SyntaxNodes.File(fileName, module, imports, variables, fields, functions);
     }
 
     public static newModule (
@@ -36,7 +37,7 @@ export abstract class SyntaxCreator
         pathComponents: Token[] = []
     ): Namespace
     {
-        return new Namespace(prefixComponents, pathComponents, name);
+        return Namespace.constructFromTokens(prefixComponents, pathComponents, name);
     }
 
     public static newFunctionDeclaration (
@@ -231,9 +232,9 @@ export abstract class SyntaxCreator
         return SyntaxCreator.newUnaryExpression(SyntaxCreator.newIntegerLiteral(), TokenCreator.newMinus());
     }
 
-    public static newVariableExpression (identifier = TokenCreator.newVariableIdentifier()): SyntaxNodes.VariableExpression
+    public static newIdentifierExpression (identifier = TokenCreator.newVariableIdentifier()): SyntaxNodes.IdentifierExpression
     {
-        return new SyntaxNodes.VariableExpression(identifier);
+        return new SyntaxNodes.IdentifierExpression(identifier);
     }
 
     public static newIfStatement (

@@ -37,8 +37,8 @@ describe('The compiler returns the correct intermediate for',
             const tokens = lexer.run(input, '');
             const syntaxTree = parser.run(tokens, '');
             const semanticTree = connector.run(syntaxTree, new Map());
-            const loweredTree = semanticLowerer.run(semanticTree);
-            const intermediateTree = intermediateLowerer.run(loweredTree, new Set());
+            const loweredTree = semanticLowerer.run(semanticTree, new Set());
+            const intermediateTree = intermediateLowerer.run(loweredTree);
             const intermediateCode = transpiler.run(intermediateTree);
 
             return intermediateCode;

@@ -20,7 +20,7 @@ export class AssignmentSyntaxNode
         this.operator = operator;
         this.expression = expression;
 
-        this.token = this.identifier;
+        this.token = this.operator;
         this.children = [this.expression];
     }
 }

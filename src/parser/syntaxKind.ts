@@ -14,6 +14,7 @@ export enum SyntaxKind
     Assignment = 'Assignment',
     LocalVariableDeclaration = 'LocalVariableDeclaration',
     GlobalVariableDeclaration = 'GlobalVariableDeclaration',
+    FieldVariableDeclaration = 'FieldVariableDeclaration',
     ReturnStatement = 'ReturnStatement',
     IfStatement = 'IfStatement',
     WhileStatement = 'WhileStatement',
@@ -23,7 +24,7 @@ export enum SyntaxKind
     BinaryExpression = 'BinaryExpression',
     BracketedExpression = 'BracketedExpression',
     LiteralExpression = 'LiteralExpression',
-    VariableExpression = 'VariableExpression',
+    IdentifierExpression = 'IdentifierExpression',
     CallExpression = 'CallExpression',
     InstantiationExpression = 'InstantiationExpression',
 }

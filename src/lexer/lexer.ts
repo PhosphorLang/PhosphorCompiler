@@ -32,7 +32,7 @@ export class Lexer
         this.column = 1;
 
         this.numberTestRegex = /\d/;
-        this.identifierTestRegex = /[a-zA-Z]/; // TODO: Replace with /[a-zA-Z]+\w*|_\w*[a-zA-Z0-9]+_*/
+        this.identifierTestRegex = /[a-zA-Z]+[a-zA-Z0-9]*/; // TODO: Replace with /[a-zA-Z]+\w*|_\w*[a-zA-Z0-9]+_*/
     }
 
     private getNextChar (): string

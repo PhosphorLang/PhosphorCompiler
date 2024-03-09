@@ -233,20 +233,24 @@ export class TranspilerIntermediate
 
     private transpileStructure (structureIntermediate: Intermediates.Structure): void
     {
-        const fieldStrings: string[] = [];
-        for (const field of structureIntermediate.symbol.fields)
-        {
-            const fieldString = `${field.name}: ${field.size}`;
-            fieldStrings.push(fieldString);
-        }
-
-        const instruction = new Instructions.Structure(
-            this.getIntermediateInstructionString(structureIntermediate),
-            structureIntermediate.symbol.name,
-            fieldStrings,
+        this.instructions.push(
+            new Instructions.Instruction(
+                this.getIntermediateInstructionString(structureIntermediate),
+                structureIntermediate.symbol.name
+            ),
+            new Instructions.Instruction('{'),
         );
 
-        this.instructions.push(instruction);
+        for (const field of structureIntermediate.symbol.fields)
+        {
+            this.instructions.push(
+                new Instructions.Instruction(`${field.name}:`, `${field.size}`),
+            );
+        }
+
+        this.instructions.push(
+            new Instructions.Instruction('}'),
+        );
     }
 
     private transpileFunction (functionIntermediate: Intermediates.Function): void

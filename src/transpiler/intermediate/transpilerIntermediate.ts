@@ -1,7 +1,6 @@
 import * as Instructions from '../common/instructions';
 import * as Intermediates from '../../intermediateLowerer/intermediates';
 import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
-import { IntermediateSize } from '../../intermediateLowerer/intermediateSize';
 import { IntermediateSymbol } from '../../intermediateLowerer/intermediateSymbols';
 import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
 
@@ -234,16 +233,17 @@ export class TranspilerIntermediate
 
     private transpileStructure (structureIntermediate: Intermediates.Structure): void
     {
-        const fieldSizes: IntermediateSize[] = [];
+        const fieldStrings: string[] = [];
         for (const field of structureIntermediate.symbol.fields)
         {
-            fieldSizes.push(field.size);
+            const fieldString = `${field.name}: ${field.size}`;
+            fieldStrings.push(fieldString);
         }
 
         const instruction = new Instructions.Structure(
             this.getIntermediateInstructionString(structureIntermediate),
             structureIntermediate.symbol.name,
-            fieldSizes,
+            fieldStrings,
         );
 
         this.instructions.push(instruction);

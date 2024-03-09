@@ -4,7 +4,8 @@ export class StructureInstruction extends Instruction
 {
     constructor (keyword: string, name: string, parameters: string[])
     {
-        const parameterString = '(' + parameters.join(', ') + ')';
+        // TODO: The formatting "string" here is a mess. This should instead be solved similar to how functions are formatted.
+        const parameterString = '\n(\n    ' + parameters.join(',\n    ') + '\n)';
 
         super(keyword, name, parameterString);
 
@@ -14,6 +15,5 @@ export class StructureInstruction extends Instruction
             prefix: '',
             postfix: '',
         };
-
     }
 }

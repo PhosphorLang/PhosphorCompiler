@@ -3,9 +3,9 @@ import * as SyntaxNodes from './syntaxNodes';
 import { ElementsList } from './elementsList';
 import { Namespace } from './namespace';
 import { OperatorOrder } from './operatorOrder';
+import { SyntaxKind } from './syntaxKind';
 import { Token } from '../lexer/token';
 import { TokenKind } from '../lexer/tokenKind';
-import { SyntaxKind } from './syntaxKind';
 
 export class Parser
 {
@@ -86,6 +86,7 @@ export class Parser
     private parseFile (): SyntaxNodes.File
     {
         const imports: SyntaxNodes.Import[] = [];
+        let generics: SyntaxNodes.GenericsDeclaration|null = null;
         const variables: SyntaxNodes.GlobalVariableDeclaration[] = [];
         const fields: SyntaxNodes.FieldVariableDeclaration[] = [];
         const functions: SyntaxNodes.FunctionDeclaration[] = [];
@@ -99,6 +100,11 @@ export class Parser
                 case TokenKind.ClassKeyword:
                 {
                     module = this.parseModule();
+                    break;
+                }
+                case TokenKind.GenericsKeyword:
+                {
+                    generics = this.parseGenericsDeclaration();
                     break;
                 }
                 case TokenKind.ImportKeyword:
@@ -164,7 +170,7 @@ export class Parser
             );
         }
 
-        const fileRoot = new SyntaxNodes.File(this.fileName, module, imports, variables, fields, functions);
+        const fileRoot = new SyntaxNodes.File(this.fileName, module, generics, imports, variables, fields, functions);
 
         return fileRoot;
     }
@@ -177,6 +183,47 @@ export class Parser
         const isClass = keyword.kind == TokenKind.ClassKeyword;
 
         return new SyntaxNodes.Module(keyword, moduleNamespace, isClass);
+    }
+
+    private parseGenericsDeclaration (): SyntaxNodes.GenericsDeclaration
+    {
+        const keyword = this.consumeNextToken();
+        const parameters = this.parseGenericParameters();
+
+        return new SyntaxNodes.GenericsDeclaration(keyword, parameters);
+    }
+
+    private parseGenericParameters (): ElementsList<SyntaxNodes.GenericParameter>
+    {
+        const parameters: SyntaxNodes.GenericParameter[] = [];
+        const separators: Token[] = [];
+
+        while ((this.getCurrentToken().kind != TokenKind.SemicolonToken) && (this.getCurrentToken().kind != TokenKind.NoToken))
+        {
+            const parameter = this.parseGenericParameter();
+            parameters.push(parameter);
+
+            if (this.getCurrentToken().kind == TokenKind.CommaToken)
+            {
+                separators.push(this.consumeNextToken());
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        // The semicolon:
+        this.consumeNextToken();
+
+        return new ElementsList(parameters, separators);
+    }
+
+    private parseGenericParameter (): SyntaxNodes.GenericParameter
+    {
+        const identifier = this.consumeNextToken();
+
+        return new SyntaxNodes.GenericParameter(identifier);
     }
 
     private parseImport (): SyntaxNodes.Import

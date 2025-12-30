@@ -420,6 +420,9 @@ export class Lexer
             case 'field':
                 kind = TokenKind.FieldKeyword;
                 break;
+            case 'generics':
+                kind = TokenKind.GenericsKeyword;
+                break;
             default:
                 kind = TokenKind.IdentifierToken;
         }

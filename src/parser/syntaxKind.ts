@@ -4,6 +4,8 @@ export enum SyntaxKind
     Section = 'Section',
     Namespace = 'Namespace',
     Module = 'Module',
+    GenericsDeclaration = 'GenericsDeclaration',
+    GenericParameter = 'GenericParameter',
     Import = 'Import',
     FunctionDeclaration = 'FunctionDeclaration',
     FunctionParameter = 'FunctionParameter',

@@ -8,6 +8,8 @@ export { FieldVariableDeclarationSyntaxNode as FieldVariableDeclaration } from '
 export { FileSyntaxNode as File } from './fileSyntaxNode';
 export { FunctionDeclarationSyntaxNode as FunctionDeclaration } from './functionDeclarationSyntaxNode';
 export { FunctionParameterSyntaxNode as FunctionParameter } from './functionParameterSyntaxNode';
+export { GenericParameterSyntaxNode as GenericParameter } from './genericParameterSyntaxNode';
+export { GenericsDeclarationSyntaxNode as GenericsDeclaration } from './genericsDeclarationSyntaxNode';
 export { GlobalVariableDeclarationSyntaxNode as GlobalVariableDeclaration } from './globalVariableDeclarationSyntaxNode';
 export { IdentifierExpressionSyntaxNode as IdentifierExpression } from './identifierExpressionSyntaxNode';
 export { IfStatementSyntaxNode as IfStatement } from './ifStatementSyntaxNode';
@@ -32,6 +34,8 @@ import { ElseClauseSyntaxNode } from './elseClauseSyntaxNode';
 import { FileSyntaxNode } from './fileSyntaxNode';
 import { FunctionDeclarationSyntaxNode } from './functionDeclarationSyntaxNode';
 import { FunctionParameterSyntaxNode } from './functionParameterSyntaxNode';
+import { GenericParameterSyntaxNode } from './genericParameterSyntaxNode';
+import { GenericsDeclarationSyntaxNode } from './genericsDeclarationSyntaxNode';
 import { GlobalVariableDeclarationSyntaxNode } from './globalVariableDeclarationSyntaxNode';
 import { IdentifierExpressionSyntaxNode } from './identifierExpressionSyntaxNode';
 import { IfStatementSyntaxNode } from './ifStatementSyntaxNode';
@@ -57,6 +61,8 @@ export type SyntaxNode =
     | FileSyntaxNode
     | FunctionDeclarationSyntaxNode
     | FunctionParameterSyntaxNode
+    | GenericParameterSyntaxNode
+    | GenericsDeclarationSyntaxNode
     | GlobalVariableDeclarationSyntaxNode
     | IdentifierExpressionSyntaxNode
     | IfStatementSyntaxNode

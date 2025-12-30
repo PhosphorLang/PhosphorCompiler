@@ -113,6 +113,7 @@ describe('Lexer',
             new InputToTokenKind('variable', TokenKind.VariableKeyword, 'the variable keyword'),
             new InputToTokenKind('constant', TokenKind.ConstantKeyword, 'the constant keyword'),
             new InputToTokenKind('field', TokenKind.FieldKeyword, 'the field keyword'),
+            new InputToTokenKind('generics', TokenKind.GenericsKeyword, 'the generics keyword'),
         ];
 
         describe('can tokenise',

@@ -36,7 +36,7 @@ export abstract class BuildInFunctions
         [
             new SemanticSymbols.FunctionParameter(
                 Namespace.constructFromStrings('Standard', 'Memory', 'allocate', 'size'),
-                BuildInTypes.integer // FIXME: This should be UInt.
+                BuildInTypes.integer // FIXME: This should be Cardinal.
             )
         ],
         null,

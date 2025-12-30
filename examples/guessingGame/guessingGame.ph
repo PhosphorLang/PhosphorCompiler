@@ -18,7 +18,6 @@ function main ()
     while stillGuessing
     {
         let input := Io.readLine();
-
         let inputNumber := Conversion.stringToInt(input);
 
         tryCount := tryCount + 1;

@@ -2,7 +2,7 @@ import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
 /**
- * Stores a the value into a field from a structure.
+ * Stores the value into a field from a structure.
  */
 export class StoreFieldIntermediate
 {

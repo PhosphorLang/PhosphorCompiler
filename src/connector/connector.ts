@@ -7,9 +7,9 @@ import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { ElementsList } from '../parser/elementsList';
 import { Namespace } from '../parser/namespace';
+import { SemanticKind } from './semanticKind';
 import { SemanticSymbolKind } from './semanticSymbolKind';
 import { SyntaxKind } from '../parser/syntaxKind';
-import { SemanticKind } from './semanticKind';
 
 export class Connector
 {
@@ -338,7 +338,7 @@ export class Connector
         }
 
         const genericType = type;
-        // TODO: Check if it really a SemanticSymbolKind.GenericType here.
+        // TODO: Check if it is really a SemanticSymbolKind.GenericType here.
 
         if (genericType.parameters.length !== typeSyntaxNode.arguments.elements.length)
         {
@@ -757,7 +757,6 @@ export class Connector
 
         // TODO: Check if the type clause and the initialiser type match.
 
-
         if (this.getVariable(namespace.qualifiedName) !== null)
         {
             this.diagnostic.throw(
@@ -967,6 +966,8 @@ export class Connector
                 );
             }
         }
+
+        // FIXME: Check if the type of the expression matches the type of the variable or field.
 
         const expression = this.connectExpression(assignment.expression, context);
 

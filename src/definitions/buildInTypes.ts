@@ -5,7 +5,7 @@ import { TokenKind } from '../lexer/tokenKind';
 export abstract class BuildInTypes
 {
     public static readonly noType = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'NoType'), []);
-    // TODO: Ints are often misused for UInts. Should be corrected:
+    // TODO: Integers are often misused for Cardinals. Should be corrected:
     public static readonly integer = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Integer'), []);
     public static readonly boolean = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Boolean'), []);
     public static readonly string = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'String'), []);

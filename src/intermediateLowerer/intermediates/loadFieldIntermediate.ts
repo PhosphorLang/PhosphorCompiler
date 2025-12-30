@@ -2,7 +2,7 @@ import * as IntermediateSymbols from '../intermediateSymbols';
 import { IntermediateKind } from '../intermediateKind';
 
 /**
- * Load a the value of field from a structure into somethind writable.
+ * Load the value of a field from a structure into something writable.
  */
 export class LoadFieldIntermediate
 {

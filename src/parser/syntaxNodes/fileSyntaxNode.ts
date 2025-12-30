@@ -9,7 +9,7 @@ export class FileSyntaxNode
 
     public readonly fileName: string;
     public readonly module: SyntaxNodes.Module;
-    public readonly imports: SyntaxNodes.Import[];
+    public readonly imports: SyntaxNodes.Import[]; // TODO: The imports should come before the module.
     public readonly variables: SyntaxNodes.GlobalVariableDeclaration[];
     public readonly fields: SyntaxNodes.FieldVariableDeclaration[];
     public readonly functions: SyntaxNodes.FunctionDeclaration[];
@@ -33,5 +33,6 @@ export class FileSyntaxNode
 
         this.token = null;
         this.children = this.functions;
+        // TODO: Why the functions and not all syntax nodes? The definition of "children" should be clarified for all syntax nodes.
     }
 }

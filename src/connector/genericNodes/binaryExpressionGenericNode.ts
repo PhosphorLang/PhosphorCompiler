@@ -1,4 +1,4 @@
-import * as SemanticSymbols from '../semanticSymbols';
+import * as SpecialisedSymbols from '../../specialiser/specialisedSymbols';
 import { BinarySemanticOperator } from '../semanticOperators/binarySemanticOperator';
 import { SemanticKind } from '../semanticKind';
 
@@ -6,7 +6,7 @@ export class BinaryExpressionGenericNode <Expression>
 {
     public readonly kind: SemanticKind.BinaryExpression;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: SpecialisedSymbols.ConcreteType;
 
     public readonly operator: BinarySemanticOperator;
     public readonly leftOperand: Expression;

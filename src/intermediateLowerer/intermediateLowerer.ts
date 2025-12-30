@@ -1,7 +1,7 @@
 import * as Intermediates from './intermediates';
 import * as IntermediateSymbols from './intermediateSymbols';
 import * as LoweredNodes from '../semanticLowerer/loweredNodes';
-import * as SemanticSymbols from '../connector/semanticSymbols';
+import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { Intermediate } from './intermediates';
@@ -30,13 +30,13 @@ export class IntermediateLowerer
     private structure: Intermediates.Structure|null;
 
     private functionSymbolMap: Map<string, IntermediateSymbols.Function>;
-    private variableSymbolMap: Map<SemanticSymbols.VariableLike, IntermediateSymbols.Variable>; // TODO: Use the qualified name as key.
-    private fieldSymbolMap: Map<SemanticSymbols.Field, IntermediateSymbols.Field>; // TODO: Use the qualified name as key.
+    private variableSymbolMap: Map<SpecialisedSymbols.VariableLike, IntermediateSymbols.Variable>; // TODO: Use the qualified name as key.
+    private fieldSymbolMap: Map<SpecialisedSymbols.Field, IntermediateSymbols.Field>; // TODO: Use the qualified name as key.
     private valueToConstantMap: Map<string, IntermediateSymbols.Constant>;
     private semanticLabelNameToIntermediateLabelMap: Map<string, IntermediateSymbols.Label>;
     private variableIntroducedSet: Set<IntermediateSymbols.Variable>;
 
-    private currentModule: SemanticSymbols.Module|null;
+    private currentModule: SpecialisedSymbols.Module|null;
 
     constructor ()
     {
@@ -124,7 +124,7 @@ export class IntermediateLowerer
         return newConstant;
     }
 
-    private getOrGenerateIntermediateLabelForSemanticLabel (semanticLabelSymbol: SemanticSymbols.Label): IntermediateSymbols.Label
+    private getOrGenerateIntermediateLabelForSemanticLabel (semanticLabelSymbol: SpecialisedSymbols.Label): IntermediateSymbols.Label
     {
         let intermediateLabelSymbol: IntermediateSymbols.Label;
 
@@ -158,7 +158,7 @@ export class IntermediateLowerer
         return newParameter;
     }
 
-    private generateLocalVariable (size: IntermediateSize, symbol?: SemanticSymbols.VariableLike): IntermediateSymbols.LocalVariable
+    private generateLocalVariable (size: IntermediateSize, symbol?: SpecialisedSymbols.VariableLike): IntermediateSymbols.LocalVariable
     {
         const newVariable = new IntermediateSymbols.LocalVariable(this.localVariableCounter, size);
 
@@ -177,7 +177,7 @@ export class IntermediateLowerer
         return newVariable;
     }
 
-    private typeToSize (type: SemanticSymbols.Type): IntermediateSize
+    private typeToSize (type: SpecialisedSymbols.ConcreteType): IntermediateSize
     {
         switch (type)
         {
@@ -242,7 +242,7 @@ export class IntermediateLowerer
         this.currentModule = null;
     }
 
-    private lowerImport (importModule: SemanticSymbols.Module): void
+    private lowerImport (importModule: SpecialisedSymbols.Module): void
     {
         for (const semanticFunctionSymbol of importModule.functionNameToSymbol.values())
         {
@@ -254,8 +254,8 @@ export class IntermediateLowerer
     }
 
     private lowerFunctionSymbol (
-        semanticFunctionSymbol: SemanticSymbols.Function,
-        module: SemanticSymbols.Module
+        semanticFunctionSymbol: SpecialisedSymbols.Function,
+        module: SpecialisedSymbols.Module
     ): IntermediateSymbols.Function
     {
         const parameterSizes: IntermediateSize[] = [];
@@ -292,7 +292,7 @@ export class IntermediateLowerer
         return intermediateFunctionSymbol;
     }
 
-    private lowerGlobal (globalVariable: SemanticSymbols.Variable): IntermediateSymbols.Global
+    private lowerGlobal (globalVariable: SpecialisedSymbols.Variable): IntermediateSymbols.Global
     {
         const globalSymbol = new IntermediateSymbols.Global(
             globalVariable.namespace.qualifiedName,
@@ -307,7 +307,7 @@ export class IntermediateLowerer
         return globalSymbol;
     }
 
-    private lowerFields (fields: SemanticSymbols.Field[]): void
+    private lowerFields (fields: SpecialisedSymbols.Field[]): void
     {
         if (fields.length == 0)
         {
@@ -376,7 +376,7 @@ export class IntermediateLowerer
             const functionBody: Intermediates.Statement[] = [];
             let parameterCounter = 0;
 
-            const parameters: SemanticSymbols.FunctionParameter[] = [];
+            const parameters: SpecialisedSymbols.FunctionParameter[] = [];
 
             if (functionDeclaration.symbol.thisReference !== null)
             {

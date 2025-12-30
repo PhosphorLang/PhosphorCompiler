@@ -1,30 +1,30 @@
-import * as GenericNodes from '../genericNodes';
-import * as SemanticSymbols from '../semanticSymbols';
+import * as GenericNodes from '../../connector/genericNodes';
+import * as SpecialisedSymbols from '../specialisedSymbols';
 
 export class Assignment extends GenericNodes.Assignment<Expression, FieldExpression, VariableExpression> {}
 export class BinaryExpression extends GenericNodes.BinaryExpression<Expression> {}
-export class CallExpression extends GenericNodes.CallExpression<Expression, SemanticSymbols.TypeLike> {}
+export class CallExpression extends GenericNodes.CallExpression<Expression, SpecialisedSymbols.ConcreteType> {}
 export class ElseClause extends GenericNodes.ElseClause<Section, IfStatement> {}
-export class FieldDeclaration extends GenericNodes.FieldDeclaration<Expression, SemanticSymbols.TypeLike> {}
-export class FieldExpression extends GenericNodes.FieldExpression<Expression, SemanticSymbols.TypeLike> {}
+export class FieldDeclaration extends GenericNodes.FieldDeclaration<Expression, SpecialisedSymbols.ConcreteType> {}
+export class FieldExpression extends GenericNodes.FieldExpression<Expression, SpecialisedSymbols.ConcreteType> {}
 export class File extends GenericNodes.File<
     GlobalVariableDeclaration,
     FieldDeclaration,
     FunctionDeclaration,
-    SemanticSymbols.GenericType,
-    SemanticSymbols.TypeLike
+    SpecialisedSymbols.ConcreteType,
+    SpecialisedSymbols.ConcreteType
 > {}
-export class FunctionDeclaration extends GenericNodes.FunctionDeclaration<Section, SemanticSymbols.TypeLike> {}
-export class GlobalVariableDeclaration extends GenericNodes.GlobalVariableDeclaration<Expression, SemanticSymbols.TypeLike> {}
+export class FunctionDeclaration extends GenericNodes.FunctionDeclaration<Section, SpecialisedSymbols.ConcreteType> {}
+export class GlobalVariableDeclaration extends GenericNodes.GlobalVariableDeclaration<Expression, SpecialisedSymbols.ConcreteType> {}
 export class IfStatement extends GenericNodes.IfStatement<Expression, Section, ElseClause> {}
-export class InstantiationExpression extends GenericNodes.InstantiationExpression<Expression, SemanticSymbols.TypeLike> {}
-export class LiteralExpression extends GenericNodes.LiteralExpression<SemanticSymbols.TypeLike> {}
-export class LocalVariableDeclaration extends GenericNodes.LocalVariableDeclaration<Expression, SemanticSymbols.TypeLike> {}
-export class ModuleExpression extends GenericNodes.ModuleExpression<SemanticSymbols.GenericType, SemanticSymbols.TypeLike> {}
+export class InstantiationExpression extends GenericNodes.InstantiationExpression<Expression, SpecialisedSymbols.ConcreteType> {}
+export class LiteralExpression extends GenericNodes.LiteralExpression<SpecialisedSymbols.ConcreteType> {}
+export class LocalVariableDeclaration extends GenericNodes.LocalVariableDeclaration<Expression, SpecialisedSymbols.ConcreteType> {}
+export class ModuleExpression extends GenericNodes.ModuleExpression<SpecialisedSymbols.ConcreteType, SpecialisedSymbols.ConcreteType> {}
 export class ReturnStatement extends GenericNodes.ReturnStatement<Expression> {}
 export class Section extends GenericNodes.Section<Statement> {}
 export class UnaryExpression extends GenericNodes.UnaryExpression<Expression> {}
-export class VariableExpression extends GenericNodes.VariableExpression<SemanticSymbols.TypeLike> {}
+export class VariableExpression extends GenericNodes.VariableExpression<SpecialisedSymbols.ConcreteType> {}
 export class WhileStatement extends GenericNodes.WhileStatement<Expression, Section> {}
 
 export type SemanticNode =

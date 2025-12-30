@@ -1,15 +1,14 @@
-import * as SemanticSymbols from '../semanticSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class InstantiationExpressionGenericNode <Expression>
+export class InstantiationExpressionGenericNode <Expression, TypeLikeSymbol>
 {
     public readonly kind: SemanticKind.InstantiationExpression;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: TypeLikeSymbol;
 
     public readonly arguments: Expression[];
 
-    constructor (type: SemanticSymbols.ConcreteType, constructorArguments: Expression[])
+    constructor (type: TypeLikeSymbol, constructorArguments: Expression[])
     {
         this.kind = SemanticKind.InstantiationExpression;
 

@@ -1,17 +1,17 @@
-import { ConcreteTypeSemanticSymbol } from '../semanticSymbols/concreteTypeSemanticSymbol';
+import * as SpecialisedSymbols from '../../specialiser/specialisedSymbols';
 import { SemanticOperator } from './semanticOperator';
 import { SemanticOperatorKind } from '../semanticOperatorKind';
 
 export class BinarySemanticOperator extends SemanticOperator
 {
-    public readonly leftType: ConcreteTypeSemanticSymbol;
-    public readonly rightType: ConcreteTypeSemanticSymbol;
+    public readonly leftType: SpecialisedSymbols.ConcreteType;
+    public readonly rightType: SpecialisedSymbols.ConcreteType;
 
     constructor (
         operatorKind: SemanticOperatorKind,
-        leftType: ConcreteTypeSemanticSymbol,
-        rightType: ConcreteTypeSemanticSymbol,
-        resultType: ConcreteTypeSemanticSymbol)
+        leftType: SpecialisedSymbols.ConcreteType,
+        rightType: SpecialisedSymbols.ConcreteType,
+        resultType: SpecialisedSymbols.ConcreteType)
     {
         super(operatorKind, resultType);
 

@@ -1,6 +1,6 @@
 import { Namespace } from '../../parser/namespace';
 
-export abstract class SemanticSymbolBase
+export abstract class GenericSymbolBase
 {
     public readonly namespace: Namespace;
 
@@ -9,7 +9,7 @@ export abstract class SemanticSymbolBase
         this.namespace = namespace;
     }
 
-    public equals (other: SemanticSymbolBase): boolean
+    public equals (other: GenericSymbolBase): boolean
     {
         return this.namespace.qualifiedName === other.namespace.qualifiedName;
     }

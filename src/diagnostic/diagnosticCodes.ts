@@ -73,6 +73,8 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     MethodAccessByModuleNameError = 'E1074',
     AccessOfObjectOfTypeWithUnknownModuleError = 'E1075',
     UnknownIdentifierInObjectAccessError = 'E1076',
+    UnexpectedTokenInGenericsDeclarationError = 'E1077',
+    NonGenericTypeIsUsedAsGenericTypeError = 'E1078',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

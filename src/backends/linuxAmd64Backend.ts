@@ -1,4 +1,5 @@
 import * as Intermediates from '../intermediateLowerer/intermediates';
+import { Backend } from './backend';
 import FileSystem from 'fs';
 import { GnuLinker } from '../linker/gnu/gnuLinker';
 import { LinuxAmd64GnuAssembler } from '../assembler/linuxAmd64Gnu/linuxAmd64GnuAssembler';
@@ -7,9 +8,14 @@ import { LlvmCompilerTarget } from './llvm/llvmCompilerTarget';
 import Path from 'path';
 import { TranspilerLlvm } from '../transpiler/llvm/transpilerLlvm';
 
-export class LinuxAmd64Backend
+export class LinuxAmd64Backend implements Backend
 {
-    public compile (fileIntermediate: Intermediates.File, moduleQualifiedName: string, temporaryDirectoryPath: string): string
+    public compile (
+        fileIntermediate: Intermediates.File,
+        moduleQualifiedName: string,
+        libraryPath: string,
+        temporaryDirectoryPath: string
+    ): string
     {
         const transpiler = new TranspilerLlvm();
         const compiler = new LlvmCompiler();
@@ -27,6 +33,11 @@ export class LinuxAmd64Backend
 
         const temporaryObjectFilePath = Path.join(temporaryDirectoryPath, moduleQualifiedName + '.o');
         assembler.run(temporaryAssemblyFilePath, temporaryObjectFilePath);
+
+        if (libraryPath === '' && libraryPath !== '')
+        {
+            console.log(); // HACK: Prevent linter warning about unused variable. Find a better way to handle this!
+        }
 
         return temporaryObjectFilePath;
     }

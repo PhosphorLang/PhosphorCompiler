@@ -15,6 +15,7 @@ describe('The compiler can compile example',
         let phosphorCompiler: PhosphorCompiler;
 
         const defaultProcessArguments: ProcessArguments = {
+            basePath: '',
             filePath: '',
             outputPath: 'tests/tmp/out/',
             standardLibraryPath: '../StandardLibrary/bin',

@@ -1,5 +1,6 @@
 import { Command, CommanderError, Option } from 'commander';
 import { OptimisationLevel } from './optimisationLevel';
+import Path from 'path';
 import { TargetPlatform } from './targetPlatform';
 
 export type ProcessArgumentsError = CommanderError;
@@ -17,6 +18,7 @@ interface OptionValues
 
 export class ProcessArguments
 {
+    public readonly basePath: string;
     public readonly filePath: string;
     public readonly outputPath: string;
     public readonly standardLibraryPath: string;
@@ -95,6 +97,8 @@ export class ProcessArguments
 
         // TODO: Check how the typing changed here (in the whole commander library):
         const options = command.opts<OptionValues>();
+
+        this.basePath = Path.dirname(Path.dirname(process.argv[1])); // TODO: Better way to get the base path?
 
         // If the following were still empty, the command parsing would have thrown an error.
         this.filePath = filePath;

@@ -16,6 +16,7 @@ describe('The compiled programme gives the correct output for',
         let phosphorCompiler: PhosphorCompiler;
 
         const defaultProcessArguments: ProcessArguments = {
+            basePath: '',
             filePath: '',
             outputPath: 'tests/tmp/out/',
             standardLibraryPath: '../StandardLibrary/bin',

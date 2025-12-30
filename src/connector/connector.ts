@@ -142,7 +142,7 @@ export class Connector
             }
         }
 
-        const classContext = this.connectModuleType(file.module);
+        const classContext = this.connectModuleType(file);
 
         // Function declarations:
         for (const functionDeclaration of file.functions)
@@ -153,20 +153,20 @@ export class Connector
         // Global variables declarations:
         for (const variableNode of file.variables)
         {
-            this.preconnectGlobalVariableDeclaration(variableNode, file.module.namespace);
+            this.preconnectGlobalVariableDeclaration(variableNode, file.module.namespace, classContext);
         }
 
         // Field declarations:
         for (const fieldNode of file.fields)
         {
-            this.preconnectFieldVariableDeclaration(fieldNode, file.module.namespace);
+            this.preconnectFieldVariableDeclaration(fieldNode, file.module.namespace, classContext);
         }
 
         // TODO: Check for name conflicts between functions, variables and fields.
 
         // Module:
         const moduleSymbol = this.connectModule(file.module, classContext);
-        const moduleContext: ModuleContext = {
+        const classModuleContext: ModuleContext = {
             module: moduleSymbol
         };
 
@@ -174,7 +174,7 @@ export class Connector
         const variableDeclarations: SemanticNodes.GlobalVariableDeclaration[] = [];
         for (const variableNode of file.variables)
         {
-            const variableDeclaration = this.connectGlobalVariableDeclaration(variableNode, moduleContext);
+            const variableDeclaration = this.connectGlobalVariableDeclaration(variableNode, classModuleContext);
             variableDeclarations.push(variableDeclaration);
         }
 
@@ -182,7 +182,7 @@ export class Connector
         const fieldDeclarations: SemanticNodes.FieldDeclaration[] = [];
         for (const fieldNode of file.fields)
         {
-            const fieldDeclaration = this.connectFieldVariableDeclaration(fieldNode, moduleContext);
+            const fieldDeclaration = this.connectFieldVariableDeclaration(fieldNode, classModuleContext);
             fieldDeclarations.push(fieldDeclaration);
         }
 
@@ -190,7 +190,7 @@ export class Connector
         const functionDeclarations: SemanticNodes.FunctionDeclaration[] = [];
         for (const functionNode of file.functions)
         {
-            const functionDeclaration = this.connectFunctionDeclaration(functionNode, moduleContext);
+            const functionDeclaration = this.connectFunctionDeclaration(functionNode, classModuleContext);
             functionDeclarations.push(functionDeclaration);
         }
 
@@ -204,24 +204,34 @@ export class Connector
         );
     }
 
-    private connectModuleType (module: SyntaxNodes.Module): ClassContext
+    private connectModuleType (file: SyntaxNodes.File): ClassContext
     {
+        const module = file.module;
         let result: ClassContext;
 
         if (module.isClass)
         {
-            // TODO: Implement Generics.
+            const parameters: SemanticSymbols.GenericTypeParameter[] = [];
+
+            if (file.generics != null)
+            {
+                for (const genericParameter of file.generics.parameters.elements)
+                {
+                    const namespace = Namespace.constructFromNamespace(module.namespace, genericParameter.identifier.content);
+                    // TODO: Implement constraints and constant parameters.
+                    const parameter = new SemanticSymbols.GenericTypeParameter(namespace, null, false);
+                    parameters.push(parameter);
+                }
+            }
 
             result = {
-                genericType: new SemanticSymbols.GenericType(module.namespace, []),
-                concreteType: new SemanticSymbols.ConcreteType(module.namespace, []),
+                genericType: new SemanticSymbols.GenericType(module.namespace, parameters),
             };
         }
         else
         {
             result = {
                 genericType: null,
-                concreteType: null,
             };
         }
 
@@ -238,7 +248,7 @@ export class Connector
 
         return new SemanticSymbols.Module(
             module.namespace,
-            context.genericType,
+            context?.genericType ?? null,
             variableNameToSymbol,
             fieldNameToSymbol,
             functionNameToSymbol,
@@ -253,14 +263,14 @@ export class Connector
     ): void
     {
         const namespace = Namespace.constructFromNamespace(moduleNamespace, functionDeclaration.identifier.content);
-        const returnType = this.connectTypeClause(functionDeclaration.type) ?? BuildInTypes.noType;
-        const parameters = this.connectParameters(functionDeclaration.parameters, moduleNamespace);
+        const returnType = this.connectTypeClause(functionDeclaration.type, context) ?? BuildInTypes.noType;
+        const parameters = this.connectParameters(functionDeclaration.parameters, moduleNamespace, context);
         const isHeader = functionDeclaration.isHeader;
 
         let thisReference: SemanticSymbols.FunctionParameter|null;
         if (functionDeclaration.isMethod)
         {
-            if (context.concreteType === null)
+            if (context.genericType === null)
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -271,9 +281,11 @@ export class Connector
                 );
             }
 
+            const thisConcreteType = new SemanticSymbols.ConcreteType(context.genericType.namespace, context.genericType.parameters);
+
             thisReference = new SemanticSymbols.FunctionParameter(
                 Namespace.constructFromNamespace(moduleNamespace, 'this'),
-                context.concreteType
+                thisConcreteType
             );
         }
         else
@@ -297,7 +309,10 @@ export class Connector
         this.functions.set(namespace.qualifiedName, functionSymbol);
     }
 
-    private connectTypeClause (typeClause: SyntaxNodes.TypeClause|null): SemanticSymbols.ConcreteType|null
+    private connectTypeClause (
+        typeClause: SyntaxNodes.TypeClause|null,
+        context: ClassContext|ModuleContext
+    ): SemanticSymbols.ConcreteType|SemanticSymbols.GenericTypeParameter|null
     {
         if (typeClause === null)
         {
@@ -305,15 +320,18 @@ export class Connector
         }
         else
         {
-            return this.connectType(typeClause.type);
+            return this.connectType(typeClause.type, context);
         }
     }
 
-    private connectType (typeSyntaxNode: SyntaxNodes.Type): SemanticSymbols.ConcreteType
+    private connectType (
+        typeSyntaxNode: SyntaxNodes.Type,
+        context: ClassContext|ModuleContext
+    ): SemanticSymbols.ConcreteType|SemanticSymbols.GenericTypeParameter
     {
         const typeName = typeSyntaxNode.identifier.content;
 
-        let type = BuildInTypes.getTypeByName(typeName);
+        let type: SemanticSymbols.TypeLike|SemanticSymbols.GenericType|null = BuildInTypes.getTypeByName(typeName);
 
         if (type === null)
         {
@@ -322,48 +340,82 @@ export class Connector
 
             if (type === null)
             {
-                this.diagnostic.throw(
-                    new Diagnostic.Error(
-                        `Unknown type "${typeName}"`,
-                        Diagnostic.Codes.UnknownTypeError,
-                        typeSyntaxNode.identifier
-                    )
-                );
+                let classType: SemanticSymbols.GenericType|null = null;
+                if ('genericType' in context) // TODO: This is ugly and unsafe Typescript magic.
+                {
+                    classType = context.genericType;
+                }
+                else
+                {
+                    classType = context.module.classType;
+                }
+
+                if (classType != null)
+                {
+                    for (const parameter of classType.parameters)
+                    {
+                        if (parameter.namespace.baseName === typeName)
+                        {
+                            type = parameter;
+                        }
+                    }
+                }
+
+                if (type === null)
+                {
+                    this.diagnostic.throw(
+                        new Diagnostic.Error(
+                            `Unknown type "${typeName}"`,
+                            Diagnostic.Codes.UnknownTypeError,
+                            typeSyntaxNode.identifier
+                        )
+                    );
+                }
             }
         }
 
-        if (type.kind === SemanticSymbolKind.ConcreteType)
-        {
-            return type;
-        }
+        const theType = type; // HACK: This is a workaround to make the type checker happy. Why is this necessary?
 
-        const genericType = type;
-        // TODO: Check if it really a SemanticSymbolKind.GenericType here.
-
-        if (genericType.parameters.length !== typeSyntaxNode.arguments.elements.length)
+        const isGenericType = theType.kind === SemanticSymbolKind.GenericType;
+        if (isGenericType && (theType.parameters.length !== typeSyntaxNode.arguments.elements.length))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
-                    `Wrong argument count for generic type "${genericType.namespace.baseName}"`,
-                    Diagnostic.Codes.WrongGenericArgumentCountError,
+                    `Wrong argument count for generic type "${theType.namespace.baseName}"`,
+                    Diagnostic.Codes.WrongGenericArgumentCountError, // TODO: Rename to "parameter".
+                    typeSyntaxNode.identifier
+                )
+            );
+        }
+        else if (!isGenericType && (typeSyntaxNode.arguments.elements.length > 0))
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `The type "${theType.namespace.baseName}" is not generic and thus cannot be used as such.`,
+                    Diagnostic.Codes.NonGenericTypeIsUsedAsGenericTypeError,
                     typeSyntaxNode.identifier
                 )
             );
         }
 
-        const concreteArguments: SemanticSymbols.ConcreteParameter[] = [];
-        for (let i = 0; i < genericType.parameters.length; i++)
+        if (!isGenericType)
+        {
+            return theType;
+        }
+
+        const concreteParameters: SemanticSymbols.TypeLike[] = [];
+        for (let i = 0; i < theType.parameters.length; i++)
         {
             const argument = typeSyntaxNode.arguments.elements[i];
 
-            if (genericType.parameters[i].isLiteral)
+            if (theType.parameters[i].isConstant)
             {
                 if (argument.kind != SyntaxKind.LiteralExpression)
                 {
                     this.diagnostic.throw(
                         new Diagnostic.Error(
-                            `Generic argument "${genericType.parameters[i].namespace.baseName}" must be a literal.`,
-                            Diagnostic.Codes.GenericArgumentMustBeLiteralError,
+                            `Generic argument "${theType.parameters[i].namespace.baseName}" must be a literal.`,
+                            Diagnostic.Codes.GenericArgumentMustBeLiteralError, // TODO: Rename to "parameter".
                             typeSyntaxNode.identifier // TODO: Would be better to have the token of the parameter here.
                         )
                     );
@@ -382,12 +434,8 @@ export class Connector
                     );
                 }
 
-                const literalConcreteParameter = new SemanticSymbols.LiteralConcreteParameter(
-                    genericType.parameters[i].namespace,
-                    argument.literal.content,
-                    literalType
-                );
-                concreteArguments.push(literalConcreteParameter);
+                // FIXME: Implement literal parameters.
+                throw new Error('Connector error: Literal parameters are not implemented.');
             }
             else
             {
@@ -395,28 +443,25 @@ export class Connector
                 {
                     this.diagnostic.throw(
                         new Diagnostic.Error(
-                            `Generic argument "${genericType.parameters[i].namespace.baseName}" must be a type.`,
-                            Diagnostic.Codes.GenericArgumentMustBeTypeError,
+                            `Generic argument "${theType.parameters[i].namespace.baseName}" must be a type.`,
+                            Diagnostic.Codes.GenericArgumentMustBeTypeError, // TODO: Rename to "parameter".
                             typeSyntaxNode.identifier // TODO: Would be better to have the token of the parameter here.
                         )
                     );
                 }
 
-                const typeArgumentType = this.connectType(argument);
-                const typeConcreteParameter = new SemanticSymbols.TypeConcreteParameter(
-                    genericType.parameters[i].namespace,
-                    typeArgumentType
-                );
-                concreteArguments.push(typeConcreteParameter);
+                const typeParameterType = this.connectType(argument, context);
+                concreteParameters.push(typeParameterType);
             }
         }
 
-        return new SemanticSymbols.ConcreteType(genericType.namespace, concreteArguments);
+        return new SemanticSymbols.ConcreteType(theType.namespace, concreteParameters);
     }
 
     private connectParameters (
         parameters: ElementsList<SyntaxNodes.FunctionParameter>,
-        moduleNamespace: Namespace
+        moduleNamespace: Namespace,
+        context: ClassContext
     ): SemanticSymbols.FunctionParameter[]
     {
         const parameterSymbols: SemanticSymbols.FunctionParameter[] = [];
@@ -440,7 +485,7 @@ export class Connector
 
             names.add(namespace.qualifiedName);
 
-            const type = this.connectTypeClause(parameter.type);
+            const type = this.connectTypeClause(parameter.type, context);
 
             if (type === null)
             {
@@ -464,12 +509,13 @@ export class Connector
 
     private preconnectGlobalVariableDeclaration (
         variableDeclaration: SyntaxNodes.GlobalVariableDeclaration,
-        moduleNamespace: Namespace
+        moduleNamespace: Namespace,
+        context: ClassContext
     ): void
     {
         const namespace = Namespace.constructFromNamespace(moduleNamespace, variableDeclaration.identifier.content);
 
-        const type = this.connectTypeClause(variableDeclaration.type);
+        const type = this.connectTypeClause(variableDeclaration.type, context);
         if (type === null)
         {
             this.diagnostic.throw(
@@ -536,12 +582,13 @@ export class Connector
 
     private preconnectFieldVariableDeclaration (
         fieldDeclaration: SyntaxNodes.FieldVariableDeclaration,
-        moduleNamespace: Namespace
+        moduleNamespace: Namespace,
+        context: ClassContext
     ): void
     {
         const namespace = Namespace.constructFromNamespace(moduleNamespace, fieldDeclaration.identifier.content);
 
-        const type = this.connectTypeClause(fieldDeclaration.type);
+        const type = this.connectTypeClause(fieldDeclaration.type, context);
         if (type === null)
         {
             this.diagnostic.throw(
@@ -646,7 +693,7 @@ export class Connector
         }
 
         const connectorContext: FunctionContext = {
-            module: context.module,
+            ...context,
             function: functionSymbol
         };
 
@@ -726,14 +773,14 @@ export class Connector
 
     private connectLocalVariableDeclaration (
         variableDeclaration: SyntaxNodes.LocalVariableDeclaration,
-        context: ModuleContext
+        context: FunctionContext
     ): SemanticNodes.LocalVariableDeclaration
     {
         const namespace = Namespace.constructFromNamespace(context.module.namespace, variableDeclaration.identifier.content);
         const initialisier = variableDeclaration.initialiser === null
             ? null
             : this.connectExpression(variableDeclaration.initialiser, context);
-        let type = this.connectTypeClause(variableDeclaration.type);
+        let type: SemanticSymbols.TypeLike|null = this.connectTypeClause(variableDeclaration.type, context);
 
         if (type === null)
         {
@@ -1011,16 +1058,20 @@ export class Connector
                 )
             );
         }
+        else if (type.kind === SemanticSymbolKind.GenericType)
+        {
+            throw new Error('Connector error: Generic literals, how should that work?');
+        }
 
         return new SemanticNodes.LiteralExpression(value, type);
     }
 
     private connectInstantiationExpression (
         expression: SyntaxNodes.InstantiationExpression,
-        context: ModuleContext
+        context: FunctionContext|ModuleContext
     ): SemanticNodes.InstantiationExpression
     {
-        const type = this.connectType(expression.type);
+        const type = this.connectType(expression.type, context);
 
         const elements: SemanticNodes.Expression[] = [];
         for (const element of expression.arguments.elements)

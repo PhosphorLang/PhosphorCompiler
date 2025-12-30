@@ -1,12 +1,12 @@
-import { ConcreteTypeSemanticSymbol } from '../semanticSymbols/concreteTypeSemanticSymbol';
+import * as SpecialisedSymbols from '../../specialiser/specialisedSymbols';
 import { SemanticOperatorKind } from '../semanticOperatorKind';
 
 export abstract class SemanticOperator
 {
     public readonly kind: SemanticOperatorKind;
-    public readonly resultType: ConcreteTypeSemanticSymbol;
+    public readonly resultType: SpecialisedSymbols.ConcreteType;
 
-    constructor (kind: SemanticOperatorKind, resultType: ConcreteTypeSemanticSymbol)
+    constructor (kind: SemanticOperatorKind, resultType: SpecialisedSymbols.ConcreteType)
     {
         this.kind = kind;
         this.resultType = resultType;

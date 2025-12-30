@@ -1,4 +1,5 @@
-// TODO: "GenericNode" is somewhat too broad. Finde a better way to describe its purpose regarding "SemanticNode" and "LoweredNode".
+/* TODO: "GenericNode" is too broad and collides with the concept of generic/specialised trees.
+         Find a better way to describe its purpose regarding "SemanticNode"/"LoweredNode"/"SpecialisedNode". */
 
 export { AssignmentGenericNode as Assignment } from './assignmentGenericNode';
 export { BinaryExpressionGenericNode as BinaryExpression } from './binaryExpressionGenericNode';
@@ -50,43 +51,45 @@ export type GenericNode<
     VariableExpression,
     FieldExpression,
     IfStatement,
-    ElseClause
+    ElseClause,
+    TypeLikeSymbol,
+    ClassTypeSymbol
 > =
     AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
     | BinaryExpressionGenericNode<Expression>
-    | CallExpressionGenericNode<Expression>
+    | CallExpressionGenericNode<Expression, TypeLikeSymbol>
     | ElseClauseGenericNode<Section, IfStatement>
-    | FieldDeclarationGenericNode<Expression>
-    | FieldExpressionGenericNode<Expression>
-    | FileGenericNode<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration>
-    | FunctionDeclarationGenericNode<Section>
-    | GlobalVariableDeclarationGenericNode<Expression>
+    | FieldDeclarationGenericNode<Expression, TypeLikeSymbol>
+    | FieldExpressionGenericNode<Expression, TypeLikeSymbol>
+    | FileGenericNode<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration, ClassTypeSymbol, TypeLikeSymbol>
+    | FunctionDeclarationGenericNode<Section, TypeLikeSymbol>
+    | GlobalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
     | IfStatementGenericNode<Expression, Section, ElseClause>
-    | InstantiationExpressionGenericNode<Expression>
-    | LiteralExpressionGenericNode
-    | LocalVariableDeclarationGenericNode<Expression>
-    | ModuleExpressionGenericNode
+    | InstantiationExpressionGenericNode<Expression, TypeLikeSymbol>
+    | LiteralExpressionGenericNode<TypeLikeSymbol>
+    | LocalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
+    | ModuleExpressionGenericNode<ClassTypeSymbol, TypeLikeSymbol>
     | ReturnStatementGenericNode<Expression>
     | SectionGenericNode<Statement>
     | UnaryExpressionGenericNode<Expression>
-    | VariableExpressionGenericNode
+    | VariableExpressionGenericNode<TypeLikeSymbol>
     | WhileStatementGenericNode<Expression, Section>;
 
-export type GenericStatement<Expression, Statement, Section, ElseClause, VariableExpression, FieldExpression> =
+export type GenericStatement<Expression, Statement, Section, ElseClause, VariableExpression, FieldExpression, TypeLikeSymbol> =
     AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
-    | CallExpressionGenericNode<Expression>
+    | CallExpressionGenericNode<Expression, TypeLikeSymbol>
     | IfStatementGenericNode<Expression, Section, ElseClause>
-    | LocalVariableDeclarationGenericNode<Expression>
+    | LocalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
     | ReturnStatementGenericNode<Expression>
     | SectionGenericNode<Statement>
     | WhileStatementGenericNode<Expression, Section>;
 
-export type GenericExpression<Expression> =
+export type GenericExpression<Expression, TypeLikeSymbol, ClassTypeSymbol> =
     BinaryExpressionGenericNode<Expression>
-    | CallExpressionGenericNode<Expression>
-    | FieldExpressionGenericNode<Expression>
-    | InstantiationExpressionGenericNode<Expression>
-    | LiteralExpressionGenericNode
-    | ModuleExpressionGenericNode
+    | CallExpressionGenericNode<Expression, TypeLikeSymbol>
+    | FieldExpressionGenericNode<Expression, TypeLikeSymbol>
+    | InstantiationExpressionGenericNode<Expression, TypeLikeSymbol>
+    | LiteralExpressionGenericNode<TypeLikeSymbol>
+    | ModuleExpressionGenericNode<ClassTypeSymbol, TypeLikeSymbol>
     | UnaryExpressionGenericNode<Expression>
-    | VariableExpressionGenericNode;
+    | VariableExpressionGenericNode<TypeLikeSymbol>;

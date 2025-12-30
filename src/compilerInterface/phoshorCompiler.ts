@@ -1,4 +1,5 @@
 import * as Diagnostic from '../diagnostic';
+import * as SemanticSymbols from '../connector/semanticSymbols';
 import { Connector } from '../connector/connector';
 import { File as FileSemanticNode } from '../connector/semanticNodes';
 import { FileSyntaxNode } from '../parser/syntaxNodes/fileSyntaxNode';
@@ -7,7 +8,6 @@ import { Importer } from '../importer/importer';
 import { IntermediateLowerer } from '../intermediateLowerer/intermediateLowerer';
 import { Lexer } from '../lexer/lexer';
 import { LinuxAmd64Backend } from '../backends/linuxAmd64Backend';
-import { ModuleSemanticSymbol } from '../connector/semanticSymbols/moduleSemanticSymbol';
 import { Parser } from '../parser/parser';
 import Path from 'path';
 import { ProcessArguments } from './processArguments';
@@ -100,7 +100,7 @@ export class PhosphorCompiler
 
         const importOrderedSyntaxTrees = importer.run(entrySyntaxTree, syntaxTrees);
         const qualifiedNameToFile = new Map<string, FileSemanticNode>();
-        const modulesWithInitialisers: Set<ModuleSemanticSymbol> = new Set();
+        const modulesWithInitialisers: Set<SemanticSymbols.Module> = new Set();
 
         for (const syntaxTree of importOrderedSyntaxTrees)
         {

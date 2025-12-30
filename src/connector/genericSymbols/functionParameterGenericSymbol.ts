@@ -1,16 +1,15 @@
-import * as SemanticSymbols from '.';
+import { GenericSymbolBase } from './genericSymbolBase';
 import { Namespace } from '../../parser/namespace';
-import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class FunctionParameterSemanticSymbol extends SemanticSymbolBase
+export class FunctionParameterGenericSymbol<TypeLike> extends GenericSymbolBase
 {
     public readonly kind: SemanticSymbolKind.FunctionParameter;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: TypeLike;
     public readonly isReadonly: true;
 
-    constructor (namespace: Namespace, type: SemanticSymbols.ConcreteType)
+    constructor (namespace: Namespace, type: TypeLike)
     {
         super(namespace);
 

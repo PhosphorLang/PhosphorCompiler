@@ -1,6 +1,6 @@
 import * as LoweredNodes from './loweredNodes';
-import * as SemanticNodes from '../connector/semanticNodes';
-import * as SemanticSymbols from '../connector/semanticSymbols';
+import * as SpecialisedNodes from '../specialiser/specialisedNodes';
+import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
 import { BuildInFunctions } from '../definitions/buildInFunctions';
 import { BuildInModules } from '../definitions/buildInModules';
 import { BuildInOperators } from '../definitions/buildInOperators';
@@ -16,10 +16,10 @@ export default class SemanticLowerer
 {
     private labelCounter: number;
 
-    private buildInImports: Set<SemanticSymbols.Module>;
+    private buildInImports: Set<SpecialisedSymbols.Module>;
     private additionalFunctions: LoweredNodes.FunctionDeclaration[];
 
-    private currentModule: SemanticSymbols.Module|null;
+    private currentModule: SpecialisedSymbols.Module|null;
 
     constructor ()
     {
@@ -35,7 +35,7 @@ export default class SemanticLowerer
      *  A set of semantic modules which have initialisers that must be called. Must not contain the entry point module.
      * @returns
      */
-    public run (fileSemanticNode: SemanticNodes.File, modulesToBeInitialised: Set<SemanticSymbols.Module>): LoweredNodes.File
+    public run (fileSemanticNode: SpecialisedNodes.File, modulesToBeInitialised: Set<SpecialisedSymbols.Module>): LoweredNodes.File
     {
         this.labelCounter = 0;
         this.buildInImports = new Set();
@@ -47,7 +47,7 @@ export default class SemanticLowerer
         return loweredFile;
     }
 
-    private generateLabel (): SemanticSymbols.Label
+    private generateLabel (): SpecialisedSymbols.Label
     {
         if (this.currentModule === null)
         {
@@ -56,7 +56,7 @@ export default class SemanticLowerer
 
         const namespace = Namespace.constructFromNamespace(this.currentModule.namespace, `l#${this.labelCounter}`);
 
-        const newLabel = new SemanticSymbols.Label(namespace);
+        const newLabel = new SpecialisedSymbols.Label(namespace);
 
         this.labelCounter++;
 
@@ -68,7 +68,7 @@ export default class SemanticLowerer
      * Note that this must only be used for build-in modules (which are all header files by definition).
      * Will not check if the module really is build-in but will throw if it is not header-only.
      */
-    private importBuildInModuleIfNeeded (moduleSymbol: SemanticSymbols.Module): void
+    private importBuildInModuleIfNeeded (moduleSymbol: SpecialisedSymbols.Module): void
     {
         for (const functionSymbol of moduleSymbol.functionNameToSymbol.values())
         {
@@ -87,13 +87,13 @@ export default class SemanticLowerer
         }
     }
 
-    private lowerFile (file: SemanticNodes.File, modulesToBeInitialised: Set<SemanticSymbols.Module>): LoweredNodes.File
+    private lowerFile (file: SpecialisedNodes.File, modulesToBeInitialised: Set<SpecialisedSymbols.Module>): LoweredNodes.File
     {
         this.currentModule = file.module;
 
         const loweredGlobalVariables = this.lowerGlobalVariables(file.variables, modulesToBeInitialised);
 
-        let loweredFields: SemanticSymbols.Field[] = [];
+        let loweredFields: SpecialisedSymbols.Field[] = [];
         if (file.module.classType !== null)
         {
             loweredFields = this.lowerFields(file.fields);
@@ -115,7 +115,7 @@ export default class SemanticLowerer
         }
 
         // TODO: This set back and forth is a bit ugly:
-        const loweredImportsSet = new Set<SemanticSymbols.Module>(file.imports);
+        const loweredImportsSet = new Set<SpecialisedSymbols.Module>(file.imports);
         for (const buildInImport of this.buildInImports)
         {
             loweredImportsSet.add(buildInImport);
@@ -128,12 +128,12 @@ export default class SemanticLowerer
     }
 
     private lowerGlobalVariables (
-        globalVariableDeclarations: SemanticNodes.GlobalVariableDeclaration[],
-        modulesToBeInitialised: Set<SemanticSymbols.Module>
-    ): SemanticSymbols.Variable[]
+        globalVariableDeclarations: SpecialisedNodes.GlobalVariableDeclaration[],
+        modulesToBeInitialised: Set<SpecialisedSymbols.Module>
+    ): SpecialisedSymbols.Variable[]
     {
-        const loweredGlobalVariables: SemanticSymbols.Variable[] = [];
-        const loweredInitialisers = new Map<SemanticSymbols.Variable, LoweredNodes.Expression>();
+        const loweredGlobalVariables: SpecialisedSymbols.Variable[] = [];
+        const loweredInitialisers = new Map<SpecialisedSymbols.Variable, LoweredNodes.Expression>();
 
         for (const globalVariableDeclaration of globalVariableDeclarations)
         {
@@ -152,8 +152,8 @@ export default class SemanticLowerer
     }
 
     private createModuleInitialiserFunction (
-        initialisersMap: Map<SemanticSymbols.Variable, LoweredNodes.Expression>,
-        modulesToBeInitialised: Set<SemanticSymbols.Module>
+        initialisersMap: Map<SpecialisedSymbols.Variable, LoweredNodes.Expression>,
+        modulesToBeInitialised: Set<SpecialisedSymbols.Module>
     ): void
     {
         const module = this.currentModule;
@@ -185,7 +185,7 @@ export default class SemanticLowerer
             {
                 // TODO: Find a better way than a hardcoded name:
                 const namespace = Namespace.constructFromNamespace(moduleWithInitiliser.namespace, ':moduleInitialiser');
-                const functionSymbol = new SemanticSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
+                const functionSymbol = new SpecialisedSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
 
                 const callStatement = new LoweredNodes.CallExpression(functionSymbol, [], null);
                 initialisationBody.push(callStatement);
@@ -208,7 +208,7 @@ export default class SemanticLowerer
 
         // TODO: Find a better way than a hardcoded name:
         const namespace = Namespace.constructFromNamespace(module.namespace, ':moduleInitialiser');
-        const moduleInitialiserFunctionSymbol = new SemanticSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
+        const moduleInitialiserFunctionSymbol = new SpecialisedSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
 
         const section = new LoweredNodes.Section(initialisationBody);
         const functionDeclaration = new LoweredNodes.FunctionDeclaration(moduleInitialiserFunctionSymbol, section);
@@ -217,10 +217,10 @@ export default class SemanticLowerer
         this.additionalFunctions.push(functionDeclaration);
     }
 
-    private lowerFields (fieldDeclarations: SemanticNodes.FieldDeclaration[]): SemanticSymbols.Field[]
+    private lowerFields (fieldDeclarations: SpecialisedNodes.FieldDeclaration[]): SpecialisedSymbols.Field[]
     {
-        const loweredFields: SemanticSymbols.Field[] = [];
-        const loweredInitialisers = new Map<SemanticSymbols.Field, LoweredNodes.Expression>();
+        const loweredFields: SpecialisedSymbols.Field[] = [];
+        const loweredInitialisers = new Map<SpecialisedSymbols.Field, LoweredNodes.Expression>();
 
         for (const fieldDeclaration of fieldDeclarations)
         {
@@ -238,7 +238,7 @@ export default class SemanticLowerer
         return loweredFields;
     }
 
-    private createClassInitialiserFunction (initialisersMap: Map<SemanticSymbols.Field, LoweredNodes.Expression>): void
+    private createClassInitialiserFunction (initialisersMap: Map<SpecialisedSymbols.Field, LoweredNodes.Expression>): void
     {
         if (this.currentModule === null)
         {
@@ -254,7 +254,7 @@ export default class SemanticLowerer
 
         this.importBuildInModuleIfNeeded(BuildInModules.memory);
 
-        let concreteClassType: SemanticSymbols.ConcreteType;
+        let concreteClassType: SpecialisedSymbols.ConcreteType;
         if (this.currentModule.classType.parameters.length > 0)
         {
             throw new Error(`Semantic Lowerer error: Class initialisation with generic parameters is not implemented.`);
@@ -262,10 +262,10 @@ export default class SemanticLowerer
         else
         {
             // TODO: Must be adjusted as soon as there are generics.
-            concreteClassType = new SemanticSymbols.ConcreteType(this.currentModule.classType.namespace, []);
+            concreteClassType = new SpecialisedSymbols.ConcreteType(this.currentModule.classType.namespace, []);
         }
 
-        const allocatedInstanceVariableSymbol = new SemanticSymbols.Variable(
+        const allocatedInstanceVariableSymbol = new SpecialisedSymbols.Variable(
             // TODO: Find a better way than a hardcoded name:
             Namespace.constructFromNamespace(this.currentModule.namespace, ':classInitialiser', 'allocatedInstance'),
             concreteClassType,
@@ -304,7 +304,7 @@ export default class SemanticLowerer
 
         // TODO: Find a better way than a hardcoded name:
         const namespace = Namespace.constructFromNamespace(this.currentModule.namespace, ':classInitialiser');
-        const functionSymbol = new SemanticSymbols.Function(namespace, BuildInTypes.pointer, [], null, false);
+        const functionSymbol = new SpecialisedSymbols.Function(namespace, BuildInTypes.pointer, [], null, false);
 
         const section = new LoweredNodes.Section(initialisationBody);
         const functionDeclaration = new LoweredNodes.FunctionDeclaration(functionSymbol, section);
@@ -313,7 +313,7 @@ export default class SemanticLowerer
         this.additionalFunctions.push(functionDeclaration);
     }
 
-    private lowerFunctionDeclaration (functionDeclaration: SemanticNodes.FunctionDeclaration): LoweredNodes.FunctionDeclaration
+    private lowerFunctionDeclaration (functionDeclaration: SpecialisedNodes.FunctionDeclaration): LoweredNodes.FunctionDeclaration
     {
         let loweredSection = null;
 
@@ -332,9 +332,11 @@ export default class SemanticLowerer
             }
 
             // TODO: Find a better way than a hardcoded name:
+            /* TODO: The compiler should check the main function (maybe in the Connector?) for it to have the correct signature.
+                     This could include a marking for it to be the entry point (main function).  */
             if (this.currentModule.isEntryPoint && (functionDeclaration.symbol.namespace.memberName === 'main'))
             {
-                let moduleInitialiserFunctionSymbol: SemanticSymbols.Function|null = null;
+                let moduleInitialiserFunctionSymbol: SpecialisedSymbols.Function|null = null;
                 // TODO: It is bad that we have to search for the module initialiser function here:
                 for (const functionDeclaration of this.additionalFunctions)
                 {
@@ -356,7 +358,7 @@ export default class SemanticLowerer
         return new LoweredNodes.FunctionDeclaration(functionDeclaration.symbol, loweredSection);
     }
 
-    private lowerSection (section: SemanticNodes.Section): LoweredNodes.Section
+    private lowerSection (section: SpecialisedNodes.Section): LoweredNodes.Section
     {
         const loweredStatements: LoweredNodes.Statement[] = [];
 
@@ -370,7 +372,7 @@ export default class SemanticLowerer
         return new LoweredNodes.Section(loweredStatements);
     }
 
-    private lowerStatement (statement: SemanticNodes.Statement): LoweredNodes.Statement[]
+    private lowerStatement (statement: SpecialisedNodes.Statement): LoweredNodes.Statement[]
     {
         switch (statement.kind)
         {
@@ -393,7 +395,7 @@ export default class SemanticLowerer
     }
 
     private lowerLocalVariableDeclaration (
-        variableDeclaration: SemanticNodes.LocalVariableDeclaration
+        variableDeclaration: SpecialisedNodes.LocalVariableDeclaration
     ): LoweredNodes.LocalVariableDeclaration
     {
         let loweredInitialiser: LoweredNodes.Expression|null = null;
@@ -406,7 +408,7 @@ export default class SemanticLowerer
         return new LoweredNodes.LocalVariableDeclaration(variableDeclaration.symbol, loweredInitialiser);
     }
 
-    private lowerReturnStatement (returnStatement: SemanticNodes.ReturnStatement): LoweredNodes.ReturnStatement
+    private lowerReturnStatement (returnStatement: SpecialisedNodes.ReturnStatement): LoweredNodes.ReturnStatement
     {
         let loweredExpression: LoweredNodes.Expression|null = null;
 
@@ -418,7 +420,7 @@ export default class SemanticLowerer
         return new LoweredNodes.ReturnStatement(loweredExpression);
     }
 
-    private lowerIfStatement (ifStatement: SemanticNodes.IfStatement): LoweredNodes.Statement[]
+    private lowerIfStatement (ifStatement: SpecialisedNodes.IfStatement): LoweredNodes.Statement[]
     {
         const condition = this.lowerExpression(ifStatement.condition);
         const section = this.lowerSection(ifStatement.section);
@@ -485,7 +487,7 @@ export default class SemanticLowerer
         }
     }
 
-    private lowerWhileStatement (whileStatement: SemanticNodes.WhileStatement): LoweredNodes.Statement[]
+    private lowerWhileStatement (whileStatement: SpecialisedNodes.WhileStatement): LoweredNodes.Statement[]
     {
         /* While statement
 
@@ -522,7 +524,7 @@ export default class SemanticLowerer
         ];
     }
 
-    private lowerAssignment (assignment: SemanticNodes.Assignment): LoweredNodes.Assignment
+    private lowerAssignment (assignment: SpecialisedNodes.Assignment): LoweredNodes.Assignment
     {
         const loweredFromExpression = this.lowerExpression(assignment.from);
 
@@ -540,7 +542,7 @@ export default class SemanticLowerer
         return new LoweredNodes.Assignment(loweredToExpression, loweredFromExpression);
     }
 
-    private lowerExpression (expression: SemanticNodes.Expression): LoweredNodes.Expression
+    private lowerExpression (expression: SpecialisedNodes.Expression): LoweredNodes.Expression
     {
         switch (expression.kind)
         {
@@ -563,7 +565,7 @@ export default class SemanticLowerer
         }
     }
 
-    private lowerCallExpression (callExpression: SemanticNodes.CallExpression): LoweredNodes.CallExpression
+    private lowerCallExpression (callExpression: SpecialisedNodes.CallExpression): LoweredNodes.CallExpression
     {
         const loweredArguments: LoweredNodes.Expression[] = [];
         for (const argumentExpression of callExpression.arguments)
@@ -586,14 +588,14 @@ export default class SemanticLowerer
         );
     }
 
-    private lowerUnaryExpression (unaryExpression: SemanticNodes.UnaryExpression): LoweredNodes.UnaryExpression
+    private lowerUnaryExpression (unaryExpression: SpecialisedNodes.UnaryExpression): LoweredNodes.UnaryExpression
     {
         const loweredOperand = this.lowerExpression(unaryExpression.operand);
 
         return new LoweredNodes.UnaryExpression(unaryExpression.operator, loweredOperand);
     }
 
-    private lowerBinaryExpression (binaryExpression: SemanticNodes.BinaryExpression): LoweredNodes.Expression
+    private lowerBinaryExpression (binaryExpression: SpecialisedNodes.BinaryExpression): LoweredNodes.Expression
     {
         const loweredLeftOperand = this.lowerExpression(binaryExpression.leftOperand);
         const loweredRightOperand = this.lowerExpression(binaryExpression.rightOperand);
@@ -630,7 +632,7 @@ export default class SemanticLowerer
     }
 
     private lowerInstantiationExpression (
-        instantiationExpression: SemanticNodes.InstantiationExpression
+        instantiationExpression: SpecialisedNodes.InstantiationExpression
     ): LoweredNodes.CallExpression
     {
         /* Instantiation of a class
@@ -646,7 +648,7 @@ export default class SemanticLowerer
         // TODO: Find a better way than a hardcoded name:
         const namespace = Namespace.constructFromNamespace(instantiationExpression.type.namespace, ':classInitialiser');
         // TODO: Could we get this symbol from the type?
-        const classInitialiserSymbol = new SemanticSymbols.Function(namespace, BuildInTypes.pointer, [], null, false);
+        const classInitialiserSymbol = new SpecialisedSymbols.Function(namespace, BuildInTypes.pointer, [], null, false);
 
         const callExpression = new LoweredNodes.CallExpression(classInitialiserSymbol, [], null);
 
@@ -658,17 +660,17 @@ export default class SemanticLowerer
         return callExpression;
     }
 
-    private lowerLiteralExpression (literalExpression: SemanticNodes.LiteralExpression): LoweredNodes.LiteralExpression
+    private lowerLiteralExpression (literalExpression: SpecialisedNodes.LiteralExpression): LoweredNodes.LiteralExpression
     {
         return new LoweredNodes.LiteralExpression(literalExpression.value, literalExpression.type);
     }
 
-    private lowerVariableExpression (variableExpression: SemanticNodes.VariableExpression): LoweredNodes.VariableExpression
+    private lowerVariableExpression (variableExpression: SpecialisedNodes.VariableExpression): LoweredNodes.VariableExpression
     {
         return new LoweredNodes.VariableExpression(variableExpression.variable);
     }
 
-    private lowerFieldExpression (fieldExpression: SemanticNodes.FieldExpression): LoweredNodes.FieldExpression
+    private lowerFieldExpression (fieldExpression: SpecialisedNodes.FieldExpression): LoweredNodes.FieldExpression
     {
         const loweredThisReference = this.lowerExpression(fieldExpression.thisReference);
 

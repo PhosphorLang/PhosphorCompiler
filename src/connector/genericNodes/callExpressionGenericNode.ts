@@ -1,18 +1,18 @@
-import * as SemanticSymbols from '../semanticSymbols';
+import * as GenericSymbols from '../genericSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class CallExpressionGenericNode <Expression>
+export class CallExpressionGenericNode <Expression, TypeLikeSymbol>
 {
     public readonly kind: SemanticKind.CallExpression;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: TypeLikeSymbol;
 
-    public readonly functionSymbol: SemanticSymbols.Function;
+    public readonly functionSymbol: GenericSymbols.Function<TypeLikeSymbol>;
     public readonly arguments: Expression[];
     public readonly thisReference: Expression|null;
 
     constructor (
-        functionSymbol: SemanticSymbols.Function,
+        functionSymbol: GenericSymbols.Function<TypeLikeSymbol>,
         callArguments: Expression[],
         thisReference: Expression|null
     ){

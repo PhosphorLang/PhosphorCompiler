@@ -1,16 +1,16 @@
-import * as SemanticSymbols from '../semanticSymbols';
+import * as GenericSymbols from '../genericSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class FieldExpressionGenericNode <Expression>
+export class FieldExpressionGenericNode <Expression, TypeLikeSymbol>
 {
     public readonly kind: SemanticKind.FieldExpression;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: TypeLikeSymbol;
 
-    public readonly field: SemanticSymbols.Field;
+    public readonly field: GenericSymbols.Field<TypeLikeSymbol>;
     public readonly thisReference: Expression;
 
-    constructor (field: SemanticSymbols.Field, thisReference: Expression)
+    constructor (field: GenericSymbols.Field<TypeLikeSymbol>, thisReference: Expression)
     {
         this.kind = SemanticKind.FieldExpression;
 

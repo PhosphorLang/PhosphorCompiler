@@ -1,52 +1,35 @@
-export { ConcreteTypeSemanticSymbol as ConcreteType } from './concreteTypeSemanticSymbol';
-export { FieldSemanticSymbol as Field } from './fieldSemanticSymbol';
-export { FunctionParameterSemanticSymbol as FunctionParameter } from './functionParameterSemanticSymbol';
-export { FunctionSemanticSymbol as Function } from './functionSemanticSymbol';
-export { GenericParameterSemanticSymbol as GenericParameter } from './genericParameterSemanticSymbol';
-export { GenericTypeSemanticSymbol as GenericType } from './genericTypeSemanticSymbol';
-export { LabelSemanticSymbol as Label } from './labelSemanticSymbol';
-export { LiteralConcreteParameterSemanticSymbol as LiteralConcreteParameter } from './literalConcreteParemeterSemanticSymbol';
-export { ModuleSemanticSymbol as Module } from './moduleSemanticSymbol';
-export { TypeConcreteParameterSemanticSymbol as TypeConcreteParameter } from './typeConcreteParameterSemanticSymbol';
-export { VariableSemanticSymbol as Variable } from './variableSemanticSymbol';
+import * as GenericSymbols from '../genericSymbols';
 
-import { ConcreteTypeSemanticSymbol } from './concreteTypeSemanticSymbol';
-import { FieldSemanticSymbol } from './fieldSemanticSymbol';
-import { FunctionParameterSemanticSymbol } from './functionParameterSemanticSymbol';
-import { FunctionSemanticSymbol } from './functionSemanticSymbol';
-import { GenericParameterSemanticSymbol } from './genericParameterSemanticSymbol';
-import { GenericTypeSemanticSymbol } from './genericTypeSemanticSymbol';
-import { LabelSemanticSymbol } from './labelSemanticSymbol';
-import { LiteralConcreteParameterSemanticSymbol } from './literalConcreteParemeterSemanticSymbol';
-import { ModuleSemanticSymbol } from './moduleSemanticSymbol';
-import { TypeConcreteParameterSemanticSymbol } from './typeConcreteParameterSemanticSymbol';
-import { VariableSemanticSymbol } from './variableSemanticSymbol';
+export class ConcreteType extends GenericSymbols.ConcreteType<TypeLike> {}
+export class Field extends GenericSymbols.Field<TypeLike> {}
+export class FunctionParameter extends GenericSymbols.FunctionParameter<TypeLike> {}
+class FunctionSymbol extends GenericSymbols.Function<TypeLike> {}
+export { FunctionSymbol as Function };
+export class GenericTypeParameter extends GenericSymbols.GenericTypeParameter<TypeLike> {}
+export class GenericType extends GenericSymbols.GenericType<TypeLike> {}
+export class Label extends GenericSymbols.Label {}
+export class Module extends GenericSymbols.Module<GenericType, TypeLike> {}
+export class Variable extends GenericSymbols.Variable<TypeLike> {}
 
 export type SemanticSymbol =
-    | ConcreteTypeSemanticSymbol
-    | FieldSemanticSymbol
-    | FunctionParameterSemanticSymbol
-    | FunctionSemanticSymbol
-    | GenericParameterSemanticSymbol
-    | GenericTypeSemanticSymbol
-    | LabelSemanticSymbol
-    | LiteralConcreteParameterSemanticSymbol
-    | ModuleSemanticSymbol
-    | TypeConcreteParameterSemanticSymbol
-    | VariableSemanticSymbol;
+    | ConcreteType
+    | Field
+    | FunctionParameter
+    | FunctionSymbol
+    | GenericTypeParameter
+    | GenericType
+    | Label
+    | Module
+    | Variable;
 
-export type Type =
-    | ConcreteTypeSemanticSymbol
-    | GenericTypeSemanticSymbol;
+export type TypeLike = // TODO: Find a better name.
+    | ConcreteType
+    | GenericTypeParameter;
 
 export type VariableLike =
-    | FunctionParameterSemanticSymbol
-    | VariableSemanticSymbol;
+    | FunctionParameter
+    | Variable;
 
 export type Writable =
-    FieldSemanticSymbol
-    | VariableSemanticSymbol;
-
-export type ConcreteParameter =
-    | LiteralConcreteParameterSemanticSymbol
-    | TypeConcreteParameterSemanticSymbol;
+    Field
+    | Variable;

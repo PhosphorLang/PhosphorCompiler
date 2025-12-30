@@ -6,10 +6,8 @@ export enum SemanticSymbolKind
     Variable = 'Variable',
     Field = 'Field',
     GenericType = 'GenericType',
-    GenericParameter = 'GenericParameter',
+    GenericTypeParameter = 'GenericTypeParameter',
     ConcreteType = 'ConcreteType',
-    TypeConcreteParameter = 'TypeConcreteParameter',
-    LiteralConcreteParameter = 'LiteralConcreteParameter',
     Label = 'Label',
     // TODO: Sort alphabetically.
 }

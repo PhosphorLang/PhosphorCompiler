@@ -1,4 +1,4 @@
-import * as SemanticSymbols from '../connector/semanticSymbols';
+import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
 import { BuildInTypes } from './buildInTypes';
 import { Namespace } from '../parser/namespace';
 
@@ -13,15 +13,15 @@ import { Namespace } from '../parser/namespace';
  */
 export abstract class BuildInFunctions
 {
-    public static readonly stringsAreEqual = new SemanticSymbols.Function(
+    public static readonly stringsAreEqual = new SpecialisedSymbols.Function(
         Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual'),
         BuildInTypes.boolean,
         [
-            new SemanticSymbols.FunctionParameter(
+            new SpecialisedSymbols.FunctionParameter(
                 Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual', 'string1'),
                 BuildInTypes.string
             ),
-            new SemanticSymbols.FunctionParameter(
+            new SpecialisedSymbols.FunctionParameter(
                 Namespace.constructFromStrings('Standard', 'String', 'stringsAreEqual', 'string2'),
                 BuildInTypes.string
             )
@@ -30,13 +30,13 @@ export abstract class BuildInFunctions
         true
     );
 
-    public static readonly allocate = new SemanticSymbols.Function(
+    public static readonly allocate = new SpecialisedSymbols.Function(
         Namespace.constructFromStrings('Standard', 'Memory', 'allocate'),
         BuildInTypes.pointer,
         [
-            new SemanticSymbols.FunctionParameter(
+            new SpecialisedSymbols.FunctionParameter(
                 Namespace.constructFromStrings('Standard', 'Memory', 'allocate', 'size'),
-                BuildInTypes.integer // FIXME: This should be UInt.
+                BuildInTypes.integer // FIXME: This should be Cardinal.
             )
         ],
         null,

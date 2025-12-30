@@ -1,15 +1,15 @@
-import * as SemanticSymbols from '../semanticSymbols';
+import * as GenericSymbols from '../genericSymbols';
 import { SemanticKind } from '../semanticKind';
 
-export class VariableExpressionGenericNode
+export class VariableExpressionGenericNode<TypeLikeSymbol>
 {
     public readonly kind: SemanticKind.VariableExpression;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: TypeLikeSymbol;
 
-    public readonly variable: SemanticSymbols.VariableLike;
+    public readonly variable: GenericSymbols.VariableLike<TypeLikeSymbol>;
 
-    constructor (variable: SemanticSymbols.VariableLike)
+    constructor (variable: GenericSymbols.VariableLike<TypeLikeSymbol>)
     {
         this.kind = SemanticKind.VariableExpression;
 

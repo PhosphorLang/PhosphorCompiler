@@ -1,8 +1,8 @@
+import { GenericSymbolBase } from './genericSymbolBase';
 import { Namespace } from '../../parser/namespace';
-import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class LabelSemanticSymbol extends SemanticSymbolBase
+export class LabelGenericSymbol extends GenericSymbolBase
 {
     public readonly kind: SemanticSymbolKind.Label;
 

@@ -1,17 +1,18 @@
 import * as SemanticSymbols from '../connector/semanticSymbols';
+import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
 import { Namespace } from '../parser/namespace';
 import { TokenKind } from '../lexer/tokenKind';
 
 export abstract class BuildInTypes
 {
-    public static readonly noType = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'NoType'), []);
-    // TODO: Ints are often misused for UInts. Should be corrected:
-    public static readonly integer = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Integer'), []);
-    public static readonly boolean = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Boolean'), []);
-    public static readonly string = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'String'), []);
-    public static readonly pointer = new SemanticSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Pointer'), []);
+    public static readonly noType = new SpecialisedSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'NoType'), []);
+    // TODO: Integers are often misused for Cardinals. Should be corrected.;
+    public static readonly integer = new SpecialisedSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Integer'), []);
+    public static readonly boolean = new SpecialisedSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Boolean'), []);
+    public static readonly string = new SpecialisedSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'String'), []);
+    public static readonly pointer = new SpecialisedSymbols.ConcreteType(Namespace.constructFromStrings('Phosphor', 'Pointer'), []);
 
-    public static getTypeByName (name: string): SemanticSymbols.Type|null
+    public static getTypeByName (name: string): SemanticSymbols.GenericType|SemanticSymbols.ConcreteType|null
     {
         switch (name)
         {
@@ -28,7 +29,7 @@ export abstract class BuildInTypes
         }
     }
 
-    public static getTypeByTokenKind (tokenKind: TokenKind): SemanticSymbols.ConcreteType|null
+    public static getTypeByTokenKind (tokenKind: TokenKind): SemanticSymbols.GenericType|SemanticSymbols.ConcreteType|null
     {
         switch (tokenKind)
         {

@@ -1,16 +1,15 @@
-import * as SemanticSymbols from '.';
+import { GenericSymbolBase } from './genericSymbolBase';
 import { Namespace } from '../../parser/namespace';
-import { SemanticSymbolBase } from './SemanticSymbolBase';
 import { SemanticSymbolKind } from '../semanticSymbolKind';
 
-export class FieldSemanticSymbol extends SemanticSymbolBase
+export class FieldGenericSymbol<TypeLike> extends GenericSymbolBase
 {
     public readonly kind: SemanticSymbolKind.Field;
 
-    public readonly type: SemanticSymbols.ConcreteType;
+    public readonly type: TypeLike;
     public readonly isReadonly: boolean;
 
-    constructor (namespace: Namespace, type: SemanticSymbols.ConcreteType, isReadonly: boolean)
+    constructor (namespace: Namespace, type: TypeLike, isReadonly: boolean)
     {
         super(namespace);
 

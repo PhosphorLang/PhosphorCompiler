@@ -42,4 +42,4 @@ typedef struct
  * The pointer to a string value.
  * A string value contains the size of the data as a cardinal and the data itself as an array.
  */
-typedef const StringValue* String;
+typedef StringValue* String;

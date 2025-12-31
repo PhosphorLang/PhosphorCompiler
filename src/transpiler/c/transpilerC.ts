@@ -1,6 +1,8 @@
 import * as Intermediates from '../../intermediateLowerer/intermediates';
 import * as IntermediateSymbols from '../../intermediateLowerer/intermediateSymbols';
+import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
 import { IntermediateSize } from '../../intermediateLowerer/intermediateSize';
+import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
 
 export class TranspilerC
 {
@@ -10,15 +12,36 @@ export class TranspilerC
     private static readonly integer32TypeName = 'Integer32';
     private static readonly integer64TypeName = 'Integer64';
     private static readonly stringTypeName = 'String';
-    private static readonly stringValueTypeName = 'StringValue';
 
     private code: string[];
+
+    /** Counter for temporary variables. */
+    private variableCounter: number;
+    private get nextVariableName (): string
+    {
+        this.variableCounter++;
+        return `t_${this.variableCounter}`;
+    }
+
+    private outgoingParameterIndexToName: Map<number, string>;
+    private incomingReturnName: string|null;
+
+    private currentFunction: IntermediateSymbols.Function | null;
+    private compareOperands: [leftOperand: IntermediateSymbols.Variable, rightOperand: IntermediateSymbols.Variable] | null;
 
     constructor ()
     {
         this.code = [
             '#include "Phosphor.Types.h"',
         ];
+
+        this.variableCounter = -1;
+
+        this.outgoingParameterIndexToName = new Map();
+        this.incomingReturnName = null;
+
+        this.currentFunction = null;
+        this.compareOperands = null;
     }
 
     public run (fileIntermediate: Intermediates.File): string
@@ -34,8 +57,8 @@ export class TranspilerC
                 'void _start ()',
                 '{',
                 // TODO: Handle the initialisation code here.
-                '    main();',
-                '    exit();',
+                'i_main();',
+                'exit();',
                 '}',
             );
         }
@@ -57,7 +80,7 @@ export class TranspilerC
                 indentation = indentation.slice(4);
             }
 
-            text += line + '\n';
+            text += indentation + line + '\n';
 
             if (line == '{')
             {
@@ -68,9 +91,8 @@ export class TranspilerC
         return text;
     }
 
-    private getIdentifierName (symbol: IntermediateSymbols.IntermediateSymbol): string
+    private getEscapedName (originalName: string): string
     {
-        const originalName = symbol.name;
         let escapedName = '';
 
         for (const characterCodePoint of originalName)
@@ -92,6 +114,57 @@ export class TranspilerC
         }
 
         return escapedName;
+    }
+
+    private getIdentifierName (symbol: IntermediateSymbols.IntermediateSymbol): string
+    {
+        const escapedName = this.getEscapedName(symbol.name);
+
+        return `i_${escapedName}`;
+    }
+
+    private getLabelName (labelSymbol: IntermediateSymbols.Label): string
+    {
+        if (!labelSymbol.name.startsWith('l#'))
+        {
+            // TODO: This unpleasantly depends on the naming convention for labels in the intermediate language.
+            throw new Error(`Transpiler error: Invalid label name: ${labelSymbol.name}`);
+        }
+
+        const labelIndexString = labelSymbol.name.slice(2);
+
+        return `l_${labelIndexString}`;
+    }
+
+    private getFieldName (fieldSymbol: IntermediateSymbols.Field): string
+    {
+        return `f_${fieldSymbol.index}`;
+    }
+
+    private getParameterName (index: number): string
+    {
+        return `p_${index}`;
+    }
+
+    private getReturnName (index: number): string
+    {
+        return `r_${index}`;
+    }
+
+    private getLocalName (localVariableSymbol: IntermediateSymbols.LocalVariable): string
+    {
+        return `v_${localVariableSymbol.index}`;
+    }
+
+    private getVariableName (writableSymbol: IntermediateSymbols.WritableValue): string
+    {
+        switch (writableSymbol.kind)
+        {
+            case IntermediateSymbolKind.LocalVariable:
+                return this.getLocalName(writableSymbol);
+            case IntermediateSymbolKind.GlobalVariable:
+                return this.getIdentifierName(writableSymbol);
+        }
     }
 
     private getSizeString (intermediateSize: IntermediateSize): string
@@ -177,8 +250,9 @@ export class TranspilerC
 
         const identifierName = this.getIdentifierName(constantIntermediate.symbol);
 
-        const line = `static const ${TranspilerC.stringTypeName} ${identifierName} = &((${TranspilerC.stringValueTypeName})`
-            + `{ .size = ${stringByteCount}, .data = "${constantIntermediate.symbol.value}" });`;
+        const line = `static ${TranspilerC.stringTypeName} ${identifierName} = `
+            + `(${TranspilerC.stringTypeName})&(struct { Cardinal size; Cardinal8 data[${stringByteCount}]; })`
+            + `{ .size = ${stringByteCount}, .data = "${constantIntermediate.symbol.value}" };`;
 
         this.code.push(line);
     }
@@ -214,24 +288,47 @@ export class TranspilerC
 
     private transpileStructure (structureIntermediate: Intermediates.Structure): void
     {
-        structureIntermediate;
-        // TODO: Implement.
+        this.code.push(
+            `typedef struct ${this.getIdentifierName(structureIntermediate.symbol)}`,
+            '{',
+        );
+
+        for (const field of structureIntermediate.symbol.fields)
+        {
+            const fieldSizeString = this.getSizeString(field.size);
+            const fieldName = this.getFieldName(field);
+
+            this.code.push(
+                `${fieldSizeString} ${fieldName};`,
+            );
+        }
+
+        this.code.push(
+            `} ${this.getIdentifierName(structureIntermediate.symbol)};`,
+        );
     }
 
     private transpileFunction (functionIntermediate: Intermediates.Function): void
     {
+        this.variableCounter = -1;
+        this.outgoingParameterIndexToName = new Map();
+        this.incomingReturnName = null;
+        this.currentFunction = functionIntermediate.symbol;
+
         const returnSizeString = this.getSizeString(functionIntermediate.symbol.returnSize);
 
-        const parameters: string[] = [];
-
-        for (const parameterSize of functionIntermediate.symbol.parameters)
+        const parameterStrings: string[] = [];
+        for (let parameterIndex = 0; parameterIndex < functionIntermediate.symbol.parameters.length; parameterIndex++)
         {
-            const parameter = this.getSizeString(parameterSize);
-            parameters.push(parameter);
-            // TODO: Parameter names!
+            const parameterSize = functionIntermediate.symbol.parameters[parameterIndex];
+            const parameterSizeString = this.getSizeString(parameterSize);
+            const parameterName = this.getParameterName(parameterIndex);
+            const parameterString = parameterSizeString + ' ' + parameterName;
+
+            parameterStrings.push(parameterString);
         }
 
-        const parameterString = parameters.join(', ');
+        const parameterString = parameterStrings.join(', ');
 
         const functionHeader = `${returnSizeString} ${this.getIdentifierName(functionIntermediate.symbol)} (${parameterString})`;
 
@@ -242,8 +339,456 @@ export class TranspilerC
 
         this.code.push(
             '{',
-            // TODO: Implement function body transpilation.
+        );
+
+        for (const instruction of functionIntermediate.body)
+        {
+            this.transpileStatement(instruction);
+        }
+
+        this.code.push(
             '}',
+        );
+
+        this.variableCounter = -1;
+        this.outgoingParameterIndexToName = new Map();
+        this.incomingReturnName = null;
+        this.currentFunction = null;
+    }
+
+    private transpileStatement (statementIntermediate: Intermediates.Statement): void
+    {
+        switch (statementIntermediate.kind)
+        {
+            case IntermediateKind.Add:
+                this.transpileAdd(statementIntermediate);
+                break;
+            case IntermediateKind.And:
+                this.transpileAnd(statementIntermediate);
+                break;
+            case IntermediateKind.Call:
+                this.transpileCall(statementIntermediate);
+                break;
+            case IntermediateKind.Compare:
+                this.transpileCompare(statementIntermediate);
+                break;
+            case IntermediateKind.Divide:
+                this.transpileDivide(statementIntermediate);
+                break;
+            case IntermediateKind.Give:
+                this.transpileGive(statementIntermediate);
+                break;
+            case IntermediateKind.Goto:
+                this.transpileGoto(statementIntermediate);
+                break;
+            case IntermediateKind.Introduce:
+                this.transpileIntroduce(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfEqual:
+                this.transpileJumpIfEqual(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfGreater:
+                this.transpileJumpIfGreater(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfLess:
+                this.transpileJumpIfLess(statementIntermediate);
+                break;
+            case IntermediateKind.JumpIfNotEqual:
+                this.transpileJumpIfNotEqual(statementIntermediate);
+                break;
+            case IntermediateKind.Label:
+                this.transpileLabel(statementIntermediate);
+                break;
+            case IntermediateKind.LoadField:
+                this.transpileLoadField(statementIntermediate);
+                break;
+            case IntermediateKind.Modulo:
+                this.transpileModulo(statementIntermediate);
+                break;
+            case IntermediateKind.Move:
+                this.transpileMove(statementIntermediate);
+                break;
+            case IntermediateKind.Multiply:
+                this.transpileMultiply(statementIntermediate);
+                break;
+            case IntermediateKind.Negate:
+                this.transpileNegate(statementIntermediate);
+                break;
+            case IntermediateKind.Not:
+                this.transpileNot(statementIntermediate);
+                break;
+            case IntermediateKind.Or:
+                this.transpileOr(statementIntermediate);
+                break;
+            case IntermediateKind.Return:
+                this.transpileReturn();
+                break;
+            case IntermediateKind.SizeOf:
+                this.transpileSizeOf(statementIntermediate);
+                break;
+            case IntermediateKind.StoreField:
+                this.transpileStoreField(statementIntermediate);
+                break;
+            case IntermediateKind.Subtract:
+                this.transpileSubtract(statementIntermediate);
+                break;
+            case IntermediateKind.Take:
+                this.transpileTake(statementIntermediate);
+                break;
+        }
+    }
+
+    private transpileAdd (addIntermediate: Intermediates.Add): void
+    {
+        const leftOperandName = this.getVariableName(addIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(addIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} + ${rightOperandName};`,
+        );
+    }
+
+    private transpileAnd (andIntermediate: Intermediates.And): void
+    {
+        const leftOperandName = this.getVariableName(andIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(andIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} & ${rightOperandName};`,
+        );
+    }
+
+    private transpileCall (callIntermediate: Intermediates.Call): void
+    {
+        const parameterStrings: string[] = [];
+        for (let parameterIndex = 0; parameterIndex < callIntermediate.functionSymbol.parameters.length; parameterIndex++)
+        {
+            const parameterName = this.outgoingParameterIndexToName.get(parameterIndex);
+            if (parameterName === undefined)
+            {
+                throw new Error('Transpiler error: Cannot call function because a parameter is not introduced.');
+            }
+
+            parameterStrings.push(parameterName);
+        }
+        this.outgoingParameterIndexToName.clear();
+
+        const parameterString = parameterStrings.join(', ');
+
+        if (callIntermediate.functionSymbol.returnSize === IntermediateSize.Void)
+        {
+            this.code.push(
+                `${this.getIdentifierName(callIntermediate.functionSymbol)}(${parameterString});`,
+            );
+        }
+        else
+        {
+            const returnSizeString = this.getSizeString(callIntermediate.functionSymbol.returnSize);
+
+            const returnName = this.nextVariableName;
+            this.incomingReturnName = returnName;
+
+            this.code.push(
+                `${returnSizeString} ${returnName} = ${this.getIdentifierName(callIntermediate.functionSymbol)}(${parameterString});`,
+            );
+        }
+    }
+
+    private transpileCompare (compareIntermediate: Intermediates.Compare): void
+    {
+        /* Intermediate representation:
+           - compare a b
+           - jumpIfEqual/jumpIfGreater etc. trueLabel
+           C:
+           - <nothing here>
+           - if (a ==/>/</!= b)
+             {
+                 goto trueLabel;
+             }
+        As we would need the condition now, we temporarily save the operands and use them later in the jump instruction. */
+        // TODO: Could this be done better?
+
+        if (this.compareOperands !== null)
+        {
+            throw new Error('Transpiler error: Cannot compare because another compare is already in progress.');
+        }
+
+        this.compareOperands = [
+            compareIntermediate.leftOperand,
+            compareIntermediate.rightOperand,
+        ];
+    }
+
+    private transpileDivide (divideIntermediate: Intermediates.Divide): void
+    {
+        const leftOperandName = this.getVariableName(divideIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(divideIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} / ${rightOperandName};`,
+        );
+    }
+
+    private transpileGive (giveIntermediate: Intermediates.Give): void
+    {
+        const fromVariableName = this.getVariableName(giveIntermediate.variable);
+        const targetSizeString = this.getSizeString(giveIntermediate.targetSymbol.size);
+
+        let targetName: string;
+
+        switch (giveIntermediate.targetSymbol.kind)
+        {
+            case IntermediateSymbolKind.Parameter:
+                targetName = this.nextVariableName;
+                this.outgoingParameterIndexToName.set(giveIntermediate.targetSymbol.index, targetName);
+                break;
+            case IntermediateSymbolKind.ReturnValue:
+                targetName = this.getReturnName(giveIntermediate.targetSymbol.index);
+                break;
+        }
+
+        this.code.push(
+            `${targetSizeString} ${targetName} = ${fromVariableName};`,
+        );
+    }
+
+    private transpileGoto (gotoIntermediate: Intermediates.Goto): void
+    {
+        const labelName = this.getLabelName(gotoIntermediate.target);
+
+        this.code.push(
+            `goto ${labelName};`,
+        );
+    }
+
+    private transpileIntroduce (introduceIntermediate: Intermediates.Introduce): void
+    {
+        const localName = this.getVariableName(introduceIntermediate.variableSymbol);
+        const sizeString = this.getSizeString(introduceIntermediate.variableSymbol.size);
+
+        this.code.push(
+            `${sizeString} ${localName};`,
+        );
+    }
+
+    private transpileJumpIfEqual (jumpIfEqualIntermediate: Intermediates.JumpIfEqual): void
+    {
+        this.transpileConditionalJump('==', jumpIfEqualIntermediate.target);
+    }
+
+    private transpileJumpIfGreater (jumpIfGreaterIntermediate: Intermediates.JumpIfGreater): void
+    {
+        this.transpileConditionalJump('>', jumpIfGreaterIntermediate.target);
+    }
+
+    private transpileJumpIfLess (jumpIfLessIntermediate: Intermediates.JumpIfLess): void
+    {
+        this.transpileConditionalJump('<', jumpIfLessIntermediate.target);
+    }
+
+    private transpileJumpIfNotEqual (jumpIfNotEqualIntermediate: Intermediates.JumpIfNotEqual): void
+    {
+        this.transpileConditionalJump('!=', jumpIfNotEqualIntermediate.target);
+    }
+
+    private transpileConditionalJump (condition: string, target: IntermediateSymbols.Label): void
+    {
+        if (this.compareOperands === null)
+        {
+            throw new Error('Transpiler error: Cannot jump because no compare is in progress.');
+        }
+        const [leftOperand, rightOperand] = this.compareOperands;
+
+        const leftOperandName = this.getVariableName(leftOperand);
+        const rightOperandName = this.getVariableName(rightOperand);
+        const labelName = this.getLabelName(target);
+
+        this.code.push(
+            `if (${leftOperandName} ${condition} ${rightOperandName})`,
+            `{`,
+            `goto ${labelName};`,
+            `}`,
+        );
+
+        this.compareOperands = null;
+    }
+
+    private transpileLabel (labelIntermediate: Intermediates.Label): void
+    {
+        const labelName = this.getLabelName(labelIntermediate.symbol);
+
+        this.code.push(
+            `${labelName}:`,
+        );
+    }
+
+    private transpileLoadField (loadFieldIntermediate: Intermediates.LoadField): void
+    {
+        const toName = this.getVariableName(loadFieldIntermediate.to);
+        const thisReferenceName = this.getVariableName(loadFieldIntermediate.thisReference);
+        const fieldName = this.getFieldName(loadFieldIntermediate.field);
+
+        this.code.push(
+            `${toName} = ${thisReferenceName}->${fieldName};`,
+        );
+    }
+
+    private transpileStoreField (storeFieldIntermediate: Intermediates.StoreField): void
+    {
+        const fromName = this.getVariableName(storeFieldIntermediate.from);
+        const thisReferenceName = this.getVariableName(storeFieldIntermediate.thisReference);
+        const fieldName = this.getFieldName(storeFieldIntermediate.field);
+
+        this.code.push(
+            `${thisReferenceName}->${fieldName} = ${fromName};`,
+        );
+    }
+
+    private transpileModulo (moduloIntermediate: Intermediates.Modulo): void
+    {
+        const leftOperandName = this.getVariableName(moduloIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(moduloIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} % ${rightOperandName};`,
+        );
+    }
+
+    private transpileMove (moveIntermediate: Intermediates.Move): void
+    {
+        const destinationName = this.getVariableName(moveIntermediate.to);
+        let sourceString: string;
+
+        switch (moveIntermediate.from.kind)
+        {
+            case IntermediateSymbolKind.Constant:
+            {
+                sourceString = this.getIdentifierName(moveIntermediate.from);
+                break;
+            }
+            case IntermediateSymbolKind.LocalVariable:
+            case IntermediateSymbolKind.GlobalVariable:
+            {
+                sourceString = this.getVariableName(moveIntermediate.from);
+                break;
+            }
+            case IntermediateSymbolKind.Literal:
+            {
+                sourceString = moveIntermediate.from.value;
+                break;
+            }
+        }
+
+        this.code.push(
+            `${destinationName} = ${sourceString};`,
+        );
+    }
+
+    private transpileMultiply (multiplyIntermediate: Intermediates.Multiply): void
+    {
+        const leftOperandName = this.getVariableName(multiplyIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(multiplyIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} * ${rightOperandName};`,
+        );
+    }
+
+    private transpileNegate (negateIntermediate: Intermediates.Negate): void
+    {
+        const operandName = this.getVariableName(negateIntermediate.operand);
+
+        this.code.push(
+            `${operandName} = -${operandName};`,
+        );
+    }
+
+    private transpileNot (notIntermediate: Intermediates.Not): void
+    {
+        const operandName = this.getVariableName(notIntermediate.operand);
+
+        this.code.push(
+            `${operandName} = !${operandName};`,
+        );
+    }
+
+    private transpileOr (orIntermediate: Intermediates.Or): void
+    {
+        const leftOperandName = this.getVariableName(orIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(orIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} | ${rightOperandName};`,
+        );
+    }
+
+    private transpileReturn (): void
+    {
+        if (this.currentFunction === null)
+        {
+            throw new Error('Transpiler error: Tried to return from outside a function.');
+        }
+
+        // TODO: Instead of needing the "currentFunction" workaround, could the return intermediate include the function symbol?
+
+        if (this.currentFunction.returnSize == IntermediateSize.Void)
+        {
+            this.code.push(
+                `return;`,
+            );
+        }
+        else
+        {
+            const returnVariableName = this.getReturnName(0); // TODO: Multiple return values?
+
+            this.code.push(
+                `return ${returnVariableName};`,
+            );
+        }
+    }
+
+    private transpileSizeOf (sizeOfIntermediate: Intermediates.SizeOf): void
+    {
+        const toName = this.getVariableName(sizeOfIntermediate.to);
+        const structureName = this.getIdentifierName(sizeOfIntermediate.structure);
+
+        this.code.push(
+            `${toName} = sizeof(${structureName});`,
+        );
+    }
+
+    private transpileSubtract (subtractIntermediate: Intermediates.Subtract): void
+    {
+        const leftOperandName = this.getVariableName(subtractIntermediate.leftOperand);
+        const rightOperandName = this.getVariableName(subtractIntermediate.rightOperand);
+
+        this.code.push(
+            `${leftOperandName} = ${leftOperandName} - ${rightOperandName};`,
+        );
+    }
+
+    private transpileTake (takeIntermediate: Intermediates.Take): void
+    {
+        let takeableName: string;
+        switch (takeIntermediate.takableValue.kind)
+        {
+            case IntermediateSymbolKind.Parameter:
+                takeableName = this.getParameterName(takeIntermediate.takableValue.index);
+                break;
+            case IntermediateSymbolKind.ReturnValue:
+                if (this.incomingReturnName === null)
+                {
+                    throw new Error('Transpiler error: Tried to take from an unknown return value.');
+                }
+                takeableName = this.incomingReturnName;
+                this.incomingReturnName = null;
+                break;
+        }
+
+        const variableName = this.getVariableName(takeIntermediate.variableSymbol);
+
+        this.code.push(
+            `${variableName} = ${takeableName};`,
         );
     }
 }

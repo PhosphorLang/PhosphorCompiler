@@ -304,7 +304,8 @@ export class TranspilerC
         }
 
         this.code.push(
-            `} ${this.getIdentifierName(structureIntermediate.symbol)};`,
+            '}',
+            `${this.getIdentifierName(structureIntermediate.symbol)};`,
         );
     }
 

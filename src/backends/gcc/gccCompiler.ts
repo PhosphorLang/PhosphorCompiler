@@ -1,5 +1,4 @@
 import ChildProcess from 'child_process';
-//import { GccCompilerTarget } from './gccCompilerTarget';
 
 export class GccCompiler
 {
@@ -19,7 +18,6 @@ export class GccCompiler
             '-O2 ' +
             '-c ' +
             '-I "' + libraryPath + '" ' +
-            //'--host=' + target + ' ' +
             '-o "' + outputFile + '" ' +
             inputFile
         );

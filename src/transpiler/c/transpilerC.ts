@@ -626,10 +626,11 @@ export class TranspilerC
     {
         const toName = this.getVariableName(loadFieldIntermediate.to);
         const thisReferenceName = this.getVariableName(loadFieldIntermediate.thisReference);
+        const structureName = this.getIdentifierName(loadFieldIntermediate.structure);
         const fieldName = this.getFieldName(loadFieldIntermediate.field);
 
         this.code.push(
-            `${toName} = ${thisReferenceName}->${fieldName};`,
+            `${toName} = ((struct ${structureName}*)${thisReferenceName})->${fieldName};`,
         );
     }
 
@@ -637,10 +638,11 @@ export class TranspilerC
     {
         const fromName = this.getVariableName(storeFieldIntermediate.from);
         const thisReferenceName = this.getVariableName(storeFieldIntermediate.thisReference);
+        const structureName = this.getIdentifierName(storeFieldIntermediate.structure);
         const fieldName = this.getFieldName(storeFieldIntermediate.field);
 
         this.code.push(
-            `${thisReferenceName}->${fieldName} = ${fromName};`,
+            `((struct ${structureName}*)${thisReferenceName})->${fieldName} = ${fromName};`,
         );
     }
 

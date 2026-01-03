@@ -1240,11 +1240,24 @@ export class Connector
 
         for (let i = 0; i < callArguments.length; i++)
         {
-            if (!callArguments[i].type.equals(functionSymbol.parameters[i].type))
+            const parameterSymbol = functionSymbol.parameters[i];
+
+            let typeToCheck: SemanticSymbols.ConcreteType;
+            if (parameterSymbol.type.kind === SemanticSymbolKind.GenericTypeParameter)
+            {
+                typeToCheck = this.substituteGenericParameterWithConcreteType(parameterSymbol.type, thisModule, thisReference);
+            }
+            else
+            {
+                typeToCheck = parameterSymbol.type;
+            }
+
+            if (!callArguments[i].type.equals(typeToCheck))
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
-                        `Wrong type for argument "${functionSymbol.parameters[i].namespace.baseName}".`,
+                        `Wrong type for argument "${parameterSymbol.namespace.baseName}".`
+                        + ` - Expected "${typeToCheck.namespace.qualifiedName}", got "${callArguments[i].type.namespace.qualifiedName}".`,
                         Diagnostic.Codes.WrongArgumentTypeError,
                         expression.identifier
                     )
@@ -1289,7 +1302,67 @@ export class Connector
             }
         }
 
-        return new SemanticNodes.CallExpression(functionSymbol, callArguments, thisExpression);
+        let returnType: SemanticSymbols.ConcreteType;
+        if (functionSymbol.returnType.kind === SemanticSymbolKind.GenericTypeParameter)
+        {
+            returnType = this.substituteGenericParameterWithConcreteType(functionSymbol.returnType, thisModule, thisExpression);
+        }
+        else
+        {
+            returnType = functionSymbol.returnType;
+        }
+
+        return new SemanticNodes.CallExpression(functionSymbol, callArguments, thisExpression, returnType);
+    }
+
+    private substituteGenericParameterWithConcreteType (
+        genericTypeParameter: SemanticSymbols.GenericTypeParameter,
+        thisModule: SemanticSymbols.Module,
+        thisReference: SemanticNodes.Expression|null
+    ): SemanticSymbols.ConcreteType
+    {
+        if (thisModule.classType === null)
+        {
+            // TODO: Should this be a diagnostic? Can this happen?
+            throw new Error('Connector error: Generic type parameters are only supported in class methods.');
+        }
+
+        let genericParameterIndexInType = -1;
+        for (let parameterIndexInType = 0; parameterIndexInType < thisModule.classType.parameters.length; parameterIndexInType++)
+        {
+            if (genericTypeParameter.equals(thisModule.classType.parameters[parameterIndexInType]))
+            {
+                genericParameterIndexInType = parameterIndexInType;
+                break;
+            }
+        }
+        if (genericParameterIndexInType === -1)
+        {
+            // TODO: Should this be a diagnostic? Can this happen?
+            throw new Error('Connector error: Generic type parameter not found in class type.');
+        }
+
+        if (thisReference === null)
+        {
+            // TODO: Should this be a diagnostic? Can this happen?
+            throw new Error('Connector error: thisReference is null when checking generic type parameter.');
+        }
+
+        if (thisReference.type.kind !== SemanticSymbolKind.ConcreteType)
+        {
+            // TODO: Should this be a diagnostic? Can this happen?
+            throw new Error('Connector error: thisReference type is not a concrete type when checking generic type parameter.');
+        }
+
+        const concreteParameterType = thisReference.type.parameters[genericParameterIndexInType];
+
+        if (concreteParameterType.kind !== SemanticSymbolKind.ConcreteType)
+        {
+            // TODO: Should this be a diagnostic? Can this happen?
+            throw new Error('Connector error: Substituted generic type parameter is not a concrete type.');
+        }
+
+        return concreteParameterType;
     }
 
     private connectAccessExpression (

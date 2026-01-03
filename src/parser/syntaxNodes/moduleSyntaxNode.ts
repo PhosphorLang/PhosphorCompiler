@@ -13,9 +13,9 @@ export class ModuleSyntaxNode
     public readonly namespace: Namespace;
 
     public readonly isClass: boolean;
-    public isEntryPoint: boolean;
+    public readonly isEntryPoint: boolean;
 
-    constructor (keyword: Token, namespace: Namespace, isClass: boolean)
+    constructor (keyword: Token, namespace: Namespace, isClass: boolean, isEntryPoint: boolean)
     {
         this.kind = SyntaxKind.Module;
 
@@ -23,7 +23,7 @@ export class ModuleSyntaxNode
         this.namespace = namespace;
 
         this.isClass = isClass;
-        this.isEntryPoint = false;
+        this.isEntryPoint = isEntryPoint;
 
         this.token = this.keyword;
         this.children = [];

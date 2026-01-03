@@ -1,4 +1,4 @@
-function EmptyMain~main (): Void
+function main (): Void
 {
     return
 }

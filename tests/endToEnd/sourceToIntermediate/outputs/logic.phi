@@ -127,7 +127,7 @@ function Logic~testGreater (Native, Native): Int8
     return
 }
 
-function Logic~main (): Void
+function main (): Void
 {
     introduce v#30
     move v#30 Int8(-1)

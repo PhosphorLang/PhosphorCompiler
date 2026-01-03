@@ -72,18 +72,18 @@ export class Parser
      * @param fileName The name/path of the file
      * @return The root of the parsed syntax tree.
      */
-    public run (tokens: Token[], fileName: string): SyntaxNodes.File
+    public run (tokens: Token[], fileName: string, isEntryPoint: boolean): SyntaxNodes.File
     {
         this.tokens = tokens;
         this.fileName = fileName;
         this.position = 0;
 
-        const root = this.parseFile();
+        const root = this.parseFile(isEntryPoint);
 
         return root;
     }
 
-    private parseFile (): SyntaxNodes.File
+    private parseFile (isEntryPoint: boolean): SyntaxNodes.File
     {
         const imports: SyntaxNodes.Import[] = [];
         let generics: SyntaxNodes.GenericsDeclaration|null = null;
@@ -99,7 +99,7 @@ export class Parser
                 case TokenKind.ModuleKeyword:
                 case TokenKind.ClassKeyword:
                 {
-                    module = this.parseModule();
+                    module = this.parseModule(isEntryPoint);
                     break;
                 }
                 case TokenKind.GenericsKeyword:
@@ -175,14 +175,14 @@ export class Parser
         return fileRoot;
     }
 
-    private parseModule (): SyntaxNodes.Module
+    private parseModule (isEntryPoint: boolean): SyntaxNodes.Module
     {
         const keyword = this.consumeNextToken();
         const moduleNamespace = this.parseNamespace();
 
         const isClass = keyword.kind == TokenKind.ClassKeyword;
 
-        return new SyntaxNodes.Module(keyword, moduleNamespace, isClass);
+        return new SyntaxNodes.Module(keyword, moduleNamespace, isClass, isEntryPoint);
     }
 
     private parseGenericsDeclaration (): SyntaxNodes.GenericsDeclaration

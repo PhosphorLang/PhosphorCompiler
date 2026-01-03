@@ -39,7 +39,7 @@ function Bitwise~testOr (Native, Native): Native
     return
 }
 
-function Bitwise~main (): Void
+function main (): Void
 {
     introduce v#10
     move v#10 Native(2)

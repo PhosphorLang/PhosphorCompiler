@@ -32,7 +32,7 @@ function Functions~testAdd (): Native
     return
 }
 
-function Functions~main (): Void
+function main (): Void
 {
     call Functions~testAdd
     return

@@ -94,7 +94,7 @@ function Math~testModulo (Native, Native): Native
     return
 }
 
-function Math~main (): Void
+function main (): Void
 {
     introduce v#24
     move v#24 Native(1)

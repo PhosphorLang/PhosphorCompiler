@@ -39,7 +39,7 @@ function WhileLoop~testWhileLoop (): Int8
     return
 }
 
-function WhileLoop~main (): Void
+function main (): Void
 {
     call WhileLoop~testWhileLoop
     return

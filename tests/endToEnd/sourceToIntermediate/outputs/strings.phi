@@ -22,7 +22,7 @@ function Strings~testStringCompare (Pointer, Pointer): Int8
     return
 }
 
-function Strings~main (): Void
+function main (): Void
 {
     introduce v#5
     move v#5 Strings~c#0

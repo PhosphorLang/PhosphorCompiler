@@ -78,12 +78,14 @@ export class PhosphorCompiler
             const fileContent = FileSystem.readFileSync(sourceFile, { encoding: 'utf8' });
 
             const tokens = lexer.run(fileContent, sourceFile);
-            const syntaxTree = parser.run(tokens, sourceFile);
 
-            if (sourceFile == processArguments.filePath)
+            const isEntryPoint = (sourceFile == processArguments.filePath);
+
+            const syntaxTree = parser.run(tokens, sourceFile, isEntryPoint);
+
+            if (isEntryPoint)
             {
                 entrySyntaxTree = syntaxTree;
-                entrySyntaxTree.module.isEntryPoint = true;
             }
             else
             {

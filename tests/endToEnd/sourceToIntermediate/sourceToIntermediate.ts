@@ -38,7 +38,7 @@ describe('The compiler returns the correct intermediate for',
         function compile (input: string): string
         {
             const tokens = lexer.run(input, '');
-            const syntaxTree = parser.run(tokens, '');
+            const syntaxTree = parser.run(tokens, '', true);
 
             const semanticTree = connector.run(syntaxTree, new Map());
 

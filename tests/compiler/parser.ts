@@ -32,7 +32,7 @@ describe('Parser',
 
                 const expectedResult = SyntaxCreator.newFile();
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -59,7 +59,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -96,7 +96,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -133,7 +133,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -177,7 +177,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -218,7 +218,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -257,7 +257,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -298,7 +298,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -343,7 +343,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -388,7 +388,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -433,7 +433,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -478,7 +478,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -521,7 +521,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -566,7 +566,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -611,7 +611,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -661,7 +661,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -696,7 +696,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -738,7 +738,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -778,7 +778,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -822,7 +822,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -859,7 +859,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -903,7 +903,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -951,7 +951,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -988,7 +988,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -1031,7 +1031,7 @@ describe('Parser',
                     ]
                 );
 
-                const result = parser.run(input, Defaults.fileName);
+                const result = parser.run(input, Defaults.fileName, true);
 
                 assert.deepStrictEqual(result, expectedResult);
             }
@@ -1056,7 +1056,7 @@ describe('Parser',
                 ];
 
                 assert.throws(
-                    (): void => { parser.run(input, Defaults.fileName); },
+                    (): void => { parser.run(input, Defaults.fileName, true); },
                     Diagnostic.Codes.MissingSemicolonAfterStatementError
                 );
             }
@@ -1081,7 +1081,7 @@ describe('Parser',
                 ];
 
                 assert.throws(
-                    (): void => { parser.run(input, Defaults.fileName); },
+                    (): void => { parser.run(input, Defaults.fileName, true); },
                     Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError
                 );
             }
@@ -1106,7 +1106,7 @@ describe('Parser',
                 ];
 
                 assert.throws(
-                    (): void => { parser.run(input, Defaults.fileName); },
+                    (): void => { parser.run(input, Defaults.fileName, true); },
                     Diagnostic.Codes.UnexpectedTokenAfterVariableDeclarationIdentifierError
                 );
             }

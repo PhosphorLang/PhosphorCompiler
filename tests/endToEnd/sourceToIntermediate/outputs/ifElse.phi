@@ -81,7 +81,7 @@ function IfElse~testIfElse (): Int8
     return
 }
 
-function IfElse~main (): Void
+function main (): Void
 {
     call IfElse~testIfElse
     return

@@ -22,13 +22,15 @@ export abstract class SyntaxCreator
 
     public static newModule (
         namespace = SyntaxCreator.newNamespace(),
-        isClass = false
+        isClass = false,
+        isEntryPoint = true
     ): SyntaxNodes.Module
     {
         return new SyntaxNodes.Module(
             TokenCreator.newModuleKeyword(),
             namespace,
-            isClass
+            isClass,
+            isEntryPoint
         );
     }
 

@@ -257,4 +257,14 @@ export class Namespace
 
         return result.join(',');
     }
+
+    /**
+     * Checks if this namespace is equal to another namespace.
+     * @param other The other namespace to compare to.
+     * @returns `true` if the namespaces are equal, `false` otherwise.
+     */
+    public equals (other: Namespace): boolean
+    {
+        return this.qualifiedName === other.qualifiedName;
+    }
 }

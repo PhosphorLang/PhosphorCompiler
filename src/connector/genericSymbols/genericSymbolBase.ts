@@ -11,6 +11,6 @@ export abstract class GenericSymbolBase
 
     public equals (other: GenericSymbolBase): boolean
     {
-        return this.namespace.qualifiedName === other.namespace.qualifiedName;
+        return this.namespace.equals(other.namespace);
     }
 }

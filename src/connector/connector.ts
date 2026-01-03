@@ -72,13 +72,13 @@ export class Connector
         currentVariableStack.set(variable.namespace.qualifiedName, variable);
     }
 
-    private getVariable (qualifiedName: string): SemanticSymbols.VariableLike|null
+    private getVariable (namespace: Namespace): SemanticSymbols.VariableLike|null
     {
         for (const variableStack of this.variableStacks)
         {
             for (const variable of variableStack.values())
             {
-                if (variable.namespace.qualifiedName == qualifiedName)
+                if (variable.namespace.equals(namespace))
                 {
                     return variable;
                 }
@@ -531,7 +531,7 @@ export class Connector
 
         const variable = new SemanticSymbols.Variable(namespace, type, isReadonly);
 
-        if (this.getVariable(namespace.qualifiedName) !== null)
+        if (this.getVariable(namespace) !== null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -552,7 +552,7 @@ export class Connector
     {
         const namespace = Namespace.constructFromNamespace(context.module.namespace, variableDeclaration.identifier.content);
 
-        const variable = this.getVariable(namespace.qualifiedName);
+        const variable = this.getVariable(namespace);
         if (variable === null)
         {
             throw new Error('Connector error: Global variable symbol not found.');
@@ -804,7 +804,7 @@ export class Connector
 
         // TODO: Check if the type clause and the initialiser type match.
 
-        if (this.getVariable(namespace.qualifiedName) !== null)
+        if (this.getVariable(namespace) !== null)
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -942,7 +942,7 @@ export class Connector
 
         let variableOrFieldExpression: SemanticNodes.FieldExpression|SemanticNodes.VariableExpression;
 
-        const variable = this.getVariable(namespace.qualifiedName);
+        const variable = this.getVariable(namespace);
 
         if (variable !== null)
         {
@@ -1131,7 +1131,7 @@ export class Connector
 
     private tryConnectIdentifierAsVariableExpression (namespace: Namespace): SemanticNodes.VariableExpression|null
     {
-        const variable = this.getVariable(namespace.qualifiedName);
+        const variable = this.getVariable(namespace);
 
         if (variable !== null)
         {

@@ -562,11 +562,11 @@ export class Connector
             throw new Error('Connector error: Global variable symbol is not a variable.');
         }
 
-        const initialisier = variableDeclaration.initialiser === null
+        const initialiser = variableDeclaration.initialiser === null
             ? null
             : this.connectExpression(variableDeclaration.initialiser, context);
 
-        if (initialisier !== null && !initialisier.type.equals(variable.type))
+        if (initialiser !== null && !initialiser.type.equals(variable.type))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -577,7 +577,7 @@ export class Connector
             );
         }
 
-        return new SemanticNodes.GlobalVariableDeclaration(variable, initialisier);
+        return new SemanticNodes.GlobalVariableDeclaration(variable, initialiser);
     }
 
     private preconnectFieldVariableDeclaration (
@@ -642,9 +642,9 @@ export class Connector
             throw new Error('Connector error: Field symbol not found.');
         }
 
-        const initialisier = fieldDeclaration.initialiser === null ? null : this.connectExpression(fieldDeclaration.initialiser, context);
+        const initialiser = fieldDeclaration.initialiser === null ? null : this.connectExpression(fieldDeclaration.initialiser, context);
 
-        if (initialisier !== null && !initialisier.type.equals(field.type))
+        if (initialiser !== null && !initialiser.type.equals(field.type))
         {
             this.diagnostic.throw(
                 new Diagnostic.Error(
@@ -655,7 +655,7 @@ export class Connector
             );
         }
 
-        return new SemanticNodes.FieldDeclaration(field, initialisier);
+        return new SemanticNodes.FieldDeclaration(field, initialiser);
     }
 
     private connectFunctionDeclaration (
@@ -777,14 +777,14 @@ export class Connector
     ): SemanticNodes.LocalVariableDeclaration
     {
         const namespace = Namespace.constructFromNamespace(context.module.namespace, variableDeclaration.identifier.content);
-        const initialisier = variableDeclaration.initialiser === null
+        const initialiser = variableDeclaration.initialiser === null
             ? null
             : this.connectExpression(variableDeclaration.initialiser, context);
         let type: SemanticSymbols.TypeLike|null = this.connectTypeClause(variableDeclaration.type, context);
 
         if (type === null)
         {
-            if (initialisier === null)
+            if (initialiser === null)
             {
                 this.diagnostic.throw(
                     new Diagnostic.Error(
@@ -796,7 +796,7 @@ export class Connector
             }
             else
             {
-                type = initialisier.type;
+                type = initialiser.type;
             }
         }
 
@@ -819,7 +819,7 @@ export class Connector
 
         this.pushVariable(variable);
 
-        return new SemanticNodes.LocalVariableDeclaration(variable, initialisier);
+        return new SemanticNodes.LocalVariableDeclaration(variable, initialiser);
     }
 
     private connectReturnStatement (
@@ -890,8 +890,8 @@ export class Connector
         }
 
         const section = this.connectSection(ifStatement.section, context);
-        let elseClause: SemanticNodes.ElseClause|null = null;
 
+        let elseClause: SemanticNodes.ElseClause|null = null;
         if (ifStatement.elseClause !== null)
         {
             elseClause = this.connectElseClause(ifStatement.elseClause, context);

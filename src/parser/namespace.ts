@@ -184,11 +184,49 @@ export class Namespace
         {
             if (typeof memberPathOrNameOrParameters === 'string')
             {
-                return new Namespace(namespace.prefix, namespace.modulePath, namespace.moduleName, [], null, memberPathOrNameOrParameters);
+                // When adding a member name, preserve the generic type parameters.
+                return new Namespace(namespace.prefix, namespace.modulePath, namespace.moduleName, namespace.genericTypeParameters, null, memberPathOrNameOrParameters);
             }
             else
             {
-                throw new Error('The member name must be provided if the member path is provided.');
+                // When adding generic type parameters to a namespace, preserve the member path and name.
+                // This handles cases like "Module~field" -> "Module[Type]~field"
+                if (namespace.memberPath !== null && namespace.memberName !== null)
+                {
+                    // Both memberPath and memberName are set (e.g., "Module~path.field")
+                    return new Namespace(
+                        namespace.prefix,
+                        namespace.modulePath,
+                        namespace.moduleName,
+                        memberPathOrNameOrParameters,
+                        namespace.memberPath,
+                        namespace.memberName
+                    );
+                }
+                else if (namespace.memberName !== null)
+                {
+                    // Only memberName is set (e.g., "Module~field")
+                    return new Namespace(
+                        namespace.prefix,
+                        namespace.modulePath,
+                        namespace.moduleName,
+                        memberPathOrNameOrParameters,
+                        null,
+                        namespace.memberName
+                    );
+                }
+                else
+                {
+                    // Neither memberPath nor memberName is set (just a module namespace)
+                    return new Namespace(
+                        namespace.prefix,
+                        namespace.modulePath,
+                        namespace.moduleName,
+                        memberPathOrNameOrParameters,
+                        null,
+                        null
+                    );
+                }
             }
         }
         else
@@ -206,28 +244,7 @@ export class Namespace
             }
             else
             {
-                if ((namespace.memberPath !== null) && (namespace.memberName !== null))
-                {
-                    return new Namespace(
-                        namespace.prefix,
-                        namespace.modulePath,
-                        namespace.moduleName,
-                        memberPathOrNameOrParameters,
-                        namespace.memberPath,
-                        namespace.memberName
-                    );
-                }
-                else
-                {
-                    return new Namespace(
-                        namespace.prefix,
-                        namespace.modulePath,
-                        namespace.moduleName,
-                        memberPathOrNameOrParameters,
-                        null,
-                        null
-                    );
-                }
+                throw new Error('The member name must be provided if the member path is provided.');
             }
         }
     }

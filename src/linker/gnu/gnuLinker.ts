@@ -22,6 +22,7 @@ export class GnuLinker
             'ld ' +
             '-e _start ' +
             '-s --gc-sections -n ' +
+            '-z noexecstack --no-warn-rwx-segments ' +
             '-nostdlib ' +
             '-o "' + outputPath + '" ' +
             '"' + filesAsString + '" ' +

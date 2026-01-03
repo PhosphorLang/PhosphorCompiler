@@ -20,6 +20,7 @@ tests/tmp/**/*
 
 # Coverage directory used by tools like istanbul:
 coverage
+.coverage
 
 # Notes folder:
 notes

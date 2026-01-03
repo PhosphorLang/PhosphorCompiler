@@ -16,7 +16,8 @@ export abstract class SyntaxCreator
         module = SyntaxCreator.newModule(),
     ): SyntaxNodes.File
     {
-        return new SyntaxNodes.File(fileName, module, imports, variables, fields, functions);
+        // TODO: Add support for defining generic parameters.
+        return new SyntaxNodes.File(fileName, module, null, imports, variables, fields, functions);
     }
 
     public static newModule (

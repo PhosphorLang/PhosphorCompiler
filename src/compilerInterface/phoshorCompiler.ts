@@ -1,17 +1,19 @@
 import * as Diagnostic from '../diagnostic';
+import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
 import { Connector } from '../connector/connector';
 import { File as FileSemanticNode } from '../connector/semanticNodes';
+import { File as FileSpecialisedNode } from '../specialiser/specialisedNodes';
 import { FileSyntaxNode } from '../parser/syntaxNodes/fileSyntaxNode';
 import FileSystem from 'fs';
 import { Importer } from '../importer/importer';
 import { IntermediateLowerer } from '../intermediateLowerer/intermediateLowerer';
 import { Lexer } from '../lexer/lexer';
 import { LinuxAmd64Backend } from '../backends/linuxAmd64Backend';
-import { ModuleSemanticSymbol } from '../connector/semanticSymbols/moduleSemanticSymbol';
 import { Parser } from '../parser/parser';
 import Path from 'path';
 import { ProcessArguments } from './processArguments';
 import SemanticLowerer from '../semanticLowerer/semanticLowerer';
+import { Specialiser } from '../specialiser/specialiser';
 import { TargetPlatform } from './targetPlatform';
 import { TranspilerIntermediate } from '../transpiler/intermediate/transpilerIntermediate';
 
@@ -47,6 +49,7 @@ export class PhosphorCompiler
         const parser = new Parser(this.diagnostic);
         const importer = new Importer(this.diagnostic);
         const connector = new Connector(this.diagnostic);
+        const specialiser = new Specialiser();
         const semanticLowerer = new SemanticLowerer();
         const intermediateLowerer = new IntermediateLowerer();
 
@@ -99,18 +102,28 @@ export class PhosphorCompiler
         }
 
         const importOrderedSyntaxTrees = importer.run(entrySyntaxTree, syntaxTrees);
-        const qualifiedNameToFile = new Map<string, FileSemanticNode>();
-        const modulesWithInitialisers: Set<ModuleSemanticSymbol> = new Set();
 
+        const qualifiedNameToSemanticFile = new Map<string, FileSemanticNode>();
+        const importOrderedSemanticTrees: FileSemanticNode[] = [];
         for (const syntaxTree of importOrderedSyntaxTrees)
         {
-            const fileSemanticTree = connector.run(syntaxTree, qualifiedNameToFile);
-            // TODO: Check if the qualified name is already in the map.
-            qualifiedNameToFile.set(fileSemanticTree.module.namespace.qualifiedName, fileSemanticTree);
+            const fileSemanticTree = connector.run(syntaxTree, qualifiedNameToSemanticFile);
+            importOrderedSemanticTrees.push(fileSemanticTree);
+            qualifiedNameToSemanticFile.set(fileSemanticTree.module.namespace.qualifiedName, fileSemanticTree);
+        }
 
-            if ((fileSemanticTree.variables.length > 0) && !fileSemanticTree.module.isEntryPoint)
+        const qualifiedNameToSpecialisedFile = new Map<string, FileSpecialisedNode>();
+        for (const fileSemanticTree of importOrderedSemanticTrees)
+        {
+            specialiser.run(fileSemanticTree, qualifiedNameToSemanticFile, qualifiedNameToSpecialisedFile);
+        }
+
+        const modulesWithInitialisers: Set<SpecialisedSymbols.Module> = new Set();
+        for (const fileSpecialisedTree of qualifiedNameToSpecialisedFile.values())
+        {
+            if ((fileSpecialisedTree.variables.length > 0) && !fileSpecialisedTree.module.isEntryPoint)
             {
-                modulesWithInitialisers.add(fileSemanticTree.module);
+                modulesWithInitialisers.add(fileSpecialisedTree.module);
             }
         }
 
@@ -125,9 +138,9 @@ export class PhosphorCompiler
         // TODO: Check if the exit codes of assemblers/linkers/compilers in the backends is non-zero in case of errors.
 
         const objectFiles: string[] = [];
-        for (const [qualifiedName, fileSemanticTree] of qualifiedNameToFile)
+        for (const [qualifiedName, fileSpecialisedTree] of qualifiedNameToSpecialisedFile)
         {
-            const loweredTree = semanticLowerer.run(fileSemanticTree, modulesWithInitialisers);
+            const loweredTree = semanticLowerer.run(fileSpecialisedTree, modulesWithInitialisers);
             const intermediateLanguage = intermediateLowerer.run(loweredTree);
 
             if (processArguments.intermediate)

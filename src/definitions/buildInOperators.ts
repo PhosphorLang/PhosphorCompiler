@@ -95,7 +95,7 @@ export abstract class BuildInOperators
         }
     }
 
-    public static getUnaryOperator (tokenKind: TokenKind, operandType: SemanticSymbols.Type): UnarySemanticOperator|null
+    public static getUnaryOperator (tokenKind: TokenKind, operandType: SemanticSymbols.TypeLike): UnarySemanticOperator|null
     {
         const operatorKind = BuildInOperators.tokenKindToSemanticOperatorKind(tokenKind);
 
@@ -117,8 +117,8 @@ export abstract class BuildInOperators
 
     public static getBinaryOperator (
         tokenKind: TokenKind,
-        leftType: SemanticSymbols.Type,
-        rightType: SemanticSymbols.Type
+        leftType: SemanticSymbols.TypeLike,
+        rightType: SemanticSymbols.TypeLike
     ): BinarySemanticOperator|null
     {
         const operatorKind = BuildInOperators.tokenKindToSemanticOperatorKind(tokenKind);

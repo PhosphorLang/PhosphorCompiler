@@ -1,10 +1,10 @@
-import * as SemanticSymbols from '../connector/semanticSymbols';
+import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
 import { BuildInFunctions } from './buildInFunctions';
 import { Namespace } from '../parser/namespace';
 
 export abstract class BuildInModules
 {
-    public static readonly string = new SemanticSymbols.Module(
+    public static readonly string = new SpecialisedSymbols.Module(
         Namespace.constructFromStrings('Standard', 'String'),
         null,
         new Map(),
@@ -17,7 +17,7 @@ export abstract class BuildInModules
         false
     );
 
-    public static readonly memory = new SemanticSymbols.Module(
+    public static readonly memory = new SpecialisedSymbols.Module(
         Namespace.constructFromStrings('Standard', 'Memory'),
         null,
         new Map(),

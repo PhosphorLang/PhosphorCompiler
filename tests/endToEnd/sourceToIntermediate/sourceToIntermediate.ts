@@ -2,12 +2,14 @@ import 'mocha';
 import * as Diagnostic from '../../../src/diagnostic';
 import { assert } from 'chai';
 import { Connector } from '../../../src/connector/connector';
+import { File as FileSpecialisedNode } from '../../../src/specialiser/specialisedNodes';
 import FileSystem from 'fs';
 import { IntermediateLowerer } from '../../../src/intermediateLowerer/intermediateLowerer';
 import { Lexer } from '../../../src/lexer/lexer';
 import { Parser } from '../../../src/parser/parser';
 import Path from 'path';
 import SemanticLowerer from '../../../src/semanticLowerer/semanticLowerer';
+import { Specialiser } from '../../../src/specialiser/specialiser';
 import { TranspilerIntermediate } from '../../../src/transpiler/intermediate/transpilerIntermediate';
 
 describe('The compiler returns the correct intermediate for',
@@ -17,6 +19,7 @@ describe('The compiler returns the correct intermediate for',
         let lexer: Lexer;
         let parser: Parser;
         let connector: Connector;
+        let specialiser: Specialiser;
         let semanticLowerer: SemanticLowerer;
         let intermediateLowerer: IntermediateLowerer;
         let transpiler: TranspilerIntermediate;
@@ -36,8 +39,15 @@ describe('The compiler returns the correct intermediate for',
         {
             const tokens = lexer.run(input, '');
             const syntaxTree = parser.run(tokens, '');
+
             const semanticTree = connector.run(syntaxTree, new Map());
-            const loweredTree = semanticLowerer.run(semanticTree, new Set());
+
+            const specialisedTreeMap: Map<string, FileSpecialisedNode> = new Map();
+            specialiser.run(semanticTree, new Map(), specialisedTreeMap);
+            const specialisedTree = specialisedTreeMap.get(semanticTree.module.namespace.qualifiedName);
+
+            const loweredTree = semanticLowerer.run(specialisedTree, new Set());
+
             const intermediateTree = intermediateLowerer.run(loweredTree);
             const intermediateCode = transpiler.run(intermediateTree);
 
@@ -65,6 +75,7 @@ describe('The compiler returns the correct intermediate for',
                 lexer = new Lexer(diagnostic);
                 parser = new Parser(diagnostic);
                 connector = new Connector(diagnostic);
+                specialiser = new Specialiser();
                 semanticLowerer = new SemanticLowerer();
                 intermediateLowerer = new IntermediateLowerer();
                 transpiler = new TranspilerIntermediate();

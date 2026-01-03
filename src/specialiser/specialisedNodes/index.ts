@@ -27,7 +27,7 @@ export class UnaryExpression extends GenericNodes.UnaryExpression<Expression> {}
 export class VariableExpression extends GenericNodes.VariableExpression<SpecialisedSymbols.ConcreteType> {}
 export class WhileStatement extends GenericNodes.WhileStatement<Expression, Section> {}
 
-export type SemanticNode =
+export type SpecialisedNode = // TODO: Rename to "Node"?
     Assignment
     | BinaryExpression
     | CallExpression

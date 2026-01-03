@@ -11,7 +11,7 @@ export class Label extends GenericSymbol.Label {}
 export class Module extends GenericSymbol.Module<ConcreteType, ConcreteType> {}
 export class Variable extends GenericSymbol.Variable<ConcreteType> {}
 
-export type SemanticSymbol =
+export type SpecialisedSymbol = // TODO: Rename to "Symbol"?
     | ConcreteType
     | Field
     | FunctionParameter

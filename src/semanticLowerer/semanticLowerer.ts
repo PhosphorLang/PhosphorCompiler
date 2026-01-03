@@ -30,19 +30,19 @@ export default class SemanticLowerer
     }
 
     /**
-     * @param fileSemanticNode
+     * @param fileSpecialisedNode
      * @param modulesToBeInitialised
      *  A set of semantic modules which have initialisers that must be called. Must not contain the entry point module.
      * @returns
      */
-    public run (fileSemanticNode: SpecialisedNodes.File, modulesToBeInitialised: Set<SpecialisedSymbols.Module>): LoweredNodes.File
+    public run (fileSpecialisedNode: SpecialisedNodes.File, modulesToBeInitialised: Set<SpecialisedSymbols.Module>): LoweredNodes.File
     {
         this.labelCounter = 0;
         this.buildInImports = new Set();
         this.additionalFunctions = [];
         this.currentModule = null;
 
-        const loweredFile = this.lowerFile(fileSemanticNode, modulesToBeInitialised);
+        const loweredFile = this.lowerFile(fileSpecialisedNode, modulesToBeInitialised);
 
         return loweredFile;
     }
@@ -187,7 +187,7 @@ export default class SemanticLowerer
                 const namespace = Namespace.constructFromNamespace(moduleWithInitiliser.namespace, ':moduleInitialiser');
                 const functionSymbol = new SpecialisedSymbols.Function(namespace, BuildInTypes.noType, [], null, false);
 
-                const callStatement = new LoweredNodes.CallExpression(functionSymbol, [], null);
+                const callStatement = new LoweredNodes.CallExpression(functionSymbol, [], null, functionSymbol.returnType);
                 initialisationBody.push(callStatement);
             }
         }
@@ -254,16 +254,10 @@ export default class SemanticLowerer
 
         this.importBuildInModuleIfNeeded(BuildInModules.memory);
 
-        let concreteClassType: SpecialisedSymbols.ConcreteType;
-        if (this.currentModule.classType.parameters.length > 0)
-        {
-            throw new Error(`Semantic Lowerer error: Class initialisation with generic parameters is not implemented.`);
-        }
-        else
-        {
-            // TODO: Must be adjusted as soon as there are generics.
-            concreteClassType = new SpecialisedSymbols.ConcreteType(this.currentModule.classType.namespace, []);
-        }
+        const concreteClassType = new SpecialisedSymbols.ConcreteType(
+            this.currentModule.classType.namespace,
+            this.currentModule.classType.parameters
+        );
 
         const allocatedInstanceVariableSymbol = new SpecialisedSymbols.Variable(
             // TODO: Find a better way than a hardcoded name:
@@ -279,7 +273,8 @@ export default class SemanticLowerer
             [
                 new LoweredNodes.SizeOfExpression(concreteClassType), // TODO: Should we make sure this is never zero?
             ],
-            null
+            null,
+            BuildInFunctions.allocate.returnType
         );
 
         initialisationBody.push(
@@ -349,7 +344,12 @@ export default class SemanticLowerer
 
                 if (moduleInitialiserFunctionSymbol !== null)
                 {
-                    const callModuleInitialiserStatement = new LoweredNodes.CallExpression(moduleInitialiserFunctionSymbol, [], null);
+                    const callModuleInitialiserStatement = new LoweredNodes.CallExpression(
+                        moduleInitialiserFunctionSymbol,
+                        [],
+                        null,
+                        moduleInitialiserFunctionSymbol.returnType
+                    );
                     loweredSection.statements.unshift(callModuleInitialiserStatement);
                 }
             }
@@ -584,7 +584,8 @@ export default class SemanticLowerer
         return new LoweredNodes.CallExpression(
             callExpression.functionSymbol,
             loweredArguments,
-            loweredThisReference
+            loweredThisReference,
+            callExpression.type
         );
     }
 
@@ -620,7 +621,8 @@ export default class SemanticLowerer
                     loweredLeftOperand,
                     loweredRightOperand,
                 ],
-                null
+                null,
+                BuildInFunctions.stringsAreEqual.returnType
             );
 
             return callExpression;
@@ -650,7 +652,7 @@ export default class SemanticLowerer
         // TODO: Could we get this symbol from the type?
         const classInitialiserSymbol = new SpecialisedSymbols.Function(namespace, BuildInTypes.pointer, [], null, false);
 
-        const callExpression = new LoweredNodes.CallExpression(classInitialiserSymbol, [], null);
+        const callExpression = new LoweredNodes.CallExpression(classInitialiserSymbol, [], null, classInitialiserSymbol.returnType);
 
         if (instantiationExpression.arguments.length > 0)
         {

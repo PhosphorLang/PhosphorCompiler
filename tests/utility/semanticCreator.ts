@@ -5,6 +5,7 @@ import { BuildInOperators } from '../../src/definitions/buildInOperators';
 import { BuildInTypes } from '../../src/definitions/buildInTypes';
 import { Defaults } from './defaults';
 import { Namespace } from '../../src/parser/namespace';
+import { SemanticSymbolKind } from '../../src/connector/semanticSymbolKind';
 import { UnarySemanticOperator } from '../../src/connector/semanticOperators/unarySemanticOperator';
 
 export abstract class SemanticCreator
@@ -66,7 +67,12 @@ export abstract class SemanticCreator
         symbol = SemanticCreator.newFunctionSymbol()
     ): SemanticNodes.CallExpression
     {
-        return new SemanticNodes.CallExpression(symbol, callArguments, null);
+        if (symbol.returnType.kind !== SemanticSymbolKind.ConcreteType)
+        {
+            throw new Error('Function symbol must have a concrete return type');
+        }
+
+        return new SemanticNodes.CallExpression(symbol, callArguments, null, symbol.returnType);
     }
 
     public static newLocalVariableDeclaration (

@@ -14,11 +14,12 @@ export class CallExpressionGenericNode <Expression, TypeLikeSymbol>
     constructor (
         functionSymbol: GenericSymbols.Function<TypeLikeSymbol>,
         callArguments: Expression[],
-        thisReference: Expression|null
+        thisReference: Expression|null,
+        returnType: TypeLikeSymbol
     ){
         this.kind = SemanticKind.CallExpression;
 
-        this.type = functionSymbol.returnType;
+        this.type = returnType;
 
         this.functionSymbol = functionSymbol;
         this.arguments = callArguments;

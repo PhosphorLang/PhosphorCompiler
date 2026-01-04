@@ -303,6 +303,7 @@ export class TranspilerIntermediate
                 break;
             case IntermediateKind.Introduce:
                 parameters = [
+                    statementIntermediate.variableSymbol.size,
                     this.getIntermediateSymbolString(statementIntermediate.variableSymbol),
                 ];
                 break;

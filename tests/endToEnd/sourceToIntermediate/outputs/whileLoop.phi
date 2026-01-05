@@ -1,6 +1,6 @@
 function WhileLoop~getMax (): Native
 {
-    introduce v#0
+    introduce Native v#0
     move v#0 Native(4)
     give r#0 v#0
     return
@@ -8,32 +8,32 @@ function WhileLoop~getMax (): Native
 
 function WhileLoop~testWhileLoop (): Int8
 {
-    introduce v#1
+    introduce Native v#1
     move v#1 Native(0)
     l#0:
-    introduce v#3
+    introduce Native v#3
     move v#3 v#1
     call WhileLoop~getMax
-    introduce v#4
+    introduce Native v#4
     take v#4 r#0
     compare v#3 v#4
     jumpIfLess l#2
-    introduce v#2
+    introduce Int8 v#2
     move v#2 Int8(0)
     goto l#3
     l#2:
     move v#2 Int8(-1)
     l#3:
-    introduce v#5
+    introduce Int8 v#5
     move v#5 Int8(0)
     compare v#2 v#5
     jumpIfEqual l#1
-    introduce v#6
+    introduce Native v#6
     move v#6 Native(1)
     add v#1 v#6
     goto l#0
     l#1:
-    introduce v#7
+    introduce Int8 v#7
     move v#7 Int8(-1)
     give r#0 v#7
     return

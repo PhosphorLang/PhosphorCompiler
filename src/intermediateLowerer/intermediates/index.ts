@@ -1,5 +1,7 @@
 export { AddIntermediate as Add } from './addIntermediate';
 export { AndIntermediate as And } from './andIntermediate';
+export { ArrayLoadIntermediate as ArrayLoad } from './arrayLoadIntermediate';
+export { ArrayStoreIntermediate as ArrayStore } from './arrayStoreIntermediate';
 export { CallIntermediate as Call } from './callIntermediate';
 export { CompareIntermediate as Compare } from './compareIntermediate';
 export { ConstantIntermediate as Constant } from './constantIntermediate';
@@ -32,6 +34,8 @@ export { TakeIntermediate as Take } from './takeIntermediate';
 
 import { AddIntermediate } from './addIntermediate';
 import { AndIntermediate } from './andIntermediate';
+import { ArrayLoadIntermediate } from './arrayLoadIntermediate';
+import { ArrayStoreIntermediate } from './arrayStoreIntermediate';
 import { CallIntermediate } from './callIntermediate';
 import { CompareIntermediate } from './compareIntermediate';
 import { ConstantIntermediate } from './constantIntermediate';
@@ -66,6 +70,8 @@ export type Intermediate =
     LoadFieldIntermediate
     | AddIntermediate
     | AndIntermediate
+    | ArrayLoadIntermediate
+    | ArrayStoreIntermediate
     | CallIntermediate
     | CompareIntermediate
     | ConstantIntermediate
@@ -98,6 +104,8 @@ export type Intermediate =
 export type Statement =
     AddIntermediate
     | AndIntermediate
+    | ArrayLoadIntermediate
+    | ArrayStoreIntermediate
     | CallIntermediate
     | CompareIntermediate
     | DivideIntermediate

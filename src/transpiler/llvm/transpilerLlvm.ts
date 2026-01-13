@@ -3,6 +3,7 @@ import * as Intermediates from '../../intermediateLowerer/intermediates';
 import * as IntermediateSymbols from '../../intermediateLowerer/intermediateSymbols';
 import * as LlvmInstructions from './llvmInstructions';
 import { ArrayBuilder } from '../../utility/arrayBuilder';
+import { BuildInTypes } from '../../definitions/buildInTypes';
 import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
 import { IntermediateSize } from '../../intermediateLowerer/intermediateSize';
 import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
@@ -192,6 +193,26 @@ export class TranspilerLlvm
         }
     }
 
+    private getByteCountForIntermediateSize (intermediateSize: IntermediateSize): number
+    {
+        switch (intermediateSize)
+        {
+            case IntermediateSize.Int8:
+                return 1;
+            case IntermediateSize.Int16:
+                return 2;
+            case IntermediateSize.Int32:
+                return 4;
+            case IntermediateSize.Int64:
+                return 8;
+            case IntermediateSize.Native:
+            case IntermediateSize.Pointer:
+                return 8; // FIXME: Input actual target word size.
+            case IntermediateSize.Void:
+                return 0;
+        }
+    }
+
     /**
      * Load a variable into a register.
      * @param variable The variable to load from.
@@ -215,6 +236,48 @@ export class TranspilerLlvm
         );
 
         return registerName;
+    }
+
+    /**
+     * Load a readable value into a register.
+     * @param value The readable value to load from.
+     * @returns The name of the register or the literal value.
+     */
+    private loadReadableValueIntoRegister (value: IntermediateSymbols.ReadableValue): string
+    {
+        switch (value.kind)
+        {
+            case IntermediateSymbolKind.Constant:
+            {
+                const constantName = this.getLlvmGlobalName(value);
+                const constantSizeString = this.getLlvmSizeString(value.size);
+                const byteSizeString = this.getLlvmSizeString(IntermediateSize.Int8);
+                const registerName = this.nextVariableName;
+
+                const pointerString = `getelementptr (${byteSizeString}, ${constantSizeString} ${constantName}, ${byteSizeString} 0)`;
+
+                this.instructions.push(
+                    new LlvmInstructions.Assignment(
+                        registerName,
+                        'load',
+                        this.pointerSizeString + ',',
+                        this.pointerSizeString,
+                        pointerString,
+                    ),
+                );
+
+                return registerName;
+            }
+            case IntermediateSymbolKind.LocalVariable:
+            case IntermediateSymbolKind.GlobalVariable:
+            {
+                return this.loadIntoRegister(value);
+            }
+            case IntermediateSymbolKind.Literal:
+            {
+                return value.value;
+            }
+        }
     }
 
     /**
@@ -242,7 +305,17 @@ export class TranspilerLlvm
         fieldIndex: number
     ): string
     {
-        const baseType = this.getLlvmLocalName(structure);
+        let baseType: string;
+        if (BuildInTypes.isArrayStructure(structure))
+        {
+            // Hack: It's a bit hacky having this here. And a bit more hacky to omit the data after the length field.
+            baseType = `{${this.getLlvmSizeString(structure.fields[0].size)}}`;
+        }
+        else
+        {
+            baseType = this.getLlvmLocalName(structure);
+        }
+
         const pointerType = this.getLlvmSizeString(IntermediateSize.Pointer);
         const basePointer = this.loadIntoRegister(thisReference);
         const byteSize = this.getLlvmSizeString(IntermediateSize.Int32);
@@ -536,6 +609,12 @@ export class TranspilerLlvm
             case IntermediateKind.StoreField:
                 this.transpileStoreField(statementIntermediate);
                 break;
+            case IntermediateKind.ArrayLoad:
+                this.transpileArrayLoad(statementIntermediate);
+                break;
+            case IntermediateKind.ArrayStore:
+                this.transpileArrayStore(statementIntermediate);
+                break;
             case IntermediateKind.Subtract:
                 this.transpileSubtract(statementIntermediate);
                 break;
@@ -547,13 +626,25 @@ export class TranspilerLlvm
 
     private transpileSizeOf (sizeOfIntermediate: Intermediates.SizeOf): void
     {
-        // NOTE: The SizeOfExpression in LLVM is a trick.
+        if (sizeOfIntermediate.of instanceof IntermediateSymbols.Structure)
+        {
+            this.transpileSizeOfStructure(sizeOfIntermediate.of, sizeOfIntermediate.to);
+        }
+        else
+        {
+            this.transpileSizeOfSize(sizeOfIntermediate.of, sizeOfIntermediate.to);
+        }
+    }
+
+    private transpileSizeOfStructure (structure: IntermediateSymbols.Structure, target: IntermediateSymbols.WritableValue): void
+    {
+        // NOTE: For structures, the SizeOfExpression in LLVM is a trick.
         // By utilising the getelementptr instruction, we can get the size of a type:
         // %sizePointer = getelementptr (%MyType, ptr null, i8 1)
         // %size = ptrtoint ptr %sizePointer to ToSize
         // It is quaranteed to be optimised away into a constant by the LLVM compiler.
 
-        const structureTypeString = this.getLlvmLocalName(sizeOfIntermediate.structure);
+        const structureTypeString = this.getLlvmLocalName(structure);
         const pointerType = this.getLlvmSizeString(IntermediateSize.Pointer);
         const byteSizeString = this.getLlvmSizeString(IntermediateSize.Int8);
 
@@ -570,11 +661,88 @@ export class TranspilerLlvm
                 pointerType,
                 sizePointerRegister,
                 'to',
-                this.getLlvmSizeString(sizeOfIntermediate.to.size),
+                this.getLlvmSizeString(target.size),
             ),
         );
 
-        this.storeIntoVariable(sizeRegister, sizeOfIntermediate.to);
+        this.storeIntoVariable(sizeRegister, target);
+    }
+
+    private transpileSizeOfSize (size: IntermediateSize, target: IntermediateSymbols.WritableValue): void
+    {
+        const byteCount = this.getByteCountForIntermediateSize(size);
+        this.storeIntoVariable(byteCount.toString(), target);
+    }
+
+    private transpileArrayLoad (loadIntermediate: Intermediates.ArrayLoad): void
+    {
+        const elementPointerRegister =this.loadArrayIndexIntoVariable(
+            loadIntermediate.array,
+            loadIntermediate.index,
+            loadIntermediate.size,
+        );
+
+        const elementRegister = this.nextVariableName;
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(
+                elementRegister,
+                'load',
+                this.getLlvmSizeString(loadIntermediate.size) + ',',
+                this.pointerSizeString,
+                elementPointerRegister,
+            ),
+        );
+
+        this.storeIntoVariable(elementRegister, loadIntermediate.to);
+    }
+
+    private transpileArrayStore (storeIntermediate: Intermediates.ArrayStore): void
+    {
+        const elementPointerRegister =this.loadArrayIndexIntoVariable(
+            storeIntermediate.array,
+            storeIntermediate.index,
+            storeIntermediate.size,
+        );
+
+        const sourceRegister = this.loadReadableValueIntoRegister(storeIntermediate.source);
+
+        this.instructions.push(
+            new Instructions.Instruction(
+                'store',
+                this.getLlvmSizeString(storeIntermediate.size),
+                sourceRegister + ',',
+                this.pointerSizeString,
+                elementPointerRegister,
+            )
+        );
+    }
+
+    private loadArrayIndexIntoVariable (
+        array: IntermediateSymbols.ReadableValue,
+        index: IntermediateSymbols.ReadableValue,
+        size: IntermediateSize
+    ): string
+    {
+        // Arrays are stored as structs: { i64 length, [0 x ElementType] data }
+
+        const arrayPointerRegister = this.loadReadableValueIntoRegister(array);
+        const indexString = this.loadReadableValueIntoRegister(index);
+
+        // Store to the data field (field 1 of the struct) with given index:
+        // getelementptr {i64, [0 x T]}, ptr %array, i32 0, i32 1, i64 %index
+        const elementPointerRegister = this.nextVariableName;
+        const elementTypeString = this.getLlvmSizeString(size);
+        const arrayStructType = `{${this.getLlvmSizeString(IntermediateSize.Native)}, [0 x ${elementTypeString}]}`;
+        const fromString = `getelementptr ${arrayStructType}, ${this.pointerSizeString} ${arrayPointerRegister},`
+            + ` ${this.getLlvmSizeString(IntermediateSize.Int32)} 0, ${this.getLlvmSizeString(IntermediateSize.Int32)} 1,`
+            + ` ${this.getLlvmSizeString(IntermediateSize.Native)} ${indexString}`;
+
+        this.instructions.push(
+            new LlvmInstructions.Assignment(elementPointerRegister, fromString),
+        );
+
+        return elementPointerRegister;
     }
 
     private transpileAdd (addIntermediate: Intermediates.Add): void

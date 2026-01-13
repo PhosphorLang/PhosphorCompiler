@@ -380,6 +380,8 @@ export default class SemanticLowerer
                 return [this.lowerAssignment(statement)];
             case SemanticKind.CallExpression:
                 return [this.lowerCallExpression(statement)];
+            case SemanticKind.ArraySetExpression:
+                return [this.lowerArraySetExpression(statement)];
             case SemanticKind.IfStatement:
                 return this.lowerIfStatement(statement);
             case SemanticKind.LocalVariableDeclaration:
@@ -554,6 +556,12 @@ export default class SemanticLowerer
                 return this.lowerFieldExpression(expression);
             case SemanticKind.InstantiationExpression:
                 return this.lowerInstantiationExpression(expression);
+            case SemanticKind.ArrayInstantiationExpression:
+                return this.lowerArrayInstantiation(expression);
+            case SemanticKind.ArrayGetExpression:
+                return this.lowerArrayGetExpression(expression);
+            case SemanticKind.ArraySetExpression:
+                throw new Error(`Semantic Lowerer error: Array set is used as an expression instead of a statement.`);
             case SemanticKind.LiteralExpression:
                 return this.lowerLiteralExpression(expression);
             case SemanticKind.ModuleExpression:
@@ -563,6 +571,41 @@ export default class SemanticLowerer
             case SemanticKind.VariableExpression:
                 return this.lowerVariableExpression(expression);
         }
+    }
+
+    private lowerArrayInstantiation (arrayInstantiation: SpecialisedNodes.ArrayInstantiationExpression):
+        LoweredNodes.ArrayInstantiationExpression
+    {
+        // Pass the array instantiation to the intermediate lowerer
+        // where it will be properly handled (allocation + storing the length in the header)
+
+        // We need to import the Memory module for the allocate function
+        this.importBuildInModuleIfNeeded(BuildInModules.memory);
+
+        const loweredSize = this.lowerExpression(arrayInstantiation.sizeArgument);
+
+        return new LoweredNodes.ArrayInstantiationExpression(
+            arrayInstantiation.type,
+            arrayInstantiation.elementType,
+            loweredSize
+        );
+    }
+
+    private lowerArrayGetExpression (arrayGetExpression: SpecialisedNodes.ArrayGetExpression): LoweredNodes.ArrayGetExpression
+    {
+        const loweredArray = this.lowerExpression(arrayGetExpression.array);
+        const loweredIndex = this.lowerExpression(arrayGetExpression.index);
+
+        return new LoweredNodes.ArrayGetExpression(arrayGetExpression.type, loweredArray, loweredIndex);
+    }
+
+    private lowerArraySetExpression (arraySetExpression: SpecialisedNodes.ArraySetExpression): LoweredNodes.ArraySetExpression
+    {
+        const loweredArray = this.lowerExpression(arraySetExpression.array);
+        const loweredIndex = this.lowerExpression(arraySetExpression.index);
+        const loweredValue = this.lowerExpression(arraySetExpression.value);
+
+        return new LoweredNodes.ArraySetExpression(arraySetExpression.type, loweredArray, loweredIndex, loweredValue);
     }
 
     private lowerCallExpression (callExpression: SpecialisedNodes.CallExpression): LoweredNodes.CallExpression

@@ -26,5 +26,10 @@ export enum SemanticKind
     UnaryExpression = 'UnaryExpression',
     BinaryExpression = 'BinaryExpression',
     SizeOfExpression = 'SizeOfExpression',
+    // Array-specific expressions
+    ArrayInstantiationExpression = 'ArrayInstantiationExpression',
+    ArrayGetExpression = 'ArrayGetExpression',
+    ArraySetExpression = 'ArraySetExpression',
+
     // TODO: Sort groups alphabetically.
 }

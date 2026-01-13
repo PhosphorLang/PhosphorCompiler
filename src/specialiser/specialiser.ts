@@ -2,6 +2,7 @@ import * as SemanticNodes from '../connector/semanticNodes';
 import * as SemanticSymbols from '../connector/semanticSymbols';
 import * as SpecialisedNodes from './specialisedNodes';
 import * as SpecialisedSymbols from './specialisedSymbols';
+import { BuildInTypes } from '../definitions/buildInTypes';
 import { Namespace } from '../parser/namespace';
 import { SemanticKind } from '../connector/semanticKind';
 import { SemanticSymbolKind } from '../connector/semanticSymbolKind';
@@ -388,9 +389,14 @@ export class Specialiser
         {
             if (type.parameters.length === 0)
             {
-                /* HACK: We have this bad casting here because we need the identity for checks with build-in functions
-                         in the lowerers. Solving this requires a more fundamental change in handling the build-in functions. */
-                return type as SpecialisedSymbols.ConcreteType;
+
+                const builtIn = BuildInTypes.getTypeByName(type.namespace.baseName);
+                if (builtIn !== null)
+                {
+                    return builtIn;
+                }
+
+                return new SpecialisedSymbols.ConcreteType(type.namespace, []);
             }
 
             const specialisedParameters: SpecialisedSymbols.ConcreteType[] = [];
@@ -402,6 +408,11 @@ export class Specialiser
                     throw new Error(`Specialiser error: Type parameter in "${type.namespace.qualifiedName}" is null.`);
                 }
                 specialisedParameters.push(specialisedParameter);
+            }
+
+            if (BuildInTypes.isArray(type))
+            {
+                return BuildInTypes.createSpecialisedArrayType(specialisedParameters[0]);
             }
 
             const parameterNamespaces = this.getNamespacesFromTypes(specialisedParameters);
@@ -766,16 +777,16 @@ export class Specialiser
                 return this.specialiseReturnStatement(statement);
             case SemanticKind.Section:
                 return this.specialiseSection(statement);
+            case SemanticKind.ArraySetExpression:
+                return this.specialiseArraySetExpression(statement);
             case SemanticKind.WhileStatement:
                 return this.specialiseWhileStatement(statement);
-            default:
-                throw new Error(`Specialiser error: Unknown statement kind "${(statement as SemanticNodes.Statement).kind}".`);
         }
     }
 
     private specialiseAssignment (assignment: SemanticNodes.Assignment): SpecialisedNodes.Assignment
     {
-        let specialisedTo: SpecialisedNodes.Expression;
+        let specialisedTo: SpecialisedNodes.FieldExpression|SpecialisedNodes.VariableExpression;
         if (assignment.to.kind === SemanticKind.FieldExpression)
         {
             specialisedTo = this.specialiseFieldExpression(assignment.to);
@@ -863,6 +874,12 @@ export class Specialiser
     {
         switch (expression.kind)
         {
+            case SemanticKind.ArrayGetExpression:
+                return this.specialiseArrayGetExpression(expression);
+            case SemanticKind.ArrayInstantiationExpression:
+                return this.specialiseArrayInstantiation(expression);
+            case SemanticKind.ArraySetExpression:
+                return this.specialiseArraySetExpression(expression);
             case SemanticKind.BinaryExpression:
                 return this.specialiseBinaryExpression(expression);
             case SemanticKind.CallExpression:
@@ -879,8 +896,6 @@ export class Specialiser
                 return this.specialiseUnaryExpression(expression);
             case SemanticKind.VariableExpression:
                 return this.specialiseVariableExpression(expression);
-            default:
-                throw new Error(`Specialiser error: Unknown expression kind "${(expression as SemanticNodes.Expression).kind}".`);
         }
     }
 
@@ -890,6 +905,62 @@ export class Specialiser
         const specialisedRight = this.specialiseExpression(expression.rightOperand);
 
         return new SpecialisedNodes.BinaryExpression(expression.operator, specialisedLeft, specialisedRight);
+    }
+
+    private specialiseArrayInstantiation (node: SemanticNodes.ArrayInstantiationExpression): SpecialisedNodes.ArrayInstantiationExpression
+    {
+        const specialisedType = this.specialiseType(node.type);
+        const specialisedElementType = this.specialiseType(node.elementType);
+        const specialisedSizeArgument = this.specialiseExpression(node.sizeArgument);
+
+        if ((specialisedType === null) || (specialisedElementType === null))
+        {
+            throw new Error(`Specialiser error: Array instantiation has a null type.`);
+        }
+
+        return new SpecialisedNodes.ArrayInstantiationExpression(
+            specialisedType,
+            specialisedElementType,
+            specialisedSizeArgument
+        );
+    }
+
+    private specialiseArrayGetExpression (node: SemanticNodes.ArrayGetExpression): SpecialisedNodes.ArrayGetExpression
+    {
+        const specialisedType = this.specialiseType(node.type);
+        const specialisedArrayExpression = this.specialiseExpression(node.array);
+        const specialisedIndexExpression = this.specialiseExpression(node.index);
+
+        if (specialisedType === null)
+        {
+            throw new Error(`Specialiser error: Array get expression has a null type.`);
+        }
+
+        return new SpecialisedNodes.ArrayGetExpression(
+            specialisedType,
+            specialisedArrayExpression,
+            specialisedIndexExpression
+        );
+    }
+
+    private specialiseArraySetExpression (node: SemanticNodes.ArraySetExpression): SpecialisedNodes.ArraySetExpression
+    {
+        const specialisedElementType = this.specialiseType(node.type);
+        const specialisedArrayExpression = this.specialiseExpression(node.array);
+        const specialisedIndexExpression = this.specialiseExpression(node.index);
+        const specialisedValueExpression = this.specialiseExpression(node.value);
+
+        if (specialisedElementType === null)
+        {
+            throw new Error(`Specialiser error: Array set expression has a null element type.`);
+        }
+
+        return new SpecialisedNodes.ArraySetExpression(
+            specialisedElementType,
+            specialisedArrayExpression,
+            specialisedIndexExpression,
+            specialisedValueExpression
+        );
     }
 
     private specialiseCallExpression (expression: SemanticNodes.CallExpression): SpecialisedNodes.CallExpression

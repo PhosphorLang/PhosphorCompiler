@@ -331,6 +331,37 @@ export class Connector
     {
         const typeName = typeSyntaxNode.identifier.content;
 
+        if (BuildInTypes.isArrayName(typeName))
+        {
+            if (typeSyntaxNode.arguments.elements.length !== 1)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `The type "${typeName}" requires exactly one type argument.`,
+                        Diagnostic.Codes.WrongGenericArgumentCountError,
+                        typeSyntaxNode.identifier
+                    )
+                );
+            }
+
+            const elementTypeSyntax = typeSyntaxNode.arguments.elements[0];
+
+            if (elementTypeSyntax.kind !== SyntaxKind.Type)
+            {
+                this.diagnostic.throw(
+                    new Diagnostic.Error(
+                        `The generic argument of type "${typeName}" must be a type.`,
+                        Diagnostic.Codes.GenericArgumentMustBeTypeError,
+                        elementTypeSyntax.token ?? typeSyntaxNode.identifier
+                    )
+                );
+            }
+
+            const elementType = this.connectType(elementTypeSyntax, context);
+
+            return BuildInTypes.createSemanticArrayType(elementType);
+        }
+
         let type: SemanticSymbols.TypeLike|SemanticSymbols.GenericType|null = BuildInTypes.getTypeByName(typeName);
 
         if (type === null)
@@ -738,7 +769,7 @@ export class Connector
             {
                 const accessExpression = this.connectAccessExpression(statement, context);
 
-                if (accessExpression.kind === SemanticKind.CallExpression)
+                if (accessExpression.kind === SemanticKind.CallExpression || accessExpression.kind === SemanticKind.ArraySetExpression)
                 {
                     return accessExpression;
                 }
@@ -1059,31 +1090,162 @@ export class Connector
                 )
             );
         }
-        else if (type.kind === SemanticSymbolKind.GenericType)
-        {
-            throw new Error('Connector error: Generic literals, how should that work?');
-        }
-
         return new SemanticNodes.LiteralExpression(value, type);
     }
 
     private connectInstantiationExpression (
         expression: SyntaxNodes.InstantiationExpression,
         context: FunctionContext|ModuleContext
-    ): SemanticNodes.InstantiationExpression
+    ): SemanticNodes.InstantiationExpression|SemanticNodes.ArrayInstantiationExpression
     {
         const type = this.connectType(expression.type, context);
 
-        const elements: SemanticNodes.Expression[] = [];
-        for (const element of expression.arguments.elements)
+        if (BuildInTypes.isArray(type))
         {
-            const connectedExpression = this.connectExpression(element, context);
-            elements.push(connectedExpression);
+            if (type.kind !== SemanticSymbolKind.ConcreteType)
+            {
+                throw new Error('Connector error: Array type must be a concrete type with parameters.');
+            }
 
-            // TODO: As soon as there is a constructor, we must check the arguments' types here.
+            return this.connectArrayInstantiation(expression, type, context);
+        }
+        else
+        {
+            const elements: SemanticNodes.Expression[] = [];
+            for (const element of expression.arguments.elements)
+            {
+                const connectedExpression = this.connectExpression(element, context);
+                elements.push(connectedExpression);
+
+                // TODO: As soon as there is a constructor, we must check the arguments' types here.
+            }
+
+            return new SemanticNodes.InstantiationExpression(type, elements);
+        }
+    }
+
+    private connectArrayInstantiation (
+        expression: SyntaxNodes.InstantiationExpression,
+        arrayType: SemanticSymbols.ConcreteType,
+        context: FunctionContext|ModuleContext
+    ): SemanticNodes.ArrayInstantiationExpression
+    {
+        if (expression.arguments.elements.length !== 1)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'Array constructor requires exactly one argument (size).',
+                    Diagnostic.Codes.WrongArgumentCountError,
+                    expression.opening
+                )
+            );
         }
 
-        return new SemanticNodes.InstantiationExpression(type, elements);
+        const sizeArgument = this.connectExpression(expression.arguments.elements[0], context);
+
+        if (!sizeArgument.type.equals(BuildInTypes.integer)) // TODO: Should be Cardinal.
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Array size must be of type ${BuildInTypes.integer.namespace.baseName}.`,
+                    Diagnostic.Codes.WrongArgumentTypeError,
+                    expression.opening
+                )
+            );
+        }
+
+        const elementType = BuildInTypes.getArrayElementType(arrayType);
+        if (elementType === null)
+        {
+            throw new Error('Connector error: Array type has no element type.');
+        }
+
+        return new SemanticNodes.ArrayInstantiationExpression(arrayType, elementType, sizeArgument);
+    }
+
+    private connectArrayGet (
+        arrayExpression: SemanticNodes.Expression,
+        argumentsList: ElementsList<SyntaxNodes.Expression>,
+        elementType: SemanticSymbols.TypeLike,
+        context: FunctionContext|ModuleContext
+    ): SemanticNodes.ArrayGetExpression
+    {
+        if (argumentsList.elements.length !== 1)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'Array.get requires exactly one argument (index).',
+                    Diagnostic.Codes.WrongArgumentCountError
+                    // TODO: Line information
+                )
+            );
+        }
+
+        const indexExpression = this.connectExpression(argumentsList.elements[0], context);
+
+        if (!indexExpression.type.equals(BuildInTypes.integer)) // TODO: Should be Cardinal.
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Array index must be of type ${BuildInTypes.integer.namespace.baseName}.`,
+                    Diagnostic.Codes.WrongArgumentTypeError
+                    // TODO: Line information
+                )
+            );
+        }
+
+        return new SemanticNodes.ArrayGetExpression(elementType, arrayExpression, indexExpression);
+    }
+
+    private connectArraySet (
+        arrayExpression: SemanticNodes.Expression,
+        argumentsList: ElementsList<SyntaxNodes.Expression>,
+        elementType: SemanticSymbols.TypeLike,
+        context: FunctionContext|ModuleContext
+    ): SemanticNodes.ArraySetExpression
+    {
+        if (argumentsList.elements.length !== 2)
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    'Array.set requires exactly two arguments (index, value).',
+                    Diagnostic.Codes.WrongArgumentCountError
+                    // TODO: Line information
+                )
+            );
+        }
+
+        const indexExpression = this.connectExpression(argumentsList.elements[0], context);
+        const valueExpression = this.connectExpression(argumentsList.elements[1], context);
+
+        if (!indexExpression.type.equals(BuildInTypes.integer)) // TODO: Should be Cardinal.
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Array index must be of type ${BuildInTypes.integer.namespace.baseName}.`,
+                    Diagnostic.Codes.WrongArgumentTypeError
+                    // TODO: Line information
+                )
+            );
+        }
+
+        if (!valueExpression.type.equals(elementType))
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Array element type mismatch: expected ${elementType.namespace.baseName}.`,
+                    Diagnostic.Codes.WrongArgumentTypeError
+                    // TODO: Line information
+                )
+            );
+        }
+
+        return new SemanticNodes.ArraySetExpression(
+            elementType,
+            arrayExpression,
+            indexExpression,
+            valueExpression
+        );
     }
 
     private connectIdentifierExpression (
@@ -1367,8 +1529,8 @@ export class Connector
 
     private connectAccessExpression (
         expression: SyntaxNodes.AccessExpression,
-        context: ModuleContext
-    ): SemanticNodes.CallExpression|SemanticNodes.FieldExpression|SemanticNodes.VariableExpression
+        context: ModuleContext|FunctionContext
+    ): SemanticNodes.CallExpression|SemanticNodes.FieldExpression|SemanticNodes.VariableExpression|SemanticNodes.ArrayGetExpression|SemanticNodes.ArraySetExpression
     {
         const primaryExpression = this.connectExpression(expression.primaryExpression, context);
 
@@ -1473,9 +1635,14 @@ export class Connector
     private connectObjectAccessExpression (
         expression: SyntaxNodes.AccessExpression,
         primaryExpression: SemanticNodes.Expression,
-        context: ModuleContext
-    ): SemanticNodes.CallExpression|SemanticNodes.FieldExpression|SemanticNodes.VariableExpression
+        context: ModuleContext|FunctionContext
+    ): SemanticNodes.CallExpression|SemanticNodes.FieldExpression|SemanticNodes.VariableExpression|SemanticNodes.ArrayGetExpression|SemanticNodes.ArraySetExpression
     {
+        if (BuildInTypes.isArray(primaryExpression.type))
+        {
+            return this.connectArrayAccessExpression(expression, primaryExpression, context);
+        }
+
         const importedFile = this.importedFiles.get(primaryExpression.type.namespace.baseName);
         // TODO: Should we look for the class type by symbols instead of the module name here?
         if (importedFile === undefined)
@@ -1531,6 +1698,56 @@ export class Connector
                 }
             }
         }
+    }
+
+    private connectArrayAccessExpression (
+        expression: SyntaxNodes.AccessExpression,
+        arrayExpression: SemanticNodes.Expression,
+        context: ModuleContext|FunctionContext
+    ): SemanticNodes.ArrayGetExpression|SemanticNodes.ArraySetExpression|SemanticNodes.FieldExpression
+    {
+        /* TODO: This uses magic strings for the member names. We probably should not have them inline here. Could we put them somewhere
+                 logical together with "main", which is used as the name for the main function? */
+
+        if (expression.member.kind == SyntaxKind.CallExpression)
+        {
+            const elementType = BuildInTypes.getArrayElementType(arrayExpression.type);
+            if (elementType === null)
+            {
+                throw new Error('Connector error: Expected array type for array method call.');
+            }
+
+            const methodName = expression.member.identifier.content;
+
+            if (methodName === 'get')
+            {
+                return this.connectArrayGet(arrayExpression, expression.member.arguments, elementType, context);
+            }
+            else if (methodName === 'set')
+            {
+                return this.connectArraySet(arrayExpression, expression.member.arguments, elementType, context);
+            }
+        }
+        else
+        {
+            const fieldName = expression.member.identifier.content;
+
+            if (fieldName === 'length')
+            {
+                return new SemanticNodes.FieldExpression(
+                    BuildInTypes.arrayLengthField,
+                    arrayExpression
+                );
+            }
+        }
+
+        this.diagnostic.throw(
+            new Diagnostic.Error(
+                `Unknown identifier "${expression.member.identifier.content}" in array access.`,
+                Diagnostic.Codes.UnknownArrayAccessError,
+                expression.dot
+            )
+        );
     }
 
     private connectBracketedExpression (expression: SyntaxNodes.BracketedExpression, context: ModuleContext): SemanticNodes.Expression

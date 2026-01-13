@@ -75,6 +75,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     UnknownIdentifierInObjectAccessError = 'E1076',
     UnexpectedTokenInGenericsDeclarationError = 'E1077',
     NonGenericTypeIsUsedAsGenericTypeError = 'E1078',
+    UnknownArrayAccessError = 'E1079',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

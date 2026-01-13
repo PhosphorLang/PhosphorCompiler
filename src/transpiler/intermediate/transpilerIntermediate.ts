@@ -1,5 +1,6 @@
 import * as Instructions from '../common/instructions';
 import * as Intermediates from '../../intermediateLowerer/intermediates';
+import * as IntermediateSymbols from '../../intermediateLowerer/intermediateSymbols';
 import { IntermediateKind } from '../../intermediateLowerer/intermediateKind';
 import { IntermediateSymbol } from '../../intermediateLowerer/intermediateSymbols';
 import { IntermediateSymbolKind } from '../../intermediateLowerer/intermediateSymbolKind';
@@ -72,6 +73,10 @@ export class TranspilerIntermediate
                 return 'loadField';
             case IntermediateKind.StoreField:
                 return 'storeField';
+            case IntermediateKind.ArrayLoad:
+                return 'arrayLoad';
+            case IntermediateKind.ArrayStore:
+                return 'arrayStore';
             case IntermediateKind.Add:
                 return 'add';
             case IntermediateKind.And:
@@ -338,6 +343,22 @@ export class TranspilerIntermediate
                     this.getIntermediateSymbolString(statementIntermediate.field),
                 ];
                 break;
+            case IntermediateKind.ArrayLoad:
+                parameters = [
+                    this.getIntermediateSymbolString(statementIntermediate.to),
+                    this.getIntermediateSymbolString(statementIntermediate.array),
+                    this.getIntermediateSymbolString(statementIntermediate.index),
+                    statementIntermediate.size,
+                ];
+                break;
+            case IntermediateKind.ArrayStore:
+                parameters = [
+                    this.getIntermediateSymbolString(statementIntermediate.array),
+                    this.getIntermediateSymbolString(statementIntermediate.index),
+                    this.getIntermediateSymbolString(statementIntermediate.source),
+                    statementIntermediate.size,
+                ];
+                break;
             case IntermediateKind.Negate:
             case IntermediateKind.Not:
                 parameters = [
@@ -360,10 +381,7 @@ export class TranspilerIntermediate
                 parameters = [];
                 break;
             case IntermediateKind.SizeOf:
-                parameters = [
-                    this.getIntermediateSymbolString(statementIntermediate.to),
-                    this.getIntermediateSymbolString(statementIntermediate.structure),
-                ];
+                parameters = this.getParametersForSizeOfInstruction(statementIntermediate);
                 break;
             case IntermediateKind.Label:
                 this.instructions.push(
@@ -380,5 +398,23 @@ export class TranspilerIntermediate
                 ...parameters,
             ),
         );
+    }
+
+    private getParametersForSizeOfInstruction (sizeOfIntermediate: Intermediates.SizeOf): string[]
+    {
+        const parameters: string[] = [
+            this.getIntermediateSymbolString(sizeOfIntermediate.to),
+        ];
+
+        if (sizeOfIntermediate.of instanceof IntermediateSymbols.Structure)
+        {
+            parameters.push(this.getIntermediateSymbolString(sizeOfIntermediate.of));
+        }
+        else
+        {
+            parameters.push(sizeOfIntermediate.of);
+        }
+
+        return parameters;
     }
 }

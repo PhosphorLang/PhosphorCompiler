@@ -1,6 +1,9 @@
 import * as GenericNodes from '../../connector/genericNodes';
 import * as SpecialisedSymbols from '../specialisedSymbols';
 
+export class ArrayGetExpression extends GenericNodes.ArrayGetExpression<Expression, SpecialisedSymbols.ConcreteType> {}
+export class ArrayInstantiationExpression extends GenericNodes.ArrayInstantiationExpression<Expression, SpecialisedSymbols.ConcreteType> {}
+export class ArraySetExpression extends GenericNodes.ArraySetExpression<Expression, SpecialisedSymbols.ConcreteType> {}
 export class Assignment extends GenericNodes.Assignment<Expression, FieldExpression, VariableExpression> {}
 export class BinaryExpression extends GenericNodes.BinaryExpression<Expression> {}
 export class CallExpression extends GenericNodes.CallExpression<Expression, SpecialisedSymbols.ConcreteType> {}
@@ -28,7 +31,10 @@ export class VariableExpression extends GenericNodes.VariableExpression<Speciali
 export class WhileStatement extends GenericNodes.WhileStatement<Expression, Section> {}
 
 export type SpecialisedNode = // TODO: Rename to "Node"?
-    Assignment
+    ArrayGetExpression
+    | ArrayInstantiationExpression
+    | ArraySetExpression
+    | Assignment
     | BinaryExpression
     | CallExpression
     | ElseClause
@@ -49,7 +55,8 @@ export type SpecialisedNode = // TODO: Rename to "Node"?
     | WhileStatement;
 
 export type Statement =
-    Assignment
+    ArraySetExpression
+    | Assignment
     | CallExpression
     | IfStatement
     | LocalVariableDeclaration
@@ -58,7 +65,10 @@ export type Statement =
     | WhileStatement;
 
 export type Expression =
-    BinaryExpression
+    ArrayGetExpression
+    | ArrayInstantiationExpression
+    | ArraySetExpression
+    | BinaryExpression
     | CallExpression
     | FieldExpression
     | InstantiationExpression

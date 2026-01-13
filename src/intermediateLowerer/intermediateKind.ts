@@ -9,6 +9,8 @@ export enum IntermediateKind
     // Statements:
     Add = 'Add',
     And = 'And',
+    ArrayLoad = 'ArrayLoad',
+    ArrayStore = 'ArrayStore',
     Call = 'Call',
     Compare = 'Compare',
     Divide = 'Divide',

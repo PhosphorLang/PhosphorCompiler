@@ -2,6 +2,7 @@ import * as Intermediates from './intermediates';
 import * as IntermediateSymbols from './intermediateSymbols';
 import * as LoweredNodes from '../semanticLowerer/loweredNodes';
 import * as SpecialisedSymbols from '../specialiser/specialisedSymbols';
+import { BuildInFunctions } from '../definitions/buildInFunctions';
 import { BuildInOperators } from '../definitions/buildInOperators';
 import { BuildInTypes } from '../definitions/buildInTypes';
 import { Intermediate } from './intermediates';
@@ -451,6 +452,9 @@ export class IntermediateLowerer
             case SemanticKind.ConditionalGotoStatement:
                 this.lowerConditionalGotoStatement(statement, intermediates);
                 break;
+            case SemanticKind.ArraySetExpression:
+                this.lowerArraySetExpression(statement, intermediates);
+                break;
         }
     }
 
@@ -605,6 +609,9 @@ export class IntermediateLowerer
             case SemanticKind.CallExpression:
                 this.lowerCallExpression(expression, intermediates, targetLocation);
                 break;
+            case SemanticKind.ArrayInstantiationExpression:
+                this.lowerArrayInstantiationExpression(expression, intermediates, targetLocation);
+                break;
             case SemanticKind.FieldExpression:
                 this.lowerFieldExpression(expression, intermediates, targetLocation);
                 break;
@@ -620,7 +627,132 @@ export class IntermediateLowerer
             case SemanticKind.VariableExpression:
                 this.lowerVariableExpression(expression, intermediates, targetLocation);
                 break;
+            case SemanticKind.ArrayGetExpression:
+                this.lowerArrayGetExpression(expression, intermediates, targetLocation);
+                break;
         }
+    }
+
+    private lowerArrayInstantiationExpression (
+        node: LoweredNodes.ArrayInstantiationExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.WritableValue
+    ): void
+    {
+        /* TODO: It would be much preferable to have the array instantiation be lowered in the _semantic_ lowerer like every other
+                 instantiation/new expression. This could be possible by having a constructor on the array class that takes the size
+                 as a parameter and then allocates much like the ":classInitialiser" concept we have currently.
+                 Implementing that is non-trivial though and could be made easier by having most parts of the array be defined inside
+                 a Phosphor source file with special compiler handling of that file, which is not possible yet. */
+
+        // Array memory layout: { length: Integer, data: ElementType[] }
+
+        // Calculate the size.
+
+        const elementSize = this.typeToSize(node.elementType);
+
+        const elementByteSizeVariable = this.generateLocalVariable(IntermediateSize.Native);
+        this.introduceIfNecessary(elementByteSizeVariable, intermediates);
+        intermediates.push(
+            new Intermediates.SizeOf(elementByteSizeVariable, elementSize)
+        );
+
+        const sizeVariable = this.generateLocalVariable(IntermediateSize.Native);
+        this.lowerExpression(node.sizeArgument, intermediates, sizeVariable);
+
+        const dataSizeVariable = this.generateLocalVariable(IntermediateSize.Native);
+        this.introduceIfNecessary(dataSizeVariable, intermediates);
+        intermediates.push(
+            new Intermediates.Move(dataSizeVariable, sizeVariable)
+        );
+
+        intermediates.push(
+            new Intermediates.Multiply(dataSizeVariable, elementByteSizeVariable)
+        );
+
+        const headerSizeVariable = this.generateLocalVariable(IntermediateSize.Native);
+        this.introduceIfNecessary(headerSizeVariable, intermediates);
+        intermediates.push(
+            new Intermediates.SizeOf(headerSizeVariable, IntermediateSize.Native)
+        );
+
+        intermediates.push(
+            new Intermediates.Add(dataSizeVariable, headerSizeVariable)
+        );
+
+        // Call the allocate function.
+
+        const allocateFunctionSymbol = this.functionSymbolMap.get(BuildInFunctions.allocate.namespace.qualifiedName);
+        if (allocateFunctionSymbol === undefined)
+        {
+            throw new Error(
+                'Intermediate Lowerer error: Function "Standard.Memory~allocate" used before declaration.'
+            );
+        }
+
+        const parameter = this.generateParameter(IntermediateSize.Native, 0);
+        intermediates.push(
+            new Intermediates.Give(parameter, dataSizeVariable)
+        );
+
+        intermediates.push(
+            new Intermediates.Call(allocateFunctionSymbol)
+        );
+
+        this.introduceIfNecessary(targetLocation, intermediates);
+
+        const returnValue = new IntermediateSymbols.ReturnValue(0, IntermediateSize.Pointer);
+        intermediates.push(
+            new Intermediates.Take(targetLocation, returnValue)
+        );
+
+        // Store the length in the array object.
+
+        const arrayStructureSymbol = BuildInTypes.createArrayIntermediateStructureSymbol();
+        const lengthFieldSymbol = arrayStructureSymbol.fields[0]; // The length field is at index 0.
+
+        intermediates.push(
+            new Intermediates.StoreField(sizeVariable, arrayStructureSymbol, targetLocation, lengthFieldSymbol)
+        );
+    }
+
+    private lowerArrayGetExpression (
+        node: LoweredNodes.ArrayGetExpression,
+        intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.WritableValue
+    ): void
+    {
+        const arrayVariable = this.generateLocalVariable(IntermediateSize.Pointer);
+        this.lowerExpression(node.array, intermediates, arrayVariable);
+
+        const indexVariable = this.generateLocalVariable(IntermediateSize.Native);
+        this.lowerExpression(node.index, intermediates, indexVariable);
+
+        const elementSize = this.typeToSize(node.type);
+
+        this.introduceIfNecessary(targetLocation, intermediates);
+
+        intermediates.push(
+            new Intermediates.ArrayLoad(targetLocation, arrayVariable, indexVariable, elementSize)
+        );
+    }
+
+    private lowerArraySetExpression (node: LoweredNodes.ArraySetExpression, intermediates: Intermediate[]): void
+    {
+        const arrayVariable = this.generateLocalVariable(IntermediateSize.Pointer);
+        this.lowerExpression(node.array, intermediates, arrayVariable);
+
+        const indexVariable = this.generateLocalVariable(IntermediateSize.Native);
+        this.lowerExpression(node.index, intermediates, indexVariable);
+
+        const elementSize = this.typeToSize(node.type);
+
+        const valueVariable = this.generateLocalVariable(elementSize);
+        this.lowerExpression(node.value, intermediates, valueVariable);
+
+        intermediates.push(
+            new Intermediates.ArrayStore(arrayVariable, indexVariable, valueVariable, elementSize)
+        );
     }
 
     private lowerSizeOfExpression (
@@ -634,15 +766,16 @@ export class IntermediateLowerer
             throw new Error('Intermediate Lowerer error: Current module is null while lowering a sizeOf expression.');
         }
 
+        this.introduceIfNecessary(targetLocation, intermediates);
+
         if (sizeOfExpression.parameter.namespace.qualifiedName !== this.currentModule.namespace.qualifiedName)
         {
             throw new Error('Intermediate Lowerer error: The sizeOf expression is not implemented for parameters from other modules.');
         }
 
-        this.introduceIfNecessary(targetLocation, intermediates);
-
         if (this.structure === null)
         {
+            // TODO: If not a structure, it's a module, so the size of a module is zero? When could that be needed?
             intermediates.push(
                 new Intermediates.Move(
                     targetLocation,
@@ -741,6 +874,41 @@ export class IntermediateLowerer
     private lowerFieldExpression (
         fieldExpression: LoweredNodes.FieldExpression,
         intermediates: Intermediate[],
+        targetLocation: IntermediateSymbols.WritableValue
+    ): void
+    {
+        if (fieldExpression.field.equals(BuildInTypes.arrayLengthField))
+        {
+            this.lowerArrayFieldExpression(fieldExpression, intermediates, targetLocation);
+        }
+        else
+        {
+            this.lowerObjectFieldExpression(fieldExpression, intermediates, targetLocation);
+        }
+    }
+
+    private lowerArrayFieldExpression (
+        fieldExpression: LoweredNodes.FieldExpression,
+        intermediates: Intermediates.Intermediate[],
+        targetLocation: IntermediateSymbols.WritableValue
+    ): void
+    {
+        const thisReference = this.generateLocalVariable(IntermediateSize.Pointer);
+        this.lowerExpression(fieldExpression.thisReference, intermediates, thisReference);
+
+        this.introduceIfNecessary(targetLocation, intermediates);
+
+        const arrayStructureSymbol = BuildInTypes.createArrayIntermediateStructureSymbol();
+        const lengthField = arrayStructureSymbol.fields[0]; // The length field is at index 0.
+
+        intermediates.push(
+            new Intermediates.LoadField(targetLocation, arrayStructureSymbol, thisReference, lengthField)
+        );
+    }
+
+    private lowerObjectFieldExpression (
+        fieldExpression: LoweredNodes.FieldExpression,
+        intermediates: Intermediates.Intermediate[],
         targetLocation: IntermediateSymbols.WritableValue
     ): void
     {

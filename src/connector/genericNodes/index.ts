@@ -1,6 +1,9 @@
 /* TODO: "GenericNode" is too broad and collides with the concept of generic/specialised trees.
          Find a better way to describe its purpose regarding "SemanticNode"/"LoweredNode"/"SpecialisedNode". */
 
+export { ArrayGetExpressionGenericNode as ArrayGetExpression } from './arrayGetExpressionGenericNode';
+export { ArrayInstantiationExpressionGenericNode as ArrayInstantiationExpression } from './arrayInstantiationExpressionGenericNode';
+export { ArraySetExpressionGenericNode as ArraySetExpression } from './arraySetExpressionGenericNode';
 export { AssignmentGenericNode as Assignment } from './assignmentGenericNode';
 export { BinaryExpressionGenericNode as BinaryExpression } from './binaryExpressionGenericNode';
 export { CallExpressionGenericNode as CallExpression } from './callExpressionGenericNode';
@@ -21,6 +24,9 @@ export { UnaryExpressionGenericNode as UnaryExpression } from './unaryExpression
 export { VariableExpressionGenericNode as VariableExpression } from './variableExpressionGenericNode';
 export { WhileStatementGenericNode as WhileStatement } from './whileStatementGenericNode';
 
+import { ArrayGetExpressionGenericNode } from './arrayGetExpressionGenericNode';
+import { ArrayInstantiationExpressionGenericNode } from './arrayInstantiationExpressionGenericNode';
+import { ArraySetExpressionGenericNode } from './arraySetExpressionGenericNode';
 import { AssignmentGenericNode } from './assignmentGenericNode';
 import { BinaryExpressionGenericNode } from './binaryExpressionGenericNode';
 import { CallExpressionGenericNode } from './callExpressionGenericNode';
@@ -55,7 +61,10 @@ export type GenericNode<
     TypeLikeSymbol,
     ClassTypeSymbol
 > =
-    AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
+    ArrayGetExpressionGenericNode<Expression, TypeLikeSymbol>
+    | ArrayInstantiationExpressionGenericNode<Expression, TypeLikeSymbol>
+    | ArraySetExpressionGenericNode<Expression, TypeLikeSymbol>
+    | AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
     | BinaryExpressionGenericNode<Expression>
     | CallExpressionGenericNode<Expression, TypeLikeSymbol>
     | ElseClauseGenericNode<Section, IfStatement>
@@ -65,7 +74,6 @@ export type GenericNode<
     | FunctionDeclarationGenericNode<Section, TypeLikeSymbol>
     | GlobalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
     | IfStatementGenericNode<Expression, Section, ElseClause>
-    | InstantiationExpressionGenericNode<Expression, TypeLikeSymbol>
     | LiteralExpressionGenericNode<TypeLikeSymbol>
     | LocalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
     | ModuleExpressionGenericNode<ClassTypeSymbol, TypeLikeSymbol>
@@ -76,7 +84,8 @@ export type GenericNode<
     | WhileStatementGenericNode<Expression, Section>;
 
 export type GenericStatement<Expression, Statement, Section, ElseClause, VariableExpression, FieldExpression, TypeLikeSymbol> =
-    AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
+    ArraySetExpressionGenericNode<Expression, TypeLikeSymbol>
+    | AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
     | CallExpressionGenericNode<Expression, TypeLikeSymbol>
     | IfStatementGenericNode<Expression, Section, ElseClause>
     | LocalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
@@ -85,7 +94,9 @@ export type GenericStatement<Expression, Statement, Section, ElseClause, Variabl
     | WhileStatementGenericNode<Expression, Section>;
 
 export type GenericExpression<Expression, TypeLikeSymbol, ClassTypeSymbol> =
-    BinaryExpressionGenericNode<Expression>
+    ArrayGetExpressionGenericNode<Expression, TypeLikeSymbol>
+    | ArrayInstantiationExpressionGenericNode<Expression, TypeLikeSymbol>
+    | BinaryExpressionGenericNode<Expression>
     | CallExpressionGenericNode<Expression, TypeLikeSymbol>
     | FieldExpressionGenericNode<Expression, TypeLikeSymbol>
     | InstantiationExpressionGenericNode<Expression, TypeLikeSymbol>

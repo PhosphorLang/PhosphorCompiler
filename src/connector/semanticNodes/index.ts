@@ -1,6 +1,9 @@
 import * as GenericNodes from '../genericNodes';
 import * as SemanticSymbols from '../semanticSymbols';
 
+export class ArrayGetExpression extends GenericNodes.ArrayGetExpression<Expression, SemanticSymbols.TypeLike> {}
+export class ArrayInstantiationExpression extends GenericNodes.ArrayInstantiationExpression<Expression, SemanticSymbols.TypeLike> {}
+export class ArraySetExpression extends GenericNodes.ArraySetExpression<Expression, SemanticSymbols.TypeLike> {}
 export class Assignment extends GenericNodes.Assignment<Expression, FieldExpression, VariableExpression> {}
 export class BinaryExpression extends GenericNodes.BinaryExpression<Expression> {}
 export class CallExpression extends GenericNodes.CallExpression<Expression, SemanticSymbols.TypeLike> {}
@@ -49,7 +52,8 @@ export type SemanticNode =
     | WhileStatement;
 
 export type Statement =
-    Assignment
+    ArraySetExpression
+    | Assignment
     | CallExpression
     | IfStatement
     | LocalVariableDeclaration
@@ -58,7 +62,10 @@ export type Statement =
     | WhileStatement;
 
 export type Expression =
-    BinaryExpression
+    ArrayGetExpression
+    | ArrayInstantiationExpression
+    | ArraySetExpression // TODO: We should no have this here. It is needed because typing and usage mismatch, which is bad.
+    | BinaryExpression
     | CallExpression
     | FieldExpression
     | InstantiationExpression

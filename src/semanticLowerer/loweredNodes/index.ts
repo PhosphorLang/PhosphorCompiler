@@ -1,6 +1,9 @@
 import * as GenericNode from '../../connector/genericNodes';
 import * as SpecialisedSymbols from '../../specialiser/specialisedSymbols';
 
+export class ArrayGetExpression extends GenericNode.ArrayGetExpression<Expression, SpecialisedSymbols.ConcreteType> {}
+export class ArrayInstantiationExpression extends GenericNode.ArrayInstantiationExpression<Expression, SpecialisedSymbols.ConcreteType> {}
+export class ArraySetExpression extends GenericNode.ArraySetExpression<Expression, SpecialisedSymbols.ConcreteType> {}
 export class Assignment extends GenericNode.Assignment<Expression, FieldExpression, VariableExpression> {}
 export class BinaryExpression extends GenericNode.BinaryExpression<Expression> {}
 export class CallExpression extends GenericNode.CallExpression<Expression, SpecialisedSymbols.ConcreteType> {}
@@ -31,7 +34,10 @@ import { LabelLoweredNode } from './labelLoweredNode';
 import { SizeOfExpressionLoweredNode } from './sizeOfExpressionLoweredNode';
 
 export type LoweredNode =
-    Assignment
+    ArrayGetExpression
+    | ArrayInstantiationExpression
+    | ArraySetExpression
+    | Assignment
     | BinaryExpression
     | CallExpression
     | File
@@ -49,7 +55,8 @@ export type LoweredNode =
     | SizeOfExpressionLoweredNode;
 
 export type Statement =
-    Assignment
+    ArraySetExpression
+    | Assignment
     | CallExpression
     | LocalVariableDeclaration
     | ReturnStatement
@@ -59,7 +66,9 @@ export type Statement =
     | LabelLoweredNode;
 
 export type Expression =
-    BinaryExpression
+    ArrayGetExpression
+    | ArrayInstantiationExpression
+    | BinaryExpression
     | CallExpression
     | FieldExpression
     | LiteralExpression

@@ -789,6 +789,8 @@ export class Connector
                 return this.connectAssignment(statement, context);
             case SyntaxKind.CallExpression:
                 return this.connectCallExpression(statement, context);
+            case SyntaxKind.FreeStatement:
+                return this.connectFreeStatement(statement, context);
             case SyntaxKind.Section:
                 return this.connectSection(statement, context);
             case SyntaxKind.LocalVariableDeclaration:
@@ -965,6 +967,24 @@ export class Connector
         const section = this.connectSection(whileStatement.section, context);
 
         return new SemanticNodes.WhileStatement(condition, section);
+    }
+
+    private connectFreeStatement (freeStatement: SyntaxNodes.FreeStatement, context: FunctionContext): SemanticNodes.FreeStatement
+    {
+        const expression = this.connectExpression(freeStatement.expression, context);
+
+        if (BuildInTypes.isBuildInType(expression.type) && !BuildInTypes.isArray(expression.type))
+        {
+            this.diagnostic.throw(
+                new Diagnostic.Error(
+                    `Cannot free the non-reference type "${expression.type.namespace.baseName}".`,
+                    Diagnostic.Codes.FreeNonReferenceTypeError,
+                    freeStatement.expression.token
+                )
+            );
+        }
+
+        return new SemanticNodes.FreeStatement(expression);
     }
 
     private connectAssignment (assignment: SyntaxNodes.Assignment, context: FunctionContext): SemanticNodes.Assignment

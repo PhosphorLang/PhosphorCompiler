@@ -42,4 +42,17 @@ export abstract class BuildInFunctions
         null,
         true
     );
+
+    public static readonly free = new SpecialisedSymbols.Function(
+        Namespace.constructFromStrings('Standard', 'Memory', 'free'),
+        BuildInTypes.noType,
+        [
+            new SpecialisedSymbols.FunctionParameter(
+                Namespace.constructFromStrings('Standard', 'Memory', 'free', 'pointer'),
+                BuildInTypes.pointer
+            )
+        ],
+        null,
+        true
+    );
 }

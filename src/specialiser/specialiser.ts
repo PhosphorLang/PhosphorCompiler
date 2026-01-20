@@ -781,6 +781,8 @@ export class Specialiser
                 return this.specialiseArraySetExpression(statement);
             case SemanticKind.WhileStatement:
                 return this.specialiseWhileStatement(statement);
+            case SemanticKind.FreeStatement:
+                return this.specialiseFreeStatement(statement);
         }
     }
 
@@ -837,6 +839,13 @@ export class Specialiser
         const specialisedSection = this.specialiseSection(whileStatement.section);
 
         return new SpecialisedNodes.WhileStatement(specialisedCondition, specialisedSection);
+    }
+
+    private specialiseFreeStatement (freeStatement: SemanticNodes.FreeStatement): SpecialisedNodes.FreeStatement
+    {
+        const specialisedExpression = this.specialiseExpression(freeStatement.expression);
+
+        return new SpecialisedNodes.FreeStatement(specialisedExpression);
     }
 
     private specialiseLocalVariableDeclaration (

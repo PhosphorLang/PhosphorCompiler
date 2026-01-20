@@ -20,6 +20,7 @@ export enum SyntaxKind
     ReturnStatement = 'ReturnStatement',
     IfStatement = 'IfStatement',
     WhileStatement = 'WhileStatement',
+    FreeStatement = 'FreeStatement',
     // Expressions
     AccessExpression = 'AccessExpression',
     UnaryExpression = 'UnaryExpression',

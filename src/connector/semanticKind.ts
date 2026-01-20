@@ -16,6 +16,7 @@ export enum SemanticKind
     LocalVariableDeclaration = 'LocalVariableDeclaration',
     GlobalVariableDeclaration = 'GlobalVariableDeclaration',
     FieldDeclaration = 'FieldDeclaration',
+    FreeStatement = 'FreeStatement',
     // Expressions
     LiteralExpression = 'LiteralExpression',
     InstantiationExpression = 'InstantiationExpression',

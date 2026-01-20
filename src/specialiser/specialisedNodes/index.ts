@@ -17,6 +17,7 @@ export class File extends GenericNodes.File<
     SpecialisedSymbols.ConcreteType,
     SpecialisedSymbols.ConcreteType
 > {}
+export class FreeStatement extends GenericNodes.FreeStatement<Expression> {}
 export class FunctionDeclaration extends GenericNodes.FunctionDeclaration<Section, SpecialisedSymbols.ConcreteType> {}
 export class GlobalVariableDeclaration extends GenericNodes.GlobalVariableDeclaration<Expression, SpecialisedSymbols.ConcreteType> {}
 export class IfStatement extends GenericNodes.IfStatement<Expression, Section, ElseClause> {}
@@ -40,6 +41,7 @@ export type SpecialisedNode = // TODO: Rename to "Node"?
     | ElseClause
     | FieldExpression
     | File
+    | FreeStatement
     | FunctionDeclaration
     | GlobalVariableDeclaration
     | FieldDeclaration
@@ -58,6 +60,7 @@ export type Statement =
     ArraySetExpression
     | Assignment
     | CallExpression
+    | FreeStatement
     | IfStatement
     | LocalVariableDeclaration
     | ReturnStatement

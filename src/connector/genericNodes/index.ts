@@ -11,6 +11,7 @@ export { ElseClauseGenericNode as ElseClause } from './elseClauseGenericNode';
 export { FieldDeclarationGenericNode as FieldDeclaration } from './fieldDeclarationGenericNode';
 export { FieldExpressionGenericNode as FieldExpression } from './fieldExpressionGenericNode';
 export { FileGenericNode as File } from './fileGenericNode';
+export { FreeStatementGenericNode as FreeStatement } from './freeStatementGenericNode';
 export { FunctionDeclarationGenericNode as FunctionDeclaration } from './functionDeclarationGenericNode';
 export { GlobalVariableDeclarationGenericNode as GlobalVariableDeclaration } from './globalVariableDeclarationGenericNode';
 export { IfStatementGenericNode as IfStatement } from './ifStatementGenericNode';
@@ -34,6 +35,7 @@ import { ElseClauseGenericNode } from './elseClauseGenericNode';
 import { FieldDeclarationGenericNode } from './fieldDeclarationGenericNode';
 import { FieldExpressionGenericNode } from './fieldExpressionGenericNode';
 import { FileGenericNode } from './fileGenericNode';
+import { FreeStatementGenericNode } from './freeStatementGenericNode';
 import { FunctionDeclarationGenericNode } from './functionDeclarationGenericNode';
 import { GlobalVariableDeclarationGenericNode } from './globalVariableDeclarationGenericNode';
 import { IfStatementGenericNode } from './ifStatementGenericNode';
@@ -71,6 +73,7 @@ export type GenericNode<
     | FieldDeclarationGenericNode<Expression, TypeLikeSymbol>
     | FieldExpressionGenericNode<Expression, TypeLikeSymbol>
     | FileGenericNode<GlobalVariableDeclaration, FieldDeclaration, FunctionDeclaration, ClassTypeSymbol, TypeLikeSymbol>
+    | FreeStatementGenericNode<Expression>
     | FunctionDeclarationGenericNode<Section, TypeLikeSymbol>
     | GlobalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
     | IfStatementGenericNode<Expression, Section, ElseClause>
@@ -87,6 +90,7 @@ export type GenericStatement<Expression, Statement, Section, ElseClause, Variabl
     ArraySetExpressionGenericNode<Expression, TypeLikeSymbol>
     | AssignmentGenericNode<Expression, FieldExpression, VariableExpression>
     | CallExpressionGenericNode<Expression, TypeLikeSymbol>
+    | FreeStatementGenericNode<Expression>
     | IfStatementGenericNode<Expression, Section, ElseClause>
     | LocalVariableDeclarationGenericNode<Expression, TypeLikeSymbol>
     | ReturnStatementGenericNode<Expression>

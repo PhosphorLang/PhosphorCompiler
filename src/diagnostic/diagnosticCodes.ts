@@ -76,6 +76,7 @@ export enum DiagnosticCodes // TODO: Should this be singular?
     UnexpectedTokenInGenericsDeclarationError = 'E1077',
     NonGenericTypeIsUsedAsGenericTypeError = 'E1078',
     UnknownArrayAccessError = 'E1079',
+    FreeNonReferenceTypeError = 'E1080',
     // Warnings:
     ExperimentalPlatformWarning = 'W1001',
     // Infos:

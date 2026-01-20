@@ -646,6 +646,9 @@ export class Parser
             case TokenKind.WhileKeyword:
                 result = this.parseWhileStatement();
                 break;
+            case TokenKind.FreeKeyword:
+                result = this.parseFreeStatement();
+                break;
             case TokenKind.IdentifierToken:
             {
                 if (this.getFollowerToken().kind == TokenKind.AssignmentOperator)
@@ -844,6 +847,14 @@ export class Parser
         }
 
         return new SyntaxNodes.WhileStatement(keyword, condition, section);
+    }
+
+    private parseFreeStatement (): SyntaxNodes.FreeStatement
+    {
+        const keyword = this.consumeNextToken();
+        const expression = this.parseExpression();
+
+        return new SyntaxNodes.FreeStatement(keyword, expression);
     }
 
     private parseAssignment (): SyntaxNodes.Assignment

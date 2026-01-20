@@ -6,6 +6,7 @@ export { CallExpressionSyntaxNode as CallExpression } from './callExpressionSynt
 export { ElseClauseSyntaxNode as ElseClause } from './elseClauseSyntaxNode';
 export { FieldVariableDeclarationSyntaxNode as FieldVariableDeclaration } from './fieldVariableDeclarationSyntaxNode';
 export { FileSyntaxNode as File } from './fileSyntaxNode';
+export { FreeStatementSyntaxNode as FreeStatement } from './freeStatementSyntaxNode';
 export { FunctionDeclarationSyntaxNode as FunctionDeclaration } from './functionDeclarationSyntaxNode';
 export { FunctionParameterSyntaxNode as FunctionParameter } from './functionParameterSyntaxNode';
 export { GenericParameterSyntaxNode as GenericParameter } from './genericParameterSyntaxNode';
@@ -32,6 +33,7 @@ import { BracketedExpressionSyntaxNode } from './bracketedExpressionSyntaxNode';
 import { CallExpressionSyntaxNode } from './callExpressionSyntaxNode';
 import { ElseClauseSyntaxNode } from './elseClauseSyntaxNode';
 import { FileSyntaxNode } from './fileSyntaxNode';
+import { FreeStatementSyntaxNode } from './freeStatementSyntaxNode';
 import { FunctionDeclarationSyntaxNode } from './functionDeclarationSyntaxNode';
 import { FunctionParameterSyntaxNode } from './functionParameterSyntaxNode';
 import { GenericParameterSyntaxNode } from './genericParameterSyntaxNode';
@@ -59,6 +61,7 @@ export type SyntaxNode =
     | CallExpressionSyntaxNode
     | ElseClauseSyntaxNode
     | FileSyntaxNode
+    | FreeStatementSyntaxNode
     | FunctionDeclarationSyntaxNode
     | FunctionParameterSyntaxNode
     | GenericParameterSyntaxNode
@@ -82,6 +85,7 @@ export type Statement =
     AccessExpressionSyntaxNode
     | AssignmentSyntaxNode
     | CallExpressionSyntaxNode
+    | FreeStatementSyntaxNode
     | IfStatementSyntaxNode
     | LocalVariableDeclarationSyntaxNode
     | ReturnStatementSyntaxNode

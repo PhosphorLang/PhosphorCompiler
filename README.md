@@ -42,11 +42,11 @@ function main ()
 You need the following present on your system:
 
 - For all target platforms:
-    - [Node.js](https://nodejs.org/) >= 18.12.1
+    - [Node.js](https://nodejs.org/) >= 20.19.0 and < 23.0.0
 - Linux Amd64:
     - [LLVM](https://llvm.org/) = 14.0.0
-    - [GNU x86_64-linux-gnu-as](https://www.gnu.org/software/binutils/) >= 2.38
-    - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.38
+    - [GNU x86_64-linux-gnu-as](https://www.gnu.org/software/binutils/) >= 2.42
+    - [GNU ld](https://www.gnu.org/software/binutils/) >= 2.42
 
 ### **Compile the compiler**
 
@@ -103,11 +103,14 @@ Removed target platforms:
 1. Connector (Frontend)
     - Converts a syntax tree into a semantic tree by semantic analysis.
     - Result: Semantic tree
+1. Specialiser (Middleend)
+    - Specialises generic functions and types in the semantic tree.
+    - Result: Specialised tree
 1. Semantic Lowerer (Middleend)
-    - Lowers the complex semantic tree into a simpler set of semantic nodes (i.e. desugaring).
+    - Lowers the complex specialised tree into a simpler set of semantic nodes (i.e. desugaring).
     - Result: Lowered tree
 1. Intermediate Lowerer (Middleend)
-    - Further lowers the lowered (semantic) tree into intermediate code which only consists of instructions.
+    - Further lowers the lowered (semantic) tree into intermediate code which only contains definitions and flattened statements (i.e. without nesting).
     - Result: Intermediate code
 1. Transpiler (Backend)
     - Transpiles the intermediate code into platform specific Assembly.
@@ -123,4 +126,4 @@ Removed target platforms:
 
 You can find a full example of all features [here](/examples/everything/everything.ph).
 
-More example are in the [examples directory](/examples/);
+More examples are in the [examples directory](/examples/);

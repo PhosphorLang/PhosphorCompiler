@@ -411,6 +411,9 @@ export class Lexer
             case 'new':
                 kind = TokenKind.NewKeyword;
                 break;
+            case 'free':
+                kind = TokenKind.FreeKeyword;
+                break;
             case 'variable':
                 kind = TokenKind.VariableKeyword;
                 break;

@@ -392,7 +392,8 @@ export default class SemanticLowerer
                 return [this.lowerSection(statement)];
             case SemanticKind.WhileStatement:
                 return this.lowerWhileStatement(statement);
-
+            case SemanticKind.FreeStatement:
+                return [this.lowerFreeStatement(statement)];
         }
     }
 
@@ -524,6 +525,28 @@ export default class SemanticLowerer
             startLabelGoto,
             endLabel,
         ];
+    }
+
+    private lowerFreeStatement (freeStatement: SpecialisedNodes.FreeStatement): LoweredNodes.CallExpression
+    {
+        /* Freeing of an object
+         * Lowers a free statement by reference to a function call that frees the object.
+
+            free object;
+
+            -->
+
+            free(object)
+        */
+
+        this.importBuildInModuleIfNeeded(BuildInModules.memory);
+
+        const objectExpression = this.lowerExpression(freeStatement.expression);
+
+        const freeFunctionSymbol = BuildInFunctions.free;
+        const callExpression = new LoweredNodes.CallExpression(freeFunctionSymbol, [objectExpression], null, freeFunctionSymbol.returnType);
+
+        return callExpression;
     }
 
     private lowerAssignment (assignment: SpecialisedNodes.Assignment): LoweredNodes.Assignment

@@ -24,7 +24,8 @@ export abstract class BuildInModules
         new Map(),
         new Map(
             [
-                [BuildInFunctions.allocate.namespace.qualifiedName, BuildInFunctions.allocate]
+                [BuildInFunctions.allocate.namespace.qualifiedName, BuildInFunctions.allocate],
+                [BuildInFunctions.free.namespace.qualifiedName, BuildInFunctions.free]
             ]
         ),
         false
